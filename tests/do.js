@@ -21,15 +21,26 @@ const getSizes = async (
 };
 
 const spawnServer = size => {
+  const userData = [
+    'sleep 30',
+    'sudo apt update',
+    'apt install -y git nodejs npm',
+    'npm i -g yarn',
+    'cd /root/',
+    'git clone https://github.com/bken-io/video',
+    'node tests/server.js',
+  ].join(' && ');
+
+  console.log('userData', userData);
+
   return axios.post('https://api.digitalocean.com/v2/droplets', {
     size,
     name: 'video-compression-tester',
     region: 'nyc3',
     image: 'ubuntu-18-04-x64',
     ssh_keys: ['26:e4:37:18:61:e9:29:76:20:68:e1:7f:eb:49:07:2e'],
-    user_data:
-      'sleep 30 && sudo apt update && sudo apt install git && touch /root/brendan-was-here',
-    tags: ['testing'],
+    user_data: userData,
+    tags: ['ssh', 'http'],
   });
 };
 
