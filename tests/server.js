@@ -15,44 +15,48 @@ app.get('/', (req, res) => {
 });
 
 app.get('/convert', async (req, res) => {
-  if (!req.query.url) {
-    return res.status(400).send({ message: 'invalid url' });
-  }
-
-  if (isProcessing) {
-    res.status(429).send({
-      message: 'server busy',
-    });
-  } else {
-    isProcessing = true;
-    res.status(200).send({
-      message: 'started running tests',
-    });
-
-    console.log('Converting video');
-    const videoPath = await download(req.query.url);
-    const conversion = await new convert(videoPath)
-      .add('-y')
-      .add('-progress -')
-      .add('-c:v libx264')
-      .add('-preset veryfast')
-      .add('-profile:v high')
-      .add('-crf 22')
-      .add('-coder 1')
-      .add('-pix_fmt yuv420p')
-      .add('-movflags +faststart')
-      .add('-bf 2')
-      .add('-c:a aac')
-      .add('-ac 2')
-      .add('-b:a 192K')
-      .add('-ar 48000')
-      .add('-profile:a aac_low')
-      .add('./data/export/legend-convert.mp4')
-      .process();
-
-    console.log('Conversion Complete', conversion);
-    isProcessing = false;
-    console.log(`is processing? : ${isProcessing}`);
+  try {
+    if (!req.query.url) {
+      return res.status(400).send({ message: 'invalid url' });
+    }
+  
+    if (isProcessing) {
+      res.status(429).send({
+        message: 'server busy',
+      });
+    } else {
+      isProcessing = true;
+      res.status(200).send({
+        message: 'started running tests',
+      });
+  
+      const { fileDir, sourcePath } = await download(req.query.url);
+      const conversion = await new convert(sourcePath)
+        .add('-y')
+        .add('-progress -')
+        .add('-c:v libx264')
+        .add('-preset veryfast')
+        .add('-profile:v high')
+        .add('-crf 22')
+        .add('-coder 1')
+        .add('-pix_fmt yuv420p')
+        .add('-movflags +faststart')
+        .add('-bf 2')
+        .add('-c:a aac')
+        .add('-ac 2')
+        .add('-b:a 192K')
+        .add('-ar 48000')
+        .add('-profile:a aac_low')
+        .add(`${fileDir}/converted.mp4`)
+        .process();
+  
+      console.log('Conversion Complete', conversion);
+      isProcessing = false;
+      console.log(`is processing? : ${isProcessing}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 });
 
