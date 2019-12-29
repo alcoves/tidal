@@ -21,14 +21,11 @@ const getSizes = async (
 };
 
 const bashInit = [
-  'touch /root/test1',
   'sleep 30',
   'apt update',
-  'touch /root/test2',
-  'apt install -y git nodejs npm',
+  'apt install -y git nodejs npm ffmpeg',
   'npm i -g yarn',
-  'touch /root/test3',
-  'cd /root/',
+  'cd /root',
   'git clone https://github.com/bken-io/video',
   'cd video',
   'yarn',
