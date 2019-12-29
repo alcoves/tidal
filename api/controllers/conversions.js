@@ -1,36 +1,21 @@
 const fs = require('fs-extra');
-const express = require('express');
 const convert = require('../lib/convert');
 const download = require('../lib/download');
 
-const app = express();
-const port = 4000;
-
 let isProcessing = false;
 
-app.get('/', (req, res) => {
-  res.status(200).send({
-    message: 'server is online',
-  });
-});
-
-app.get('/convert', async (req, res) => {
+exports.createVideo = async (req, res) => {
   try {
-    if (!req.query.url) {
-      return res.status(400).send({ message: 'invalid url' });
+    if (!req.params.id) {
+      return res.status(400).send({ message: 'videoId cannot be null' });
     }
-  
+
     if (isProcessing) {
-      res.status(429).send({
-        message: 'server busy',
-      });
+      res.status(429).send({ message: 'server busy' });
     } else {
       isProcessing = true;
-      res.status(200).send({
-        message: 'started running tests',
-      });
-  
-      const { fileDir, sourcePath } = await download(req.query.url);
+
+      const { fileDir, sourcePath } = await download(req.params.id);
       const conversion = await new convert(sourcePath)
         .add('-y')
         .add('-progress -')
@@ -49,26 +34,18 @@ app.get('/convert', async (req, res) => {
         .add('-profile:a aac_low')
         .add(`${fileDir}/converted.mp4`)
         .process();
-  
+
+      console.log(fileDir);
+      // await fs.remove(fileDir);
+
       console.log('Conversion Complete', conversion);
       isProcessing = false;
       console.log(`is processing? : ${isProcessing}`);
+      res.status(200).send();
     }
   } catch (error) {
+    isProcessing = false;
     console.error(error);
-    throw error;
+    res.status(500).send({ error: JSON.stringify(error) });
   }
-});
-
-app.get('/stats', async (req, res) => {
-  if (isProcessing) {
-    res.status(429).send({ message: 'busy' });
-  } else {
-    res.status(200).send({
-      message: 'stats',
-      payload: JSON.parse(await fs.readFile(resultPath)),
-    });
-  }
-});
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+};

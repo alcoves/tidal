@@ -29,6 +29,7 @@ const bashInit = [
   'git clone https://github.com/bken-io/video',
   'cd video',
   'yarn',
+  'yarn global add pm2',
   'node tests/server.js',
 ].join(' && ');
 
