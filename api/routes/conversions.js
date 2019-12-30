@@ -3,6 +3,7 @@ const c = require('../controllers/conversions');
 
 const router = express.Router();
 
+router.post('/videos/:id/custom', c.createCustomConversion);
 router.post('/videos/:id', c.createVideo);
 
 module.exports = router;
