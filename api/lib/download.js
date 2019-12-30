@@ -8,11 +8,11 @@ const apiUrl = 'http://localhost:3000';
 module.exports = async (videoId) => {
   return new Promise(async (resolve, reject) => {
     console.log(`Downloading video: ${videoId}`);
-    const fileDir = path.resolve(`./tmp/${uuid()}`);
-    await fs.mkdirp(fileDir);
+    const sourceDir = path.resolve(`./tmp/${uuid()}`);
+    await fs.mkdirp(sourceDir);
 
     try {
-      const sourcePath = path.resolve(`${fileDir}/source.mp4`);
+      const sourcePath = path.resolve(`${sourceDir}/source.mp4`);
       const writer = fs.createWriteStream(sourcePath);
 
       const { data } = await axios.get(`${apiUrl}/videos/${videoId}`);
@@ -27,11 +27,11 @@ module.exports = async (videoId) => {
       writer.on('error', reject);
       writer.on('finish', () => {
         console.log('Downloading complete');
-        resolve({ sourcePath, fileDir });
+        resolve({ sourceDir, sourcePath });
       });
     } catch (error) {
       console.error(error);
-      await fs.remove(fileDir);
+      await fs.remove(sourceDir);
     }
   });
 };
