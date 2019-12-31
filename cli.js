@@ -33,6 +33,8 @@ const { request } = require('./lib/api');
 
           await new convert(videoId, sourcePath)
             .pre('-ss 00:00:00')
+            .add('-hide_banner')
+            .add('-loglevel panic')
             .add('-y')
             .add('-progress -')
             .add('-vframes 1')
@@ -104,6 +106,8 @@ const { request } = require('./lib/api');
 
           await new convert(videoId, sourcePath)
             .add('-y')
+            .add('-hide_banner')
+            .add('-loglevel panic')
             .add('-progress -')
             .add('-c:v libx264')
             .add('-preset veryfast')
