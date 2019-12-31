@@ -4,10 +4,11 @@ const fs = require('fs-extra');
 const convert = require('./lib/convert');
 const download = require('./lib/download');
 
+const { exec } = require('child_process');
 const { request } = require('./lib/api');
 
 (async () => {
-  const { type, preset, id: videoId } = require('yargs').argv;
+  const { type, preset, terminate, id: videoId } = require('yargs').argv;
 
   switch (type) {
     case 'video':
@@ -134,5 +135,9 @@ const { request } = require('./lib/api');
       break;
     default:
       throw new Error(`unspecified type, ${type}`);
+  }
+
+  if (terminate && process.env.NODE_ENV === 'production') {
+    exec(`scripts/terminate.sh ${process.env.DO_API_KEY}`);
   }
 })();
