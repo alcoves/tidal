@@ -1,9 +1,10 @@
 require('dotenv').config();
 
 const fs = require('fs-extra');
-const api = require('./lib/api');
 const convert = require('./lib/convert');
 const download = require('./lib/download');
+
+const { request } = require('./lib/api');
 
 (async () => {
   const { type, preset, id: videoId } = require('yargs').argv;
@@ -16,7 +17,7 @@ const download = require('./lib/download');
             `converting ${type} with preset ${preset} and id ${videoId}`
           );
 
-          await api({
+          await request({
             method: 'patch',
             url: `/videos/${videoId}`,
             data: { status: 'processing' },
@@ -118,7 +119,7 @@ const download = require('./lib/download');
             .add('-profile:a aac_low')
             .process('source.mp4');
 
-          await api({
+          await request({
             method: 'patch',
             url: `/videos/${videoId}`,
             data: { status: 'completed' },
