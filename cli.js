@@ -102,6 +102,27 @@ const { request } = require('./lib/api');
               .process('1440p.mp4');
           }
 
+          if (width >= 3840) {
+            await new convert(videoId, sourcePath)
+              .add('-y')
+              .add('-progress -')
+              .add('-c:v libx264')
+              .add('-preset veryfast')
+              .add('-profile:v high')
+              .add('-vf scale=2560:-2')
+              .add('-crf 26')
+              .add('-coder 1')
+              .add('-pix_fmt yuv420p')
+              .add('-movflags +faststart')
+              .add('-bf 2')
+              .add('-c:a aac')
+              .add('-ac 2')
+              .add('-b:a 192K')
+              .add('-ar 48000')
+              .add('-profile:a aac_low')
+              .process('2160p.mp4');
+          }
+
           await new convert(videoId, sourcePath)
             .add('-y')
             .add('-progress -')
