@@ -25,11 +25,7 @@ const { request } = require('./lib/api');
           });
 
           const { sourceDir, sourcePath } = await download(videoId);
-
-          const { height, width } = await new convert(
-            videoId,
-            sourcePath
-          ).metadata();
+          const { width } = await new convert(videoId, sourcePath).metadata();
 
           await new convert(videoId, sourcePath)
             .pre('-ss 00:00:00')
