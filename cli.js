@@ -21,9 +21,9 @@ const { request } = require('./lib/api');
       });
 
       const { sourceDir, sourcePath } = await download(videoId);
-      const { width } = await new convert(videoId, sourcePath).metadata();
+      const { width } = await new convert({ videoId, sourcePath }).metadata();
 
-      await new convert(videoId, sourcePath)
+      await new convert({ videoId, sourcePath, thumbnail: true })
         .pre('-ss 00:00:00')
         .add('-y')
         .add('-progress -')
@@ -32,7 +32,7 @@ const { request } = require('./lib/api');
         .process('thumbnail.jpg');
 
       if (width >= 1280) {
-        await new convert(videoId, sourcePath)
+        await new convert({ videoId, sourcePath })
           .add('-y')
           .add('-progress -')
           .add('-c:v libx264')
@@ -53,7 +53,7 @@ const { request } = require('./lib/api');
       }
 
       if (width >= 1920) {
-        await new convert(videoId, sourcePath)
+        await new convert({ videoId, sourcePath })
           .add('-y')
           .add('-progress -')
           .add('-c:v libx264')
@@ -74,7 +74,7 @@ const { request } = require('./lib/api');
       }
 
       if (width >= 2560) {
-        await new convert(videoId, sourcePath)
+        await new convert({ videoId, sourcePath })
           .add('-y')
           .add('-progress -')
           .add('-c:v libx264')
@@ -95,7 +95,7 @@ const { request } = require('./lib/api');
       }
 
       if (width >= 3840) {
-        await new convert(videoId, sourcePath)
+        await new convert({ videoId, sourcePath })
           .add('-y')
           .add('-progress -')
           .add('-c:v libx264')
@@ -115,7 +115,7 @@ const { request } = require('./lib/api');
           .process('2160p.mp4');
       }
 
-      await new convert(videoId, sourcePath)
+      await new convert({ videoId, sourcePath })
         .add('-y')
         .add('-progress -')
         .add('-c:v libx264')
@@ -151,7 +151,7 @@ const { request } = require('./lib/api');
       const sourcePath =
         'https://s3.us-east-2.wasabisys.com/media-bken/5e0d6bf61dc5fc77ca5dd3e0/source.mp4';
 
-      await new convert(videoId, sourcePath)
+      await new convert({ videoId, sourcePath })
         .add('-y')
         .add('-progress -')
         .add('-c:v libx264')
