@@ -122,7 +122,7 @@ const main = async () => {
             .add('-c:v libx264')
             .add('-preset veryfast')
             .add('-profile:v high')
-            .add('-vf scale=2560:-2')
+            .add('-vf scale=3840:-2')
             .add('-crf 26')
             .add('-coder 1')
             .add('-pix_fmt yuv420p')
