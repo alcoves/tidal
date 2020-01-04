@@ -30,15 +30,20 @@ const main = async () => {
           .pre('-ss 00:00:00')
           .add('-y')
           .add('-progress -')
+          .add('-vf scale=720:-2')
           .add('-vframes 1')
-          .add('-q:v 3')
+          .add('-q:v 6')
           .process('thumbnail.jpg');
 
-        await new convert({ videoId, sourcePath })
+        const { sourcePath: highQualitySourcePath } = await new convert({
+          videoId,
+          sourcePath,
+          skipDelete: true,
+        })
           .add('-y')
           .add('-progress -')
           .add('-c:v libx264')
-          .add('-preset veryfast')
+          .add('-preset medium')
           .add('-profile:v high')
           .add('-crf 22')
           .add('-coder 1')
@@ -53,12 +58,13 @@ const main = async () => {
           .process('highQuality.mp4');
 
         if (width >= 1280) {
-          await new convert({ videoId, sourcePath })
+          await new convert({ videoId, sourcePath: highQualitySourcePath })
             .add('-y')
             .add('-progress -')
             .add('-c:v libx264')
-            .add('-preset veryfast')
+            .add('-preset medium')
             .add('-profile:v high')
+            .add('-tune zerolatency')
             .add('-vf scale=1280:-2')
             .add('-crf 26')
             .add('-coder 1')
@@ -74,12 +80,13 @@ const main = async () => {
         }
 
         if (width >= 1920) {
-          await new convert({ videoId, sourcePath })
+          await new convert({ videoId, sourcePath: highQualitySourcePath })
             .add('-y')
             .add('-progress -')
             .add('-c:v libx264')
-            .add('-preset veryfast')
+            .add('-preset medium')
             .add('-profile:v high')
+            .add('-tune zerolatency')
             .add('-vf scale=1920:-2')
             .add('-crf 26')
             .add('-coder 1')
@@ -95,12 +102,13 @@ const main = async () => {
         }
 
         if (width >= 2560) {
-          await new convert({ videoId, sourcePath })
+          await new convert({ videoId, sourcePath: highQualitySourcePath })
             .add('-y')
             .add('-progress -')
             .add('-c:v libx264')
-            .add('-preset veryfast')
+            .add('-preset medium')
             .add('-profile:v high')
+            .add('-tune zerolatency')
             .add('-vf scale=2560:-2')
             .add('-crf 26')
             .add('-coder 1')
@@ -116,12 +124,13 @@ const main = async () => {
         }
 
         if (width >= 3840) {
-          await new convert({ videoId, sourcePath })
+          await new convert({ videoId, sourcePath: highQualitySourcePath })
             .add('-y')
             .add('-progress -')
             .add('-c:v libx264')
-            .add('-preset veryfast')
+            .add('-preset medium')
             .add('-profile:v high')
+            .add('-tune zerolatency')
             .add('-vf scale=3840:-2')
             .add('-crf 26')
             .add('-coder 1')
