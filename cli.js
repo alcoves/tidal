@@ -34,6 +34,24 @@ const main = async () => {
           .add('-q:v 3')
           .process('thumbnail.jpg');
 
+        await new convert({ videoId, sourcePath })
+          .add('-y')
+          .add('-progress -')
+          .add('-c:v libx264')
+          .add('-preset veryfast')
+          .add('-profile:v high')
+          .add('-crf 22')
+          .add('-coder 1')
+          .add('-pix_fmt yuv420p')
+          .add('-movflags +faststart')
+          .add('-bf 2')
+          .add('-c:a aac')
+          .add('-ac 2')
+          .add('-b:a 192K')
+          .add('-ar 48000')
+          .add('-profile:a aac_low')
+          .process('highQuality.mp4');
+
         if (width >= 1280) {
           await new convert({ videoId, sourcePath })
             .add('-y')
@@ -117,24 +135,6 @@ const main = async () => {
             .add('-profile:a aac_low')
             .process('2160p.mp4');
         }
-
-        await new convert({ videoId, sourcePath })
-          .add('-y')
-          .add('-progress -')
-          .add('-c:v libx264')
-          .add('-preset veryfast')
-          .add('-profile:v high')
-          .add('-crf 22')
-          .add('-coder 1')
-          .add('-pix_fmt yuv420p')
-          .add('-movflags +faststart')
-          .add('-bf 2')
-          .add('-c:a aac')
-          .add('-ac 2')
-          .add('-b:a 192K')
-          .add('-ar 48000')
-          .add('-profile:a aac_low')
-          .process('highQuality.mp4');
 
         await request({
           method: 'patch',
