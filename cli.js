@@ -23,7 +23,8 @@ const terminateServer = require('./lib/terminateServer');
   } catch (error) {
     console.error('Error', error);
     await axios.post(process.env.DISCORD_WEBHOOK_URL, {
-      message: 'test',
+      content: JSON.stringify(error),
+      username: 'Video Processing Error Bot',
     });
   } finally {
     terminateServer();
