@@ -22,6 +22,9 @@ const terminateServer = require('./lib/terminateServer');
     await runJob(args);
   } catch (error) {
     console.error('Error', error);
+    await axios.post(process.env.DISCORD_WEBHOOK_URL, {
+      message: 'test',
+    });
   } finally {
     terminateServer();
   }
