@@ -10,8 +10,8 @@ AWS.config.update({
   },
 });
 
-const s3 = new AWS.S3({
-  endpoint: new AWS.Endpoint('s3.us-east-2.wasabisys.com'),
-});
+// s3.us-east-2.wasabisys.com
+const endpoint = new AWS.Endpoint('s3.wasabisys.com');
+const s3 = new AWS.S3({ endpoint });
 
 module.exports = s3;
