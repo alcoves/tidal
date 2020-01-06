@@ -23,8 +23,9 @@ const terminateServer = require('./lib/terminateServer');
     await runJob(args);
   } catch (error) {
     console.error('Error', error);
+    const errJson = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
     await axios.post(process.env.DISCORD_WEBHOOK_URL, {
-      content: JSON.stringify(error),
+      content: `\`\`\`json\n${errJson}\`\`\``,
       username: 'Video Processing Error Bot',
     });
   } finally {
