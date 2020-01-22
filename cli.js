@@ -5,25 +5,7 @@ const logger = require('./lib/logger');
 const runJob = require('./lib/runJob');
 const terminateServer = require('./lib/terminateServer');
 
-const onDeathError = async (error) => {
-  try {
-    logger.error(error);
-    let errJson;
-
-    try {
-      errJson = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
-    } catch (error) {
-      errJson = JSON.stringify(error);
-    }
-
-    await axios.post(process.env.DISCORD_WEBHOOK_URL, {
-      content: `\`\`\`json\n${errJson}\`\`\``,
-      username: 'Video Processing Error Bot',
-    });
-  } catch (error) {
-    return 'there was an error but we could not handle it';
-  }
-};
+process.on('unhandledRejection', () => terminateServer());
 
 (async () => {
   const args = require('yargs')
@@ -43,7 +25,12 @@ const onDeathError = async (error) => {
   try {
     await runJob(args);
   } catch (error) {
-    await onDeathError(error);
+    logger.error(error);
+    const errJson = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+    await axios.post(process.env.DISCORD_WEBHOOK_URL, {
+      content: `\`\`\`json\n${errJson}\`\`\``,
+      username: 'Video Processing Error Bot',
+    });
   } finally {
     terminateServer(args.videoId);
   }
