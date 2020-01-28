@@ -28,3 +28,5 @@ yarn
 
 # Download secrets and store them on disk
 # .env
+
+# Make sure to update NODE_ENV in the .env file to equal production
