@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 AWS.config.update({
   accessKeyId: process.env.WASABI_ACCESS_KEY_ID,
   secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY,
-  maxRetries: 2,
+  maxRetries: 10,
   httpOptions: {
     timeout: 5000,
     connectTimeout: 3000,
