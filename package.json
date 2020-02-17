@@ -1,29 +1,22 @@
 {
+  "name": "tidal",
+  "version": "0.0.1",
+  "description": "Distributed video transcoder",
+  "main": "index.js",
+  "repository": "git@github.com:bken-io/tidal.git",
+  "author": "Brendan Kennedy <brenwken@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "aws-sdk": "^2.619.0",
+    "nodemon": "^2.0.2"
+  },
   "dependencies": {
-    "apollo-boost": "^0.4.7",
-    "apollo-cache-inmemory": "^1.6.5",
-    "apollo-client": "^2.6.8",
-    "apollo-link-http": "^1.5.16",
-    "aws-sdk": "^2.614.0",
-    "axios": "^0.19.2",
-    "dotenv": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^8.1.0",
-    "graphql": "^14.6.0",
-    "graphql-tag": "^2.10.3",
-    "mime-types": "^2.1.26",
-    "node-fetch": "^2.6.0",
-    "sharp": "^0.24.0",
+    "lodash": "^4.17.15",
     "shortid": "^2.2.15",
     "uuid": "^3.4.0",
-    "winston": "^3.2.1",
     "yargs": "^15.1.0"
-  },
-  "scripts": {
-    "test": "jest"
-  },
-  "devDependencies": {
-    "jest": "^25.1.0",
-    "prettier": "^1.19.1"
   }
 }
