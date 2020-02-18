@@ -20,7 +20,7 @@ You are ready to process some videos! Keep in mind that tidal is network intensi
 
 ### Full pipeline
 
-`node src/index.js --bucket=bken-dve-dev --s3Dir=t2 --sourceFileName=test.mp4`
+`node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceFileName=test.mp4`
 
 ### Run tidal one step at a time
 
