@@ -6,12 +6,7 @@ const download = require('./lib/download');
 const TidalEvent = require('./lib/events');
 
 const { exec } = require('child_process');
-const {
-  bucket,
-  videoId,
-  segmentSourcePath,
-  segmentDestinationPath,
-} = require('yargs').argv;
+const { bucket, videoId, segmentSourcePath } = require('yargs').argv;
 
 if (!bucket) throw new Error('bucket must be defined');
 if (!videoId) throw new Error('videoId must be defined');
