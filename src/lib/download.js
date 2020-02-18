@@ -1,16 +1,17 @@
-const fs = require('fs-extra');
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({ region: 'us-east-1' });
+const { exec } = require('child_process');
 
 module.exports = async ({ Bucket, Key }, tmpDir) => {
   return new Promise((resolve, reject) => {
     const sourceName = 'source.mp4';
     const sourceFullPath = `${tmpDir}/${sourceName}`;
-    s3.getObject({ Bucket, Key })
-      .createReadStream()
-      .on('error', e => reject(e))
-      .pipe(fs.createWriteStream(sourceFullPath))
-      .on('error', e => reject(e))
-      .on('close', () => resolve(sourceFullPath));
+    console.log('downloading source file');
+    exec(
+      `aws s3 cp s3://${Bucket}/${Key} ${sourceFullPath}`,
+      (error, stdout, stderr) => {
+        if (error || stderr) reject(error || stderr);
+        resolve(sourceFullPath);
+      },
+      { maxBuffer: 1024 * 1024 * 50 }
+    );
   });
 };
