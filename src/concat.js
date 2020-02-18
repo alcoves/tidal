@@ -7,13 +7,17 @@ const { exec: execSync } = require('child_process');
 
 const exec = promisify(execSync);
 
-const {
-  bucket,
-  preset,
+const { bucket, preset, videoId } = require('yargs').argv;
+
+if (!bucket) throw new Error('bucket must be defined');
+if (!preset) throw new Error('preset must be defined');
+if (!videoId) throw new Error('videoId must be defined');
+
+const events = new TidalEvent({
   videoId,
-  concatSourcePath,
-  concatDestinationPath,
-} = require('yargs').argv;
+  region: 'us-east-1',
+  snsTopicArn: 'arn:aws:sns:us-east-1:594206825329:bken-prod-tidal-events',
+});
 
 const createManifest = () => {
   const manifestPath = path.resolve(`${tmpDir}/manifest.txt`);
@@ -30,18 +34,9 @@ const createManifest = () => {
   return manifestPath;
 };
 
-if (!bucket) throw new Error('bucket must be defined');
-if (!preset) throw new Error('preset must be defined');
-if (!videoId) throw new Error('videoId must be defined');
-
-const events = new TidalEvent({
-  videoId,
-  region: 'us-east-1',
-  snsTopicArn: 'arn:aws:sns:us-east-1:594206825329:bken-prod-tidal-events',
-});
-
 (async () => {
   const concatSourcePath = `${videoId}/transcoded/${preset}`;
+  const concatDestPath = `${videoId}/${preset}.mp4`;
   const localConcatPath = `${tmpDir}/concat.mp4`;
 
   console.log(`downloading transcoded parts from ${concatSourcePath}`);
@@ -56,7 +51,7 @@ const events = new TidalEvent({
     { maxBuffer: 1024 * 1024 * 50 }
   );
 
-  await exec(`aws s3 cp ${localConcatPath} s3://${bucket}/${concatSourcePath}`);
+  await exec(`aws s3 cp ${localConcatPath} s3://${bucket}/${concatDestPath}`);
   await events.emit('end', { videoId, preset, status: 'done' });
 
   console.log('removing tmpDir');
