@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const uuid = require('uuid');
 const AWS = require('aws-sdk');
+const TidalEvent = require('./lib/events');
 
 AWS.config.update({ region: 'us-east-1' });
 const s3 = new AWS.S3();
@@ -8,20 +9,23 @@ const sqs = new AWS.SQS();
 
 const sleep = (t) => new Promise((r) => setTimeout(() => r(), t));
 
-const {
-  bucket,
-  ffmpegCmdStr,
-  segmentSourcePath,
-  transcodeDestinationPath,
-} = require('yargs').argv;
+const { bucket, preset, videoId, ffmpegCmdStr } = require('yargs').argv;
 
 if (!bucket) throw new Error('bucket must be defined');
+if (!preset) throw new Error('preset must be defined');
+if (!videoId) throw new Error('videoId must be defined');
 if (!ffmpegCmdStr) throw new Error('ffmpegCmdStr must be defined');
-if (!segmentSourcePath) throw new Error('segmentSourcePath must be defined');
-if (!transcodeDestinationPath)
-  throw new Error('transcodeDestinationPath must be defined');
+
+const events = new TidalEvent({
+  videoId,
+  region: 'us-east-1',
+  snsTopicArn: 'arn:aws:sns:us-east-1:594206825329:bken-prod-tidal-events',
+});
 
 (async () => {
+  const segmentSourcePath = `${videoId}/segments`;
+  const transcodeDestinationPath = `${videoId}/transcoded/${preset}`;
+
   console.log('reading segments');
   const { Contents: segments } = await s3
     .listObjectsV2({
@@ -69,5 +73,4 @@ if (!transcodeDestinationPath)
   } while (s3Res.Contents.length < segmentedItems.length);
 
   console.log('transcode complete!');
-  if (process.send) process.send('transcode complete!');
 })();

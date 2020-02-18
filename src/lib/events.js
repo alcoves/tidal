@@ -12,7 +12,7 @@ class Emitter extends events.EventEmitter {
   async emit(type, msg) {
     console.log(type, msg);
     await this.sns
-      .publish({ TopicArn: this.snsTopicArn, Message: msg })
+      .publish({ TopicArn: this.snsTopicArn, Message: JSON.stringify(msg) })
       .promise();
   }
 }
