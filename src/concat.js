@@ -1,8 +1,9 @@
 const path = require('path');
-const { exec: execSync } = require('child_process');
+const fs = require('fs-extra');
 const { promisify } = require('util');
 const tmpDir = require('./lib/mkTmpDir')();
-const fs = require('fs-extra');
+const { exec: execSync } = require('child_process');
+
 const exec = promisify(execSync);
 
 const {
@@ -13,14 +14,13 @@ const {
 
 const createManifest = () => {
   const manifestPath = path.resolve(`${tmpDir}/manifest.txt`);
-  const transcodedPaths = fs.readdirSync(tmpDir);
+  const transcodedPaths = fs.readdirSync(`${tmpDir}/parts/`);
   const manifest = fs.createWriteStream(manifestPath, {
     flags: 'a',
   });
 
   for (const partName of transcodedPaths) {
-    console.log(`writing ${partName} to manifest`);
-    manifest.write(`file './${partName}'\n`);
+    manifest.write(`file './parts/${partName}'\n`);
   }
 
   manifest.end();
@@ -35,14 +35,21 @@ if (!concatDestinationPath)
 (async () => {
   console.log('tmpDir', tmpDir);
   console.log(`downloading transcoded parts from ${concatSourcePath}`);
-  await exec(`aws s3 sync s3://${bucket}/${concatSourcePath} ${tmpDir}/`);
+  const localConcatPath = `${tmpDir}/concat.mp4`;
+  await exec(`aws s3 sync s3://${bucket}/${concatSourcePath} ${tmpDir}/parts/`);
 
   console.log('creating manifest file');
   const manifestPath = createManifest();
 
   console.log('concatinating video parts');
+
   await exec(
-    `ffmpeg -f concat -safe 0 -i ${manifestPath} -c copy -f mp4 -movflags frag_keyframe+empty_moov pipe:1 | aws s3 cp - s3://${bucket}/${concatDestinationPath}`
+    `ffmpeg -f concat -safe 0 -i ${manifestPath} -c copy -reset_timestamps 1 -movflags +faststart ${localConcatPath}`,
+    { maxBuffer: 1024 * 1024 * 50 }
+  );
+
+  await exec(
+    `aws s3 cp ${localConcatPath} s3://${bucket}/${concatDestinationPath}`
   );
 
   console.log('removing tmpDir');

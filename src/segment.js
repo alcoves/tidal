@@ -45,7 +45,6 @@ const getTranscodePresets = async (localSourcePath) => {
       '-crf 26',
       '-coder 1',
       '-pix_fmt yuv420p',
-      '-movflags +faststart',
       '-bf 2',
       '-c:a aac',
       '-ac 2',
@@ -61,7 +60,6 @@ const getTranscodePresets = async (localSourcePath) => {
       '-crf 26',
       '-coder 1',
       '-pix_fmt yuv420p',
-      '-movflags +faststart',
       '-bf 2',
       '-c:a aac',
       '-ac 2',
@@ -77,7 +75,6 @@ const getTranscodePresets = async (localSourcePath) => {
       '-crf 26',
       '-coder 1',
       '-pix_fmt yuv420p',
-      '-movflags +faststart',
       '-bf 2',
       '-c:a aac',
       '-ac 2',
@@ -93,7 +90,6 @@ const getTranscodePresets = async (localSourcePath) => {
       '-crf 27',
       '-coder 1',
       '-pix_fmt yuv420p',
-      '-movflags +faststart',
       '-bf 2',
       '-c:a aac',
       '-ac 2',
@@ -106,9 +102,9 @@ const getTranscodePresets = async (localSourcePath) => {
   // query the video with ffprobe
   // decide what presets to return based on video metadata
   return [
-    { presetName: '2160p', ffmpegCmdStr: presets['2160p'].join(' ') },
-    { presetName: '1440p', ffmpegCmdStr: presets['1440p'].join(' ') },
-    { presetName: '1080p', ffmpegCmdStr: presets['1080p'].join(' ') },
+    // { presetName: '2160p', ffmpegCmdStr: presets['2160p'].join(' ') },
+    // { presetName: '1440p', ffmpegCmdStr: presets['1440p'].join(' ') },
+    // { presetName: '1080p', ffmpegCmdStr: presets['1080p'].join(' ') },
     { presetName: '720p', ffmpegCmdStr: presets['720p'].join(' ') },
   ]; // placeholder
 };
@@ -118,17 +114,11 @@ const segmentVideo = (sourcePath) => {
     const localSegmentPath = `${tmpDir}/segments`;
     fs.mkdirSync(localSegmentPath);
     ffmpeg(path.resolve(sourcePath))
-      .outputOptions([
-        '-map 0',
-        '-c copy',
-        '-f segment',
-        '-segment_time 10',
-        '-reset_timestamps 1',
-      ])
+      .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 10'])
       .on('progress', () => {})
       .on('error', reject)
       .on('end', () => resolve(localSegmentPath))
-      .output(`${localSegmentPath}/output_%04d.mp4`)
+      .output(`${localSegmentPath}/output_%04d.mkv`)
       .run();
   });
 };
@@ -140,7 +130,8 @@ const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
       (error, stdout, stderr) => {
         if (error || stderr) reject(error || stderr);
         resolve();
-      }
+      },
+      { maxBuffer: 1024 * 1024 * 50 }
     );
   });
 };
@@ -162,9 +153,9 @@ const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
   console.log('uploading segments');
   await uploadSegments(bucket, localSegmentPath, segmentDestinationPath);
 
-  console.log('removing tmpDir');
+  console.log('removing tmpDir', tmpDir);
   await fs.remove(tmpDir);
 
   console.log('returning');
-  process.send(transcodePresets);
+  if (process.send) process.send(transcodePresets);
 })();
