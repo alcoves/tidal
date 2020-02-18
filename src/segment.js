@@ -8,19 +8,19 @@ const TidalEvent = require('./lib/events');
 const { exec } = require('child_process');
 const {
   bucket,
+  videoId,
   segmentSourcePath,
   segmentDestinationPath,
 } = require('yargs').argv;
 
 if (!bucket) throw new Error('bucket must be defined');
+if (!videoId) throw new Error('videoId must be defined');
 if (!segmentSourcePath) throw new Error('segmentSourcePath must be defined');
-if (!segmentDestinationPath)
-  throw new Error('segmentDestinationPath must be defined');
 
-const event = new TidalEvent({
-  videoId: '123',
+const events = new TidalEvent({
+  videoId,
   region: 'us-east-1',
-  snsTopicArn: 'arn:aws:sns:us-east-1:594206825329:tidal-events',
+  snsTopicArn: 'arn:aws:sns:us-east-1:594206825329:bken-prod-tidal-events',
 });
 
 const getTranscodePresets = async (localSourcePath) => {
@@ -137,12 +137,12 @@ const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
 };
 
 (async () => {
-  // event.emit('event', { status: 'download started', percentCompleted: 1 });
+  const segmentDestinationPath = `${videoId}/segments`;
+
   const localSourcePath = await download(
     { Bucket: bucket, Key: segmentSourcePath },
     tmpDir
   );
-  // event.emit('event', { status: 'download completed', percentCompleted: 1 });
 
   console.log('calculating transcode presets');
   const transcodePresets = await getTranscodePresets(localSourcePath);

@@ -1,8 +1,8 @@
 const { fork } = require('child_process');
 
-const { s3Dir, sourceFileName } = require('yargs').argv;
+const { videoId, sourceFileName } = require('yargs').argv;
 
-if (!s3Dir) throw new Error('s3Dir must be defined');
+if (!videoId) throw new Error('videoId must be defined');
 if (!sourceFileName) throw new Error('sourceFileName must be defined');
 
 const run = (scriptPath, forkArgs = []) => {
@@ -16,18 +16,18 @@ const run = (scriptPath, forkArgs = []) => {
 
 (async () => {
   const transcodePresets = await run('./src/segment.js', [
+    `--videoId=${videoId}`,
     '--bucket=bken-dve-dev',
-    `--segmentSourcePath=${s3Dir}/${sourceFileName}`,
-    `--segmentDestinationPath=${s3Dir}/segments`,
+    `--segmentSourcePath=${videoId}/${sourceFileName}`,
   ]);
 
   await Promise.all(
     transcodePresets.map(({ ffmpegCmdStr, presetName }) => {
       console.log(`transcoding to ${presetName}`);
       return run('./src/transcode.js', [
+        `--videoId=${videoId}`,
         '--bucket=bken-dve-dev',
-        `--segmentSourcePath=${s3Dir}/segments`,
-        `--transcodeDestinationPath=${s3Dir}/transcoded/${presetName}`,
+        `--preset=${presetName}`,
         `--ffmpegCmdStr=${ffmpegCmdStr}`,
       ]);
     })
@@ -37,9 +37,9 @@ const run = (scriptPath, forkArgs = []) => {
     transcodePresets.map(({ presetName }) => {
       console.log(`concatinating ${presetName}`);
       return run('./src/concat.js', [
+        `--videoId=${videoId}`,
         '--bucket=bken-dve-dev',
-        `--concatSourcePath=${s3Dir}/transcoded/${presetName}`,
-        `--concatDestinationPath=${s3Dir}/${presetName}.mp4`,
+        `--preset=${presetName}`,
       ]);
     })
   );
