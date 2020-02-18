@@ -69,5 +69,5 @@ if (!transcodeDestinationPath)
   } while (s3Res.Contents.length < segmentedItems.length);
 
   console.log('transcode complete!');
-  process.send('transcode complete!');
+  if (process.send) process.send('transcode complete!');
 })();
