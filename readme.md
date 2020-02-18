@@ -32,7 +32,7 @@ You can run the three distinct steps one at a time, useful for debugging.
 
 #### Transcode video
 
-`node src/segment.js --bucket=bken-dve-dev --sourcePath=t2/segments --uploadPath=t2/transcoded/ --format=auto`
+`node src/transcode.js --bucket=bken-dve-dev --segmentSourcePath=t2/segments --transcodeDestinationPath=t2/transcoded/720p --ffmpegCmdStr="-c:v libx264 -preset medium -profile:v high -vf scale=1280:-2 -crf 27 -coder 1 -pix_fmt yuv420p -bf 2 -c:a aac -ac 2 -b:a 128K -ar 48000 -profile:a aac_low"`
 
 #### Concat video
 
