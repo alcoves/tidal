@@ -36,12 +36,10 @@ const events = new TidalEvent({
 
   console.log('enqueuing messages');
   for (const batch of _.chunk(segments, 10)) {
-    console.log('sending batch message to sqs');
     await sqs
       .sendMessageBatch({
         QueueUrl: 'https://sqs.us-east-1.amazonaws.com/594206825329/conversion',
         Entries: batch.map(({ Key }) => {
-          console.log('Key', Key);
           const split = Key.split('/');
           const segName = split[split.length - 1];
           return {
@@ -68,7 +66,7 @@ const events = new TidalEvent({
     s3Res = await s3
       .listObjectsV2({ Bucket: bucket, Prefix: transcodeDestinationPath })
       .promise();
-    console.log(`${s3Res.Contents.length}/${segmentedItems.length}`);
+    console.log(`${preset}: ${s3Res.Contents.length}/${segmentedItems.length}`);
     await sleep(3000);
   } while (s3Res.Contents.length < segmentedItems.length);
 

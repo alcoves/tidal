@@ -111,7 +111,10 @@ const segmentVideo = (sourcePath) => {
     ffmpeg(path.resolve(sourcePath))
       .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 10'])
       .on('progress', () => {})
-      .on('error', reject)
+      .on('error', () => {
+        console.error(error);
+        reject();
+      })
       .on('end', () => resolve(localSegmentPath))
       .output(`${localSegmentPath}/output_%04d.mkv`)
       .run();
@@ -120,11 +123,11 @@ const segmentVideo = (sourcePath) => {
 
 const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
   return new Promise((resolve, reject) => {
-    function printMsg(msg) {
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(msg);
-    }
+    let lastMessage;
+    const interval = setInterval(() => {
+      if (lastMessage) console.log(lastMessage);
+      lastMessage = null;
+    }, 500);
 
     const child = spawn('aws', [
       's3',
@@ -133,11 +136,16 @@ const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
       `s3://${bucket}/${segmentDestinationPath}`,
     ]);
     child.on('exit', (code) => {
-      console.log(`Child process exited with code ${code}`);
+      console.log(`uploadSegments exited with code ${code}`);
+      clearInterval(interval);
       resolve();
     });
-    child.stdout.on('data', printMsg);
-    child.stderr.on('data', printMsg);
+    child.stdout.on('data', (data) => {
+      lastMessage = data.toString();
+    });
+    child.stderr.on('data', (data) => {
+      lastMessage = data.toString();
+    });
   });
 };
 
