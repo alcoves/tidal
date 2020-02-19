@@ -43,4 +43,6 @@ const run = (scriptPath, forkArgs = []) => {
       ]);
     })
   );
+
+  console.log('pipeline complete!');
 })();
