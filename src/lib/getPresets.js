@@ -1,85 +1,54 @@
-module.exports = async (localSourcePath) => {
-  const presets = {
-    highQuality: [
-      '-c:v libx264',
-      '-preset fast',
-      '-profile:v high',
-      '-crf 22',
-      '-coder 1',
-      '-c:a aac',
-      '-ac 2',
-      '-b:a 320K',
-      '-ar 48000',
-      '-profile:a aac_low',
-    ],
-    '2160p': [
-      '-c:v libx264',
-      '-preset fast',
-      '-profile:v high',
-      '-vf scale=3840:-2',
-      '-crf 26',
-      '-coder 1',
-      '-pix_fmt yuv420p',
-      '-bf 2',
-      '-c:a aac',
-      '-ac 2',
-      '-b:a 192K',
-      '-ar 48000',
-      '-profile:a aac_low',
-    ],
-    '1440p': [
-      '-c:v libx264',
-      '-preset fast',
-      '-profile:v high',
-      '-vf scale=2560:-2',
-      '-crf 26',
-      '-coder 1',
-      '-pix_fmt yuv420p',
-      '-bf 2',
-      '-c:a aac',
-      '-ac 2',
-      '-b:a 192K',
-      '-ar 48000',
-      '-profile:a aac_low',
-    ],
-    '1080p': [
-      '-c:v libx264',
-      '-preset fast',
-      '-profile:v high',
-      '-vf scale=1920:-2',
-      '-crf 26',
-      '-coder 1',
-      '-pix_fmt yuv420p',
-      '-bf 2',
-      '-c:a aac',
-      '-ac 2',
-      '-b:a 192K',
-      '-ar 48000',
-      '-profile:a aac_low',
-    ],
-    '720p': [
-      '-c:v libx264',
-      '-preset fast',
-      '-profile:v high',
-      '-vf scale=1280:-2',
-      '-crf 27',
-      '-coder 1',
-      '-pix_fmt yuv420p',
-      '-bf 2',
-      '-c:a aac',
-      '-ac 2',
-      '-b:a 128K',
-      '-ar 48000',
-      '-profile:a aac_low',
-    ],
-  };
+const ffmpeg = require('fluent-ffmpeg');
+const presets = require('./presets.json');
 
-  // query the video with ffprobe
-  // decide what presets to return based on video metadata
-  return [
-    { presetName: '2160p', ffmpegCmdStr: presets['2160p'].join(' ') },
-    { presetName: '1440p', ffmpegCmdStr: presets['1440p'].join(' ') },
-    { presetName: '1080p', ffmpegCmdStr: presets['1080p'].join(' ') },
-    { presetName: '720p', ffmpegCmdStr: presets['720p'].join(' ') },
-  ]; // placeholder
+const getDimensions = (metadata) => {
+  return metadata.streams.reduce(
+    (acc, { width, height }) => {
+      if (width) acc.width = width;
+      if (height) acc.height = height;
+      return acc;
+    },
+    { width: 0, height: 0 }
+  );
+};
+
+module.exports = async (localSourcePath) => {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(localSourcePath, (err, metadata) => {
+      if (err) reject(err);
+      const selectedPresets = [];
+      const { width, height } = getDimensions(metadata);
+      console.log('video dimensions', width, height);
+
+      if (width >= 1280) {
+        selectedPresets.push({
+          presetName: '720p',
+          ffmpegCmdStr: presets['720p'].join(' '),
+        });
+      }
+
+      if (width >= 1920) {
+        selectedPresets.push({
+          presetName: '1080p',
+          ffmpegCmdStr: presets['1080p'].join(' '),
+        });
+      }
+
+      if (width >= 2560) {
+        selectedPresets.push({
+          presetName: '1440p',
+          ffmpegCmdStr: presets['1440p'].join(' '),
+        });
+      }
+
+      if (width >= 3840) {
+        selectedPresets.push({
+          presetName: '2160p',
+          ffmpegCmdStr: presets['2160p'].join(' '),
+        });
+      }
+
+      resolve(selectedPresets);
+    });
+  });
 };
