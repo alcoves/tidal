@@ -5,7 +5,7 @@ const tmpDir = require('./lib/mkTmpDir')();
 const download = require('./lib/download');
 const TidalEvent = require('./lib/events');
 
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const { bucket, videoId, segmentSourcePath } = require('yargs').argv;
 
 if (!bucket) throw new Error('bucket must be defined');
@@ -97,9 +97,9 @@ const getTranscodePresets = async (localSourcePath) => {
   // query the video with ffprobe
   // decide what presets to return based on video metadata
   return [
-    // { presetName: '2160p', ffmpegCmdStr: presets['2160p'].join(' ') },
-    // { presetName: '1440p', ffmpegCmdStr: presets['1440p'].join(' ') },
-    // { presetName: '1080p', ffmpegCmdStr: presets['1080p'].join(' ') },
+    { presetName: '2160p', ffmpegCmdStr: presets['2160p'].join(' ') },
+    { presetName: '1440p', ffmpegCmdStr: presets['1440p'].join(' ') },
+    { presetName: '1080p', ffmpegCmdStr: presets['1080p'].join(' ') },
     { presetName: '720p', ffmpegCmdStr: presets['720p'].join(' ') },
   ]; // placeholder
 };
@@ -120,14 +120,24 @@ const segmentVideo = (sourcePath) => {
 
 const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
   return new Promise((resolve, reject) => {
-    exec(
-      `aws s3 sync ${localSegmentPath} s3://${bucket}/${segmentDestinationPath}`,
-      (error, stdout, stderr) => {
-        if (error || stderr) reject(error || stderr);
-        resolve();
-      },
-      { maxBuffer: 1024 * 1024 * 50 }
-    );
+    function printMsg(msg) {
+      process.stdout.clearLine();
+      process.stdout.cursorTo(0);
+      process.stdout.write(msg);
+    }
+
+    const child = spawn('aws', [
+      's3',
+      'sync',
+      `${localSegmentPath}`,
+      `s3://${bucket}/${segmentDestinationPath}`,
+    ]);
+    child.on('exit', (code) => {
+      console.log(`Child process exited with code ${code}`);
+      resolve();
+    });
+    child.stdout.on('data', printMsg);
+    child.stderr.on('data', printMsg);
   });
 };
 
