@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "aws-sdk": "^2.619.0",
+    "aws-sdk": "^2.622.0",
     "nodemon": "^2.0.2"
   },
   "dependencies": {
