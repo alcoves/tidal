@@ -1,10 +1,11 @@
 const path = require('path');
 const fs = require('fs-extra');
-const { promisify } = require('util');
+const ffmpeg = require('fluent-ffmpeg');
 const TidalEvent = require('./lib/events');
 const tmpDir = require('./lib/mkTmpDir')();
-const { spawn } = require('child_process');
 
+const { promisify } = require('util');
+const { spawn } = require('child_process');
 const { bucket, preset, videoId } = require('yargs').argv;
 
 if (!bucket) throw new Error('bucket must be defined');
@@ -19,11 +20,11 @@ const events = new TidalEvent({
 
 const downloadTranscodedParts = (bucket, concatSourcePath, tmpDir) => {
   return new Promise((resolve, reject) => {
-    function printMsg(msg) {
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(msg);
-    }
+    let lastMessage;
+    const interval = setInterval(() => {
+      if (lastMessage) console.log(lastMessage);
+      lastMessage = null;
+    }, 500);
 
     const child = spawn('aws', [
       's3',
@@ -32,60 +33,42 @@ const downloadTranscodedParts = (bucket, concatSourcePath, tmpDir) => {
       `${tmpDir}/parts/`,
     ]);
     child.on('exit', (code) => {
-      console.log(`Child process exited with code ${code}`);
+      console.log(`downloadTranscodedParts exited with code ${code}`);
+      clearInterval(interval);
       resolve();
     });
-    child.stdout.on('data', printMsg);
-    child.stderr.on('data', printMsg);
+    child.stdout.on('data', (data) => {
+      lastMessage = data.toString();
+    });
+    child.stderr.on('data', (data) => {
+      lastMessage = data.toString();
+    });
   });
 };
 
 const concatinateVideoParts = (manifestPath, localConcatPath) => {
   return new Promise((resolve, reject) => {
-    // ffmpeg(path.resolve(sourcePath))
-    //   .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 10'])
-    //   .on('progress', () => {})
-    //   .on('error', reject)
-    //   .on('end', () => resolve(localSegmentPath))
-    //   .output(`${localSegmentPath}/output_%04d.mkv`)
-    //   .run();
-
-    const child = spawn('ffmpeg', [
-      '-f',
-      'concat',
-      '-safe',
-      '0',
-      '-i',
-      manifestPath,
-      '-c',
-      'copy',
-      '-reset_timestamps',
-      '1',
-      '-movflags',
-      '+faststart',
-      localConcatPath,
-    ]);
-    child.on('exit', (code) => {
-      console.log(`Child process exited with code ${code}`);
-      resolve();
-    });
-    child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
-    child.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`);
-    });
+    ffmpeg(path.resolve(manifestPath))
+      .inputOptions(['-f concat', '-safe 0'])
+      .outputOptions(['-c copy', '-reset_timestamps 1', '-movflags +faststart'])
+      .on('progress', () => {})
+      .on('error', () => {
+        console.error(error);
+        reject();
+      })
+      .on('end', resolve)
+      .output(localConcatPath)
+      .run();
   });
 };
 
 const copyConcatinatedVideo = (localConcatPath, bucket, concatDestPath) => {
-  console.log({ localConcatPath, bucket, concatDestPath });
   return new Promise((resolve, reject) => {
-    function printMsg(msg) {
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(msg);
-    }
+    let lastMessage;
+    const interval = setInterval(() => {
+      if (lastMessage) console.log(lastMessage);
+      lastMessage = null;
+    }, 500);
 
     const child = spawn('aws', [
       's3',
@@ -94,11 +77,16 @@ const copyConcatinatedVideo = (localConcatPath, bucket, concatDestPath) => {
       `s3://${bucket}/${concatDestPath}`,
     ]);
     child.on('exit', (code) => {
-      console.log(`Child process exited with code ${code}`);
+      console.log(`copyConcatinatedVideo exited with code ${code}`);
+      clearInterval(interval);
       resolve();
     });
-    child.stdout.on('data', printMsg);
-    child.stderr.on('data', printMsg);
+    child.stdout.on('data', (data) => {
+      lastMessage = data.toString();
+    });
+    child.stderr.on('data', (data) => {
+      lastMessage = data.toString();
+    });
   });
 };
 
@@ -125,16 +113,16 @@ const createManifest = () => {
   console.log(`downloading transcoded parts from ${concatSourcePath}`);
   await downloadTranscodedParts(bucket, concatSourcePath, tmpDir);
 
-  console.log('creating manifest file');
+  console.log('creating manifest file', preset);
   const manifestPath = createManifest();
 
-  console.log('concatinating video parts');
+  console.log('concatinating video parts', preset);
   await concatinateVideoParts(manifestPath, localConcatPath);
 
-  console.log('uploading output to s3');
+  console.log('uploading output to s3', preset);
   await copyConcatinatedVideo(localConcatPath, bucket, concatDestPath);
   await events.emit('end', { videoId, preset, status: 'done' });
 
-  console.log('removing tmpDir');
+  console.log('removing tmpDir', preset, tmpDir);
   await fs.remove(tmpDir);
 })();
