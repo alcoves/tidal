@@ -52,7 +52,7 @@ const concatinateVideoParts = (manifestPath, localConcatPath) => {
       .inputOptions(['-f concat', '-safe 0'])
       .outputOptions(['-c copy', '-reset_timestamps 1', '-movflags +faststart'])
       .on('progress', () => {})
-      .on('error', () => {
+      .on('error', (error) => {
         console.error(error);
         reject();
       })
