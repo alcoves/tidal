@@ -50,8 +50,8 @@ const concatinateVideoParts = (manifestPath, localConcatPath) => {
   return new Promise((resolve, reject) => {
     ffmpeg(path.resolve(manifestPath))
       .inputOptions(['-f concat', '-safe 0'])
-      .outputOptions(['-c copy', '-reset_timestamps 1', '-movflags +faststart'])
-      .on('progress', () => {})
+      .outputOptions(['-c copy'])
+      .on('progress', () => { })
       .on('error', (error) => {
         console.error(error);
         reject();
