@@ -38,7 +38,7 @@ const events = new TidalEvent({
   for (const batch of _.chunk(segments, 10)) {
     await sqs
       .sendMessageBatch({
-        QueueUrl: 'https://sqs.us-east-1.amazonaws.com/594206825329/conversion',
+        QueueUrl: 'https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding',
         Entries: batch.map(({ Key }) => {
           const split = Key.split('/');
           const segName = split[split.length - 1];

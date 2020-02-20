@@ -22,7 +22,7 @@ echo "Cloning tidal"
 git clone https://github.com/bken-io/tidal.git
 
 echo "Installing tidal deps"
-yarn global add pm2
+npm i -g pm2
 cd tidal && yarn
 
 echo "Starting tidal"
