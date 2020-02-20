@@ -7,8 +7,12 @@
   "author": "Brendan Kennedy <brenwken@gmail.com>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "stop": "pm2 stop all",
+    "start": "pm2 start src/listen.js"
+  },
   "devDependencies": {
-    "aws-sdk": "^2.622.0",
+    "aws-sdk": "^2.619.0",
     "nodemon": "^2.0.2"
   },
   "dependencies": {
