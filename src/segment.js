@@ -24,8 +24,8 @@ const segmentVideo = (sourcePath) => {
     const localSegmentPath = `${tmpDir}/segments`;
     fs.mkdirSync(localSegmentPath);
     ffmpeg(path.resolve(sourcePath))
-      .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 2'])
-      .on('progress', () => {})
+      .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 2', '-reset_timestamps 1'])
+      .on('progress', () => { })
       .on('error', (error) => {
         console.error(error);
         reject();
