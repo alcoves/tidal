@@ -1,5 +1,7 @@
-const { fork } = require('child_process');
+const fs = require('fs-extra');
+const tmpDir = require('./lib/mkTmpDir')();
 
+const { fork } = require('child_process');
 const { videoId, sourceFileName } = require('yargs').argv;
 
 if (!videoId) throw new Error('videoId must be defined');
@@ -16,10 +18,13 @@ const run = (scriptPath, forkArgs = []) => {
 
 (async () => {
   const transcodePresets = await run('./src/segment.js', [
+    `--tmpDir=${tmpDir}`,
     `--videoId=${videoId}`,
     '--bucket=bken-dve-dev',
     `--segmentSourcePath=${videoId}/${sourceFileName}`,
   ]);
+
+  // const getPresets = await run('.src/lib/getPresets', []);
 
   await Promise.all(
     transcodePresets.map(({ ffmpegCmdStr, presetName }) => {
@@ -37,12 +42,16 @@ const run = (scriptPath, forkArgs = []) => {
     transcodePresets.map(({ presetName }) => {
       console.log(`concatinating ${presetName}`);
       return run('./src/concat.js', [
+        `--tmpDir=${tmpDir}`,
         `--videoId=${videoId}`,
         '--bucket=bken-dve-dev',
         `--preset=${presetName}`,
       ]);
     })
   );
+
+  console.log(`removing tmpdir ${tmpDir}`);
+  await fs.remove(tmpDir);
 
   console.log('pipeline complete!');
 })();

@@ -1,14 +1,14 @@
 const path = require('path');
 const fs = require('fs-extra');
 const ffmpeg = require('fluent-ffmpeg');
-const tmpDir = require('./lib/mkTmpDir')();
 const download = require('./lib/download');
 const TidalEvent = require('./lib/events');
 const getPresets = require('./lib/getPresets');
 
 const { spawn } = require('child_process');
-const { bucket, videoId, segmentSourcePath } = require('yargs').argv;
+const { bucket, videoId, segmentSourcePath, tmpDir } = require('yargs').argv;
 
+if (!tmpDir) throw new Error('tmpDir must be defined');
 if (!bucket) throw new Error('bucket must be defined');
 if (!videoId) throw new Error('videoId must be defined');
 if (!segmentSourcePath) throw new Error('segmentSourcePath must be defined');
@@ -24,14 +24,35 @@ const segmentVideo = (sourcePath) => {
     const localSegmentPath = `${tmpDir}/segments`;
     fs.mkdirSync(localSegmentPath);
     ffmpeg(path.resolve(sourcePath))
-      .outputOptions(['-map 0', '-c copy', '-f segment', '-segment_time 2', '-reset_timestamps 1'])
-      .on('progress', () => { })
+      .outputOptions([
+        '-an',
+        '-map 0',
+        '-c copy',
+        '-f segment',
+        '-segment_time 00:00:01',
+      ])
+      .on('progress', () => {})
       .on('error', (error) => {
         console.error(error);
         reject();
       })
       .on('end', () => resolve(localSegmentPath))
       .output(`${localSegmentPath}/output_%04d.mkv`)
+      .run();
+  });
+};
+
+const splitAudioFromSource = (localSourcePath) => {
+  return new Promise((resolve, reject) => {
+    const sourceAudioPath = `${tmpDir}/source.wav`;
+    ffmpeg(path.resolve(localSourcePath))
+      .on('progress', () => {})
+      .on('error', (error) => {
+        console.error(error);
+        reject();
+      })
+      .on('end', () => resolve(sourceAudioPath))
+      .output(sourceAudioPath)
       .run();
   });
 };
@@ -78,11 +99,11 @@ const uploadSegments = (bucket, localSegmentPath, segmentDestinationPath) => {
   console.log('segmenting video');
   const localSegmentPath = await segmentVideo(localSourcePath);
 
+  console.log('saving source audio');
+  await splitAudioFromSource(localSourcePath, localSegmentPath);
+
   console.log('uploading segments');
   await uploadSegments(bucket, localSegmentPath, segmentDestinationPath);
-
-  console.log('removing tmpDir', tmpDir);
-  await fs.remove(tmpDir);
 
   console.log('returning');
   if (process.send) process.send(transcodePresets);

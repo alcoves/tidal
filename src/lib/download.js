@@ -10,7 +10,7 @@ module.exports = async ({ Bucket, Key }, tmpDir) => {
 
     const sourceName = 'source.mp4';
     const sourceFullPath = `${tmpDir}/${sourceName}`;
-    console.log('downloading source file');
+    console.log('downloading source file', sourceFullPath);
     const child = spawn('aws', [
       's3',
       'cp',
@@ -18,8 +18,8 @@ module.exports = async ({ Bucket, Key }, tmpDir) => {
       `${sourceFullPath}`,
     ]);
     child.on('exit', (code) => {
-      console.log(`downloading exited with code ${code}`);
       clearInterval(interval);
+      if (code > 0) reject(`download exited with code: ${code}`);
       resolve(sourceFullPath);
     });
     child.stdout.on('data', (data) => {
