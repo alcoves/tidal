@@ -4,25 +4,41 @@ const s3 = new AWS.S3();
 
 const sleep = (t) => new Promise((r) => setTimeout(() => r(), t));
 
+const getObjectCount = async (params, items = []) => {
+  const { Contents, NextContinuationToken } = await s3
+    .listObjectsV2(params)
+    .promise();
+  Contents.map((item) => items.push(item));
+  if (NextContinuationToken) {
+    params.ContinuationToken = NextContinuationToken;
+    return getObjectCount(params, items);
+  }
+  return items;
+};
+
 module.exports = async ({
   bucket,
   presetName,
   remoteSegmentPath,
   transcodeDestinationPath,
 }) => {
-  const { Contents: segmentedItems } = await s3
-    .listObjectsV2({ Bucket: bucket, Prefix: remoteSegmentPath })
-    .promise();
+  const segmentedItems = await getObjectCount({
+    Bucket: bucket,
+    Prefix: remoteSegmentPath,
+  });
 
-  let s3Res = { Contents: [] };
-  // poll s3 until the number of converted objects equals the number of segmented objects
+  const transcodedS3Params = {
+    Bucket: bucket,
+    Prefix: transcodeDestinationPath,
+  };
+
+  let transcodedItems = await getObjectCount(transcodedS3Params);
+
   do {
-    s3Res = await s3
-      .listObjectsV2({ Bucket: bucket, Prefix: transcodeDestinationPath })
-      .promise();
+    transcodedItems = await getObjectCount(transcodedS3Params);
     console.log(
-      `${presetName}: ${s3Res.Contents.length}/${segmentedItems.length}`
+      `${presetName}: ${transcodedItems.length}/${segmentedItems.length}`
     );
     await sleep(3000);
-  } while (s3Res.Contents.length < segmentedItems.length);
+  } while (transcodedItems.length < segmentedItems.length);
 };
