@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const uuid = require('uuid');
 const AWS = require('aws-sdk');
+const getObjectKeys = require('./getObjectKeys');
 
 AWS.config.update({ region: 'us-east-1' });
-const s3 = new AWS.S3();
 const sqs = new AWS.SQS();
 
 // TODO :: If remote segment path cound doesn't match local path count, error
@@ -16,12 +16,10 @@ module.exports = async ({
   transcodeDestinationPath,
 }) => {
   console.log('reading segments');
-  const { Contents: segments } = await s3
-    .listObjectsV2({
-      Bucket: bucket,
-      Prefix: remoteSegmentPath,
-    })
-    .promise();
+  const segments = await getObjectKeys({
+    Bucket: bucket,
+    Prefix: remoteSegmentPath,
+  });
 
   console.log('enqueuing messages');
   for (const batch of _.chunk(segments, 10)) {

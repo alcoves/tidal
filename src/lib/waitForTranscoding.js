@@ -1,20 +1,6 @@
-const AWS = require('aws-sdk');
-AWS.config.update({ region: 'us-east-1' });
-const s3 = new AWS.S3();
+const getObjectKeys = require('./getObjectKeys');
 
 const sleep = (t) => new Promise((r) => setTimeout(() => r(), t));
-
-const getObjectCount = async (params, items = []) => {
-  const { Contents, NextContinuationToken } = await s3
-    .listObjectsV2(params)
-    .promise();
-  Contents.map((item) => items.push(item));
-  if (NextContinuationToken) {
-    params.ContinuationToken = NextContinuationToken;
-    return getObjectCount(params, items);
-  }
-  return items;
-};
 
 module.exports = async ({
   bucket,
@@ -22,7 +8,7 @@ module.exports = async ({
   remoteSegmentPath,
   transcodeDestinationPath,
 }) => {
-  const segmentedItems = await getObjectCount({
+  const segmentedItems = await getObjectKeys({
     Bucket: bucket,
     Prefix: remoteSegmentPath,
   });
@@ -30,7 +16,7 @@ module.exports = async ({
   let transcodedItems;
 
   do {
-    transcodedItems = await getObjectCount({
+    transcodedItems = await getObjectKeys({
       Bucket: bucket,
       Prefix: transcodeDestinationPath,
     });
