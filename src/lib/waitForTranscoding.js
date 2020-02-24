@@ -27,15 +27,11 @@ module.exports = async ({
     Prefix: remoteSegmentPath,
   });
 
-  const transcodedS3Params = {
-    Bucket: bucket,
-    Prefix: transcodeDestinationPath,
-  };
-
-  let transcodedItems = await getObjectCount(transcodedS3Params);
-
   do {
-    transcodedItems = await getObjectCount(transcodedS3Params);
+    const transcodedItems = await getObjectCount({
+      Bucket: bucket,
+      Prefix: transcodeDestinationPath,
+    });
     console.log(
       `${presetName}: ${transcodedItems.length}/${segmentedItems.length}`
     );
