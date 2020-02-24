@@ -27,8 +27,10 @@ module.exports = async ({
     Prefix: remoteSegmentPath,
   });
 
+  let transcodedItems;
+
   do {
-    const transcodedItems = await getObjectCount({
+    transcodedItems = await getObjectCount({
       Bucket: bucket,
       Prefix: transcodeDestinationPath,
     });
