@@ -1,27 +1,24 @@
-const path = require('path');
-const logger = require('./logger');
 const { spawn } = require('child_process');
 
-module.exports = ({ bucket, videoId, sourceFileName, tmpDir }) => {
+module.exports = ({ bucket, segmentPath, remoteSegmentPath }) => {
   return new Promise((resolve, reject) => {
+    console.log('uploading segments');
     let lastMessage;
     const interval = setInterval(() => {
       if (lastMessage) console.log(lastMessage);
       lastMessage = null;
     }, 500);
 
-    const sourceFullPath = path.resolve(`${tmpDir}/${sourceFileName}`);
-    logger.log(`downloading source file: ${sourceFullPath}`);
     const child = spawn('aws', [
       's3',
-      'cp',
-      `s3://${bucket}/${videoId}/${sourceFileName}`,
-      `${sourceFullPath}`,
+      'sync',
+      `${segmentPath}`,
+      `s3://${bucket}/${remoteSegmentPath}`,
     ]);
     child.on('exit', (code) => {
       clearInterval(interval);
-      if (code > 0) reject(`download exited with code: ${code}`);
-      resolve(sourceFullPath);
+      if (code > 0) reject(`uploading segments exited code ${code}`);
+      resolve(code);
     });
     child.stdout.on('data', (data) => {
       lastMessage = data.toString();

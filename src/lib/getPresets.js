@@ -12,13 +12,15 @@ const getDimensions = (metadata) => {
   );
 };
 
-module.exports = async (localSourcePath) => {
+// TODO :: Add audio compression command to preset
+
+module.exports = ({ sourcePath }) => {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(localSourcePath, (err, metadata) => {
+    console.log('getting video presets');
+    ffmpeg.ffprobe(sourcePath, (err, metadata) => {
       if (err) reject(err);
       const selectedPresets = [];
-      const { width, height } = getDimensions(metadata);
-      console.log('video dimensions', width, height);
+      const { width } = getDimensions(metadata);
 
       if (width >= 1280) {
         selectedPresets.push({
