@@ -30,20 +30,4 @@ Make sure your SQS messages look like the following
 
 ### Full pipeline
 
-`node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceFileName=test.mp4`
-
-### Run tidal one step at a time
-
-You can run the three distinct steps one at a time, useful for debugging.
-
-#### Segment video
-
-`node src/segment.js --bucket=bken-dve-dev --segmentSourcePath=t2/source.mp4 --segmentDestinationPath=t2/transcoded`
-
-#### Transcode video
-
-`node src/transcode.js --bucket=bken-dve-dev --segmentSourcePath=t2/segments --transcodeDestinationPath=t2/transcoded/720p --ffmpegCmdStr="-c:v libx264 -preset medium -profile:v high -vf scale=1280:-2 -crf 27 -coder 1 -pix_fmt yuv420p -bf 2 -c:a aac -ac 2 -b:a 128K -ar 48000 -profile:a aac_low"`
-
-#### Concat video
-
-`node src/concat.js --bucket=bken-dve-dev --concatSourcePath=t2/transcoded --concatDestinationPath=t2/transcoded.mp4`
+`node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceFileName=test.mp4 --encodingQueueUrl=https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding --eventPublishingArn=arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events`
