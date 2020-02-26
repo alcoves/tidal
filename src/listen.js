@@ -2,8 +2,8 @@ const AWS = require('aws-sdk');
 const { fork } = require('child_process');
 const sqs = new AWS.SQS({ region: 'us-east-1' });
 
-const { sqsQueueUrl } = require('yargs').argv;
-if (!sqsQueueUrl) throw new Error('sqsQueueArn is required');
+const { listenQueueUrl } = require('yargs').argv;
+if (!listenQueueUrl) throw new Error('listenQueueUrl is required');
 
 const INTERVAL = 1000;
 let PROCESSING = false;
@@ -22,7 +22,7 @@ const processEvent = async () => {
 
   const { Messages } = await sqs
     .receiveMessage({
-      QueueUrl: sqsQueueUrl,
+      QueueUrl: listenQueueUrl,
       MaxNumberOfMessages: 1,
     })
     .promise();
@@ -31,21 +31,22 @@ const processEvent = async () => {
 
   if (message) {
     try {
-      const { videoId, sourceFileName, bucket } = JSON.parse(message.Body);
-      if (videoId && sourceFileName && bucket) {
-        console.log('starting pipeline');
-        await run('./src/index.js', [
-          `--bucket=${bucket}`,
-          `--videoId=${videoId}`,
-          `--sourceFileName=${sourceFileName}`,
-        ]);
-        const res = await sqs
-          .deleteMessage({
-            QueueUrl: sqsQueueUrl,
-            ReceiptHandle: message.ReceiptHandle,
-          })
-          .promise();
-      }
+      const runParams = Object.entries(JSON.parse(message.Body)).reduce(
+        (acc, [key, value]) => {
+          acc.push(`--${key}=${value}`);
+          return acc;
+        },
+        []
+      );
+
+      console.log('starting pipeline', runParams);
+      await run('./src/index.js', runParams);
+      await sqs
+        .deleteMessage({
+          QueueUrl: listenQueueUrl,
+          ReceiptHandle: message.ReceiptHandle,
+        })
+        .promise();
     } catch (error) {
       console.error(error);
     }

@@ -10,8 +10,7 @@ module.exports = ({ tmpDir, sourceFile }) => {
     ffmpeg(sourceFile)
       .outputOptions([
         '-an',
-        '-map 0',
-        '-c copy',
+        '-c:v copy',
         '-f segment',
         '-segment_time 00:00:01',
       ])

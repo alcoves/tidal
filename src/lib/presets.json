@@ -45,5 +45,15 @@
     "-coder 1",
     "-pix_fmt yuv420p",
     "-bf 2"
+  ],
+  "480p": [
+    "-c:v libx264",
+    "-preset ultrafast",
+    "-profile:v high",
+    "-vf scale=854:-2",
+    "-crf 27",
+    "-coder 1",
+    "-pix_fmt yuv420p",
+    "-bf 2"
   ]
 }
