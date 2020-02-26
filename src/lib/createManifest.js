@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = ({ transcodedLocalPath }) => {
+  console.time('creating manifest');
   const manifestPath = path.resolve(`${transcodedLocalPath}/manifest.txt`);
   const transcodedPaths = fs.readdirSync(transcodedLocalPath);
   const manifest = fs.createWriteStream(manifestPath, {
@@ -13,5 +14,6 @@ module.exports = ({ transcodedLocalPath }) => {
   }
 
   manifest.end();
+  console.timeEnd('creating manifest');
   return manifestPath;
 };

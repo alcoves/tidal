@@ -2,12 +2,12 @@ const path = require('path');
 const fs = require('fs-extra');
 const ffmpeg = require('fluent-ffmpeg');
 
-module.exports = ({ tmpDir, sourcePath }) => {
+module.exports = ({ tmpDir, sourceFile }) => {
   return new Promise((resolve, reject) => {
-    console.log('segmenting video');
+    console.time('segmenting video');
     const localSegmentPath = path.resolve(`${tmpDir}/segments`);
     fs.mkdirSync(localSegmentPath);
-    ffmpeg(sourcePath)
+    ffmpeg(sourceFile)
       .outputOptions([
         '-an',
         '-map 0',
@@ -16,8 +16,11 @@ module.exports = ({ tmpDir, sourcePath }) => {
         '-segment_time 00:00:01',
       ])
       .on('progress', () => {})
-      .on('error', (error) => reject(error))
-      .on('end', () => resolve(localSegmentPath))
+      .on('error', reject)
+      .on('end', () => {
+        console.timeEnd('segmenting video');
+        resolve(localSegmentPath);
+      })
       .output(`${localSegmentPath}/output_%04d.mkv`)
       .run();
   });

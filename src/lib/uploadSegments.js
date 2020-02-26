@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 
 module.exports = ({ bucket, segmentPath, remoteSegmentPath }) => {
   return new Promise((resolve, reject) => {
-    console.log('uploading segments');
+    console.time('uploading segments');
     let lastMessage;
     const interval = setInterval(() => {
       if (lastMessage) console.log(lastMessage);
@@ -18,6 +18,7 @@ module.exports = ({ bucket, segmentPath, remoteSegmentPath }) => {
     child.on('exit', (code) => {
       clearInterval(interval);
       if (code > 0) reject(`uploading segments exited code ${code}`);
+      console.timeEnd('uploading segments');
       resolve(code);
     });
     child.stdout.on('data', (data) => {

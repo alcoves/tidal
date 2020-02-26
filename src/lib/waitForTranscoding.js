@@ -8,6 +8,7 @@ module.exports = async ({
   remoteSegmentPath,
   transcodeDestinationPath,
 }) => {
+  console.time('waiting for transcode');
   const segmentedItems = await getObjectKeys({
     Bucket: bucket,
     Prefix: remoteSegmentPath,
@@ -25,4 +26,6 @@ module.exports = async ({
     );
     await sleep(3000);
   } while (transcodedItems.length < segmentedItems.length);
+
+  console.timeEnd('waiting for transcode');
 };
