@@ -5,7 +5,8 @@ const tmpDir = require('./lib/mkTmpDir')();
 const {
   bucket,
   videoId,
-  sourceUrl,
+  sourceKey,
+  sourceBucket,
   encodingQueueUrl,
   eventPublishingArn,
 } = require('yargs').argv;
@@ -15,9 +16,11 @@ if (eventPublishingArn)
 
 if (!bucket) throw new Error('bucket must be defined');
 if (!videoId) throw new Error('videoId must be defined');
-if (!sourceUrl) throw new Error('sourceUrl must be defined');
+if (!sourceKey) throw new Error('sourceKey must be defined');
+if (!sourceBucket) throw new Error('sourceBucket must be defined');
 if (!encodingQueueUrl) throw new Error('encodingQueueUrl must be defined');
 
+const download = require('./lib/download');
 const getPresets = require('./lib/getPresets');
 const concatVideo = require('./lib/concatVideo');
 const downloadDir = require('./lib/downloadDir');
@@ -31,17 +34,17 @@ const enqueueTransformRequests = require('./lib/enqueueTransformRequests');
 
 (async () => {
   try {
-    const sourceFile = sourceUrl;
     const remoteSegmentPath = `${videoId}/segments`;
+    const sourceFile = await download({ sourceKey, sourceBucket, tmpDir });
 
     // segmentVideo
+    const segmentPath = await segmentVideo({ tmpDir, sourceFile });
+
     // splitAudioFromSource
+    const sourceAudioPath = await splitSourceAudio({ tmpDir, sourceFile });
+
     // getPresetsFromSource
-    const [presets, segmentPath, sourceAudioPath] = await Promise.all([
-      getPresets({ sourceFile }),
-      segmentVideo({ tmpDir, sourceFile }),
-      splitSourceAudio({ tmpDir, sourceFile }),
-    ]);
+    const presets = await getPresets({ sourceFile });
 
     // upload segments
     await uploadSegments({

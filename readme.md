@@ -30,4 +30,4 @@ Make sure your SQS messages look like the following
 
 ### Full pipeline
 
-`node src/index.js --bucket=bken-dve-dev --sourceUrl=https://s3.us-east-2.wasabisys.com/media-bken/tests/test.mp4 --videoId=t2 --encodingQueueUrl=https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding --eventPublishingArn=arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events`
+`node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceKey=tests/test.mp4 --sourceBucket=media-bken --encodingQueueUrl=https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding --eventPublishingArn=arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events`

@@ -22,6 +22,13 @@ module.exports = ({ sourceFile }) => {
       const selectedPresets = [];
       const { width } = getDimensions(metadata);
 
+      if (width >= 854) {
+        selectedPresets.push({
+          presetName: '480p',
+          ffmpegCmdStr: presets['480p'].join(' '),
+        });
+      }
+
       if (width >= 1280) {
         selectedPresets.push({
           presetName: '720p',
@@ -51,6 +58,7 @@ module.exports = ({ sourceFile }) => {
       }
 
       console.timeEnd('getting video presets');
+      if (!selectedPresets.length) reject(new Error('no presets selected!'));
       resolve(selectedPresets);
     });
   });
