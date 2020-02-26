@@ -15,13 +15,12 @@ module.exports = async ({
   remoteSegmentPath,
   transcodeDestinationPath,
 }) => {
-  console.log('reading segments');
+  console.time('enqueuing messages');
   const segments = await getObjectKeys({
     Bucket: bucket,
     Prefix: remoteSegmentPath,
   });
 
-  console.log('enqueuing messages');
   for (const batch of _.chunk(segments, 10)) {
     await sqs
       .sendMessageBatch({
@@ -42,5 +41,6 @@ module.exports = async ({
       .promise();
   }
 
+  console.timeEnd('enqueuing messages');
   return transcodeDestinationPath;
 };

@@ -2,10 +2,10 @@ const { spawn } = require('child_process');
 
 module.exports = ({ bucket, videoId, concatenatedVideoPath }) => {
   return new Promise((resolve, reject) => {
+    console.time('uploading video segments');
+
     const parts = concatenatedVideoPath.split('/');
     const videoName = parts[parts.length - 1];
-
-    console.log('uploading video segments', videoName);
 
     let lastMessage;
     const interval = setInterval(() => {
@@ -22,6 +22,7 @@ module.exports = ({ bucket, videoId, concatenatedVideoPath }) => {
     child.on('exit', (code) => {
       clearInterval(interval);
       if (code > 0) reject(code);
+      console.timeEnd('uploading video segments');
       resolve();
     });
     child.stdout.on('data', (data) => {
