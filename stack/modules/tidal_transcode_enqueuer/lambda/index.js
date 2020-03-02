@@ -19,5 +19,5 @@ module.exports.handler = async (event) => {
   const presets = await getPresets(metadata);
   console.log({ presets });
 
-  return enqueueMessages(segments, presets, Bucket)
+  return enqueueMessages(segments, presets, Bucket, videoId)
 }
