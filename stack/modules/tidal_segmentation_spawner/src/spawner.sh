@@ -15,6 +15,7 @@ function handler () {
   TMP_DIR="/tmp/$VIDEO_ID"
   SOURCE_PATH=$TMP_DIR/$FILENAME
   SEGMENT_DIR=$TMP_DIR/segments
+  VIDEO_EXTENSION=${FILENAME: -3}
 
   echo "KEY: $KEY"
   echo "BUCKET: $BUCKET"
