@@ -19,13 +19,14 @@ function handler () {
   echo "KEY: $KEY"
   echo "BUCKET: $BUCKET"
   echo "FILENAME: $FILENAME"
-  echo "DISK_SIZE_GB: $DISK_SIZE_GB"
+  echo "SAFE_DISK_SIZE: $SAFE_DISK_SIZE"
   echo "OBJECT_SIZE_IN_BYTES: $OBJECT_SIZE_IN_BYTES"
 
   if [[ $FILENAME == *".mp4"* ]]; then
 cat > /tmp/start-segmentation.txt \
 << EOL
 #!/bin/bash
+
 echo "installing dependencies"
 sudo apt update
 sudo apt install -y ffmpeg curl wget awscli
@@ -38,7 +39,7 @@ aws s3 cp s3://$BUCKET/$KEY $SOURCE_PATH
 ffmpeg -y -i $SOURCE_PATH $TMP_DIR/audio.wav
 aws s3 cp $TMP_DIR/audio.wav s3://$BUCKET/audio/$VIDEO_ID/audio.wav
 
-ffmpeg -y -i $SOURCE_PATH -map 0 -c copy -f segment -segment_time 1 -an $SEGMENT_DIR/output_%04d.mp4
+ffmpeg -y -i $SOURCE_PATH -c copy -f segment -segment_time 1 -an $SEGMENT_DIR/output_%04d.mp4
 
 aws s3 sync $SEGMENT_DIR s3://$BUCKET/segments/$VIDEO_ID/
 

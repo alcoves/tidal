@@ -5,7 +5,7 @@ const chunk = require('./chunk');
 AWS.config.update({ region: 'us-east-1' });
 const sqs = new AWS.SQS();
 
-module.exports = async (segments, presets, Bucket) => {
+module.exports = async (segments, presets, Bucket, videoId) => {
   const messages = segments.reduce((acc, { Key }) => {
     presets.map(({ presetName, ffmpegCmdStr }) => {
       acc.push({
@@ -13,7 +13,7 @@ module.exports = async (segments, presets, Bucket) => {
         MessageBody: JSON.stringify({
           ffmpegCommand: ffmpegCmdStr,
           inPath: `${Bucket}/${Key}`,
-          outPath: `${Bucket}/transcoded-segments/${presetName}/${Key.split('/').pop()}`,
+          outPath: `${Bucket}/transcoded-segments/${videoId}/${presetName}/${Key.split('/').pop()}`,
         }),
       })
     })
