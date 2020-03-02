@@ -6,7 +6,7 @@ locals {
 
 data "archive_file" "transcode_enqueuer" {
   type        = "zip"
-  source_dir  = "${path.module}/src/"
+  source_dir  = "${path.module}/lambda/"
   output_path = local.archive_output_path
 }
 
@@ -21,6 +21,12 @@ resource "aws_lambda_function" "tidal_transcode_enqueuer" {
   source_code_hash = data.archive_file.transcode_enqueuer.output_base64sha256
   depends_on       = [aws_cloudwatch_log_group.tidal_transcode_enqueuer]
   layers           = ["arn:aws:lambda:us-east-1:744348701589:layer:bash:8"]
+
+  environment {
+    variables = {
+      ENCODING_QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding"
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "tidal_transcode_enqueuer" {
