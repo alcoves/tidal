@@ -29,6 +29,3 @@ aws --profile doco configure set aws_secret_access_key $2
 # Setup wasabo keys
 aws --profile wasabi configure set aws_access_key_id $3
 aws --profile wasabi configure set aws_secret_access_key $4
-
-# Start nomad server
-nomad agent -dev -bind 0.0.0.0 &
