@@ -1,0 +1,1 @@
+nomad agent -config=$1.hcl
