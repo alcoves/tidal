@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-TMP_DIR=$(mktemp -d)
+ffmpeg -i local/video -c:v libx264 -crf 22 local/out.mp4 
 
-wget -O "${TMP_DIR}/source.mp4" $1
-
-ffmpeg -i "${TMP_DIR}/source.mp4" -c copy "${TMP_DIR}/outFile.mp4"
+aws s3 cp local/out.mp4 s3://bken-sandbox-dev/720p-converted.mp4
