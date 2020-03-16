@@ -16,9 +16,9 @@ job "thumbnailer" {
     }
 
     env {
-      "ACCESS_KEY" = "${NOMAD_META_KEYID}"
-      "SECRET_KEY" = "${NOMAD_META_SECRETKEY}"
-      "ENDPOINT"   = "nyc3.digitaloceanspaces.com"
+      "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_KEYID}"
+      "AWS_SECRET_ACCESS_KEY" = "${NOMAD_META_SECRETKEY}"
+      "ENDPOINT"              = "nyc3.digitaloceanspaces.com"
     }
 
     config {
@@ -29,19 +29,14 @@ job "thumbnailer" {
     resources {
       cpu    = 250
       memory = 128
-      network {
-        mbits = 1000
-        port "http" {}
-        port "https" {}
-      }
     }
 
     template {
       destination = "local/s3cfg.ini"
       data = <<EOH
 [default]
-  access_key = {{ env "ACCESS_KEY"}}
-  secret_key = {{ env "SECRET_KEY"}}
+  access_key = {{ env "AWS_ACCESS_KEY_ID"}}
+  secret_key = {{ env "AWS_SECRET_ACCESS_KEY"}}
   host_base = {{ env "ENDPOINT"}}
   host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
 EOH
