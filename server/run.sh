@@ -1,0 +1,1 @@
+nomad agent -config=server.conf
