@@ -38,7 +38,7 @@ job "thumbnailer" {
   access_key = {{ env "ACCESS_KEY"}}
   secret_key = {{ env "SECRET_KEY"}}
   host_base = {{ env "ENDPOINT"}}
-  host_bucket = "%(bucket)s.{{ env "ENDPOINT"}}"
+  host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
 EOH
     }
   }
