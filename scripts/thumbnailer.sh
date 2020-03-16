@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
+FILE_NAME=video
+THUMB_NAME=thumb.webp
 
-TMP_DIR=$(mktemp -d)
-
-wget -O "${TMP_DIR}/source.mp4" $1
-
-ffmpeg -i "${TMP_DIR}/source.mp4" -vframes 1 -ss $2 -filter:v scale='720:-1' "${TMP_DIR}/thumb.jpg"
-
-aws s3 cp "${TMP_DIR}/thumb.jpg" s3://bken-tidal-dev/test/thumb.jpg
+wget -O $FILE_NAME $1
+ffmpeg -i $FILE_NAME -vframes 1 -ss $2 -filter:v scale='480:-1' -quality 70 $THUMB_NAME
+aws s3 cp $THUMB_NAME s3://bken-tidal-dev/test/$THUMB_NAME
