@@ -16,7 +16,7 @@ job "transcode" {
     }
 
     env {
-      "AWS_DEFAULT_REGION"    = "nyc3"
+      "AWS_DEFAULT_REGION"    = "US"
       "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_KEYID}"
       "AWS_SECRET_ACCESS_KEY" = "${NOMAD_META_SECRETKEY}"
     }
