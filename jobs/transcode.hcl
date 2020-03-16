@@ -2,10 +2,6 @@ job "transcode" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  meta {
-    input = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
-  }
-
   parameterized {
     meta_required = ["input", "keyid", "secretkey"]
   }
