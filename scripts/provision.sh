@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-if 
-
 # Install nodejs
 sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
