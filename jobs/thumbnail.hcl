@@ -12,7 +12,7 @@ job "thumbnailer" {
   }
 
   task "tc" {
-    driver = "raw_exec"
+    driver = "exec"
 
     env {
       "AWS_DEFAULT_REGION"    = "nyc3"
@@ -21,7 +21,7 @@ job "thumbnailer" {
     }
 
     config {
-      command = "/root/tidal/scripts/thumbnailer.sh"
+      command = "thumbnailer.sh"
       args    = ["${NOMAD_META_INPUT}", "${NOMAD_META_TIMECODE}"]
     }
 
