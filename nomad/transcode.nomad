@@ -29,8 +29,8 @@ job "transcode" {
     }
 
     resources {
-      cpu    = 1000
-      memory = 256
+      cpu    = 250
+      memory = 128
     }
 
     template {
