@@ -2,13 +2,12 @@ job "transcode" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  // meta {
-  //   input    = ""
-  //   timecode = "00:00:00"
-  // }
+  meta {
+    input = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
+  }
 
   parameterized {
-    meta_required = ["keyid", "secretkey"]
+    meta_required = ["input", "keyid", "secretkey"]
   }
 
   task "transcode" {
@@ -17,7 +16,7 @@ job "transcode" {
     artifact {
       mode        = "file"
       destination = "local/file"
-      source      = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
+      source      = "${NOMAD_META_INPUT}"
     }
 
     env {
