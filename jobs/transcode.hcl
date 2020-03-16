@@ -30,8 +30,8 @@ job "transcode" {
     }
 
     resources {
-      cpu    = 250
-      memory = 128
+      cpu    = 1024
+      memory = 1024
     }
   }
 }
