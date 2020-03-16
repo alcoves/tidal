@@ -16,7 +16,7 @@ job "thumbnailer" {
 
     artifact {
       source = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
-      destination = "local/"
+      destination = "local/video"
     }
 
     env {

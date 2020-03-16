@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
-ls
-ls -al
 
-ls ./local/
-
-FILE_NAME=local/720p.mp4
+FILE_NAME=local/video
 THUMB_NAME=local/thumb.webp
 
 # wget -O $FILE_NAME $1
