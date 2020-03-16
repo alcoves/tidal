@@ -15,8 +15,7 @@ job "transcode" {
     driver = "exec"
 
     artifact {
-      source      = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
-      destination = "local/video.mp4"
+      source = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
     }
 
     env {
