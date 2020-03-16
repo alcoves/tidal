@@ -2,22 +2,17 @@ job "thumbnailer" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  meta {
-    input    = ""
-    timecode = "00:00:00"
-  }
-
   parameterized {
     meta_required = ["input", "timecode", "keyid", "secretkey"]
   }
 
-  task "tc" {
+  task "thumbnailer" {
     driver = "exec"
 
     artifact {
       mode        = "file"
       destination = "local/file"
-      source      = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
+      source      = "${NOMAD_META_INPUT}"
     }
 
     env {
