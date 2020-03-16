@@ -7,7 +7,7 @@ job "transcode" {
   }
 
   task "transcode" {
-    driver = "exec"
+    driver = "raw_exec"
 
     artifact {
       mode        = "file"
@@ -22,7 +22,8 @@ job "transcode" {
     }
 
     config {
-      command = "transcode.sh"
+      command = "/bin/bash"
+      args    = ["local/transcode.sh"]
     }
 
     resources {

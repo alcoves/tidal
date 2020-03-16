@@ -7,7 +7,7 @@ job "thumbnailer" {
   }
 
   task "thumbnailer" {
-    driver = "exec"
+    driver = "raw_exec"
 
     artifact {
       mode        = "file"
@@ -21,9 +21,15 @@ job "thumbnailer" {
       "ENDPOINT"              = "nyc3.digitaloceanspaces.com"
     }
 
+
+    config {
+      command = "/bin/bash"
+      args    = ["local/thumbnailer.sh"]
+    }
+
     config {
       command = "thumbnailer.sh"
-      args    = ["${NOMAD_META_INPUT}", "${NOMAD_META_TIMECODE}"]
+      args    = ["${NOMAD_META_TIMECODE}"]
     }
 
     resources {
@@ -39,6 +45,22 @@ job "thumbnailer" {
   secret_key = {{ env "AWS_SECRET_ACCESS_KEY"}}
   host_base = {{ env "ENDPOINT"}}
   host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
+EOH
+    }
+
+    template {
+      destination = "local/thumbnailer.sh"
+      data = <<EOH
+#!/bin/bash
+set -e
+
+TIMECODE=$1
+VIDEO_INPUT_PATH=local/file
+THUMBNAIL_OUTPUT_PATH=local/thumb.webp
+
+ffmpeg -y -i $VIDEO_INPUT_PATH -vframes 1 -ss $TIMECODE -filter:v scale='480:-1' -quality 70 $THUMBNAIL_OUTPUT_PATH
+
+s3cmd put -c local/s3cfg.ini $THUMBNAIL_OUTPUT_PATH s3://bken-sandbox-dev/thumb.jpg
 EOH
     }
   }
