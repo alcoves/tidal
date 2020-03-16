@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FILE_NAME=local/video
+FILE_NAME=local/file
 THUMB_NAME=local/thumb.webp
 
 # wget -O $FILE_NAME $1
