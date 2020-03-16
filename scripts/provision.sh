@@ -22,10 +22,6 @@ sudo apt-get update
 # Install the latest version of necessary packages
 sudo apt-get install -y s3cmd awscli ffmpeg unzip docker.io
 
-# Instead of symlink, move ffmpeg to be inside the chroot for Nomad
-sudo rm /usr/bin/ffmpeg
-sudo cp /opt/ffmpeg/bin/ffmpeg /usr/bin/ffmpeg
-
 # Download the latest build of Nomad
 wget -nv -O /tmp/nomad.zip "https://releases.hashicorp.com/nomad/0.10.4/nomad_0.10.4_linux_amd64.zip"
 
