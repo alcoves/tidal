@@ -1,1 +1,1 @@
-nomad agent -config=$1.hcl
+nomad agent -config=$1.hcl &
