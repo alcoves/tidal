@@ -29,6 +29,11 @@ job "thumbnailer" {
     resources {
       cpu    = 250
       memory = 128
+      network {
+        mbits = 1000
+        port "http" {}
+        port "https" {}
+      }
     }
 
     template {
