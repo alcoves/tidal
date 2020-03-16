@@ -1,1 +1,1 @@
-nomad agent -config=server.conf
+nomad agent -config=server.hcl
