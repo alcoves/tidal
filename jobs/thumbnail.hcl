@@ -12,15 +12,17 @@ job "thumbnailer" {
   }
 
   task "tc" {
-    driver = "exec"
+    driver = "raw_exec"
+
+    env {
+      "AWS_DEFAULT_REGION"    = "nyc3"
+      "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_KEYID}"
+      "AWS_SECRET_ACCESS_KEY" = "${NOMAD_META_SECRETKEY}"
+    }
+
     config {
-      command = "/bin/bash"
-      args    = [
-        "AWS_DEFAULT_REGION=nyc3",
-        "AWS_ACCESS_KEY_ID=${NOMAD_META_KEYID}",
-        "AWS_SECRET_ACCESS_KEY=${NOMAD_META_SECRETKEY}",
-        "ffmpeg -i ${NOMAD_META_INPUT} -vframes 1 -ss ${NOMAD_META_TIMECODE} -filter:v scale='720:-1' | aws s3 cp - s3://bken-tidal-dev/test/thumb.jpg",
-      ]
+      command = "/root/tidal/scripts/thumbnailer.sh"
+      args    = ["${NOMAD_META_INPUT}", "${NOMAD_META_TIMECODE}"]
     }
 
     resources {

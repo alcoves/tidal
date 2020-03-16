@@ -1,7 +1,4 @@
 #!/bin/bash
+set -e
 
-TMP_DIR=$(mktemp -d)
-
-ffmpeg -i $1 -vframes 1 -ss $2 -filter:v scale="720:-1" "$TMP_DIR/thumb.jpg"
-
-# TODO :: send event notification
+ffmpeg -i $1 -vframes 1 -ss $2 -filter:v scale='720:-1' | aws s3 cp - s3://bken-tidal-dev/test/thumb.jpg
