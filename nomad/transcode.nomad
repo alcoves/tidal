@@ -17,32 +17,32 @@ job "transcode" {
   }
 
   task "tc" {
-    driver = "exec"
+    driver = "raw_exec"
 
     config {
-      command = "scripts/transcode.sh"
+      command = "/root/tidal/scripts/transcode.sh"
       args    = ["${NOMAD_META_INPUT}", "${NOMAD_META_PROFILE}"]
     }
 
-    env {
-      "S3_BUCKET" = "BUCKET_NAME"
-    }
+    // env {
+    //   "S3_BUCKET" = "BUCKET_NAME"
+    // }
 
     resources {
       cpu    = 250
       memory = 128
     }
 
-    template {
-      destination = "local/s3cfg.ini"
+//     template {
+//       destination = "local/s3cfg.ini"
 
-      # This example uses hard-coded credentials, but a real production job
-      # file should pull secrets using the Vault integration.
-      data = <<EOH
-[default]
-access_key = "<access_key>"
-secret_key = "<secret_key>"
-EOH
-    }
+//       # This example uses hard-coded credentials, but a real production job
+//       # file should pull secrets using the Vault integration.
+//       data = <<EOH
+// [default]
+// access_key = "<access_key>"
+// secret_key = "<secret_key>"
+// EOH
+//     }
   }
 }
