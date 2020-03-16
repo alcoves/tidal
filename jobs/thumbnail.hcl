@@ -14,6 +14,11 @@ job "thumbnailer" {
   task "tc" {
     driver = "exec"
 
+    artifact {
+      source = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
+      destination = "local/video"
+    }
+
     env {
       "AWS_DEFAULT_REGION"    = "nyc3"
       "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_KEYID}"
