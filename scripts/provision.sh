@@ -3,7 +3,7 @@ set -e
 
 # Install deps
 sudo apt update
-sudo apt install -y unzip ffmpeg awscli
+sudo apt install -y unzip ffmpeg s3cmd
 
 # Install nodejs
 # sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
