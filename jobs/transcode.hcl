@@ -28,6 +28,11 @@ job "transcode" {
     resources {
       cpu    = 1024
       memory = 1024
+      network {
+        mbits = 1000
+        port "http" {}
+        port "https" {}
+      }
     }
 
     template {
