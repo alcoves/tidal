@@ -1,95 +1,21 @@
 #!/bin/bash
 set -e
 
-# Set the mode for the provisioning. This can be "vagrant", "server", or
-# "client"
-MODE="vagrant"
-if [ $1 == "server" ]; then
-  MODE=$1
-elif [ $1 == "client" ]; then
-  MODE=$1
-elif [ $1 == "vagrant" ]; then
-  MODE=$1
-fi
-echo "Provisioning mode: $MODE"
+# Install nodejs
+sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
-# Get the packages necessary for add-apt-respository
-sudo apt-get install -y software-properties-common
+# Install deps
+sudo apt update
+sudo apt install -y unzip ffmpeg awscli nodejs
 
-# Update the package versions
-sudo apt-get update
+# Install nodejs deps
+npm i -g yarn npm
 
-# Install the latest version of necessary packages
-sudo apt-get install -y s3cmd awscli ffmpeg unzip docker.io
+# Install nomad
+wget https://releases.hashicorp.com/nomad/0.10.4/nomad_0.10.4_linux_amd64.zip
+unzip nomad_0.10.4_linux_amd64.zip
+rm nomad_0.10.4_linux_amd64.zip
+mv nomad /usr/local/bin
 
-# Download the latest build of Nomad
-wget -nv -O /tmp/nomad.zip "https://releases.hashicorp.com/nomad/0.10.4/nomad_0.10.4_linux_amd64.zip"
-
-# Unzip and install nomad
-unzip /tmp/nomad.zip
-sudo chmod +x nomad
-sudo mv nomad /usr/bin/nomad
-
-# Determine the configuration
-if [ $MODE == "vagrant" ]; then
-  BIND="127.0.0.1"
-  SERVER_ENABLED="true"
-  CLIENT_ENABLED="true"
-  BOOTSTRAP="1"
-  ADVERTISE='
-advertise {
-  http="127.0.0.1"
-  rpc="127.0.0.1"
-  serf="127.0.0.1"
-}
-'
-elif [ $MODE == "server" ]; then
-  BIND="0.0.0.0"
-  SERVER_ENABLED="true"
-  CLIENT_ENABLED="false"
-  BOOTSTRAP="1"
-  ADVERTISE=""
-elif [ $MODE == "client" ]; then
-  BIND="127.0.0.1"
-  SERVER_ENABLED="false"
-  CLIENT_ENABLED="true"
-  BOOTSTRAP="0"
-  ADVERTISE=""
-fi
-
-# Create the configuration directory and populate
-sudo mkdir -p /etc/nomad.d/
-sudo mkdir -p /var/nomad/
-cat >/tmp/agent.json <<EOL
-data_dir = "/var/nomad/"
-bind_addr = "$BIND"
-server {
-  enabled = $SERVER_ENABLED
-  bootstrap_expect = $BOOTSTRAP
-}
-client {
-  enabled = $CLIENT_ENABLED
-}
-telemetry {
-  datadog_address = "127.0.0.1:8125"
-}
-$ADVERTISE
-EOL
-sudo mv /tmp/agent.json /etc/nomad.d/agent.json
-
-# Create the init script
-cat >/tmp/nomad.conf <<EOL
-# nomad - Nomad application scheduler agent
-description "agent to participate in a Nomad cluster"
-start on runlevel [2345]
-stop on runlevel [!2345]
-respawn
-exec nomad agent -config /etc/nomad.d/
-EOL
-sudo mv /tmp/nomad.conf /etc/init/nomad.conf
-
-# Start nomad
-sudo start nomad || true
-
-# Wait for Nomad to start
-sleep 10
+# Start nomad server
+nomad agent -dev -bind 0.0.0.0
