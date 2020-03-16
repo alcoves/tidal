@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cat local/s3cmd.ini
+cat local/s3cfg.ini
 
 VIDEO_INPUT_PATH=local/file
 THUMBNAIL_OUTPUT_PATH=local/thumb.webp
