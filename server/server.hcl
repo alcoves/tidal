@@ -19,10 +19,6 @@ client {
   // network_speed = 10
 }
 
-ui {
-  enabled = true
-}
-
 plugin "raw_exec" {
   config {
     enabled = true
