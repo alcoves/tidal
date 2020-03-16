@@ -29,5 +29,16 @@ job "transcode" {
       cpu    = 1024
       memory = 1024
     }
+
+    template {
+      destination = "local/s3cfg.ini"
+      data = <<EOH
+[default]
+access_key = "${NOMAD_META_KEYID}"
+secret_key = "${NOMAD_META_SECRETKEY}"
+host_base = nyc3.digitaloceanspaces.com
+host_bucket = %(bucket)s.nyc3.digitaloceanspaces.com
+EOH
+    }
   }
 }
