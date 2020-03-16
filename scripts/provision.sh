@@ -17,5 +17,8 @@ unzip nomad_0.10.4_linux_amd64.zip
 rm nomad_0.10.4_linux_amd64.zip
 mv nomad /usr/local/bin
 
+# Make the data dir for nomad
+mkdir /root/nomad
+
 # Start nomad server
 nomad agent -dev -bind 0.0.0.0
