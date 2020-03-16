@@ -1,10 +1,16 @@
-bind_addr = "10.132.50.23"
+bind_addr = "0.0.0.0"
 data_dir  = "/var/lib/nomad"
 
+addresses {
+  http = "{{ GetInterfaceIP \"eth0\" }}"
+  rpc  = "{{ GetInterfaceIP \"eth1\" }}"
+  serf = "{{ GetInterfaceIP \"eth1\" }}"
+}
+
 advertise {
-  http = "10.132.50.23:4646"
-  rpc  = "10.132.50.23:4647"
-  serf = "10.132.50.23:4648"
+  http = "{{ GetInterfaceIP \"eth0\" }}"
+  rpc  = "{{ GetInterfaceIP \"eth1\" }}"
+  serf = "{{ GetInterfaceIP \"eth1\" }}"
 }
 
 server {
