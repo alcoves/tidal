@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+if 
+
 # Install nodejs
 sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
@@ -20,5 +22,13 @@ mv nomad /usr/local/bin
 # Make the data dir for nomad
 mkdir /root/nomad
 
+# Setup doco keys
+aws --profile doco configure set aws_access_key_id $1
+aws --profile doco configure set aws_secret_access_key $2
+
+# Setup wasabo keys
+aws --profile wasabi configure set aws_access_key_id $3
+aws --profile wasabi configure set aws_secret_access_key $4
+
 # Start nomad server
-nomad agent -dev -bind 0.0.0.0
+nomad agent -dev -bind 0.0.0.0 &
