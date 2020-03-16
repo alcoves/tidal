@@ -33,13 +33,12 @@ job "transcode" {
     template {
       destination = "local/s3cfg.ini"
       data = <<EOH
-      ---
-      [default]
-        access_key = {{ env "ACCESS_KEY"}}
-        secret_key = {{ env "SECRET_KEY"}}
-        host_base = {{ env "ENDPOINT"}}
-        host_bucket = "%(bucket)s.{{ env "ENDPOINT"}}"
-      EOH
+[default]
+  access_key = {{ env "ACCESS_KEY"}}
+  secret_key = {{ env "SECRET_KEY"}}
+  host_base = {{ env "ENDPOINT"}}
+  host_bucket = "%(bucket)s.{{ env "ENDPOINT"}}"
+EOH
     }
   }
 }
