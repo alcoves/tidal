@@ -1,5 +1,5 @@
 bind_addr = "0.0.0.0"
-data_dir  = "/root/nomad"
+data_dir  = "/var/lib/nomad"
 
 server_join {
   retry_max = 5
