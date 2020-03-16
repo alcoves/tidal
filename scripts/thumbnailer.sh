@@ -1,4 +1,10 @@
 #!/bin/bash
 set -e
 
-ffmpeg -i $1 -vframes 1 -ss $2 -filter:v scale='720:-1' -f mp4 -movflags frag_keyframe+faststart pipe:1 | aws s3 cp - s3://bken-tidal-dev/test/thumb.jpg
+TMP_DIR=$(mktemp -d)
+
+wget -O "${TMP_DIR}/source.mp4" $1
+
+ffmpeg -i "${TMP_DIR}/source.mp4" -vframes 1 -ss $2 -filter:v scale='720:-1' "${TMP_DIR}/thumb.jpg"
+
+aws s3 cp "${TMP_DIR}/thumb.jpg" s3://bken-tidal-dev/test/thumb.jpg
