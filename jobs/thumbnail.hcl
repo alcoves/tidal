@@ -36,8 +36,8 @@ job "thumbnailer" {
       data = <<EOH
       ---
       [default]
-        access_key = {{ env "AWS_ACCESS_KEY_ID"}}
-        secret_key = {{ env "AWS_SECRET_ACCESS_KEY"}}
+        access_key = {{ env "ACCESS_KEY"}}
+        secret_key = {{ env "SECRET_KEY"}}
         host_base = {{ env "ENDPOINT"}}
         host_bucket = "%(bucket)s.{{ env "ENDPOINT"}}"
       EOH
