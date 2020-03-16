@@ -15,8 +15,9 @@ job "thumbnailer" {
     driver = "exec"
 
     artifact {
+      mode        = "file"
+      destination = "local/file"
       source      = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
-      destination = "local/video"
     }
 
     env {

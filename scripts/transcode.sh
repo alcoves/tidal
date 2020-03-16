@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-VIDEO_INPUT_PATH=local/video
+VIDEO_INPUT_PATH=local/file
 VIDEO_OUTPUT_PATH=local/out.mp4
 
 echo "Video Path $VIDEO_INPUT_PATH"

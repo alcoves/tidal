@@ -11,12 +11,13 @@ job "transcode" {
     meta_required = ["keyid", "secretkey"]
   }
 
-  task "tc" {
+  task "transcode" {
     driver = "exec"
 
     artifact {
+      mode        = "file"
+      destination = "local/file"
       source      = "https://bken-sandbox-dev.nyc3.digitaloceanspaces.com/720p.mp4"
-      destination = "local/video"
     }
 
     env {
@@ -27,7 +28,6 @@ job "transcode" {
 
     config {
       command = "transcode.sh"
-      args    = []
     }
 
     resources {
