@@ -23,9 +23,7 @@ job "thumbnailer" {
 
 
     config {
-      command = "/bin/bash"
-      args    = ["local/thumbnailer.sh"]
-    }
+      command = "thumbnailer.sh"
 
     config {
       command = "thumbnailer.sh"

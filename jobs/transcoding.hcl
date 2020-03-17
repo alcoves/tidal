@@ -34,7 +34,7 @@ job "transcoding" {
     }
 
     config {
-      command = "/home/brendan/code/bken/tidal/scripts/transcoding.sh"
+      command = "transcoding.sh"
       args    = [
         "${NOMAD_META_CMD}",
         "${NOMAD_META_PRESET}",
