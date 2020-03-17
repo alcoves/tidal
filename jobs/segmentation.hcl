@@ -1,13 +1,9 @@
 job "segmentation" {
   type        = "batch"
   datacenters = ["dc1"]
-
-  meta {
-    timecode = "00:00:00"
-  }
-
+  
   parameterized {
-    meta_required = ["input", "timecode"]
+    meta_required = ["input"]
   }
 
   task "segmentation" {
@@ -20,7 +16,7 @@ job "segmentation" {
     }
 
     config {
-      command = "segmentation.sh"
+      command = "/root/tidal/scripts/segmentation.sh"
       args    = ["${NOMAD_META_INPUT}"]
     }
 
