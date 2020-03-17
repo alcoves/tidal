@@ -21,7 +21,7 @@ NUM_TRANSCODED=$(s3cmd ls -c local/.s3cfg --recursive s3://$BUCKET/transcoded-se
 echo "NUM_EXPECTED $NUM_EXPECTED"
 echo "NUM_TRANSCODED $NUM_TRANSCODED"
 
-while ["$NUM_TRANSCODED" -lt "$NUM_EXPECTED"]; do
+while [ "$NUM_TRANSCODED" -ne "$NUM_EXPECTED" ]; do
   sleep 5
   echo "Waiting for transcoded parts"
   echo "NUM_EXPECTED $NUM_EXPECTED"
