@@ -5,6 +5,8 @@ set -e
 IN_PATH= "local/file"
 OUT_DIR = "local/segments"
 
+ls local/
+
 # Creating data directories
 mkdir -p $OUT_DIR
 
