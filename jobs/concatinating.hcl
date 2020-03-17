@@ -1,18 +1,18 @@
-job "segmenting" {
+job "concatinating" {
   type        = "batch"
   datacenters = ["dc1"]
 
   parameterized {
     meta_required = [
+      "preset",
       "bucket",
       "video_id",
-      "filename",
       "aws_access_key_id",
       "aws_access_key_secret"
     ]
   }
 
-  task "segmenting" {
+  task "concatinating" {
     driver = "raw_exec"
 
     env {
@@ -21,20 +21,11 @@ job "segmenting" {
       "ENDPOINT"              = "nyc3.digitaloceanspaces.com"
     }
 
-    artifact {
-      mode        = "file"
-      destination = "local/file"
-      source      = "s3::https://${NOMAD_META_BUCKET}.nyc3.digitaloceanspaces.com/uploads/${NOMAD_META_VIDEO_ID}/${NOMAD_META_FILENAME}"
-      options {
-        aws_access_key_id     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-        aws_access_key_secret = "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
-      }
-    }
-
     config {
-      // command = "/root/tidal/scripts/segmenting.sh"
-      command = "/home/brendan/code/bken/tidal/scripts/segmenting.sh"
+      // command = "/root/tidal/scripts/concatinating.sh"
+      command = "/home/brendan/code/bken/tidal/scripts/concatinating.sh"
       args    = [
+        "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
