@@ -33,8 +33,8 @@ job "thumbnailer" {
     }
 
     resources {
-      cpu    = 250
-      memory = 128
+      cpu    = 2048
+      memory = 900
     }
 
     template {

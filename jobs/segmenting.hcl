@@ -43,7 +43,7 @@ job "segmenting" {
     }
 
     resources {
-      cpu    = 950
+      cpu    = 2048
       memory = 900
     }
 
