@@ -37,3 +37,6 @@ sudo cp tidal/nomad/server.service /etc/systemd/system/nomad-server.service
 
 sudo systemctl enable nomad-server.service
 sudo systemctl start nomad-server.service
+
+# Symlink scripts so they can be called globally
+sudo ln -s /root/tidal/scripts/* /usr/local/bin/
