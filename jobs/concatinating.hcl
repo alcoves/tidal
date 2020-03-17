@@ -22,8 +22,7 @@ job "concatinating" {
     }
 
     config {
-      // command = "/root/tidal/scripts/concatinating.sh"
-      command = "/home/brendan/code/bken/tidal/scripts/concatinating.sh"
+      command = "concatinating.sh"
       args    = [
         "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",

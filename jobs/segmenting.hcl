@@ -32,8 +32,7 @@ job "segmenting" {
     }
 
     config {
-      // command = "/root/tidal/scripts/segmenting.sh"
-      command = "/home/brendan/code/bken/tidal/scripts/segmenting.sh"
+      command = "segmenting.sh"
       args    = [
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
