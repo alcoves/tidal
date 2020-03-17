@@ -44,6 +44,11 @@ job "transcoding" {
       ]
     }
 
+    resources {
+      cpu    = 1900
+      memory = 900
+    }
+
     template {
       destination = "local/.s3cfg"
       data = <<EOH

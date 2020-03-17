@@ -15,13 +15,13 @@ echo "Create data directories"
 mkdir -p $SEGMENTS_DIR
 
 echo "Exporting audio"
-ffmpeg -i $IN_PATH $AUDIO_PATH
+ffmpeg -i $IN_PATH -threads 1 $AUDIO_PATH
 
 echo "Uploading audio"
 s3cmd put -c local/.s3cfg $AUDIO_PATH s3://$BUCKET/audio/$VIDEO_ID/source.wav
 
 echo "Segmenting video"
-ffmpeg -i $IN_PATH -y -map 0 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
+ffmpeg -i $IN_PATH -y -map 0 -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
 
 echo "Segmentation complete"
 ls $SEGMENTS_DIR/
@@ -52,9 +52,12 @@ for PRESET in "480p-libx264" "720p-libx264"; do
       transcoding
   done
 
-  # echo "Enqueuing concatination requests"
-  # nomad job dispatch -detach \
-  #   -meta="segments=20" \
-  #   -meta="message=test!" \
-  #   transcoding
+  echo "Enqueuing concatination requests"
+  nomad job dispatch -detach \
+      -meta "preset=$PRESET" \
+      -meta "bucket=$BUCKET" \
+      -meta "video_id=$VIDEO_ID" \
+      -meta "aws_access_key_id=$AWS_ACCESS_KEY_ID" \
+      -meta "aws_access_key_secret=$AWS_ACCESS_KEY_SECRET" \
+    concatinating
 done
