@@ -5,12 +5,11 @@ ARG GIT_SHA
 ENV GIT_SHA=$GIT_SHA
 ENV REPO_URL="https://github.com/bken-io/tidal.git"
 
-RUN apk add s3cmd --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
-
 RUN apk add --update --no-cache \
   git \
   bash \
   wget \
+  rclone \
   ffmpeg
 
 RUN git clone $REPO_URL
