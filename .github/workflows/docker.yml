@@ -12,10 +12,10 @@ jobs:
       - name: Publish to GitHub
         uses: elgohr/Publish-Docker-Github-Action@master
         env:
-          GITHUB_REF: ${{ secrets.GITHUB_REF }}
+          GIT_SHA: ${{ github.sha }}
         with:
           name: bken-io/tidal/tidal
           username: ${{ github.actor }}
           registry: docker.pkg.github.com
           password: ${{ secrets.GITHUB_TOKEN }}
-          buildargs: GITHUB_REF
+          buildargs: GIT_SHA
