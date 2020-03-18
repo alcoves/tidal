@@ -31,6 +31,7 @@ job "segmenting" {
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_FILENAME}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
+        "${NOMAD_META_GITHUB_ACCESS_TOKEN}",
         "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }

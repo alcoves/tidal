@@ -8,26 +8,29 @@ job "concatinating" {
       "bucket",
       "video_id",
       "aws_access_key_id",
+      "github_access_token",
       "aws_secret_access_key"
     ]
   }
 
   task "concatinating" {
-    driver = "raw_exec"
+    driver = "docker"
 
-    env {
-      AWS_ACCESS_KEY_ID     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-      AWS_SECRET_ACCESS_KEY = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
-      ENDPOINT              = "nyc3.digitaloceanspaces.com"
+    auth {
+      username = "rustyguts"
+      password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
     }
 
     config {
-      command = "concatinating.sh"
+      force_pull = true
+      image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+      command    = "/tidal/scripts/concatinating.sh"
       args    = [
         "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
+        "${NOMAD_META_GITHUB_ACCESS_TOKEN}",
         "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }
@@ -35,17 +38,9 @@ job "concatinating" {
     resources {
       cpu    = 2048
       memory = 900
-    }
-
-    template {
-      destination = "local/.s3cfg"
-      data = <<EOH
-[default]
-access_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_ID"}}
-secret_key = {{ env "NOMAD_META_aws_secret_access_key"}}
-host_base = {{ env "ENDPOINT"}}
-host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
-EOH
+      network {
+        mbits = 1000
+      }
     }
   }
 }
