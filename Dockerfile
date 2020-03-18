@@ -9,8 +9,8 @@ RUN apk add --update --no-cache \
   git \
   bash \
   wget \
-  ffmpeg \
-  aws-cli
+  s3cmd \
+  ffmpeg
 
 RUN git clone $REPO_URL
 RUN cd /tidal && git reset --hard $GIT_SHA && cd /
