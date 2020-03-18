@@ -1,12 +1,18 @@
-name: Publish Docker
-on: [push]
+name: Deploy Docker
+on:
+push:
+  branches:
+    - dev
+    - master
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Publish to Registry
+      - name: Publish to GitHub
         uses: elgohr/Publish-Docker-Github-Action@master
+        env:
+          GIT_BRANCH: ${GITHUB_REF##*/}
         with:
           name: bken-io/tidal/tidal
           username: ${{ github.actor }}
