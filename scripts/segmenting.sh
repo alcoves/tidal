@@ -38,7 +38,7 @@ echo "Exporting audio"
 ffmpeg -i $SOURCE_VIDEO -threads 1 $AUDIO_PATH
 
 echo "Uploading audio"
-rclone copy $AUDIO_PATH do:$BUCKET/audio/$VIDEO_ID/source.wav
+rclone copy $AUDIO_PATH do:$BUCKET/audio/$VIDEO_ID/
 
 echo "Segmenting video"
 ffmpeg -i $SOURCE_VIDEO -y -map 0 -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
@@ -56,7 +56,7 @@ echo "Video Width: $WIDTH"
 echo "Video Height: $HEIGHT"
 
 echo "Uploading segments"
-rclone sync $SEGMENT_DIR do:$BUCKET/segments/$VIDEO_ID/
+rclone sync $SEGMENT_DIR do:$BUCKET/segments/$VIDEO_ID
 
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
