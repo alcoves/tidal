@@ -56,7 +56,7 @@ echo "Video Width: $WIDTH"
 echo "Video Height: $HEIGHT"
 
 echo "Uploading segments"
-rclone sync $SEGMENT_DIR do:$BUCKET/segments/$VIDEO_ID
+rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
