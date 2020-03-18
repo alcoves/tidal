@@ -6,7 +6,7 @@ BUCKET=$1
 VIDEO_ID=$2
 FILENAME=$3
 AWS_ACCESS_KEY_ID=$4
-AWS_ACCESS_KEY_SECRET=$5
+AWS_SECRET_ACCESS_KEY=$5
 
 TMP_DIR=$(mktemp -d)
 SEGMENTS_DIR="$TMP_DIR/segments"
@@ -54,7 +54,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
       -meta "segment=$SEGMENT" \
       -meta "video_id=$VIDEO_ID" \
       -meta "aws_access_key_id=$AWS_ACCESS_KEY_ID" \
-      -meta "aws_access_key_secret=$AWS_ACCESS_KEY_SECRET" \
+      -meta "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" \
       transcoding
   done
 
@@ -64,6 +64,6 @@ for PRESET in "480p-libx264" "720p-libx264"; do
       -meta "bucket=$BUCKET" \
       -meta "video_id=$VIDEO_ID" \
       -meta "aws_access_key_id=$AWS_ACCESS_KEY_ID" \
-      -meta "aws_access_key_secret=$AWS_ACCESS_KEY_SECRET" \
+      -meta "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" \
     concatinating
 done

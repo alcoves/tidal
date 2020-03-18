@@ -10,7 +10,7 @@ job "transcoding" {
       "segment",
       "video_id",
       "aws_access_key_id",
-      "aws_access_key_secret"
+      "aws_secret_access_key"
     ]
   }
 
@@ -18,9 +18,9 @@ job "transcoding" {
     driver = "raw_exec"
 
     env {
-      "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-      "AWS_SECRET_ACCESS_KEY" = "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
-      "ENDPOINT"              = "nyc3.digitaloceanspaces.com"
+      AWS_ACCESS_KEY_ID     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
+      ENDPOINT              = "nyc3.digitaloceanspaces.com"
     }
 
     artifact {
@@ -29,7 +29,7 @@ job "transcoding" {
       source      = "s3::https://${NOMAD_META_BUCKET}.nyc3.digitaloceanspaces.com/segments/${NOMAD_META_VIDEO_ID}/${NOMAD_META_SEGMENT}"
       options {
         aws_access_key_id     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-        aws_access_key_secret = "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
+        aws_secret_access_key = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       }
     }
 
@@ -54,7 +54,7 @@ job "transcoding" {
       data = <<EOH
 [default]
 access_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_ID"}}
-secret_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_SECRET"}}
+secret_key = {{ env "NOMAD_META_aws_secret_access_key"}}
 host_base = {{ env "ENDPOINT"}}
 host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
 EOH
