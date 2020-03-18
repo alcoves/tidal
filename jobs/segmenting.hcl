@@ -38,6 +38,9 @@ job "segmenting" {
     resources {
       cpu    = 2048
       memory = 900
+      network {
+        mbit = 1000
+      }
     }
   }
 }
