@@ -9,6 +9,7 @@ jobs:
         uses: HurricanKai/Publish-Docker-Github-Action@master
         with:
           name: bken-io/tidal
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # username: ${{ secrets.REGISTRY_USERNAME }}
+          # password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: docker.pkg.github.com
