@@ -61,7 +61,7 @@ rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
     echo "Enqueuing transcoding requests"
-    DISPATCH_META_FILE=$TMP_DIR/$(uuid).json
+    DISPATCH_META_FILE=$(tempfile).json
 
     jq -n \
     --arg cmd "-c:v libx264 -crf 22 -preset slow" \
@@ -95,7 +95,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
   done
 
   echo "Enqueuing concatination requests"
-    CONCATINATION_DISPATCH_FILE=$TMP_DIR/$(uuid).json
+    CONCATINATION_DISPATCH_FILE=$(tempfile).json
 
     jq -n \
     --arg cmd "-c:v libx264 -crf 22 -preset slow" \
