@@ -16,16 +16,17 @@ job "concatinating" {
   task "concatinating" {
     driver = "docker"
 
-    auth {
-      username = "rustyguts"
-      password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
-    }
-
     config {
       force_pull = true
       image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
       command    = "/tidal/scripts/concatinating.sh"
-      args    = [
+
+      auth {
+        username = "rustyguts"
+        password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
+      }
+
+      args = [
         "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
