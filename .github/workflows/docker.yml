@@ -1,9 +1,9 @@
 name: Deploy Docker
 on:
-push:
-  branches:
-    - dev
-    - master
+  push:
+    branches:
+      - dev
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
