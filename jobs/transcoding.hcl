@@ -10,28 +10,13 @@ job "transcoding" {
       "segment",
       "video_id",
       "aws_access_key_id",
+      "github_access_token",
       "aws_secret_access_key"
     ]
   }
 
   task "transcoding" {
-    driver = "raw_exec"
-
-    env {
-      AWS_ACCESS_KEY_ID     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-      AWS_SECRET_ACCESS_KEY = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
-      ENDPOINT              = "nyc3.digitaloceanspaces.com"
-    }
-
-    artifact {
-      mode        = "file"
-      destination = "local/segment"
-      source      = "s3::https://${NOMAD_META_BUCKET}.nyc3.digitaloceanspaces.com/segments/${NOMAD_META_VIDEO_ID}/${NOMAD_META_SEGMENT}"
-      options {
-        aws_access_key_id     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-        aws_secret_access_key = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
-      }
-    }
+    driver = "docker"
 
     config {
       command = "transcoding.sh"
@@ -41,23 +26,18 @@ job "transcoding" {
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_SEGMENT}",
         "${NOMAD_META_VIDEO_ID}",
+        "${NOMAD_META_AWS_ACCESS_KEY_ID}",
+        "${NOMAD_META_GITHUB_ACCESS_TOKEN}",
+        "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }
 
     resources {
       cpu    = 2048
       memory = 900
-    }
-
-    template {
-      destination = "local/.s3cfg"
-      data = <<EOH
-[default]
-access_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_ID"}}
-secret_key = {{ env "NOMAD_META_aws_secret_access_key"}}
-host_base = {{ env "ENDPOINT"}}
-host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
-EOH
+      network {
+        mbits = 1000
+      }
     }
   }
 }
