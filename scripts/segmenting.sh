@@ -5,8 +5,8 @@ echo "Setting envs"
 BUCKET=$1
 VIDEO_ID=$2
 FILENAME=$3
-export AWS_ACCESS_KEY_ID=$4
-export AWS_SECRET_ACCESS_KEY=$5
+AWS_ACCESS_KEY_ID=$4
+AWS_SECRET_ACCESS_KEY=$5
 
 TMP_DIR=$(mktemp -d)
 SEGMENTS_DIR="$TMP_DIR/segments"
@@ -27,10 +27,6 @@ endpoint = nyc3.digitaloceanspaces.com
 acl = private
 EOL
 
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-aws configure set default.region US
-
 echo "Downloading source clip"
 rclone copy do:$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO
 
@@ -41,7 +37,7 @@ echo "Exporting audio"
 ffmpeg -i $SOURCE_VIDEO -threads 1 $AUDIO_PATH
 
 echo "Uploading audio"
-s3cmd put -c local/.s3cfg $AUDIO_PATH s3://$BUCKET/audio/$VIDEO_ID/source.wav
+rclone copy $AUDIO_PATH do:$BUCKET/audio/$VIDEO_ID/source.wav
 
 echo "Segmenting video"
 ffmpeg -i $SOURCE_VIDEO -y -map 0 -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
@@ -59,7 +55,7 @@ echo "Video Width: $WIDTH"
 echo "Video Height: $HEIGHT"
 
 echo "Uploading segments"
-s3cmd sync -c local/.s3cfg $SEGMENTS_DIR/ s3://$BUCKET/segments/$VIDEO_ID/
+rclone sync $SEGMENT_DIR do:$BUCKET/segments/$VIDEO_ID/
 
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
