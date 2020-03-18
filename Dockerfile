@@ -12,5 +12,5 @@ RUN apk add --update --no-cache \
   ffmpeg \
   aws-cli
 
-RUN clone $GIT_BRANCH $REPO_URL
+RUN clone $REPO_URL
 RUN cd /tidal && git reset --hard $GIT_SHA && cd /
