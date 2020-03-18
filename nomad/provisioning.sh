@@ -20,3 +20,6 @@ sudo cp /root/tidal/nomad/server.service /etc/systemd/system/nomad-server.servic
 
 sudo systemctl enable nomad-server.service
 sudo systemctl start nomad-server.service
+
+sudo systemctl enable nomad-client.service
+sudo systemctl start nomad-client.service

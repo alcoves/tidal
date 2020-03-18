@@ -10,7 +10,7 @@ job "query" {
       command    = "curl"
 
       args = [
-        "${NOMAD_IP_host}:4646/v1/agent/members"
+        "http://${NOMAD_IP_host}:4646/v1/client/stats"
       ]
     }
 
