@@ -59,7 +59,7 @@ echo "Uploading segments"
 rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 
 echo "DEBUG START"
-curl http://127.0.0.1:4646/v1/agent/members
+curl "http://${NOMAD_IP_host}:4646/v1/client/stats"
 echo "DEBUG END"
 
 for PRESET in "480p-libx264" "720p-libx264"; do
