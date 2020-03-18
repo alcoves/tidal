@@ -9,7 +9,7 @@ job "segmenting" {
       "filename",
       "aws_access_key_id",
       "github_access_token",
-      "aws_access_key_secret"
+      "aws_secret_access_key"
     ]
   }
 
@@ -31,7 +31,7 @@ job "segmenting" {
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_FILENAME}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
-        "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
+        "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }
 
@@ -39,7 +39,7 @@ job "segmenting" {
       cpu    = 2048
       memory = 900
       network {
-        mbit = 1000
+        mbits = 1000
       }
     }
   }

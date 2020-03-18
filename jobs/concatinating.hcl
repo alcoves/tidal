@@ -8,7 +8,7 @@ job "concatinating" {
       "bucket",
       "video_id",
       "aws_access_key_id",
-      "aws_access_key_secret"
+      "aws_secret_access_key"
     ]
   }
 
@@ -16,9 +16,9 @@ job "concatinating" {
     driver = "raw_exec"
 
     env {
-      "AWS_ACCESS_KEY_ID"     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
-      "AWS_SECRET_ACCESS_KEY" = "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
-      "ENDPOINT"              = "nyc3.digitaloceanspaces.com"
+      AWS_ACCESS_KEY_ID     = "${NOMAD_META_AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY = "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
+      ENDPOINT              = "nyc3.digitaloceanspaces.com"
     }
 
     config {
@@ -28,7 +28,7 @@ job "concatinating" {
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
-        "${NOMAD_META_AWS_ACCESS_KEY_SECRET}"
+        "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }
 
@@ -42,7 +42,7 @@ job "concatinating" {
       data = <<EOH
 [default]
 access_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_ID"}}
-secret_key = {{ env "NOMAD_META_AWS_ACCESS_KEY_SECRET"}}
+secret_key = {{ env "NOMAD_META_aws_secret_access_key"}}
 host_base = {{ env "ENDPOINT"}}
 host_bucket = %(bucket)s.{{ env "ENDPOINT"}}
 EOH
