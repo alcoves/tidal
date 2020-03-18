@@ -3,7 +3,7 @@ set -e
 
 # Install deps
 sudo apt update
-sudo apt install -y unzip docker.io
+sudo apt install -y unzip docker.io uuid
 
 # Install nomad
 wget https://releases.hashicorp.com/nomad/0.10.4/nomad_0.10.4_linux_amd64.zip

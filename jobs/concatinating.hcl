@@ -39,7 +39,7 @@ job "concatinating" {
       cpu    = 2048
       memory = 900
       network {
-        mbits = 1000
+        mbits = 100
       }
     }
   }

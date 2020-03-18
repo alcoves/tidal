@@ -58,32 +58,70 @@ echo "Video Height: $HEIGHT"
 echo "Uploading segments"
 rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 
-echo "DEBUG START"
-curl "http://${NOMAD_IP_host}:4646/v1/client/stats"
-echo "DEBUG END"
-
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
     echo "Enqueuing transcoding requests"
-    nomad job dispatch -detach \
-      -meta "cmd=-c:v libx264 -crf 22 -preset slow" \
-      -meta "preset=$PRESET" \
-      -meta "bucket=$BUCKET" \
-      -meta "segment=$SEGMENT" \
-      -meta "video_id=$VIDEO_ID" \
-      -meta "aws_access_key_id=$AWS_ACCESS_KEY_ID" \
-      -meta "github_access_token=$GITHUB_ACCESS_TOKEN" \
-      -meta "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" \
-      transcoding
+    DISPATCH_META_FILE=$TMP_DIR/$(uuid).json
+
+    jq -n \
+    --arg cmd "-c:v libx264 -crf 22 -preset slow" \
+    --arg preset $PRESET \
+    --arg bucket $BUCKET \
+    --arg segment $SEGMENT \
+    --arg video_id $VIDEO_ID \
+    --arg aws_access_key_id $AWS_ACCESS_KEY_ID \
+    --arg github_access_token $GITHUB_ACCESS_TOKEN \
+    --arg aws_secret_access_key $AWS_SECRET_ACCESS_KEY \
+    '{
+      Meta: {
+        cmd:$cmd,
+        preset:$preset,
+        bucket:$bucket,
+        segment:$segment,
+        video_id:$video_id,
+        aws_access_key_id:$aws_access_key_id,
+        github_access_token:$github_access_token,
+        aws_secret_access_key:$aws_secret_access_key"
+      }
+    }' \
+    > $DISPATCH_META_FILE
+
+    curl \
+    --request POST \
+    --data @$DISPATCH_META_FILE \
+    "http://localhost:4646/v1/job/transcoding/dispatch"
+
+    rm $DISPATCH_META_FILE
   done
 
   echo "Enqueuing concatination requests"
-  nomad job dispatch -detach \
-      -meta "preset=$PRESET" \
-      -meta "bucket=$BUCKET" \
-      -meta "video_id=$VIDEO_ID" \
-      -meta "aws_access_key_id=$AWS_ACCESS_KEY_ID" \
-      -meta "github_access_token=$GITHUB_ACCESS_TOKEN" \
-      -meta "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" \
-    concatinating
+    CONCATINATION_DISPATCH_FILE=$TMP_DIR/$(uuid).json
+
+    jq -n \
+    --arg cmd "-c:v libx264 -crf 22 -preset slow" \
+    --arg preset $PRESET \
+    --arg bucket $BUCKET \
+    --arg segment $SEGMENT \
+    --arg video_id $VIDEO_ID \
+    --arg aws_access_key_id $AWS_ACCESS_KEY_ID \
+    --arg github_access_token $GITHUB_ACCESS_TOKEN \
+    --arg aws_secret_access_key $AWS_SECRET_ACCESS_KEY \
+    '{
+      Meta: {
+        preset:$preset,
+        bucket:$bucket,
+        video_id:$video_id,
+        aws_access_key_id:$aws_access_key_id,
+        github_access_token:$github_access_token,
+        aws_secret_access_key:$aws_secret_access_key"
+      }
+    }' \
+    > $CONCATINATION_DISPATCH_FILE
+
+    curl \
+    --request POST \
+    --data @$DISPATCH_META_FILE \
+    "http://localhost:4646/v1/job/concatinating/dispatch"
+
+    rm $CONCATINATION_DISPATCH_FILE
 done
