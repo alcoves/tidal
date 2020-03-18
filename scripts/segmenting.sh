@@ -12,7 +12,7 @@ TMP_DIR=$(mktemp -d)
 SEGMENTS_DIR="$TMP_DIR/segments"
 AUDIO_PATH="$TMP_DIR/source.wav"
 SOURCE_VIDEO="$TMP_DIR/$FILENAME"
-DO_ENDPOINT="nyc3.digitaloceanspaces.com"
+DO_ENDPOINT="https://nyc3.digitaloceanspaces.com/"
 
 echo "Downloading source clip"
 aws s3 cp s3://$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO --endpoint $DO_ENDPOINT
