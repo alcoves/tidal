@@ -1,8 +1,8 @@
-job "api" {
+job "query" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  task "api" {
+  task "query" {
     driver = "docker"
 
     config {
@@ -16,6 +16,7 @@ job "api" {
 
     resources {
       network {
+        # mode = "host"
         port "host" {}
       }
     }
