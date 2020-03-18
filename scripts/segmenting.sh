@@ -81,7 +81,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
         video_id:$video_id,
         aws_access_key_id:$aws_access_key_id,
         github_access_token:$github_access_token,
-        aws_secret_access_key:$aws_secret_access_key"
+        aws_secret_access_key:$aws_secret_access_key
       }
     }' \
     > $DISPATCH_META_FILE
@@ -113,7 +113,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
         video_id:$video_id,
         aws_access_key_id:$aws_access_key_id,
         github_access_token:$github_access_token,
-        aws_secret_access_key:$aws_secret_access_key"
+        aws_secret_access_key:$aws_secret_access_key
       }
     }' \
     > $CONCATINATION_DISPATCH_FILE
