@@ -18,9 +18,6 @@ server {
   enabled          = true
 }
 
-# Turned on temporarily
-client { enabled = true }
-
 plugin "raw_exec" {
   config {
     enabled = true
