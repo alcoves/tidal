@@ -5,17 +5,34 @@ echo "Setting envs"
 BUCKET=$1
 VIDEO_ID=$2
 FILENAME=$3
-AWS_ACCESS_KEY_ID=$4
-AWS_SECRET_ACCESS_KEY=$5
+export AWS_ACCESS_KEY_ID=$4
+export AWS_SECRET_ACCESS_KEY=$5
 
 TMP_DIR=$(mktemp -d)
 SEGMENTS_DIR="$TMP_DIR/segments"
 AUDIO_PATH="$TMP_DIR/source.wav"
 SOURCE_VIDEO="$TMP_DIR/$FILENAME"
-DO_ENDPOINT="https://nyc3.digitaloceanspaces.com/"
+DO_ENDPOINT="https://nyc3.digitaloceanspaces.com"
+
+echo "Creating rclone config"
+mkdir -p /root/.config/rclone
+cat > /root/.config/rclone/.rclone.conf <<EOL
+[do]
+type = s3
+provider = DigitalOcean
+env_auth = false
+access_key_id = $AWS_ACCESS_KEY_ID
+secret_access_key = $AWS_SECRET_ACCESS_KEY
+endpoint = nyc3.digitaloceanspaces.com
+acl = private
+EOL
+
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+aws configure set default.region US
 
 echo "Downloading source clip"
-aws s3 cp s3://$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO --endpoint $DO_ENDPOINT
+rclone copy do:$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO
 
 echo "Create data directories"
 mkdir -p $SEGMENTS_DIR
