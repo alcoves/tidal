@@ -10,6 +10,7 @@ RUN apk add --update --no-cache \
   bash \
   curl \
   wget \
+  uuid \
   rclone \
   ffmpeg
 
