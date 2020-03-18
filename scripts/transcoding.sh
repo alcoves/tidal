@@ -30,4 +30,4 @@ echo "Transcoding segment"
 ffmpeg -i $VIDEO_INPUT_PATH -c:v libx264 -crf 22 -preset ultrafast -threads 1 $VIDEO_OUTPUT_PATH
 
 echo "Uploading segment"
-rclone mv $VIDEO_OUTPUT_PATH do:$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET/$SEGMENT
+rclone copy $VIDEO_OUTPUT_PATH do:$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET
