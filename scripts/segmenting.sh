@@ -16,7 +16,7 @@ DO_ENDPOINT="https://nyc3.digitaloceanspaces.com"
 
 echo "Creating rclone config"
 mkdir -p /root/.config/rclone
-cat > /root/.config/rclone/.rclone.conf <<EOL
+cat > /root/.config/rclone/rclone.conf <<EOL
 [do]
 type = s3
 provider = DigitalOcean
