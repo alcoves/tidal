@@ -12,4 +12,6 @@ RUN apk add --update --no-cache \
   ffmpeg \
   aws-cli
 
-RUN git clone --single-branch --branch $GIT_BRANCH $REPO_URL
+RUN echo "$GIT_BRANCH"
+RUN echo "$REPO_URL"
+RUN git clone --single-branch --branch ${GIT_BRANCH} ${REPO_URL}
