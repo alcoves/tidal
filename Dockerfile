@@ -1,5 +1,10 @@
 FROM alpine:edge
 
+ARG GIT_BRANCH
+
+ENV GIT_BRANCH=$GIT_BRANCH
+ENV REPO_URL="https://github.com/bken-io/tidal.git"
+
 RUN apk add --update --no-cache \
   git \
   bash \
@@ -7,4 +12,4 @@ RUN apk add --update --no-cache \
   ffmpeg \
   aws-cli
 
-RUN git clone https://github.com/bken-io/tidal.git
+RUN git clone -b $GIT_BRANCH $REPO_URL
