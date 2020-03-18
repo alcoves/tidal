@@ -8,6 +8,7 @@ ENV REPO_URL="https://github.com/bken-io/tidal.git"
 RUN apk add --update --no-cache \
   git \
   bash \
+  curl \
   wget \
   rclone \
   ffmpeg
