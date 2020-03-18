@@ -18,6 +18,8 @@ server {
   enabled          = true
 }
 
+client { enabled = false }
+
 plugin "raw_exec" {
   config {
     enabled = true
