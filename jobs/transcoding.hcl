@@ -18,8 +18,15 @@ job "transcoding" {
   task "transcoding" {
     driver = "docker"
 
+    auth {
+      username = "rustyguts"
+      password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
+    }
+
     config {
-      command = "transcoding.sh"
+      force_pull = true
+      image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+      command    = "/tidal/scripts/transcoding.sh"
       args    = [
         "${NOMAD_META_CMD}",
         "${NOMAD_META_PRESET}",
@@ -27,7 +34,6 @@ job "transcoding" {
         "${NOMAD_META_SEGMENT}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_AWS_ACCESS_KEY_ID}",
-        "${NOMAD_META_GITHUB_ACCESS_TOKEN}",
         "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
     }
