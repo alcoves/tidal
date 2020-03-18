@@ -12,10 +12,10 @@ jobs:
       - name: Publish to GitHub
         uses: elgohr/Publish-Docker-Github-Action@master
         env:
-          TEST_ENV: 'test'
           GIT_BRANCH: ${GITHUB_REF##*/}
         with:
           name: bken-io/tidal/tidal
           username: ${{ github.actor }}
           registry: docker.pkg.github.com
           password: ${{ secrets.GITHUB_TOKEN }}
+          buildargs: GIT_BRANCH
