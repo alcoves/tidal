@@ -41,7 +41,7 @@ echo "Uploading audio"
 rclone copy $AUDIO_PATH do:$BUCKET/audio/$VIDEO_ID/
 
 echo "Segmenting video"
-ffmpeg -i $SOURCE_VIDEO -y -map 0 -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
+ffmpeg -i $SOURCE_VIDEO -y -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
 
 echo "Segmentation complete"
 ls $SEGMENTS_DIR/
@@ -66,7 +66,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
     DISPATCH_META_FILE=$(mktemp)
 
     jq -n \
-    --arg cmd "-c:v libx264 -crf 22 -preset ultrafast -threads 1" \
+    --arg cmd "-c:v libx264 -profile:v high -vf scale=1280:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -threads 1" \
     --arg preset $PRESET \
     --arg bucket $BUCKET \
     --arg segment $SEGMENT \
