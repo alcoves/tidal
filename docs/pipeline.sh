@@ -9,7 +9,7 @@ echo "Create test video"
 # ffmpeg -y -f lavfi -i sine=frequency=1000:sample_rate=48000:duration=60 -f lavfi -i testsrc=duration=60:size=1280x720:rate=60 test.mp4
 
 echo "Segmenting video"
-ffmpeg -y -i test.mp4 -y -map 0 -c copy -f segment -segment_time 1 -an segments/output_%04d.mp4
+ffmpeg -y -i test.mp4 -y -c copy -f segment -segment_time 1 -an segments/output_%04d.mp4
 
 echo "Transcoding segments"
 for PART in $(ls segments); do
