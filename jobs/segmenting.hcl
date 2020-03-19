@@ -37,10 +37,9 @@ job "segmenting" {
     }
 
     resources {
-      cpu    = 2048
-      memory = 900
+      cpu    = 2000
+      memory = 1000
       network {
-        mbits = 100
         port "host" {}
       }
     }
