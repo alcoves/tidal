@@ -100,10 +100,8 @@ for PRESET in "480p-libx264" "720p-libx264"; do
     CONCATINATION_DISPATCH_FILE=$(mktemp)
 
     jq -n \
-    --arg cmd "-c:v libx264 -crf 22 -preset slow" \
     --arg preset $PRESET \
     --arg bucket $BUCKET \
-    --arg segment $SEGMENT \
     --arg video_id $VIDEO_ID \
     --arg aws_access_key_id $AWS_ACCESS_KEY_ID \
     --arg github_access_token $GITHUB_ACCESS_TOKEN \
