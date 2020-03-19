@@ -11,6 +11,7 @@ AWS_ACCESS_KEY_ID=$6
 AWS_SECRET_ACCESS_KEY=$7
 
 TMP_DIR=$(mktemp -d)
+VIDEO_INPUT_PATH="${TMP_DIR}/${SEGMENT}"
 VIDEO_OUTPUT_PATH="${TMP_DIR}/${SEGMENT}-transcoded.mkv"
 
 echo "Creating rclone config"
@@ -30,7 +31,8 @@ echo "Downloading segment"
 rclone copy do:$BUCKET/segments/$VIDEO_ID/$SEGMENT $TMP_DIR
 
 echo "Transcoding segment"
-ffmpeg -i $VIDEO_INPUT_PATH -c:v libx264 -crf 22 -preset ultrafast -threads 1 $VIDEO_OUTPUT_PATH
+echo "ffmpeg cmd: $CMD"
+ffmpeg -i $VIDEO_INPUT_PATH $CMD $VIDEO_OUTPUT_PATH
 
 echo "Uploading segment"
-rclone copy "${TMP_DIR}/${SEGMENT}" do:$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET
+rclone copy $VIDEO_INPUT_PATH do:$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET
