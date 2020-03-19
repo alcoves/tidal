@@ -36,8 +36,8 @@ job "concatinating" {
     }
 
     resources {
-      cpu    = 2048
-      memory = 900
+      cpu    = 2000
+      memory = 2000
       network {
         mbits = 100
       }

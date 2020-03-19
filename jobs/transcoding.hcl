@@ -40,11 +40,8 @@ job "transcoding" {
     }
 
     resources {
-      cpu    = 2048
-      memory = 900
-      network {
-        mbits = 100
-      }
+      cpu    = 4000
+      memory = 4000
     }
   }
 }

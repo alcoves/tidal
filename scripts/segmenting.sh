@@ -66,7 +66,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
     DISPATCH_META_FILE=$(mktemp)
 
     jq -n \
-    --arg cmd "-c:v libx264 -crf 22 -preset slow" \
+    --arg cmd "-c:v libx264 -crf 22 -preset ultrafast -threads 1" \
     --arg preset $PRESET \
     --arg bucket $BUCKET \
     --arg segment $SEGMENT \
