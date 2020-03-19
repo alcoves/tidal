@@ -38,8 +38,8 @@ job "segmenting" {
     }
 
     resources {
-      cpu    = 2000
-      memory = 1000
+      cpu    = 1000
+      memory = 500
       network {
         port "host" {}
       }
