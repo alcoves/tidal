@@ -58,6 +58,8 @@ echo "Video Height: $HEIGHT"
 echo "Uploading segments"
 rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 
+echo "Nomad Host: $NOMAD_IP_host"
+
 for PRESET in "480p-libx264" "720p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
     echo "Enqueuing transcoding requests"
@@ -89,7 +91,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
     curl \
     --request POST \
     --data @$DISPATCH_META_FILE \
-    "http://localhost:4646/v1/job/transcoding/dispatch"
+    "http://${NOMAD_IP_host}:4646/v1/job/transcoding/dispatch"
 
     rm $DISPATCH_META_FILE
   done
@@ -121,7 +123,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
     curl \
     --request POST \
     --data @$DISPATCH_META_FILE \
-    "http://localhost:4646/v1/job/concatinating/dispatch"
+    "http://${NOMAD_IP_host}:4646/v1/job/concatinating/dispatch"
 
     rm $CONCATINATION_DISPATCH_FILE
 done
