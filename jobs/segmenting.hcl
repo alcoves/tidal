@@ -1,4 +1,5 @@
 job "segmenting" {
+  priority    = 2
   type        = "batch"
   datacenters = ["dc1"]
 
