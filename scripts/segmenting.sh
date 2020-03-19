@@ -127,3 +127,5 @@ for PRESET in "480p-libx264" "720p-libx264"; do
 
     rm $CONCATINATION_DISPATCH_FILE
 done
+
+echo "Segmenting success!"
