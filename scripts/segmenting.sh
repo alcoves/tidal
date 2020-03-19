@@ -120,7 +120,7 @@ for PRESET in "480p-libx264" "720p-libx264"; do
 
     curl \
     --request POST \
-    --data @$DISPATCH_META_FILE \
+    --data @$CONCATINATION_DISPATCH_FILE \
     "http://${NOMAD_IP_host}:4646/v1/job/concatinating/dispatch"
 
     rm $CONCATINATION_DISPATCH_FILE
