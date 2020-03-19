@@ -1,4 +1,5 @@
 job "concatinating" {
+  priority    = 1
   type        = "batch"
   datacenters = ["dc1"]
 
