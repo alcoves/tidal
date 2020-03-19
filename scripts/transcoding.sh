@@ -36,3 +36,5 @@ ffmpeg -i $VIDEO_INPUT_PATH $CMD $VIDEO_OUTPUT_PATH
 
 echo "Uploading segment"
 rclone copy $VIDEO_INPUT_PATH do:$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET
+
+echo "Transcoding success!"

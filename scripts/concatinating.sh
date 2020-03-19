@@ -64,3 +64,5 @@ ffmpeg -y -i $TRANSCODED_FILE_WITHOUT_AUDIO -i $AUDIO_PATH -threads 1 -c:v copy 
 
 echo "Uploading video"
 rclone copy $TRANSCODED_FILE_WITH_AUDIO do:$BUCKET/transcoded/$VIDEO_ID
+
+echo "Concatinating success!"
