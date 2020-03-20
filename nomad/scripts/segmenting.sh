@@ -5,6 +5,7 @@ echo "Setting envs"
 BUCKET=$1
 VIDEO_ID=$2
 FILENAME=$3
+TRANSCODE_QUEUE_URL=$4
 
 TMP_DIR="local/$VIDEO_ID"
 mkdir -p local/$VIDEO_ID
@@ -64,60 +65,11 @@ for PRESET in "1080p-libx264"; do
     }' \
     > $FILE_PATH
 
-    cat $FILE_PATH
-
     aws sqs send-message \
       --region us-east-1 \
-      --message-body "file://$FILE_PATH" \
-      --queue-url "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
+      --queue-url $TRANSCODE_QUEUE_URL \
+      --message-body "file://$FILE_PATH"
   done
 done
-
-# for PRESET in "1080p-libx264"; do
-#   for SEGMENT in $(ls $SEGMENTS_DIR); do
-#     echo "Enqueuing transcoding requests"
-
-#     aws
-#     # ls
-
-#     DISPATCH_META_FILE=$(mktemp)
-
-#     curl \
-#     --request POST \
-#     --data @$DISPATCH_META_FILE \
-#     "http://${NOMAD_IP_host}:4646/v1/job/transcoding/dispatch"
-
-#     rm $DISPATCH_META_FILE
-#   done
-
-#   echo "Enqueuing concatination requests"
-#     CONCATINATION_DISPATCH_FILE=$(mktemp)
-
-#     jq -n \
-#     --arg preset $PRESET \
-#     --arg bucket $BUCKET \
-#     --arg video_id $VIDEO_ID \
-#     --arg aws_access_key_id $AWS_ACCESS_KEY_ID \
-#     --arg github_access_token $GITHUB_ACCESS_TOKEN \
-#     --arg aws_secret_access_key $AWS_SECRET_ACCESS_KEY \
-#     '{
-#       Meta: {
-#         preset:$preset,
-#         bucket:$bucket,
-#         video_id:$video_id,
-#         aws_access_key_id:$aws_access_key_id,
-#         github_access_token:$github_access_token,
-#         aws_secret_access_key:$aws_secret_access_key
-#       }
-#     }' \
-#     > $CONCATINATION_DISPATCH_FILE
-
-#     curl \
-#     --request POST \
-#     --data @$CONCATINATION_DISPATCH_FILE \
-#     "http://${NOMAD_IP_host}:4646/v1/job/concatinating/dispatch"
-
-#     rm $CONCATINATION_DISPATCH_FILE
-# done
 
 echo "Segmenting success!"

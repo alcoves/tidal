@@ -8,6 +8,7 @@ job "segmenting" {
       "bucket",
       "video_id",
       "filename",
+      "transcode_queue_url"
     ]
   }
 
@@ -21,6 +22,7 @@ job "segmenting" {
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_FILENAME}",
+        "${NOMAD_META_TRANSCODE_QUEUE_URL}"
       ]
     }
   }
