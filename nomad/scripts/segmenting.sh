@@ -44,40 +44,33 @@ echo "Video Height: $HEIGHT"
 echo "Uploading segments"
 aws s3 sync $SEGMENTS_DIR s3://$BUCKET/segments/$VIDEO_ID/
 
-# for PRESET in "1080p-libx264"; do
-#   for SEGMENT in $(ls $SEGMENTS_DIR); do
-#     FILE_PATH=$TMP_DIR/${PRESET}-${SEGMENT}.json
+for PRESET in "1080p-libx264"; do
+  for SEGMENT in $(ls $SEGMENTS_DIR); do
+    echo "enqueing $PRESET:$SEGMENT"
+    FILE_PATH=$TMP_DIR/${PRESET}-${SEGMENT}.json
 
-#     echo "enqueing $PRESET:$SEGMENT"
+    jq -n \
+    --arg shouldConcat false \
+    --arg inPath "$BUCKET/segments/$VIDEO_ID/$SEGMENT" \
+    --arg outPath "$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET/$SEGMENT" \
+    --arg ffmpegCommand "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -f matroska" \
+    '{
+      Meta: {
+        inPath:$inPath,
+        outPath:$outPath,
+        shouldConcat:$shouldConcat,
+        ffmpegCommand:$ffmpegCommand
+      }
+    }' \
+    > $FILE_PATH
 
-#     jq -n \
-#     --arg cmd "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -threads 1" \
-#     --arg preset $PRESET \
-#     --arg bucket $BUCKET \
-#     --arg segment $SEGMENT \
-#     --arg video_id $VIDEO_ID \
-#     --arg aws_access_key_id $AWS_ACCESS_KEY_ID \
-#     --arg github_access_token $GITHUB_ACCESS_TOKEN \
-#     --arg aws_secret_access_key $AWS_SECRET_ACCESS_KEY \
-#     '{
-#       Meta: {
-#         cmd:$cmd,
-#         preset:$preset,
-#         bucket:$bucket,
-#         segment:$segment,
-#         video_id:$video_id,
-#         aws_access_key_id:$aws_access_key_id,
-#         github_access_token:$github_access_token,
-#         aws_secret_access_key:$aws_secret_access_key
-#       }
-#     }' \
-#     > $DISPATCH_META_FILE
+    cat $FILE_PATH
 
-#     aws sqs send-message \
-#       --queue-url "" \
-#       --message-body file://
-#   done
-# done
+    aws sqs send-message \
+      --queue-url "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
+      --message-body "file://$FILE_PATH"
+  done
+done
 
 # for PRESET in "1080p-libx264"; do
 #   for SEGMENT in $(ls $SEGMENTS_DIR); do
