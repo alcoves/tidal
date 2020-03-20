@@ -13,6 +13,7 @@ mv nomad /usr/local/bin
 
 # Clone tidal
 git clone https://github.com/bken-io/tidal.git
+cd tidal && git checkout dev && cd ~
 
 # Create service definitions
 sudo cp /root/tidal/nomad/client.service /etc/systemd/system/nomad-client.service
