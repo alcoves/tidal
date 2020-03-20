@@ -60,13 +60,13 @@ rclone sync $SEGMENTS_DIR do:$BUCKET/segments/$VIDEO_ID
 
 echo "Nomad Host: $NOMAD_IP_host"
 
-for PRESET in "480p-libx264" "720p-libx264"; do
+for PRESET in "1080p-libx264"; do
   for SEGMENT in $(ls $SEGMENTS_DIR); do
     echo "Enqueuing transcoding requests"
     DISPATCH_META_FILE=$(mktemp)
 
     jq -n \
-    --arg cmd "-c:v libx264 -profile:v high -vf scale=1280:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -threads 1" \
+    --arg cmd "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -threads 1" \
     --arg preset $PRESET \
     --arg bucket $BUCKET \
     --arg segment $SEGMENT \
