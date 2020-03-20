@@ -6,15 +6,15 @@ BUCKET=$1
 VIDEO_ID=$2
 FILENAME=$3
 
-TMP_DIR=$(mktemp -d)
+TMP_DIR="local/$VIDEO_ID"
+mkdir -p local/$VIDEO_ID
+
 SEGMENTS_DIR="$TMP_DIR/segments"
 SOURCE_VIDEO="$TMP_DIR/$FILENAME"
+mkdir -p $SEGMENTS_DIR
 
 AUDIO_FILENAME="source.wav"
 AUDIO_PATH="$TMP_DIR/$AUDIO_FILENAME"
-
-echo "Create data directories"
-mkdir -p $SEGMENTS_DIR
 
 echo "Downloading source clip"
 aws s3 cp s3://$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO
@@ -46,12 +46,9 @@ aws s3 sync $SEGMENTS_DIR s3://$BUCKET/segments/$VIDEO_ID/
 
 # for PRESET in "1080p-libx264"; do
 #   for SEGMENT in $(ls $SEGMENTS_DIR); do
-#     echo "Enqueuing transcoding requests"
+#     FILE_PATH=$TMP_DIR/${PRESET}-${SEGMENT}.json
 
-#     aws
-#     # ls
-
-#     DISPATCH_META_FILE=$(mktemp)
+#     echo "enqueing $PRESET:$SEGMENT"
 
 #     jq -n \
 #     --arg cmd "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -threads 1" \
@@ -75,6 +72,21 @@ aws s3 sync $SEGMENTS_DIR s3://$BUCKET/segments/$VIDEO_ID/
 #       }
 #     }' \
 #     > $DISPATCH_META_FILE
+
+#     aws sqs send-message \
+#       --queue-url "" \
+#       --message-body file://
+#   done
+# done
+
+# for PRESET in "1080p-libx264"; do
+#   for SEGMENT in $(ls $SEGMENTS_DIR); do
+#     echo "Enqueuing transcoding requests"
+
+#     aws
+#     # ls
+
+#     DISPATCH_META_FILE=$(mktemp)
 
 #     curl \
 #     --request POST \
