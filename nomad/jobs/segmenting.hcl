@@ -15,7 +15,7 @@ job "segmenting" {
     driver = "raw_exec"
 
     config {
-      command = "/home/ubuntu/nonad/scripts/segmenting.sh"
+      command = "/home/ubuntu/tidal/nomad/scripts/segmenting.sh"
 
       args = [
         "${NOMAD_META_BUCKET}",
