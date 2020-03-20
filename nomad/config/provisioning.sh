@@ -17,8 +17,8 @@ git clone https://github.com/bken-io/tidal.git
 cd tidal && git checkout dev && cd ~
 
 # Create service definitions
-sudo cp /root/tidal/nomad/config/client.service /etc/systemd/system/nomad-client.service
-sudo cp /root/tidal/nomad/config/server.service /etc/systemd/system/nomad-server.service
+sudo cp ~/tidal/nomad/config/client.service /etc/systemd/system/nomad-client.service
+sudo cp ~/tidal/nomad/config/server.service /etc/systemd/system/nomad-server.service
 
 sudo systemctl enable nomad-server.service
 sudo systemctl start nomad-server.service
