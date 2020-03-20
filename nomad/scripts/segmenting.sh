@@ -67,8 +67,9 @@ for PRESET in "1080p-libx264"; do
     cat $FILE_PATH
 
     aws sqs send-message \
-      --queue-url "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
-      --message-body "file://$FILE_PATH"
+      --region us-east-1 \
+      --message-body "file://$FILE_PATH" \
+      --queue-url "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
   done
 done
 
