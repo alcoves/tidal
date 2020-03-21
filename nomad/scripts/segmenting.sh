@@ -61,9 +61,7 @@ for PRESET in "1080p-libx264"; do
       shouldConcat:$shouldConcat,
       ffmpegCommand:$ffmpegCommand
     }' \
-    > $
-
-    cat $FILE_PATH
+    > $FILE_PATH
 
     aws sqs send-message \
       --region us-east-1 \
