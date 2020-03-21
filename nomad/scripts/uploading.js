@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const exec = require('child_process');
+const { exec } = require('child_process');
 const sqs = new AWS.SQS({ region: 'us-east-1' });
 
 const uploadsQueueUrl =

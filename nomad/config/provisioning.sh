@@ -6,6 +6,12 @@ set -e
 sudo apt update
 sudo apt install -y unzip docker.io ffmpeg jq awscli
 
+# Install nodejs
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm i -g yarn aws-sdk
+npm link aws-sdk
+
 # Install nomad
 wget https://releases.hashicorp.com/nomad/0.10.4/nomad_0.10.4_linux_amd64.zip
 unzip nomad_0.10.4_linux_amd64.zip
