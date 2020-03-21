@@ -51,10 +51,9 @@ for PRESET in "1080p-libx264"; do
     FILE_PATH=$TMP_DIR/${PRESET}-${SEGMENT}.json
 
     jq -n \
-    --arg shouldConcat false \
     --arg inPath "$BUCKET/segments/$VIDEO_ID/$SEGMENT" \
     --arg outPath "$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET/$SEGMENT" \
-    --arg ffmpegCommand "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -f mastroka -preset slow" \
+    --arg ffmpegCommand "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow" \
     '{
       inPath:$inPath,
       outPath:$outPath,
