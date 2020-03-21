@@ -25,7 +25,11 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
 
   queue {
     filter_prefix = "uploads/"
-    events        = ["s3:ObjectCreated:*"]
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
+    events        = [
+      "s3:ObjectCreated:Put",
+      "s3:ObjectCreated:Copy",
+      "s3:ObjectCreated:CompleteMultipartUpload",
+    ]
   }
 }
