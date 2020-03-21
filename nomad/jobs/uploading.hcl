@@ -3,10 +3,10 @@ job "uploads" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  periodic {
-    cron             = "*/1 * * * * *"
-    prohibit_overlap = true
-  }
+  # periodic {
+  #   cron             = "*/1 * * * * *"
+  #   prohibit_overlap = true
+  # }
 
   task "uploads" {
     driver = "raw_exec"
