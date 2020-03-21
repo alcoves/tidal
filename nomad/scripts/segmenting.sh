@@ -56,12 +56,10 @@ for PRESET in "1080p-libx264"; do
     --arg outPath "$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET/$SEGMENT" \
     --arg ffmpegCommand "-c:v libx264 -profile:v high -vf scale=1080:-2 -coder 1 -pix_fmt yuv420p -bf 2 -crf 27 -preset slow -f matroska" \
     '{
-      Meta: {
-        inPath:$inPath,
-        outPath:$outPath,
-        shouldConcat:$shouldConcat,
-        ffmpegCommand:$ffmpegCommand
-      }
+      inPath:$inPath,
+      outPath:$outPath,
+      shouldConcat:$shouldConcat,
+      ffmpegCommand:$ffmpegCommand
     }' \
     > $
 
