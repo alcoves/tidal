@@ -21,13 +21,13 @@ echo "Downloading source clip"
 aws s3 cp s3://$BUCKET/uploads/$VIDEO_ID/$FILENAME $SOURCE_VIDEO
 
 echo "Exporting audio"
-ffmpeg -i $SOURCE_VIDEO -threads 1 $AUDIO_PATH
+ffmpeg -y -i $SOURCE_VIDEO -threads 1 $AUDIO_PATH
 
 echo "Uploading audio"
 aws s3 cp $AUDIO_PATH s3://$BUCKET/audio/$VIDEO_ID/$AUDIO_FILENAME
 
 echo "Segmenting video"
-ffmpeg -i $SOURCE_VIDEO -y -threads 1 -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
+ffmpeg -y -i $SOURCE_VIDEO -c copy -f segment -segment_time 10 -an $SEGMENTS_DIR/output_%04d.mkv
 
 echo "Segmentation complete"
 ls $TMP_DIR
