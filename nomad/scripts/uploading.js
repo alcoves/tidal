@@ -7,7 +7,7 @@ const uploadsQueueUrl =
 const transcodingQueueUrl =
   'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev';
 
-const main = () => {
+const main = async () => {
   try {
     const { Messages } = await sqs
       .receiveMessage({ QueueUrl: uploadsQueueUrl })
@@ -41,7 +41,8 @@ const main = () => {
     console.error(error);
     process.exit(1);
   }
-}
+};
 
-setInterval(() => {main()}, 1000 * 10);
-
+setInterval(() => {
+  main();
+}, 1000 * 10);
