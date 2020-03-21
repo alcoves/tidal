@@ -2,7 +2,7 @@
 set -e
 
 UPLOAD_QUEUE_URL=$1
-TRANSCODE_QUEUE_URL$2
+TRANSCODE_QUEUE_URL=$2
 
 QUEUE_POLL_RESPONSE=$(aws sqs receive-message --max-number-of-messages 1 --output json --queue-url $UPLOAD_QUEUE_URL)
 MESSAGES=$(echo $QUEUE_POLL_RESPONSE | jq -r '.Messages')
