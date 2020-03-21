@@ -38,19 +38,7 @@ for MESSAGE in $(echo $MESSAGES | jq -r '.[] | @base64'); do
     echo "VIDEO_ID $VIDEO_ID"
     echo "FILENAME $FILENAME"
 
-    # nomad job dispatch -detach \
-    #   -meta "video_id=$VIDEO_ID" \
-    #   -meta "filename=$FILENAME" \
-    #   -meta "bucket=$BUCKET" \
-    #   -meta "transcode_queue_url=$TRANSCODE_QUEUE_URL" \
-    #   segmenting
 
-    # nomad job dispatch -detach \
-    #   -meta "video_id=test" \
-    #   -meta "filename=source.mp4" \
-    #   -meta "bucket=tidal-bken-dev" \
-    #   -meta "transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
-    #   concatinating
   done
 
   # aws sqs delete-message \
