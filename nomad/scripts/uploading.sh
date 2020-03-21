@@ -18,10 +18,13 @@ echo $MESSAGES
 
 for MESSAGE in $(echo $MESSAGES | jq -r '.[] | @base64'); do
   RECEIPT_HANDLE=$(echo $MESSAGE | base64 --decode | jq -r ${1} | jq '.ReceiptHandle')
+  echo $RECEIPT_HANDLE
   RECORDS=$(echo $MESSAGE | base64 --decode | jq -r ${1} | jq -r '.Body')
+  echo $RECORDS
 
   for RECORD in $(echo $RECORDS | jq -r '.Records' | jq -r '.[] | @base64'); do
     EVENT=$(echo $RECORD | base64 --decode | jq -r ${1} | jq -r '.')
+    echo $EVENT
 
     KEY=$(echo $EVENT | jq -r '.s3.object.key')
     BUCKET=$(echo $EVENT | jq -r '.s3.bucket.name')
@@ -48,8 +51,6 @@ for MESSAGE in $(echo $MESSAGES | jq -r '.[] | @base64'); do
     #   -meta "transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
     #   concatinating
   done
-
-  echo "$RECEIPT_HANDLE"
 
   aws sqs delete-message \
     --region us-east-1 \
