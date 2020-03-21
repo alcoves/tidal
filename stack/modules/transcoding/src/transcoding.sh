@@ -17,7 +17,7 @@ function handler () {
 
   echo "transcoding started"
   aws s3 cp $IN_PATH $LVIP
-  /opt/ffmpeg/ffmpeg -i $LVIP $FFMPEG_COMMAND $LVOP
+  /opt/ffmpeg/ffmpeg -y -i $LVIP $FFMPEG_COMMAND $LVOP
   aws s3 cp $LVOP $OUT_PATH
 
   rm -f $LVIP
