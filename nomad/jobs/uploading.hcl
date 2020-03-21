@@ -8,7 +8,7 @@ job "uploads" {
     prohibit_overlap = true
   }
 
-  task "segmenting" {
+  task "uploads" {
     driver = "raw_exec"
 
     config {
