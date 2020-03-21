@@ -16,7 +16,7 @@ const transcodingQueueUrl =
       const { Records } = JSON.parse(Body);
       for (const record of Records) {
         const bucket = record.s3.bucket.name;
-        const [, videoId, filename] = record.s3.object.key.split('/')[1];
+        const [, videoId, filename] = record.s3.object.key.split('/');
 
         // nomad job dispatch -detach \
         //   -meta "video_id=test" \
