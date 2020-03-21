@@ -43,10 +43,12 @@ for MESSAGE in $(echo $MESSAGES | jq -r '.[] | @base64'); do
     #   concatinating
   done
 
+  echo "$RECEIPT_HANDLE"
+
   aws sqs delete-message \
     --region us-east-1 \
     --queue-url $UPLOAD_QUEUE_URL \
-    --receipt-handle $(eval echo $RECEIPT_HANDLE)
+    --receipt-handle $RECEIPT_HANDLE
 
   echo "Done"
 done
