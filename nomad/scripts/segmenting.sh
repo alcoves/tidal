@@ -63,7 +63,9 @@ for PRESET in "1080p-libx264"; do
         ffmpegCommand:$ffmpegCommand
       }
     }' \
-    > $FILE_PATH
+    > $
+
+    cat $FILE_PATH
 
     aws sqs send-message \
       --region us-east-1 \
