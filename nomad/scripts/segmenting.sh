@@ -57,7 +57,6 @@ for PRESET in "1080p-libx264"; do
     '{
       inPath:$inPath,
       outPath:$outPath,
-      shouldConcat:$shouldConcat,
       ffmpegCommand:$ffmpegCommand
     }' \
     > $FILE_PATH
