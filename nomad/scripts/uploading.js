@@ -33,7 +33,7 @@ const transcodingQueueUrl =
           `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
         ];
 
-        exec(segmentationCmd.join('\\'), (error, stdout, stderr) => {
+        exec(segmentationCmd.join(' '), (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;
