@@ -33,13 +33,11 @@ const transcodingQueueUrl =
             `-meta "video_id=${videoId}"`,
             `-meta "bucket=${bucket}"`,
             `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
+            'segmentation',
           ];
 
           exec(segmentationCmd.join(' '), (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`);
-              return;
-            }
+            if (error) throw new Error(error);
             console.log(`stdout: ${stdout}`);
             console.log(`stderr: ${stderr}`);
           });
