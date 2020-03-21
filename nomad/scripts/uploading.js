@@ -12,49 +12,52 @@ const transcodingQueueUrl =
     const { Messages } = await sqs
       .receiveMessage({ QueueUrl: uploadsQueueUrl })
       .promise();
-    for (const { Body, ReceiptHandle } of Messages) {
-      const { Records } = JSON.parse(Body);
-      for (const record of Records) {
-        const bucket = record.s3.bucket.name;
-        const [, videoId, filename] = record.s3.object.key.split('/');
 
-        // nomad job dispatch -detach \
-        //   -meta "video_id=test" \
-        //   -meta "filename=source.mp4" \
-        //   -meta "bucket=tidal-bken-dev" \
-        //   -meta "transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
-        //   concatinating
+    if (Messages) {
+      for (const { Body, ReceiptHandle } of Messages) {
+        const { Records } = JSON.parse(Body);
+        for (const record of Records) {
+          const bucket = record.s3.bucket.name;
+          const [, videoId, filename] = record.s3.object.key.split('/');
 
-        const segmentationCmd = [
-          'nomad job dispatch -detach',
-          `-meta "filename=${filename}"`,
-          `-meta "video_id=${videoId}"`,
-          `-meta "bucket=${bucket}"`,
-          `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
-        ];
+          // nomad job dispatch -detach \
+          //   -meta "video_id=test" \
+          //   -meta "filename=source.mp4" \
+          //   -meta "bucket=tidal-bken-dev" \
+          //   -meta "transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
+          //   concatinating
 
-        exec(segmentationCmd.join(' '), (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-          console.log(`stderr: ${stderr}`);
-        });
+          const segmentationCmd = [
+            'nomad job dispatch -detach',
+            `-meta "filename=${filename}"`,
+            `-meta "video_id=${videoId}"`,
+            `-meta "bucket=${bucket}"`,
+            `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
+          ];
 
-        // exec(nomadCommand.join('\\'), (error, stdout, stderr) => {
-        //   if (error) {
-        //     console.error(`exec error: ${error}`);
-        //     return;
-        //   }
-        //   console.log(`stdout: ${stdout}`);
-        //   console.log(`stderr: ${stderr}`);
-        // });
+          exec(segmentationCmd.join(' '), (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`);
+              return;
+            }
+            console.log(`stdout: ${stdout}`);
+            console.log(`stderr: ${stderr}`);
+          });
+
+          // exec(nomadCommand.join('\\'), (error, stdout, stderr) => {
+          //   if (error) {
+          //     console.error(`exec error: ${error}`);
+          //     return;
+          //   }
+          //   console.log(`stdout: ${stdout}`);
+          //   console.log(`stderr: ${stderr}`);
+          // });
+        }
+
+        await sqs
+          .deleteMessage({ QueueUrl: uploadsQueueUrl, ReceiptHandle })
+          .promise();
       }
-
-      await sqs
-        .deleteMessage({ QueueUrl: uploadsQueueUrl, ReceiptHandle })
-        .promise();
     }
   } catch (error) {
     console.error(error);
