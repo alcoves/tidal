@@ -1,5 +1,5 @@
 job "concatinating" {
-  priority    = 2
+  priority    = 3
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -8,37 +8,20 @@ job "concatinating" {
       "preset",
       "bucket",
       "video_id",
-      "aws_access_key_id",
-      "github_access_token",
-      "aws_secret_access_key"
     ]
   }
 
-  task "concatinating" {
-    driver = "docker"
+  task "segmenting" {
+    driver = "raw_exec"
 
     config {
-      force_pull = true
-      image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
-      command    = "/tidal/scripts/concatinating.sh"
-
-      auth {
-        username = "rustyguts"
-        password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
-      }
+      command = "/home/ubuntu/tidal/nomad/scripts/concatinating.sh"
 
       args = [
         "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
-        "${NOMAD_META_AWS_ACCESS_KEY_ID}",
-        "${NOMAD_META_AWS_SECRET_ACCESS_KEY}"
       ]
-    }
-
-    resources {
-      cpu    = 1000
-      memory = 500
     }
   }
 }
