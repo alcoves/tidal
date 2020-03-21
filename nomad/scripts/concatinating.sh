@@ -49,6 +49,6 @@ echo "Combining source audio with concatinated video"
 ffmpeg -y -i $TRANSCODED_FILE_WITHOUT_AUDIO -i $AUDIO_PATH -c:v copy -c:a aac $TRANSCODED_FILE_WITH_AUDIO
 
 echo "Uploading video"
-aws s3 cp $TRANSCODED_FILE_WITH_AUDIO s3://$BUCKET/transcoded/$VIDEO_ID
+aws s3 cp $TRANSCODED_FILE_WITH_AUDIO s3://$BUCKET/transcoded/$VIDEO_ID/${PRESET}.mp4
 
 echo "Concatinating success!"
