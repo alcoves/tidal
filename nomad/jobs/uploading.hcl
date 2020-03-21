@@ -11,7 +11,8 @@ job "uploads" {
   task "uploads" {
     driver = "raw_exec"
     config {
-      command = "/home/ubuntu/tidal/nomad/scripts/uploading.sh"
+      command = "node"
+      args    = ["/home/ubuntu/tidal/nomad/scripts/uploading.js"]
     }
   }
 }

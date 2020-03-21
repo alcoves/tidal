@@ -19,14 +19,6 @@ const transcodingQueueUrl =
         for (const record of Records) {
           const bucket = record.s3.bucket.name;
           const [, videoId, filename] = record.s3.object.key.split('/');
-
-          // nomad job dispatch -detach \
-          //   -meta "video_id=test" \
-          //   -meta "filename=source.mp4" \
-          //   -meta "bucket=tidal-bken-dev" \
-          //   -meta "transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev" \
-          //   concatinating
-
           const segmentationCmd = [
             'nomad job dispatch -detach',
             `-meta "filename=${filename}"`,
@@ -35,23 +27,11 @@ const transcodingQueueUrl =
             `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
             'segmenting',
           ];
-
-          exec(segmentationCmd.join(' '), (error, stdout, stderr) => {
+          exec(segmentationCmd.join(' '), (error, stdout) => {
             if (error) throw new Error(error);
-            console.log(`stdout: ${stdout}`);
-            console.log(`stderr: ${stderr}`);
+            console.log(stdout);
           });
-
-          // exec(nomadCommand.join('\\'), (error, stdout, stderr) => {
-          //   if (error) {
-          //     console.error(`exec error: ${error}`);
-          //     return;
-          //   }
-          //   console.log(`stdout: ${stdout}`);
-          //   console.log(`stderr: ${stderr}`);
-          // });
         }
-
         await sqs
           .deleteMessage({ QueueUrl: uploadsQueueUrl, ReceiptHandle })
           .promise();
