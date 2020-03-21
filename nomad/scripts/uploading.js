@@ -16,21 +16,23 @@ const main = async () => {
     if (Messages) {
       for (const { Body, ReceiptHandle } of Messages) {
         const { Records } = JSON.parse(Body);
-        for (const record of Records) {
-          const bucket = record.s3.bucket.name;
-          const [, videoId, filename] = record.s3.object.key.split('/');
-          const segmentationCmd = [
-            'nomad job dispatch -detach',
-            `-meta "filename=${filename}"`,
-            `-meta "video_id=${videoId}"`,
-            `-meta "bucket=${bucket}"`,
-            `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
-            'segmenting',
-          ];
-          exec(segmentationCmd.join(' '), (error, stdout) => {
-            if (error) throw new Error(error);
-            console.log(stdout);
-          });
+        if (Records) {
+          for (const record of Records) {
+            const bucket = record.s3.bucket.name;
+            const [, videoId, filename] = record.s3.object.key.split('/');
+            const segmentationCmd = [
+              'nomad job dispatch -detach',
+              `-meta "filename=${filename}"`,
+              `-meta "video_id=${videoId}"`,
+              `-meta "bucket=${bucket}"`,
+              `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
+              'segmenting',
+            ];
+            exec(segmentationCmd.join(' '), (error, stdout) => {
+              if (error) throw new Error(error);
+              console.log(stdout);
+            });
+          }
         }
         await sqs
           .deleteMessage({ QueueUrl: uploadsQueueUrl, ReceiptHandle })
