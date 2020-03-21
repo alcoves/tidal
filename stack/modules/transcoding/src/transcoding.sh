@@ -13,7 +13,8 @@ function handler () {
   echo $FFMPEG_COMMAND
 
   echo "transcoding started"
-  # aws s3 cp $IN_PATHIN_PATH
-  aws s3 cp $IN_PATH - | /opt/ffmpeg/ffmpeg -i - $FFMPEG_COMMAND - | aws s3 cp - $OUT_PATH
+  aws s3 cp $IN_PATH /tmp/in
+  aws s3 cp /tmp/in - | /opt/ffmpeg/ffmpeg -i /tmp/in $FFMPEG_COMMAND /tmp/out.mkv
+  aws s3 cp /tmp/out.mkv $OUT_PATH
   echo "transcoding completed"
 }
