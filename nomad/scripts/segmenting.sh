@@ -70,6 +70,12 @@ for PRESET in "1080p-libx264"; do
       --queue-url $TRANSCODE_QUEUE_URL \
       --message-body "file://$FILE_PATH"
   done
+
+  nomad job dispatch -detach \
+    -meta "preset=$PRESET" \
+    -meta "bucket=$BUCKET" \
+    -meta "video_id=$VIDEO_ID" \
+    concatinating
 done
 
 echo "Segmenting success!"
