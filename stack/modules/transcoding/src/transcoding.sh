@@ -8,8 +8,11 @@ function handler () {
   OUT_PATH="s3://$(echo $SQS_BODY | jq -r '.outPath')"
   FFMPEG_COMMAND=$(echo $SQS_BODY | jq -r '.ffmpegCommand')
 
-  LVIP="/tmp/${IN_PATH##*/}"
-  LVOP="/tmp/${OUT_PATH##*/}"
+  LVIP_DIR=$(mktemp -d)
+  LVOP_DIR=$(mktemp -d)
+
+  LVIP="$LVIP_DIR/${IN_PATH##*/}"
+  LVOP="$LVOP_DIR/${OUT_PATH##*/}"
 
   echo $IN_PATH
   echo $OUT_PATH
@@ -20,7 +23,7 @@ function handler () {
   /opt/ffmpeg/ffmpeg -y -i $LVIP $FFMPEG_COMMAND $LVOP
   aws s3 cp $LVOP $OUT_PATH
 
-  rm -f $LVIP
-  rm -f $LVOP
+  rm -f $LVIP_DIR
+  rm -f $LVOP_DIR
   echo "transcoding completed"
 }
