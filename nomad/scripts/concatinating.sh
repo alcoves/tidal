@@ -16,7 +16,6 @@ TRANSCODED_FILE_WITHOUT_AUDIO="$TMP_DIR/${PRESET}-no-audio.mp4"
 mkdir -p $TRANSCODE_DIR
 
 echo "Quering S3"
-aws s3 ls s3://
 NUM_EXPECTED=$(aws s3 ls s3://$BUCKET/segments/$VIDEO_ID/ | wc -l)
 NUM_TRANSCODED=$(aws s3 ls s3://$BUCKET/transcoded-segments/$VIDEO_ID/$PRESET/ | wc -l)
 
