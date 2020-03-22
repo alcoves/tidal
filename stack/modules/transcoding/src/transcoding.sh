@@ -1,6 +1,9 @@
 function handler () {
   set -e
 
+  echo "Cleaning up lambda"
+  rm -rf /tmp/*
+
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
   echo "SQS_BODY: $SQS_BODY"
 
@@ -23,7 +26,8 @@ function handler () {
   /opt/ffmpeg/ffmpeg -y -i $LVIP $FFMPEG_COMMAND $LVOP
   aws s3 cp $LVOP $OUT_PATH
 
-  rm -f $LVIP_DIR
-  rm -f $LVOP_DIR
+  echo "Cleaning up lambda"
+  rm -rf /tmp/*
+  
   echo "transcoding completed"
 }
