@@ -6,7 +6,9 @@ PRESET=$1
 BUCKET=$2
 VIDEO_ID=$3
 
-TMP_DIR=$(mktemp -d)
+TMP_DIR="local/$VIDEO_ID"
+mkdir -p $TMP_DIR
+
 AUDIO_PATH="$TMP_DIR/source.wav"
 MANIFEST_PATH="$TMP_DIR/manifest.txt"
 TRANSCODE_DIR="$TMP_DIR/transcoded-segments"

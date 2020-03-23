@@ -10,10 +10,6 @@ TRANSCODE_QUEUE_URL=$4
 TMP_DIR="local/$VIDEO_ID"
 mkdir -p $TMP_DIR
 
-echo "Debug local dir"
-ls 
-ls local
-
 SEGMENTS_DIR="$TMP_DIR/segments"
 SOURCE_VIDEO="$TMP_DIR/$FILENAME"
 mkdir -p $SEGMENTS_DIR
