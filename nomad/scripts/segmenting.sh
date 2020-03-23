@@ -7,7 +7,7 @@ VIDEO_ID=$2
 FILENAME=$3
 TRANSCODE_QUEUE_URL=$4
 
-TMP_DIR="/tmp/$VIDEO_ID"
+TMP_DIR="local/$VIDEO_ID"
 mkdir -p $TMP_DIR
 
 echo "Debug local dir"
