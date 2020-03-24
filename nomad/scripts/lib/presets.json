@@ -8,8 +8,8 @@
   ],
   "libx264-2160p": [
     "-c:v libx264",
-    "-preset fast",
-    "-profile:v slow",
+    "-preset slow",
+    "-profile:v high",
     "-vf scale=3840:-2",
     "-crf 26",
     "-coder 1",
@@ -18,8 +18,8 @@
   ],
   "libx264-1440p": [
     "-c:v libx264",
-    "-preset fast",
-    "-profile:v slow",
+    "-preset slow",
+    "-profile:v high",
     "-vf scale=2560:-2",
     "-crf 26",
     "-coder 1",
@@ -28,8 +28,8 @@
   ],
   "libx264-1080p": [
     "-c:v libx264",
-    "-preset fast",
-    "-profile:v slow",
+    "-preset slow",
+    "-profile:v high",
     "-vf scale=1920:-2",
     "-crf 26",
     "-coder 1",
