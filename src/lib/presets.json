@@ -52,7 +52,7 @@
     "ext": "webm",
     "cmd": [
       "-b:v 0",
-      "-crf 18",
+      "-crf 27",
       "-c:v libvpx-vp9",
       "-vf scale=1920:-2"
     ]
