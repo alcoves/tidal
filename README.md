@@ -14,7 +14,7 @@ Tidal is under heavy development. The API will change drastically.
 ### Step 2: Transcoding
 
 1. When segments are written to the segments folder, this emits events. The act of placing a single segment emits 1 event, however, we read the manifest.json file and write 1 to many events into an sqs queue for transcoding. so each segment has multiple versions that need to be transcoded. The manifest file must exist or the enqueuing of the files will fail. Events are written to `tidal-dev-transcoding-requests`. This queue invokes the `tidal-dev-transcoder` which takes an s3 path and an ffmpeg command stream to run.
-2. The transcoded outputs files to `/transcoded-segments/${videoId}/${presetName}/output-0000.mkv`, the lastSegment header must be passed to the transcoded-segments, this tells the system when to wait for segments to become availible. 
+2. The transcoded outputs files to `/segments/${videoId}/${presetName}/output-0000.mkv`, the lastSegment header must be passed to the segments, this tells the system when to wait for segments to become availible. 
 3. The 
 
 ### Step 3: Concatination
