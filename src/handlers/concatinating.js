@@ -54,7 +54,7 @@ module.exports = async ({ bucket, preset, videoId }) => {
   await new Promise((resolve, reject) => {
     ffmpeg(vidNoAudio)
       .input(audioPath)
-      .outputOptions(['-movflags +faststart'])
+      .outputOptions(['-c:v copy', '-movflags +faststart'])
       .on('progress', console.log)
       .on('error', reject)
       .on('end', resolve)
