@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const AWS = require('aws-sdk')
 const sqs = new AWS.SQS({ region: 'us-east-1' })
 
@@ -31,9 +32,11 @@ const segmenting = async (args) => {
   const segments = await segment(videoPath)
 
   console.log('Uploading segments');
-  await Promise.all(segments.map((segment) => {
-    return upload('tidal-bken-dev', `segments/${videoId}/${segment}`, `local/segments/${segment}`)
-  }))
+  for (const batch of _.chunk(segments, 20)) {
+    await Promise.all(batch.map((segment) => {
+      return upload('tidal-bken-dev', `segments/${videoId}/${segment}`, `local/segments/${segment}`)
+    }))
+  }
 
   console.log('Getting video presets');
   const presets = await getPresets(videoPath)
@@ -51,7 +54,9 @@ const segmenting = async (args) => {
       }
     })
 
-    await Promise.all(messages.map(m => sqs.sendMessage(m).promise()))
+    for (const batch of _.chunk(messages, 100)) {
+      await Promise.all(batch.map(m => sqs.sendMessage(m).promise()))
+    }
 
     const nomadCmd = [
       'nomad job dispatch -detach',
