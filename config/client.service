@@ -3,7 +3,7 @@ Description=Nomad client
 Wants=network-online.target
 After=network-online.target
 [Service]
-ExecStart= /bin/sh -c "/usr/local/bin/nomad agent -config /home/ubuntu/tidal/nomad/config/client.hcl"
+ExecStart= /bin/sh -c "/usr/local/bin/nomad agent -config /home/ubuntu/tidal/config/client.hcl"
 Restart=always
 RestartSec=10
 [Install]
