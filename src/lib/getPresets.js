@@ -35,10 +35,10 @@ module.exports = (videoPath) => {
           ffmpegCmdStr: presets['libx264-1080p'].cmd.join(' '),
         });
 
-        // selectedPresets.push({
-        //   presetName: 'libvpx_vp9-1080p',
-        //   ffmpegCmdStr: presets['libvpx_vp9-1080p'].cmd.join(' '),
-        // });
+        selectedPresets.push({
+          presetName: 'libvpx_vp9-1080p',
+          ffmpegCmdStr: presets['libvpx_vp9-1080p'].cmd.join(' '),
+        });
       }
 
       if (width >= 2560) {
