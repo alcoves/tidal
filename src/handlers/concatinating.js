@@ -16,7 +16,7 @@ module.exports = async ({ bucket, preset, videoId }) => {
   const videoPath = `local/${preset}.mp4`;
   const vidNoAudio = `local/${preset}-an.mkv`;
 
-  const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/` }
+  const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/source` }
   const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/${preset}/` }
 
   let NUM_EXPECTED = (await s3ls(NUM_EXPECTED_CONFIG)).length
