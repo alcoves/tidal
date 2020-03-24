@@ -66,13 +66,11 @@ const segmenting = async (args) => {
       'concatinating'
     ]
 
-    const nomadRes = exec(nomadCmd.join(' '), (error, stdout, stderr) => {
+    exec(nomadCmd.join(' '), (error, stdout, stderr) => {
       if (error) throw error
       if (stdout) console.log(stdout)
       if (stderr) console.log(stderr)
     });
-
-    console.log('nomadRes', nomadRes)
   }
   return 'done'
 }
