@@ -34,7 +34,7 @@ const segmenting = async (args) => {
   console.log('Uploading segments');
   for (const batch of _.chunk(segments, 20)) {
     await Promise.all(batch.map((segment) => {
-      return upload('tidal-bken-dev', `segments/${videoId}/${segment}`, `local/segments/${segment}`)
+      return upload('tidal-bken-dev', `segments/${videoId}/source/${segment}`, `local/segments/${segment}`)
     }))
   }
 
@@ -48,8 +48,8 @@ const segmenting = async (args) => {
         QueueUrl: transcodeQueueUrl,
         MessageBody: JSON.stringify({
           ffmpegCommand: ffmpegCmdStr,
-          inPath: `${Bucket}/segments/${videoId}/${segment}`,
-          outPath: `${Bucket}/transcoded-segments/${videoId}/${presetName}/${segment}`,
+          inPath: `${Bucket}/segments/${videoId}/source/${segment}`,
+          outPath: `${Bucket}/segments/${videoId}/${presetName}/${segment}`,
         })
       }
     })

@@ -17,7 +17,7 @@ module.exports = async ({ bucket, preset, videoId }) => {
   const vidNoAudio = `local/${preset}-an.mkv`;
 
   const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/` }
-  const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: `transcoded-segments/segments/${videoId}/${preset}/` }
+  const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/${preset}/` }
 
   let NUM_EXPECTED = (await s3ls(NUM_EXPECTED_CONFIG)).length
   let NUM_TRANSCODED = (await s3ls(NUM_TRANSCODED_CONFIG)).length
@@ -33,7 +33,7 @@ module.exports = async ({ bucket, preset, videoId }) => {
     console.log('NUM_TRANSCODED', NUM_TRANSCODED);
   }
 
-  await exec(`aws s3 sync s3://${bucket}/transcoded-segments/${videoId}/${preset} ${segDir}`)
+  await exec(`aws s3 sync s3://${bucket}/segments/${videoId}/${preset} ${segDir}`)
   await exec(`aws s3 cp s3://${bucket}/audio/${videoId}/source.wav ${audioPath}`)
 
   for (const segment of await fs.readdir(segDir)) {
