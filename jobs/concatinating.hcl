@@ -15,7 +15,7 @@ job "concatinating" {
     driver = "raw_exec"
 
     config {
-      command = "/home/ubuntu/tidal/src/concatinating.sh"
+      command = "/home/ubuntu/tidal/src/concatinating.js"
 
       args = [
         "${NOMAD_META_PRESET}",
