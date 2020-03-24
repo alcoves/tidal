@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk')
 const sqs = new AWS.SQS({ region: 'us-east-1' })
 
-const upload = require('./lib/upload');
-const segment = require('./lib/segment');
-const download = require('./lib/download')
-const getPresets = require('./lib/getPresets')
-const extractAudio = require('./lib/extractAudio');
+const upload = require('../lib/upload');
+const segment = require('../lib/segment');
+const download = require('../lib/download')
+const getPresets = require('../lib/getPresets')
+const extractAudio = require('../lib/extractAudio');
 
 const { exec } = require('child_process');
 
