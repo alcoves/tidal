@@ -16,7 +16,7 @@
       "-preset fast",
       "-profile:v high",
       "-vf scale=3840:-2",
-      "-crf 26",
+      "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -26,10 +26,10 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset slow",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=2560:-2",
-      "-crf 26",
+      "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -39,7 +39,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset slow",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=1920:-2",
       "-crf 23",
@@ -51,24 +51,20 @@
   "libvpx_vp9-1080p": {
     "ext": "webm",
     "cmd": [
-      "-c:v libx264",
-      "-preset slow",
-      "-profile:v high",
-      "-vf scale=1920:-2",
-      "-crf 23",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-bf 2"
+      "-b:v 0",
+      "-crf 18",
+      "-c:v libvpx-vp9",
+      "-vf scale=1920:-2"
     ]
   },
   "libx264-720p": {
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset slow",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=1280:-2",
-      "-crf 26",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -78,7 +74,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset slow",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=854:-2",
       "-crf 28",
