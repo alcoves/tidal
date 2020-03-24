@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 
 const s3 = new AWS.S3({ region: 'us-east-1' });
 
-const downloadObject = (params, filename) => {
+module.exports = (params, filename) => {
   return new Promise((resolve, reject) => {
     try {
       const filePath = `local/${filename}`
@@ -18,5 +18,3 @@ const downloadObject = (params, filename) => {
     }
   })
 }
-
-module.exports = downloadObject
