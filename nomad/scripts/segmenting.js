@@ -7,7 +7,7 @@ const transcodeQueueUrl = process.argv[5];
 
 (async () => {
   try {
-    await segmenting(Bucket, videoId, filename, transcodeQueueUrl)
+    await segmenting({ Bucket, videoId, filename, transcodeQueueUrl })
   } catch (error) {
     console.error(error)
     process.exit(1);
