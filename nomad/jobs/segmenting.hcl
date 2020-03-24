@@ -14,11 +14,10 @@ job "segmenting" {
 
   task "segmenting" {
     driver = "raw_exec"
-
     config {
-      command = "/home/ubuntu/tidal/nomad/scripts/segmenting.sh"
-
-      args = [
+      command = "node"
+      args    = [
+        "/home/ubuntu/tidal/nomad/scripts/segmenting.js",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
         "${NOMAD_META_FILENAME}",

@@ -3,5 +3,11 @@
     "aws-sdk": "^2.643.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^9.0.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0"
   }
 }
