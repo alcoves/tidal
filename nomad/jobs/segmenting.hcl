@@ -14,6 +14,7 @@ job "segmenting" {
 
   task "segmenting" {
     driver = "raw_exec"
+
     config {
       command = "node"
       args    = [
@@ -23,6 +24,10 @@ job "segmenting" {
         "${NOMAD_META_FILENAME}",
         "${NOMAD_META_TRANSCODE_QUEUE_URL}"
       ]
+    }
+
+    resources = {
+      memory = 2000 
     }
   }
 }
