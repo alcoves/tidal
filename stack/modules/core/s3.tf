@@ -2,6 +2,14 @@ resource "aws_s3_bucket" "tidal" {
   acl    = "private"
   bucket = local.bucket_name
 
+  cors_rule {
+    max_age_seconds = 3000
+    allowed_headers = ["*"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    allowed_methods = ["PUT", "POST"]
+  }
+
   # lifecycle_rule {
   #   id                                     = "ExpireAll"
   #   prefix                                 = ""
