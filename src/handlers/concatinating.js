@@ -16,8 +16,14 @@ module.exports = async ({ bucket, preset, videoId }) => {
   const videoPath = `local/${preset}.mp4`;
   const vidNoAudio = `local/${preset}-an.mkv`;
 
-  const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/source` }
-  const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: `segments/${videoId}/${preset}/` }
+  const numExpectedS3Query = `segments/${videoId}/source`
+  const numTranscodedS3Query = `segments/${videoId}/${preset}`
+
+  console.log(`numExpectedS3Query: ${numExpectedS3Query}`);
+  console.log(`numTranscodedS3Query: ${numTranscodedS3Query}`);
+
+  const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: numExpectedS3Query }
+  const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: numTranscodedS3Query }
 
   let NUM_EXPECTED = (await s3ls(NUM_EXPECTED_CONFIG)).length
   let NUM_TRANSCODED = (await s3ls(NUM_TRANSCODED_CONFIG)).length
@@ -28,7 +34,6 @@ module.exports = async ({ bucket, preset, videoId }) => {
   while (NUM_TRANSCODED < NUM_EXPECTED) {
     await sleep(5)
     NUM_TRANSCODED = (await s3ls(NUM_TRANSCODED_CONFIG)).length
-
     console.log('NUM_EXPECTED', NUM_EXPECTED);
     console.log('NUM_TRANSCODED', NUM_TRANSCODED);
   }
