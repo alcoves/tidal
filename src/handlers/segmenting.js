@@ -54,8 +54,15 @@ const segmenting = async (args) => {
       }
     })
 
+    console.log(`number of messages: ${messages.length}`);
+    let messagesPublished = 0;
+
     for (const batch of _.chunk(messages, 100)) {
-      await Promise.all(batch.map(m => sqs.sendMessage(m).promise()))
+      await Promise.all(batch.map(m => {
+        messagesPublished++
+        sqs.sendMessage(m).promise()
+      }));
+      console.log(`messages published ${messagesPublished}`)
     }
 
     const nomadCmd = [
