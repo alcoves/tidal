@@ -6,25 +6,41 @@ resource "aws_s3_bucket" "tidal" {
     max_age_seconds = 3000
     allowed_headers = ["*"]
     allowed_origins = ["*"]
+    allowed_methods = ["PUT"]
     expose_headers  = ["ETag"]
-    allowed_methods = ["PUT", "POST"]
   }
 
-  # lifecycle_rule {
-  #   id                                     = "ExpireAll"
-  #   prefix                                 = ""
-  #   enabled                                = true
-  #   abort_incomplete_multipart_upload_days = 7
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 7
+    enabled                                = true
+    prefix                                 = "segments/"
+    id                                     = "ExpireSegments"
 
-  #   expiration {
-  #     days                         = 14
-  #     expired_object_delete_marker = false
-  #   }
+    expiration {
+      days                         = 7
+      expired_object_delete_marker = false
+    }
 
-  #   noncurrent_version_expiration {
-  #     days = 2
-  #   }
-  # }
+    noncurrent_version_expiration {
+      days = 2
+    }
+  }
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 7
+    enabled                                = true
+    prefix                                 = "audio/"
+    id                                     = "ExpireAudio"
+
+    expiration {
+      days                         = 7
+      expired_object_delete_marker = false
+    }
+
+    noncurrent_version_expiration {
+      days = 2
+    }
+  }
 }
 
 resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
