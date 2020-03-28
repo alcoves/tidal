@@ -76,7 +76,7 @@ module.exports = async ({ bucket, preset, videoId, tableName }) => {
 
   await db.update({
     TableName: tableName,
-    Item: { id: videoId, preset },
+    Key: { id: videoId, preset },
     UpdateExpression: 'set #status = :status',
     ExpressionAttributeNames: { '#status': 'status' },
     ExpressionAttributeValues: { ':status': 'completed' },
