@@ -9,7 +9,7 @@ const exec = util.promisify(_exec)
 
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
-module.exports = async ({ bucket, preset, videoId }) => {
+module.exports = async ({ bucket, preset, videoId, tableName }) => {
   const segDir = `local/segments`;
   const audioPath = 'local/source.wav';
   const manifest = 'local/manifest.txt';
@@ -68,5 +68,15 @@ module.exports = async ({ bucket, preset, videoId }) => {
   })
 
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
+
+  // TODO :: copy to wasabi and get link to it
+
+  await publishEvent(eventTopic, {
+    id: videoId,
+    preset: {
+      status: 'completed',
+    }
+  })
+
   return 'done'
 }
