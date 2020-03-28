@@ -2,11 +2,9 @@ const AWS = require('aws-sdk');
 const { exec } = require('child_process');
 const sqs = new AWS.SQS({ region: 'us-east-1' });
 
-const uploadsQueueUrl =
-  'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-uploads-dev';
-const transcodingQueueUrl =
-  'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev';
-const tableName = 'tidal-dev'
+const uploadsQueueUrl = process.argv[2];
+const transcodingQueueUrl = process.argv[3];
+const tableName = process.argv[4];
 
 const main = async () => {
   try {
