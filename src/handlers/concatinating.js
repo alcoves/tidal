@@ -1,9 +1,12 @@
 
 const util = require('util');
+const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const s3ls = require('../lib/s3ls')
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
+
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const exec = util.promisify(_exec)
 
@@ -71,12 +74,13 @@ module.exports = async ({ bucket, preset, videoId, tableName }) => {
 
   // TODO :: copy to wasabi and get link to it
 
-  await publishEvent(eventTopic, {
-    id: videoId,
-    preset: {
-      status: 'completed',
-    }
-  })
+  await db.update({
+    TableName: tableName,
+    Item: { id: videoId, preset },
+    UpdateExpression: 'set #status = :status',
+    ExpressionAttributeNames: { '#status': 'status' },
+    ExpressionAttributeValues: { ':status': 'completed' },
+  }).promise()
 
   return 'done'
 }

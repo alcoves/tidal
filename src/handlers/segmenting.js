@@ -1,6 +1,7 @@
 const _ = require('lodash')
 const AWS = require('aws-sdk')
 const sqs = new AWS.SQS({ region: 'us-east-1' })
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const upload = require('../lib/upload');
 const segment = require('../lib/segment');
@@ -79,6 +80,15 @@ const segmenting = async (args) => {
       if (stdout) console.log(stdout)
       if (stderr) console.log(stderr)
     });
+
+    await db.put({
+      TableName: tableName,
+      Item: {
+        id: videoId,
+        preset: preset,
+        status: 'segmented'
+      }
+    }).promise()
   }
   return 'done'
 }
