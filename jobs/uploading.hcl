@@ -8,7 +8,7 @@ job "uploads" {
     config {
       command = "node"
       args    = [
-        "/home/ubuntu/tidal/src/uploading.js"
+        "/home/ubuntu/tidal/src/uploading.js",
         "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-uploads-dev",
         "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev",
         "tidal-dev"
