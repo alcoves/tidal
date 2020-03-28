@@ -8,6 +8,7 @@ job "concatinating" {
       "preset",
       "bucket",
       "video_id",
+      "table_name"
     ]
   }
 
@@ -22,6 +23,7 @@ job "concatinating" {
         "${NOMAD_META_PRESET}",
         "${NOMAD_META_BUCKET}",
         "${NOMAD_META_VIDEO_ID}",
+        "${NOMAD_META_TABLE_NAME}",
       ]
     }
   }

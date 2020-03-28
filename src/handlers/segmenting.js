@@ -12,7 +12,7 @@ const { exec } = require('child_process');
 
 const segmenting = async (args) => {
   console.log(args);
-  const { Bucket, videoId, filename, transcodeQueueUrl } = args;
+  const { Bucket, videoId, filename, transcodeQueueUrl, tableName } = args;
 
   if (!Bucket || !videoId || !filename || !transcodeQueueUrl) {
     throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
@@ -70,6 +70,7 @@ const segmenting = async (args) => {
       `-meta "bucket=${Bucket}"`,
       `-meta "video_id=${videoId}"`,
       `-meta "preset=${presetName}"`,
+      `-meta "eventTopic=${eventTopic}"`,
       'concatinating'
     ]
 
