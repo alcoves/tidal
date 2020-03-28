@@ -71,7 +71,7 @@ const segmenting = async (args) => {
       `-meta "bucket=${Bucket}"`,
       `-meta "video_id=${videoId}"`,
       `-meta "preset=${presetName}"`,
-      `-meta "eventTopic=${eventTopic}"`,
+      `-meta "table_name=${tableName}"`,
       'concatinating'
     ]
 
