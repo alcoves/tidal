@@ -6,6 +6,7 @@ const uploadsQueueUrl =
   'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-uploads-dev';
 const transcodingQueueUrl =
   'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev';
+const tableName = 'tidal-dev'
 
 const main = async () => {
   try {
@@ -26,6 +27,7 @@ const main = async () => {
               `-meta "video_id=${videoId}"`,
               `-meta "bucket=${bucket}"`,
               `-meta "transcode_queue_url=${transcodingQueueUrl}"`,
+              `-meta "table_name=${tableName}"`,
               'segmenting',
             ];
             exec(segmentationCmd.join(' '), (error, stdout) => {
