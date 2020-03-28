@@ -85,7 +85,7 @@ const segmenting = async (args) => {
       TableName: tableName,
       Item: {
         id: videoId,
-        preset: preset,
+        preset: presetName,
         status: 'segmented'
       }
     }).promise()
