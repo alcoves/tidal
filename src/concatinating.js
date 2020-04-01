@@ -38,10 +38,10 @@ const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
     },
   });
 
-  const s3Wasabi = new AWS.S3({
+  const s3Wasabi = new WASABI.S3({
     signatureVersion: 'v4',
     s3ForcePathStyle: true,
-    endpoint: new AWS.Endpoint('https://s3.us-east-2.wasabisys.com'),
+    endpoint: new WASABI.Endpoint('https://s3.us-east-2.wasabisys.com'),
   });
 
   const taskDir = NOMAD_TASK_DIR;
@@ -102,14 +102,17 @@ const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
       .run();
   })
 
+  console.log('Uploading to s3');
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
 
+  console.log('Uploading to wasabi');
   const s3Res = await s3Wasabi.upload({
     Bucket: WasabiBucketName,
     Body: fs.createReadStream(videoPath),
     Key: `videos/${videoId}/${preset}.mp4`,
   }).promise()
 
+  console.log('Updating database');
   await db.update({
     TableName: tableName,
     Key: { id: videoId, preset },
