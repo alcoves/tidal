@@ -11,15 +11,15 @@ const download = require('./lib/download')
 const getPresets = require('./lib/getPresets')
 const extractAudio = require('./lib/extractAudio');
 
-const segmenting = async () => {
-  const {
-    videoId,
-    filename,
-    tableName,
-    bucket: Bucket,
-    trainscodingQueueUrl,
-  } = require('yargs').argv;
+const {
+  videoId,
+  filename,
+  tableName,
+  bucket: Bucket,
+  trainscodingQueueUrl,
+} = require('yargs').argv;
 
+(async () => {
   if (!Bucket || !videoId || !filename || !trainscodingQueueUrl) {
     throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
   }
@@ -83,7 +83,7 @@ const segmenting = async () => {
         wasabi_secret_access_key: wasabiSecretAcessKey
       }
     })
-    console.log(res.body);
+    console.log(res.data);
 
     await db.put({
       TableName: tableName,
@@ -95,6 +95,4 @@ const segmenting = async () => {
     }).promise()
   }
   return 'done'
-}
-
-module.exports = segmenting
+})()

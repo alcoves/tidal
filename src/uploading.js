@@ -41,7 +41,7 @@ const main = async () => {
                 wasabi_secret_access_key: wasabiSecretAcessKey
               }
             })
-            console.log(res.body);
+            console.log(res.data);
           }
         }
         await sqs
