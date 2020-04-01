@@ -1,4 +1,4 @@
-const segmentation = require('../segmenting');
+const segmentation = require('./segmenting');
 
 jest.setTimeout(1000 * 60)
 
@@ -8,7 +8,7 @@ describe('segmentation test', () => {
       videoId: 'test',
       filename: 'source.mp4',
       Bucket: 'tidal-bken-dev',
-      transcodeQueueUrl: 'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev'
+      transcodingQueueUrl: 'https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev'
     })
     expect(res).toEqual('done')
   })
