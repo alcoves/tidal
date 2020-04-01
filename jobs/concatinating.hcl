@@ -1,34 +1,59 @@
-job "concatinating" {
+job "concatinating_dev" {
   priority    = 3
-  type        = "batch"
   datacenters = ["dc1"]
+  type        = "batch"
 
   parameterized {
     meta_required = [
       "preset",
       "bucket",
       "video_id",
-      "table_name"
+      "table_name",
+      "github_access_token",
+      "wasabi_access_key_id",
+      "wasabi_secret_access_key",
     ]
   }
 
   task "segmenting" {
-    driver = "raw_exec"
+    driver = "docker"
 
     env {
-      WASABI_ACCESS_KEY = "test"
+      GITHUB_ACCESS_TOKEN      = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
+      WASABI_ACCESS_KEY_ID     = "${NOMAD_META_WASABI_ACCESS_KEY_ID}"
+      WASABI_SECRET_ACCESS_KEY = "${NOMAD_META_WASABI_SECRET_ACCESS_KEY}"
     }
 
     config {
-      command = "node"
-
-      args = [
-        "/home/ubuntu/tidal/src/concatinating.js",
-        "${NOMAD_META_PRESET}",
+      force_pull = true
+      command    = "node"
+      image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+      args       = [
+        "/root/tidal/src/concatinating.js"
+        "--bucket",
         "${NOMAD_META_BUCKET}",
+        "--preset",
+        "${NOMAD_META_PRESET}",
+        "--videoId",
         "${NOMAD_META_VIDEO_ID}",
+        "--tableName",
         "${NOMAD_META_TABLE_NAME}",
+        "--transcodingQueueUrl",
+        "${NOMAD_META_TRANSCODING_QUEUE_URL}"
       ]
+
+      auth {
+        username = "rustyguts"
+        password = "${NOMAD_META_GITHUB_ACCESS_TOKEN}"
+      }
+    }
+
+    resources {
+      cpu    = 1000
+      memory = 1000
+      network {
+        port "host" {}
+      }
     }
   }
 }

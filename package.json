@@ -3,7 +3,8 @@
     "aws-sdk": "^2.643.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^9.0.0",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "yargs": "^15.3.1"
   },
   "scripts": {
     "test": "jest"
