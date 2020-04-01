@@ -19,13 +19,13 @@ const {
 } = args;
 
 const {
-  TIDAL_DEV,
+  TIDAL_ENV,
   NOMAD_TASK_DIR,
   WASABI_ACCESS_KEY_ID,
   WASABI_SECRET_ACCESS_KEY
 } = process.env;
 
-const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
+const WasabiBucketName = `cdn${TIDAL_ENV === 'dev' ? '.dev.' : '.'}bken.io`;
 
 (async () => {
   WASABI.config.update({
@@ -105,7 +105,7 @@ const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
   console.log('Uploading to s3');
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
 
-  console.log('Uploading to wasabi');
+  console.log('Uploading to wasabi', `https://${WasabiBucketName}/${wasabiStorageKey}`);
   const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
   const s3Res = await s3Wasabi.upload({
     Bucket: WasabiBucketName,
