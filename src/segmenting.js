@@ -78,7 +78,7 @@ const {
     }
 
     const nomadUrl = `http://${NOMAD_IP_host}:4646/v1/job/concatinating_${TIDAL_ENV}/dispatch`
-    const res = await axios.post(nomadUrl, {
+    await axios.post(nomadUrl, {
       Meta: {
         bucket,
         video_id: videoId,
@@ -86,11 +86,13 @@ const {
         table_name: tableName,
         github_access_token: GITHUB_ACCESS_TOKEN,
         wasabi_access_key_id: WASABI_ACCESS_KEY_ID,
-        transcoding_queue_url: transcodingQueueUrl,
         wasabi_secret_access_key: WASABI_SECRET_ACCESS_KEY,
       }
+    }).then((res) => {
+      console.log(res.data)
+    }).catch((error) => {
+      console.log(error)
     })
-    console.log(res.data);
 
     await db.put({
       TableName: tableName,

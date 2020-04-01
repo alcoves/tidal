@@ -38,8 +38,6 @@ job "concatinating_dev" {
         "${NOMAD_META_VIDEO_ID}",
         "--tableName",
         "${NOMAD_META_TABLE_NAME}",
-        "--transcodingQueueUrl",
-        "${NOMAD_META_TRANSCODING_QUEUE_URL}"
       ]
 
       auth {

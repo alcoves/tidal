@@ -29,7 +29,7 @@ const main = async () => {
             const [, videoId, filename] = record.s3.object.key.split('/');
 
             const nomadUrl = `http://${process.env.NOMAD_IP_host}:4646/v1/job/segmenting_${process.env.TIDAL_ENV}/dispatch`
-            const res = await axios.post(nomadUrl, {
+            await axios.post(nomadUrl, {
               Meta: {
                 bucket,
                 filename,
@@ -40,8 +40,11 @@ const main = async () => {
                 transcoding_queue_url: transcodingQueueUrl,
                 wasabi_secret_access_key: wasabiSecretAcessKey
               }
+            }).then((res) => {
+              console.log(res.data)
+            }).catch((error) => {
+              console.log(error)
             })
-            console.log(res.data);
           }
         }
         await sqs
