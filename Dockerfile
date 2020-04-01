@@ -18,12 +18,5 @@ RUN apk add --update --no-cache \
   nodejs
 
 RUN git clone $REPO_URL
-RUN cd /tidal
-RUN ls
-RUN git reset --hard $GIT_SHA
+RUN cd /tidal && git reset --hard $GIT_SHA
 RUN yarn
-RUN ls
-RUN echo $PWD
-RUN ls
-RUN cd ~
-RUN ls
