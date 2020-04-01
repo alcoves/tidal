@@ -106,13 +106,15 @@ const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
 
   console.log('Uploading to wasabi');
+  const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
   const s3Res = await s3Wasabi.upload({
     Bucket: WasabiBucketName,
+    ContentEncoding: 'video/mp4',
     Body: fs.createReadStream(videoPath),
-    Key: `videos/${videoId}/${preset}.mp4`,
+    Key: wasabiStorageKey,
   }).promise()
 
-  console.log('Updating database');
+  console.log('Updating database', s3Res.Location);
   await db.update({
     TableName: tableName,
     Key: { id: videoId, preset },
@@ -122,7 +124,7 @@ const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
       '#status': 'status',
     },
     ExpressionAttributeValues: {
-      ':link': s3Res.Location,
+      ':link': `https://${WasabiBucketName}/${wasabiStorageKey}`,
       ':status': 'completed'
     },
   }).promise()
