@@ -11,8 +11,6 @@ const download = require('./lib/download')
 const getPresets = require('./lib/getPresets')
 const extractAudio = require('./lib/extractAudio');
 
-const { exec } = require('child_process');
-
 const segmenting = async () => {
   const {
     videoId,
