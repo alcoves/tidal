@@ -25,7 +25,7 @@ const {
   WASABI_SECRET_ACCESS_KEY
 } = process.env;
 
-const WasabiBucketName = `cdn${TIDAL_ENV === 'dev' ? '.dev.' : '.'}bken.io`;
+const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
 
 (async () => {
   WASABI.config.update({
