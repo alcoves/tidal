@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "aws-sdk": "^2.643.0",
+    "axios": "^0.19.2",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^9.0.0",
     "lodash": "^4.17.15",
