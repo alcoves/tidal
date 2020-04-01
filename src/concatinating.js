@@ -12,21 +12,21 @@ const args = require('yargs').argv;
 
 const {
   bucket,
-  videoId,
   preset,
+  videoId,
   tableName,
 } = args;
 
+const {
+  NOMAD_TASK_DIR,
+  WASABI_ACCESS_KEY_ID,
+  WASABI_SECRET_ACCESS_KEY
+} = process.env;
+
 (async () => {
-  // if (!bucket || !videoId || !preset || !tableName) {
-  //   throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
-  // }
-
-  const WASABI_ENDPOINT = 'https://s3.us-east-2.wasabisys.com'
-
   WASABI.config.update({
-    accessKeyId: process.env.WASABI_ACCESS_KEY_ID,
-    secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY,
+    accessKeyId: WASABI_ACCESS_KEY_ID,
+    secretAccessKey: WASABI_SECRET_ACCESS_KEY,
     maxRetries: 5,
     httpOptions: {
       timeout: 5000,
@@ -37,10 +37,10 @@ const {
   const s3 = new AWS.S3({
     signatureVersion: 'v4',
     s3ForcePathStyle: true,
-    endpoint: new AWS.Endpoint(WASABI_ENDPOINT),
+    endpoint: new AWS.Endpoint('https://s3.us-east-2.wasabisys.com'),
   });
 
-  const taskDir = process.env.NOMAD_TASK_DIR;
+  const taskDir = NOMAD_TASK_DIR;
   const segDir = `${taskDir}/segments`;
   const audioPath = `${taskDir}/source.wav`;
   const manifest = `${taskDir}/manifest.txt`;

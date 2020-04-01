@@ -11,7 +11,7 @@ const download = require('./lib/download')
 const getPresets = require('./lib/getPresets')
 const extractAudio = require('./lib/extractAudio');
 
-const args = require('yargs').argv
+const args = require('yargs').argv;
 
 const {
   bucket,
@@ -21,11 +21,13 @@ const {
   transcodingQueueUrl,
 } = args;
 
-(async () => {
-  // if (!bucket || !videoId || !filename || !transcodingQueueUrl) {
-  //   throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
-  // }
+const {
+  TIDAL_ENV,
+  NOMAD_IP_host,
+  GITHUB_ACCESS_TOKEN
+} = process.env;
 
+(async () => {
   console.log('Downloading source clip');
   const downloadParams = { Bucket: bucket, Key: `uploads/${videoId}/${filename}` }
   const videoPath = await download(downloadParams, filename);
@@ -73,16 +75,16 @@ const {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    const nomadUrl = `http://${process.env.NOMAD_IP_host}:4646/v1/job/concatinating_${process.env.TIDAL_ENV}/dispatch`
+    const nomadUrl = `http://${NOMAD_IP_host}:4646/v1/job/concatinating_${TIDAL_ENV}/dispatch`
     const res = await axios.post(nomadUrl, {
       Meta: {
         bucket,
         video_id: videoId,
         preset: presetName,
         table_name: tableName,
-        github_access_token: githubAccessToken,
         wasabi_access_key_id: wasabiAccessKeyId,
-        wasabi_secret_access_key: wasabiSecretAcessKey
+        github_access_token: GITHUB_ACCESS_TOKEN,
+        wasabi_secret_access_key: wasabiSecretAcessKey,
       }
     })
     console.log(res.data);
