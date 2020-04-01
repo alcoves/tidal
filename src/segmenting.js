@@ -14,20 +14,20 @@ const extractAudio = require('./lib/extractAudio');
 const args = require('yargs').argv
 
 const {
+  bucket,
   videoId,
   filename,
   tableName,
-  bucket: Bucket,
-  trainscodingQueueUrl,
+  transcodingQueueUrl,
 } = args;
 
 (async () => {
-  // if (!Bucket || !videoId || !filename || !trainscodingQueueUrl) {
+  // if (!bucket || !videoId || !filename || !transcodingQueueUrl) {
   //   throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
   // }
 
   console.log('Downloading source clip');
-  const downloadParams = { Bucket, Key: `uploads/${videoId}/${filename}` }
+  const downloadParams = { Bucket: bucket, Key: `uploads/${videoId}/${filename}` }
   const videoPath = await download(downloadParams, filename);
 
   console.log('Exporting audio');
@@ -53,11 +53,11 @@ const {
   for (const { presetName, ffmpegCmdStr } of presets) {
     const messages = segments.map((segment) => {
       return {
-        QueueUrl: trainscodingQueueUrl,
+        QueueUrl: transcodingQueueUrl,
         MessageBody: JSON.stringify({
           ffmpegCommand: ffmpegCmdStr,
-          inPath: `${Bucket}/segments/${videoId}/source/${segment}`,
-          outPath: `${Bucket}/segments/${videoId}/${presetName}/${segment}`,
+          inPath: `${bucket}/segments/${videoId}/source/${segment}`,
+          outPath: `${bucket}/segments/${videoId}/${presetName}/${segment}`,
         })
       }
     })
