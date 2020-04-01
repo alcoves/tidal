@@ -3,16 +3,13 @@ const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const WASABI = require('aws-sdk');
 const s3ls = require('./lib/s3ls')
+const args = require('yargs').argv;
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
 
 const exec = util.promisify(_exec)
-
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
-
-const args = require('yargs').argv;
 
 const {
   bucket,
@@ -22,10 +19,13 @@ const {
 } = args;
 
 const {
+  TIDAL_DEV,
   NOMAD_TASK_DIR,
   WASABI_ACCESS_KEY_ID,
   WASABI_SECRET_ACCESS_KEY
 } = process.env;
+
+const WasabiBucketName = `cdn${TIDAL_DEV === 'dev' ? '.dev.' : '.'}bken.io`;
 
 (async () => {
   WASABI.config.update({
@@ -38,7 +38,7 @@ const {
     },
   });
 
-  const s3 = new AWS.S3({
+  const s3Wasabi = new AWS.S3({
     signatureVersion: 'v4',
     s3ForcePathStyle: true,
     endpoint: new AWS.Endpoint('https://s3.us-east-2.wasabisys.com'),
@@ -104,9 +104,10 @@ const {
 
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
 
-  const s3Res = await s3.upload({
-    Bucket: 'media-bken-dev',
-    Key: `videos/${videoId}/source.mp4`
+  const s3Res = await s3Wasabi.upload({
+    Bucket: WasabiBucketName,
+    Body: fs.createReadStream(videoPath),
+    Key: `videos/${videoId}/${preset}.mp4`,
   }).promise()
 
   await db.update({
