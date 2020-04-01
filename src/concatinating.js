@@ -18,9 +18,9 @@ const {
 } = args;
 
 (async () => {
-  if (!bucket || !videoId || !preset || !tableName) {
-    throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
-  }
+  // if (!bucket || !videoId || !preset || !tableName) {
+  //   throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
+  // }
 
   const WASABI_ENDPOINT = 'https://s3.us-east-2.wasabisys.com'
 

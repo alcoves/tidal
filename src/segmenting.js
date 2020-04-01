@@ -22,9 +22,9 @@ const {
 } = args;
 
 (async () => {
-  if (!Bucket || !videoId || !filename || !trainscodingQueueUrl) {
-    throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
-  }
+  // if (!Bucket || !videoId || !filename || !trainscodingQueueUrl) {
+  //   throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
+  // }
 
   console.log('Downloading source clip');
   const downloadParams = { Bucket, Key: `uploads/${videoId}/${filename}` }
