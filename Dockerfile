@@ -17,8 +17,15 @@ RUN apk add --update --no-cache \
   awscli \
   nodejs
 
-RUN git clone $REPO_URL && cd tidal
+RUN ls
+RUN git clone $REPO_URL
+RUN ls
+RUN cd tidal
+RUN ls
 RUN git reset --hard $GIT_SHA
 RUN yarn
+RUN ls
 RUN echo $PWD
+RUN ls
 RUN cd ~
+RUN ls
