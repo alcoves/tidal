@@ -28,7 +28,8 @@ const main = async () => {
             const bucket = record.s3.bucket.name;
             const [, videoId, filename] = record.s3.object.key.split('/');
 
-            const res = await axios.post(`http://${process.env.NOMAD_IP_host}:4646/v1/job/concatinating/dispatch`, {
+            const nomadUrl = `http://${process.env.NOMAD_IP_host}:4646/v1/job/segmenting_${process.env.TIDAL_ENV}/dispatch`
+            const res = await axios.post(nomadUrl, {
               Meta: {
                 bucket,
                 filename,

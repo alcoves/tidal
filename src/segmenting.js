@@ -71,7 +71,8 @@ const segmenting = async () => {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    const res = await axios.post(`http://${process.env.NOMAD_IP_host}:4646/v1/job/concatinating/dispatch`, {
+    const nomadUrl = `http://${process.env.NOMAD_IP_host}:4646/v1/job/concatinating_${process.env.TIDAL_ENV}/dispatch`
+    const res = await axios.post(nomadUrl, {
       Meta: {
         bucket,
         video_id: videoId,
