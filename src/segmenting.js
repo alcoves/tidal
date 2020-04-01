@@ -1,5 +1,7 @@
 const _ = require('lodash')
 const AWS = require('aws-sdk')
+const axios = require('axios');
+
 const sqs = new AWS.SQS({ region: 'us-east-1' })
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
@@ -71,23 +73,18 @@ const segmenting = async () => {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    const nomadCmd = [
-      'nomad job dispatch -detach',
-      `-meta "bucket=${Bucket}"`,
-      `-meta "video_id=${videoId}"`,
-      `-meta "preset=${presetName}"`,
-      `-meta "table_name=${tableName}"`,
-      `-meta "github_access_token=${githubAccessToken}"`,
-      `-meta "wasabi_access_key_id=${wasabiAccessKeyId}"`,
-      `-meta "wasabi_secret_access_key=${wasabiSecretAcessKey}"`,
-      'concatinating'
-    ]
-
-    exec(nomadCmd.join(' '), (error, stdout, stderr) => {
-      if (error) throw error
-      if (stdout) console.log(stdout)
-      if (stderr) console.log(stderr)
-    });
+    const res = await axios.post(`http://${process.env.NOMAD_IP_host}:4646/v1/job/concatinating/dispatch`, {
+      Meta: {
+        bucket,
+        video_id: videoId,
+        preset: presetName,
+        table_name: tableName,
+        github_access_token: githubAccessToken,
+        wasabi_access_key_id: wasabiAccessKeyId,
+        wasabi_secret_access_key: wasabiSecretAcessKey
+      }
+    })
+    console.log(res.body);
 
     await db.put({
       TableName: tableName,

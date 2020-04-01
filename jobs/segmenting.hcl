@@ -30,7 +30,7 @@ job "segmenting_dev" {
       command    = "node"
       image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
       args       = [
-        "/root/tidal/src/segmenting.js"
+        "/root/tidal/src/segmenting.js",
         "--bucket",
         "${NOMAD_META_BUCKET}",
         "--videoId",

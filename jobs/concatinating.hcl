@@ -29,7 +29,7 @@ job "concatinating_dev" {
       command    = "node"
       image      = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
       args       = [
-        "/root/tidal/src/concatinating.js"
+        "/root/tidal/src/concatinating.js",
         "--bucket",
         "${NOMAD_META_BUCKET}",
         "--preset",
