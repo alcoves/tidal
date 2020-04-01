@@ -40,11 +40,12 @@ const {
     endpoint: new AWS.Endpoint(WASABI_ENDPOINT),
   });
 
-  const segDir = `local/segments`;
-  const audioPath = 'local/source.wav';
-  const manifest = 'local/manifest.txt';
-  const videoPath = `local/${preset}.mp4`;
-  const vidNoAudio = `local/${preset}-an.mkv`;
+  const taskDir = process.env.NOMAD_TASK_DIR;
+  const segDir = `${taskDir}/segments`;
+  const audioPath = `${taskDir}/source.wav`;
+  const manifest = `${taskDir}/manifest.txt`;
+  const videoPath = `${taskDir}/${preset}.mp4`;
+  const vidNoAudio = `${taskDir}/${preset}-an.mkv`;
 
   const numExpectedS3Query = `segments/${videoId}/source`
   const numTranscodedS3Query = `segments/${videoId}/${preset}`

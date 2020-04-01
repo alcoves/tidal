@@ -42,7 +42,7 @@ const {
   console.log('Uploading segments');
   for (const batch of _.chunk(segments, 20)) {
     await Promise.all(batch.map((segment) => {
-      return upload('tidal-bken-dev', `segments/${videoId}/source/${segment}`, `local/segments/${segment}`)
+      return upload('tidal-bken-dev', `segments/${videoId}/source/${segment}`, `${process.env.NOMAD_TASK_DIR}/segments/${segment}`)
     }))
   }
 
