@@ -5,7 +5,7 @@ const ffmpeg = require('fluent-ffmpeg');
 module.exports = (videoPath) => {
   return new Promise((resolve, reject) => {
     console.log('segmenting video');
-    const localSegmentPath = path.resolve(`local/segments`);
+    const localSegmentPath = path.resolve(`${process.env.NOMAD_TASK_DIR}/segments`);
     fs.mkdirpSync(localSegmentPath);
     ffmpeg(videoPath)
       .inputOption('-y')
