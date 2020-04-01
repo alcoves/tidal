@@ -15,6 +15,10 @@ job "concatinating" {
   task "segmenting" {
     driver = "raw_exec"
 
+    env {
+      WASABI_ACCESS_KEY = "test"
+    }
+
     config {
       command = "node"
 
