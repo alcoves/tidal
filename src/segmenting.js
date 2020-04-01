@@ -86,6 +86,7 @@ const {
         table_name: tableName,
         github_access_token: GITHUB_ACCESS_TOKEN,
         wasabi_access_key_id: WASABI_ACCESS_KEY_ID,
+        transcoding_queue_url: transcodingQueueUrl,
         wasabi_secret_access_key: WASABI_SECRET_ACCESS_KEY,
       }
     })
