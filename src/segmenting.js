@@ -24,7 +24,9 @@ const {
 const {
   TIDAL_ENV,
   NOMAD_IP_host,
-  GITHUB_ACCESS_TOKEN
+  GITHUB_ACCESS_TOKEN,
+  WASABI_ACCESS_KEY_ID,
+  WASABI_SECRET_ACCESS_KEY
 } = process.env;
 
 (async () => {
@@ -82,9 +84,9 @@ const {
         video_id: videoId,
         preset: presetName,
         table_name: tableName,
-        wasabi_access_key_id: wasabiAccessKeyId,
         github_access_token: GITHUB_ACCESS_TOKEN,
-        wasabi_secret_access_key: wasabiSecretAcessKey,
+        wasabi_access_key_id: WASABI_ACCESS_KEY_ID,
+        wasabi_secret_access_key: WASABI_SECRET_ACCESS_KEY,
       }
     })
     console.log(res.data);
