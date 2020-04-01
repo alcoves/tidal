@@ -1,19 +1,21 @@
-
-const util = require('util');
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const WASABI = require('aws-sdk');
 const s3ls = require('./lib/s3ls')
 const ffmpeg = require('fluent-ffmpeg');
-const _exec = require('child_process').exec;
 
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
-const exec = util.promisify(_exec)
-
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
-module.exports = async ({ bucket, preset, videoId, tableName }) => {
+const {
+  bucket,
+  videoId,
+  preset,
+  tableName,
+} = require('yargs').argv;
+
+(async () => {
   const WASABI_ENDPOINT = 'https://s3.us-east-2.wasabisys.com'
 
   WASABI.config.update({
@@ -111,4 +113,4 @@ module.exports = async ({ bucket, preset, videoId, tableName }) => {
   }).promise()
 
   return 'done'
-}
+})()
