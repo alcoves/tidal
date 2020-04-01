@@ -1,5 +1,4 @@
 tmp
-dev
 node_modules
 .env
 .terraform
