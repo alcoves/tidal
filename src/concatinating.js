@@ -104,9 +104,9 @@ const WasabiBucketName = `cdn${TIDAL_ENV === 'dev' ? '.dev.' : '.'}bken.io`;
 
   console.log('Uploading to s3');
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
+  const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
 
   console.log('Uploading to wasabi', `https://${WasabiBucketName}/${wasabiStorageKey}`);
-  const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
   const s3Res = await s3Wasabi.upload({
     Bucket: WasabiBucketName,
     Key: wasabiStorageKey,
