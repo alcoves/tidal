@@ -109,9 +109,10 @@ const WasabiBucketName = `cdn${TIDAL_ENV === 'dev' ? '.dev.' : '.'}bken.io`;
   const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
   const s3Res = await s3Wasabi.upload({
     Bucket: WasabiBucketName,
+    Key: wasabiStorageKey,
     ContentEncoding: 'video/mp4',
     Body: fs.createReadStream(videoPath),
-    Key: wasabiStorageKey,
+    ContentDisposition: `inline; filename=${videoId}-${preset}.mp4`,
   }).promise()
 
   console.log('Updating database', s3Res.Location);
