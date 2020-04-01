@@ -2,12 +2,13 @@ const AWS = require('aws-sdk');
 const { exec } = require('child_process');
 const sqs = new AWS.SQS({ region: 'us-east-1' });
 
-const uploadsQueueUrl = process.argv[2];
-const transcodingQueueUrl = process.argv[3];
-const tableName = process.argv[4];
+const tableName = process.TABLE_NAME
+const uploadsQueueUrl = process.env.UPLOADS_QUEUE_URL
+const transcodingQueueUrl = process.env.TRANSCODING_QUEUE_URL
 
 const main = async () => {
   try {
+    console.log('fetching messages...');
     const { Messages } = await sqs
       .receiveMessage({ QueueUrl: uploadsQueueUrl })
       .promise();

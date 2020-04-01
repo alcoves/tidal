@@ -2,6 +2,7 @@
 const util = require('util');
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
+const WASABI = require('aws-sdk');
 const s3ls = require('../lib/s3ls')
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
@@ -12,7 +13,25 @@ const exec = util.promisify(_exec)
 
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
-module.exports = async ({ bucket, preset, videoId, tableName }) => {
+module.exports = async ({ bucket, preset, videoId, tableName, wasabiAccessKey, wasabiSecretAccessKey }) => {
+  const WASABI_ENDPOINT = 'https://s3.us-east-2.wasabisys.com'
+
+  WASABI.config.update({
+    accessKeyId: process.env.WASABI_ACCESS_KEY_ID,
+    secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY,
+    maxRetries: 5,
+    httpOptions: {
+      timeout: 5000,
+      connectTimeout: 3000,
+    },
+  });
+
+  const s3 = new AWS.S3({
+    signatureVersion: 'v4',
+    s3ForcePathStyle: true,
+    endpoint: new AWS.Endpoint(WASABI_ENDPOINT),
+  });
+
   const segDir = `local/segments`;
   const audioPath = 'local/source.wav';
   const manifest = 'local/manifest.txt';
@@ -72,14 +91,23 @@ module.exports = async ({ bucket, preset, videoId, tableName }) => {
 
   await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
 
-  // TODO :: copy to wasabi and get link to it
+  const s3Res = await s3.upload({
+    Bucket: 'media-bken-dev',
+    Key: `videos/${videoId}/source.mp4`
+  }).promise()
 
   await db.update({
     TableName: tableName,
     Key: { id: videoId, preset },
-    UpdateExpression: 'set #status = :status',
-    ExpressionAttributeNames: { '#status': 'status' },
-    ExpressionAttributeValues: { ':status': 'completed' },
+    UpdateExpression: 'set #status = :status, #link = :link',
+    ExpressionAttributeNames: {
+      '#link': 'link',
+      '#status': 'status',
+    },
+    ExpressionAttributeValues: {
+      ':link': s3Res.Location,
+      ':status': 'completed'
+    },
   }).promise()
 
   return 'done'
