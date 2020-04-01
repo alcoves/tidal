@@ -8,14 +8,20 @@ const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
+const args = require('yargs').argv;
+
 const {
   bucket,
   videoId,
   preset,
   tableName,
-} = require('yargs').argv;
+} = args;
 
 (async () => {
+  if (!bucket || !videoId || !preset || !tableName) {
+    throw new Error(`Arguments don't look right, ${JSON.stringify(args, null, 2)}`)
+  }
+
   const WASABI_ENDPOINT = 'https://s3.us-east-2.wasabisys.com'
 
   WASABI.config.update({

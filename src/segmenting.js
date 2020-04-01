@@ -11,13 +11,15 @@ const download = require('./lib/download')
 const getPresets = require('./lib/getPresets')
 const extractAudio = require('./lib/extractAudio');
 
+const args = require('yargs').argv
+
 const {
   videoId,
   filename,
   tableName,
   bucket: Bucket,
   trainscodingQueueUrl,
-} = require('yargs').argv;
+} = args;
 
 (async () => {
   if (!Bucket || !videoId || !filename || !trainscodingQueueUrl) {
