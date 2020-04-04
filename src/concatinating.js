@@ -119,14 +119,16 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
   await db.update({
     TableName: tableName,
     Key: { id: videoId, preset },
-    UpdateExpression: 'set #status = :status, #link = :link',
+    UpdateExpression: 'set #status = :status, #link = :link, #percentCompleted = :percentedCompleted',
     ExpressionAttributeNames: {
       '#link': 'link',
       '#status': 'status',
+      '#percentCompleted': 'percentCompleted'
     },
     ExpressionAttributeValues: {
+      ':status': 'completed',
+      ':percentCompleted': '100',
       ':link': `https://${WasabiBucketName}/${wasabiStorageKey}`,
-      ':status': 'completed'
     },
   }).promise()
 
