@@ -92,7 +92,9 @@ module.exports = async () => {
       Item: {
         id: VIDEO_ID,
         preset: presetName,
-        status: 'segmented'
+        status: 'segmented',
+        createdAt: Date.now(),
+        modifiedAt: Date.now()
       }
     }).promise()
   }
