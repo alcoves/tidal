@@ -5,23 +5,23 @@ const fs = require('fs-extra');
 const sqs = new AWS.SQS({ region: 'us-east-1' })
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
-const upload = require('./lib/upload');
-const segment = require('./lib/segment');
-const download = require('./lib/download')
-const getPresets = require('./lib/getPresets')
-const extractAudio = require('./lib/extractAudio');
+const upload = require('../lib/upload');
+const segment = require('../lib/segment');
+const download = require('../lib/download')
+const getPresets = require('../lib/getPresets')
+const extractAudio = require('../lib/extractAudio');
 
-const {
-  BUCKET,
-  VIDEO_ID,
-  FILENAME,
-  TABLE_NAME,
-  TRANSCODING_QUEUE_URL
-} = process.env;
+module.exports = async () => {
+  const {
+    BUCKET,
+    VIDEO_ID,
+    FILENAME,
+    TABLE_NAME,
+    TRANSCODING_QUEUE_URL
+  } = process.env;
 
-const TMP_DIR = fs.mkdtempSync('/tmp/');
+  const TMP_DIR = fs.mkdtempSync('/tmp/');
 
-(async () => {
   if (!BUCKET ||
     !VIDEO_ID ||
     !FILENAME ||
@@ -98,4 +98,4 @@ const TMP_DIR = fs.mkdtempSync('/tmp/');
 
   await fs.remove(TMP_DIR);
   return 'done'
-})()
+}

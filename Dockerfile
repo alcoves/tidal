@@ -23,3 +23,5 @@ RUN git clone $REPO_URL
 WORKDIR "/root/tidal"
 RUN git reset --hard $GIT_SHA
 RUN yarn
+
+CMD [ "node", "/root/tidal/src/index.js" ]
