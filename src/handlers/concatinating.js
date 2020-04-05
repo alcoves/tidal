@@ -2,8 +2,8 @@ const util = require('util');
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const WASABI = require('aws-sdk');
-const s3ls = require('./lib/s3ls')
-const sleep = require('./lib/sleep');
+const s3ls = require('../lib/s3ls')
+const sleep = require('../lib/sleep');
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
 
