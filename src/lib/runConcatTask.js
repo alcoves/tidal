@@ -1,4 +1,5 @@
-
+const AWS = require('aws-sdk');
+const ecs = new AWS.ECS({ region: 'us-east-1' });
 
 module.exports = ({ BUCKET, VIDEO_ID, PRESET }) => {
   return ecs.runTask({
