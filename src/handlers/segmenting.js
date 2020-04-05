@@ -85,7 +85,7 @@ module.exports = async () => {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    await runConcatTask({ BUCKET, VIDEO_ID, PRESET: preset })
+    await runConcatTask({ BUCKET, VIDEO_ID, PRESET: presetName })
 
     await db.put({
       TableName: TABLE_NAME,
