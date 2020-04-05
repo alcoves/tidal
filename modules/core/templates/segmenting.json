@@ -1,0 +1,44 @@
+[
+  {
+    "name": "segmenting",
+    "image": "${app_image}",
+    "repositoryCredentials": {
+      "credentialsParameter": "${credentials}"
+    },
+    "command": [
+      "/bin/sh -c \"/root/tidal/src/segmenting.js\""
+    ],
+    "environment": [
+      {
+        "name": "WASABI_ACCESS_KEY_ID",
+        "value": "password"
+      },
+      {
+        "name": "WASABI_SECRET_ACCESS_KEY",
+        "value": "password"
+      }
+    ],
+    "cpu": 4064,
+    "memory": 8128,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  },
+  {
+    "name": "xray-daemon",
+    "image": "amazon/aws-xray-daemon",
+    "cpu": 32,
+    "memory": 64,
+    "portMappings": [
+      {
+        "containerPort": 2000,
+        "protocol": "udp"
+      }
+    ]
+  }
+]
