@@ -1,6 +1,5 @@
 const _ = require('lodash')
 const AWS = require('aws-sdk')
-const axios = require('axios');
 
 const sqs = new AWS.SQS({ region: 'us-east-1' })
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
@@ -11,34 +10,24 @@ const download = require('./lib/download')
 const getPresets = require('./lib/getPresets')
 const extractAudio = require('./lib/extractAudio');
 
-const args = require('yargs').argv;
-
 const {
-  bucket,
-  videoId,
-  filename,
-  tableName,
-  transcodingQueueUrl,
-} = args;
-
-const {
-  TIDAL_ENV,
-  NOMAD_IP_host,
-  GITHUB_ACCESS_TOKEN,
-  WASABI_ACCESS_KEY_ID,
-  WASABI_SECRET_ACCESS_KEY
+  BUCKET,
+  VIDEO_ID,
+  FILENAME,
+  TABLE_NAME,
+  TRANSCODING_QUEUE_URL
 } = process.env;
 
 (async () => {
   console.log('Downloading source clip');
-  const downloadParams = { Bucket: bucket, Key: `uploads/${videoId}/${filename}` }
-  const videoPath = await download(downloadParams, filename);
+  const downloadParams = { Bucket: BUCKET, Key: `uploads/${VIDEO_ID}/${FILENAME}` }
+  const videoPath = await download(downloadParams, FILENAME);
 
   console.log('Exporting audio');
   const { audioPath, ext } = await extractAudio(videoPath)
 
   console.log('Uploading audio');
-  await upload('tidal-bken-dev', `audio/${videoId}/source.${ext}`, audioPath)
+  await upload('tidal-bken-dev', `audio/${VIDEO_ID}/source.${ext}`, audioPath)
 
   console.log('Segmenting video');
   const segments = await segment(videoPath)
@@ -46,7 +35,7 @@ const {
   console.log('Uploading segments');
   for (const batch of _.chunk(segments, 20)) {
     await Promise.all(batch.map((segment) => {
-      return upload('tidal-bken-dev', `segments/${videoId}/source/${segment}`, `${process.env.NOMAD_TASK_DIR}/segments/${segment}`)
+      return upload('tidal-bken-dev', `segments/${VIDEO_ID}/source/${segment}`, `${process.env.NOMAD_TASK_DIR}/segments/${segment}`)
     }))
   }
 
@@ -57,11 +46,11 @@ const {
   for (const { presetName, ffmpegCmdStr } of presets) {
     const messages = segments.map((segment) => {
       return {
-        QueueUrl: transcodingQueueUrl,
+        QueueUrl: TRANSCODING_QUEUE_URL,
         MessageBody: JSON.stringify({
           ffmpegCommand: ffmpegCmdStr,
-          inPath: `${bucket}/segments/${videoId}/source/${segment}`,
-          outPath: `${bucket}/segments/${videoId}/${presetName}/${segment}`,
+          inPath: `${BUCKET}/segments/${VIDEO_ID}/source/${segment}`,
+          outPath: `${BUCKET}/segments/${VIDEO_ID}/${presetName}/${segment}`,
         })
       }
     })
@@ -77,27 +66,30 @@ const {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    const nomadUrl = `http://${NOMAD_IP_host}:4646/v1/job/concatinating_${TIDAL_ENV}/dispatch`
-    await axios.post(nomadUrl, {
-      Meta: {
-        bucket,
-        video_id: videoId,
-        preset: presetName,
-        table_name: tableName,
-        github_access_token: GITHUB_ACCESS_TOKEN,
-        wasabi_access_key_id: WASABI_ACCESS_KEY_ID,
-        wasabi_secret_access_key: WASABI_SECRET_ACCESS_KEY,
-      }
-    }).then((res) => {
-      console.log(res.data)
-    }).catch((error) => {
-      console.log(error)
-    })
+
+    // enqueue 
+
+    // const nomadUrl = `http://${NOMAD_IP_host}:4646/v1/job/concatinating_${TIDAL_ENV}/dispatch`
+    // await axios.post(nomadUrl, {
+    //   Meta: {
+    //     BUCKET,
+    //     video_id: VIDEO_ID,
+    //     preset: presetName,
+    //     table_name: TABLE_NAME,
+    //     github_access_token: GITHUB_ACCESS_TOKEN,
+    //     wasabi_access_key_id: WASABI_ACCESS_KEY_ID,
+    //     wasabi_secret_access_key: WASABI_SECRET_ACCESS_KEY,
+    //   }
+    // }).then((res) => {
+    //   console.log(res.data)
+    // }).catch((error) => {
+    //   console.log(error)
+    // })
 
     await db.put({
-      TableName: tableName,
+      TableName: TABLE_NAME,
       Item: {
-        id: videoId,
+        id: VIDEO_ID,
         preset: presetName,
         status: 'segmented'
       }
