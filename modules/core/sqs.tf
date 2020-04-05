@@ -1,5 +1,6 @@
 resource "aws_sqs_queue" "tidal_uploads" {
-  name = "tidal-uploads-${var.env}"
+  visibility_timeout_seconds = 120
+  name                       = local.uploads_queue_name
 
   policy = <<POLICY
 {
@@ -9,7 +10,7 @@ resource "aws_sqs_queue" "tidal_uploads" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:*:*:tidal-uploads-${var.env}",
+      "Resource": "arn:aws:sqs:*:*:${local.uploads_queue_name}",
       "Condition": {
         "ArnEquals": { "aws:SourceArn": "${aws_s3_bucket.tidal.arn}" }
       }
@@ -17,4 +18,8 @@ resource "aws_sqs_queue" "tidal_uploads" {
   ]
 }
 POLICY
+}
+
+output "uploads_queue_arn" {
+  value = aws_sqs_queue.tidal_uploads.arn
 }

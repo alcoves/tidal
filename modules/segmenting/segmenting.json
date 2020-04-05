@@ -6,7 +6,7 @@
       "credentialsParameter": "${credentials}"
     },
     "command": [
-      "/bin/sh -c \"/root/tidal/src/segmenting.js\""
+      "/bin/sh -c \"node /root/tidal/src/segmenting.js\""
     ],
     "environment": [
       {
@@ -16,6 +16,14 @@
       {
         "name": "WASABI_SECRET_ACCESS_KEY",
         "value": "password"
+      },
+      {
+        "name": "TABLE_NAME",
+        "value": "${table_name}"
+      },
+      {
+        "name": "TRANSCODING_QUEUE_URL",
+        "value": "${transcoding_queue_url}"
       }
     ],
     "cpu": 4064,

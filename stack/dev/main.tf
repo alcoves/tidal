@@ -6,15 +6,43 @@ terraform {
   }
 }
 
-provider "aws" { region  = "us-east-1" }
+provider "aws" { region = "us-east-1" }
+
+variable "env" {
+  type    = string
+  default = "dev"
+}
 
 module "core" {
-  env       = "dev"
+  env       = var.env
   namespace = "bken"
   source    = "../../modules/core"
 }
 
 module "transcoding" {
-  env    = "dev"
+  env    = var.env
   source = "../../modules/transcoding"
 }
+
+module "uploading" {
+  env               = var.env
+  source            = "../../modules/uploading"
+  uploads_queue_arn = module.core.uploads_queue_arn
+}
+
+module "segmenting" {
+  env                   = var.env
+  registry_secrets_arn  = "github_registry_login"
+  source                = "../../modules/segmenting"
+  table_name            = module.core.tidal_table_name
+  transcoding_queue_url = "https://sqs.us-east-1.amazonaws.com/594206825329/${module.transcoding.transcoding_queue_name}" 
+  app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+}
+
+// module "concatinating" {
+//   registry_secrets_arn  = "github_registry_login"
+//   source                = "../../modules/concatinating"
+//   transcoding_queue_arn = module.core.uploads_queue_arn
+//   table_name            = aws_dynamodb_table.tidal_db.name
+//   app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+// }

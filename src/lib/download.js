@@ -3,10 +3,10 @@ const AWS = require('aws-sdk');
 
 const s3 = new AWS.S3({ region: 'us-east-1' });
 
-module.exports = (params, filename) => {
+module.exports = (params, filename, tmpDir) => {
   return new Promise((resolve, reject) => {
     try {
-      const filePath = `${process.env.NOMAD_TASK_DIR}/${filename}`
+      const filePath = `${tmpDir}/${filename}`
       const file = fs.createWriteStream(filePath);
       s3.getObject(params).createReadStream().on('error', console.error).pipe(file)
       file.on('close', () => {
