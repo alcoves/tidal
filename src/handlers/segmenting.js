@@ -10,6 +10,7 @@ const segment = require('../lib/segment');
 const download = require('../lib/download')
 const getPresets = require('../lib/getPresets')
 const extractAudio = require('../lib/extractAudio');
+const runConcatTask = require('../lib/runConcatTask')
 
 module.exports = async () => {
   const {
@@ -84,7 +85,7 @@ module.exports = async () => {
       console.log(`messages published ${messagesPublished}`)
     }
 
-    // Enqueue Concatination request 
+    await runConcatTask({ BUCKET, VIDEO_ID, PRESET: preset })
 
     await db.put({
       TableName: TABLE_NAME,
