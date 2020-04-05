@@ -1,9 +1,9 @@
 [Unit]
-Description=Nomad client
+Description=Consul client
 Wants=network-online.target
 After=network-online.target
 [Service]
-ExecStart= /bin/sh -c "/usr/local/bin/nomad agent -config /home/ubuntu/tidal/config/client.hcl"
+ExecStart= /bin/sh -c "/usr/local/bin/consul agent -config /home/ubuntu/tidal/config/consul/client.hcl"
 Restart=always
 RestartSec=10
 [Install]

@@ -1,0 +1,10 @@
+[Unit]
+Description=Consul server
+Wants=network-online.target
+After=network-online.target
+[Service]
+ExecStart= /bin/sh -c "/usr/local/bin/consul agent -config /home/ubuntu/tidal/config/consul/server.hcl"
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
