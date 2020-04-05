@@ -1,21 +1,29 @@
 [
   {
-    "name": "segmenting",
+    "name": "concatinating",
     "image": "${app_image}",
     "repositoryCredentials": {
       "credentialsParameter": "${credentials}"
     },
     "command": [
-      "/bin/sh -c \"node /root/tidal/src/segmenting.js\""
+      "/bin/sh -c \"node /root/tidal/src/concatinating.js\""
     ],
     "environment": [
+      {
+        "name": "WASABI_ACCESS_KEY_ID",
+        "value": "${wasabi_secret_access_key}"
+      },
+      {
+        "name": "WASABI_SECRET_ACCESS_KEY",
+        "value": "${wasabi_secret_access_key}"
+      },
       {
         "name": "TABLE_NAME",
         "value": "${table_name}"
       },
       {
-        "name": "TRANSCODING_QUEUE_URL",
-        "value": "${transcoding_queue_url}"
+        "name": "TIDAL_ENV",
+        "value": "${tidal_env}"
       }
     ],
     "cpu": 4064,
