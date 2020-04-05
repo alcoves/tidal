@@ -3,28 +3,28 @@ const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const WASABI = require('aws-sdk');
 const s3ls = require('./lib/s3ls')
+const sleep = require('./lib/sleep');
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
 
 const exec = util.promisify(_exec)
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
-const {
-  BUCKET,
-  PRESET,
-  VIDEO_ID,
-  TIDAL_ENV,
-  TABLE_NAME,
-  WASABI_ACCESS_KEY_ID,
-  WASABI_SECRET_ACCESS_KEY
-} = process.env;
+module.exports = async () => {
+  const {
+    BUCKET,
+    PRESET,
+    VIDEO_ID,
+    TIDAL_ENV,
+    TABLE_NAME,
+    WASABI_ACCESS_KEY_ID,
+    WASABI_SECRET_ACCESS_KEY
+  } = process.env;
 
-const TMP_DIR = fs.mkdtempSync('/tmp/');
+  const TMP_DIR = fs.mkdtempSync('/tmp/');
 
-const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
+  const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
 
-(async () => {
   WASABI.config.update({
     accessKeyId: WASABI_ACCESS_KEY_ID,
     secretAccessKey: WASABI_SECRET_ACCESS_KEY,
@@ -130,4 +130,4 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
 
   await fs.remove(TMP_DIR)
   return 'done'
-})()
+}
