@@ -5,11 +5,11 @@ data "archive_file" "tidal_transcoding_zip" {
 }
 
 resource "aws_lambda_function" "tidal_transcoding" {
-  memory_size      = 3008
   timeout          = 900
+  memory_size      = 3008
   runtime          = "provided"
-  handler          = "transcoding.handler"
   function_name    = local.function_name
+  handler          = "transcoding.handler"
   filename         = local.archive_output_path
   role             = "arn:aws:iam::594206825329:role/lambda-all"
   depends_on       = [aws_cloudwatch_log_group.tidal_transcoding]
