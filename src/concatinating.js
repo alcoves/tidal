@@ -3,7 +3,6 @@ const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const WASABI = require('aws-sdk');
 const s3ls = require('./lib/s3ls')
-const args = require('yargs').argv;
 const ffmpeg = require('fluent-ffmpeg');
 const _exec = require('child_process').exec;
 
@@ -12,18 +11,16 @@ const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 const sleep = s => new Promise(r => setTimeout(() => r(), 1000 * s))
 
 const {
-  bucket,
-  preset,
-  videoId,
-  tableName,
-} = args;
-
-const {
+  BUCKET,
+  PRESET,
+  VIDEO_ID,
   TIDAL_ENV,
-  NOMAD_TASK_DIR,
+  TABLE_NAME,
   WASABI_ACCESS_KEY_ID,
   WASABI_SECRET_ACCESS_KEY
 } = process.env;
+
+const TMP_DIR = fs.mkdtempSync('/tmp/');
 
 const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
 
@@ -44,21 +41,20 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
     endpoint: new WASABI.Endpoint('https://s3.us-east-2.wasabisys.com'),
   });
 
-  const taskDir = NOMAD_TASK_DIR;
-  const segDir = `${taskDir}/segments`;
-  const audioPath = `${taskDir}/source.wav`;
-  const manifest = `${taskDir}/manifest.txt`;
-  const videoPath = `${taskDir}/${preset}.mp4`;
-  const vidNoAudio = `${taskDir}/${preset}-an.mkv`;
+  const segDir = `${TMP_DIR}/segments`;
+  const audioPath = `${TMP_DIR}/source.wav`;
+  const manifest = `${TMP_DIR}/manifest.txt`;
+  const videoPath = `${TMP_DIR}/${PRESET}.mp4`;
+  const vidNoAudio = `${TMP_DIR}/${PRESET}-an.mkv`;
 
-  const numExpectedS3Query = `segments/${videoId}/source`
-  const numTranscodedS3Query = `segments/${videoId}/${preset}`
+  const numExpectedS3Query = `segments/${VIDEO_ID}/source`
+  const numTranscodedS3Query = `segments/${VIDEO_ID}/${PRESET}`
 
   console.log(`numExpectedS3Query: ${numExpectedS3Query}`);
   console.log(`numTranscodedS3Query: ${numTranscodedS3Query}`);
 
-  const NUM_EXPECTED_CONFIG = { Bucket: bucket, Prefix: numExpectedS3Query }
-  const NUM_TRANSCODED_CONFIG = { Bucket: bucket, Prefix: numTranscodedS3Query }
+  const NUM_EXPECTED_CONFIG = { Bucket: BUCKET, Prefix: numExpectedS3Query }
+  const NUM_TRANSCODED_CONFIG = { Bucket: BUCKET, Prefix: numTranscodedS3Query }
 
   let NUM_EXPECTED = (await s3ls(NUM_EXPECTED_CONFIG)).length
   let NUM_TRANSCODED = (await s3ls(NUM_TRANSCODED_CONFIG)).length
@@ -73,8 +69,8 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
     console.log('NUM_TRANSCODED', NUM_TRANSCODED);
   }
 
-  await exec(`aws s3 sync s3://${bucket}/segments/${videoId}/${preset} ${segDir}`)
-  await exec(`aws s3 cp s3://${bucket}/audio/${videoId}/source.wav ${audioPath}`)
+  await exec(`aws s3 sync s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET} ${segDir}`)
+  await exec(`aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/source.wav ${audioPath}`)
 
   for (const segment of await fs.readdir(segDir)) {
     await fs.appendFile(manifest, `file './segments/${segment}'\n`)
@@ -103,8 +99,8 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
   })
 
   console.log('Uploading to s3');
-  await exec(`aws s3 cp ${videoPath} s3://${bucket}/transcoded/${videoId}/${preset}.mp4`)
-  const wasabiStorageKey = `v/${videoId}/${preset}.mp4`;
+  await exec(`aws s3 cp ${videoPath} s3://${BUCKET}/transcoded/${VIDEO_ID}/${PRESET}.mp4`)
+  const wasabiStorageKey = `v/${VIDEO_ID}/${PRESET}.mp4`;
 
   console.log('Uploading to wasabi', `https://${WasabiBucketName}/${wasabiStorageKey}`);
   const s3Res = await s3Wasabi.upload({
@@ -112,14 +108,14 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
     ContentType: 'video/mp4',
     Bucket: WasabiBucketName,
     Body: fs.createReadStream(videoPath),
-    ContentDisposition: `inline; filename=${videoId}-${preset}.mp4`,
+    ContentDisposition: `inline; filename=${VIDEO_ID}-${PRESET}.mp4`,
   }).promise()
 
   console.log('Updating database', s3Res.Location);
   await db.update({
-    TableName: tableName,
-    Key: { id: videoId, preset },
-    UpdateExpression: 'set #status = :status, #link = :link, #percentCompleted = :percentedCompleted',
+    TableName: TABLE_NAME,
+    Key: { id: VIDEO_ID, preset: PRESET },
+    UpdateExpression: 'set #status = :status, #link = :link, #percentCompleted = :percentCompleted',
     ExpressionAttributeNames: {
       '#link': 'link',
       '#status': 'status',
@@ -127,10 +123,11 @@ const WasabiBucketName = `${TIDAL_ENV === 'dev' ? 'dev-' : ''}cdn.bken.io`;
     },
     ExpressionAttributeValues: {
       ':status': 'completed',
-      ':percentCompleted': '100',
+      ':percentCompleted': 100,
       ':link': `https://${WasabiBucketName}/${wasabiStorageKey}`,
     },
   }).promise()
 
+  await fs.remove(TMP_DIR)
   return 'done'
 })()

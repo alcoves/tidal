@@ -39,10 +39,10 @@ module "segmenting" {
   app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
 }
 
-// module "concatinating" {
-//   registry_secrets_arn  = "github_registry_login"
-//   source                = "../../modules/concatinating"
-//   transcoding_queue_arn = module.core.uploads_queue_arn
-//   table_name            = aws_dynamodb_table.tidal_db.name
-//   app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
-// }
+module "concatinating" {
+  env                   = var.env
+  registry_secrets_arn  = "github_registry_login"
+  source                = "../../modules/concatinating"
+  table_name            = module.core.tidal_table_name
+  app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+}
