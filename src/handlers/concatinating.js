@@ -115,15 +115,16 @@ module.exports = async () => {
   await db.update({
     TableName: TABLE_NAME,
     Key: { id: VIDEO_ID, preset: PRESET },
-    UpdateExpression: 'set #status = :status, #link = :link, #percentCompleted = :percentCompleted',
+    UpdateExpression: 'set #status = :status, #link = :link, #modifiedAt = :modifiedAt',
     ExpressionAttributeNames: {
       '#link': 'link',
       '#status': 'status',
-      '#percentCompleted': 'percentCompleted'
+      '#modifiedAt': 'modifiedAt',
+      '#percentCompleted': 'percentCompleted',
     },
     ExpressionAttributeValues: {
       ':status': 'completed',
-      ':percentCompleted': 100,
+      ':modifiedAt': Date.now(),
       ':link': `https://${WasabiBucketName}/${wasabiStorageKey}`,
     },
   }).promise()
