@@ -1,0 +1,47 @@
+name: Build/Push, Apply, Deploy
+env:
+  ECS_SERVICE_NAME: web-dev
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+on:
+  push:
+    branches:
+      - dev
+jobs:
+build:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@master
+    - name: Publish to GitHub
+      uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        GIT_SHA: ${{ github.sha }}
+      with:
+        name: bken-io/tidal/tidal
+        username: ${{ github.actor }}
+        registry: docker.pkg.github.com
+        password: ${{ secrets.GITHUB_TOKEN }}
+        buildargs: GIT_SHA
+  terraform:
+    needs: build
+    name: Apply
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Terraform Init
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.24
+          tf_actions_subcommand: init
+          tf_actions_working_dir: stack/dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Terraform Apply
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.24
+          tf_actions_subcommand: apply
+          tf_actions_working_dir: stack/dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
