@@ -9,20 +9,20 @@ on:
     branches:
       - dev
 jobs:
-build:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@master
-    - name: Publish to GitHub
-      uses: elgohr/Publish-Docker-Github-Action@master
-      env:
-        GIT_SHA: ${{ github.sha }}
-      with:
-        name: bken-io/tidal/tidal
-        username: ${{ github.actor }}
-        registry: docker.pkg.github.com
-        password: ${{ secrets.GITHUB_TOKEN }}
-        buildargs: GIT_SHA
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Publish to GitHub
+        uses: elgohr/Publish-Docker-Github-Action@master
+        env:
+          GIT_SHA: ${{ github.sha }}
+        with:
+          name: bken-io/tidal/tidal
+          username: ${{ github.actor }}
+          registry: docker.pkg.github.com
+          password: ${{ secrets.GITHUB_TOKEN }}
+          buildargs: GIT_SHA
   terraform:
     needs: build
     name: Apply
