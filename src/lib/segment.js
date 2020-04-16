@@ -9,13 +9,8 @@ module.exports = (videoPath, tmpDir) => {
     fs.mkdirpSync(localSegmentPath);
     ffmpeg(videoPath)
       .inputOption('-y')
-      .outputOptions([
-        '-an',
-        '-c copy',
-        '-f segment',
-        '-segment_time 00:00:01',
-      ])
-      .on('progress', () => { })
+      .outputOptions(['-an', '-c copy', '-f segment', '-segment_time 00:00:01'])
+      .on('progress', () => {})
       .on('error', reject)
       .on('end', () => resolve(fs.readdirSync(localSegmentPath)))
       .output(`${localSegmentPath}/output_%04d.mkv`)

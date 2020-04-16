@@ -7,7 +7,7 @@ module.exports = (sourcePath, tmpDir) => {
     const sourceAudioPath = path.resolve(`${tmpDir}/source.wav`);
     ffmpeg(path.resolve(sourcePath))
       .inputOption('-y')
-      .on('progress', () => { })
+      .on('progress', () => {})
       .on('error', reject)
       .on('end', () => resolve({ audioPath: sourceAudioPath, ext: 'wav' }))
       .output(sourceAudioPath)
