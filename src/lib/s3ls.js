@@ -14,4 +14,4 @@ const s3ls = async (params, items = []) => {
   return items;
 };
 
-module.exports = s3ls
+module.exports = s3ls;
