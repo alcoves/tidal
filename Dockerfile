@@ -14,8 +14,8 @@ RUN apk add --update --no-cache \
   curl \
   wget \
   ffmpeg \
-  awscli \
-  nodejs
+  nodejs \
+  aws-cli
 
 WORKDIR "/root"
 RUN git clone $REPO_URL
