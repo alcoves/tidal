@@ -12,6 +12,8 @@ const getPresets = require('../lib/getPresets');
 const extractAudio = require('../lib/extractAudio');
 const runConcatTask = require('../lib/runConcatTask');
 
+const { createThumbnail } = require('../lib/thumbnails');
+
 module.exports = async () => {
   const {
     BUCKET,
@@ -98,6 +100,10 @@ module.exports = async () => {
       console.log(`messages published ${messagesPublished}`);
     }
 
+    console.log('Generating thumbnail');
+    const thumbnail = await createThumbnail(videoPath);
+
+    console.log('Enqueueing Concatination Task');
     await runConcatTask({ BUCKET, VIDEO_ID, PRESET: presetName });
 
     await db
@@ -109,6 +115,7 @@ module.exports = async () => {
           status: 'segmented',
           createdAt: Date.now(),
           modifiedAt: Date.now(),
+          thumbnail: '',
         },
       })
       .promise();
