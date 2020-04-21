@@ -1,22 +1,39 @@
+extern crate clap;
+
+use clap::{Arg, App};
+
 mod segment;
-mod concatinate;
-
-use std::env;
-
-// Tidal is invoked with cli commands for local dev
-// In AWS, we expect TIDAL_CMD to be defined
-// with the desired cli command to run
+mod concat;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let matches = App::new("Tidal Distributed Video Transcoder")
+        .version("0.1.0")
+        .author("Brendan Kennedy <brenwken@gmail.com>")
+        .about("fast video transcoder written in rust")
+        .arg(Arg::with_name("mode")
+            .short('m')
+            .long("mode")
+            .takes_value(true)
+            .help("One of segment, transcode, or concat"))
+        .arg(Arg::with_name("id")
+            .long("id")
+            .takes_value(true)
+            .help("The id of the video file"))
+        .get_matches();
 
-    for argument in args.iter() {
-        println!("{}", argument);
+    println!("{:?}", matches);
+
+    let mode = matches.value_of("mode");
+
+    match mode {
+        Some("segment") => segment::run(matches),
+        Some("concat") => concat::run(matches),
+        _ => println!("invalid mode: {}", mode.unwrap())
     }
 
-    if args[1] == "segment" {
-        segment::run(args);
-    } else if args[2] == "concatinate" {
-        concatinate::run(args);
-    }
+    // if mode == "segment" {
+    //     segment::run(matches);
+    // } else if mode == "concatinate" {
+    //     concatinate::run(matches);
+    // }
 }
