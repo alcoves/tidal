@@ -12,7 +12,7 @@ fn mkdirp(path: String) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn run(args: Vec<String>) {
+pub fn run(args: clap::ArgMatches) {
     let current_dir = env::current_dir().unwrap();
     println!("Current path: {}", current_dir.display());
     println!("Segmentation module invoked, {:?}", args);
