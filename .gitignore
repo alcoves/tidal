@@ -4,3 +4,6 @@ node_modules
 .terraform
 dist
 local
+
+#Added by cargo
+/target
