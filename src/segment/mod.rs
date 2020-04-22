@@ -1,9 +1,14 @@
-use std::fs;
-use std::env;
-use std::process::Command;
+// use rusoto_core::Region;
+// use rusoto_s3::S3Client;
 
-mod presets;
+use std::env;
+use std::fs;
+use std::process::Command;
+use tokio::runtime::Runtime;
+
 mod dimensions;
+mod download;
+mod presets;
 
 // TODO :: Make util
 fn mkdirp(path: String) -> std::io::Result<()> {
@@ -13,6 +18,18 @@ fn mkdirp(path: String) -> std::io::Result<()> {
 }
 
 pub fn run(args: clap::ArgMatches) {
+    // let client = S3Client::new(Region::UsEast1);
+
+    // parse in path to s3 bucket and key
+    // download object from s3
+
+    let bucket = "tidal-bken-dev";
+    let filename = "uploads/3HM4Ka2OS/source.mp4";
+    let dest_path = "./tmp/test.mp4";
+
+    let download_res = download::get_object(bucket, filename, dest_path);
+    Runtime::new().unwrap().block_on(download_res);
+
     let current_dir = env::current_dir().unwrap();
     println!("Current path: {}", current_dir.display());
     println!("Segmentation module invoked, {:?}", args);
