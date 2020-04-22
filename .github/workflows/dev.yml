@@ -1,4 +1,4 @@
-name: Build/Push, Apply, Deploy
+name: Deploy Dev
 env:
   ECS_SERVICE_NAME: web-dev
   AWS_DEFAULT_REGION: us-east-1
@@ -10,7 +10,7 @@ on:
       - dev
 jobs:
   build:
-    name: tidal
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,8 +18,9 @@ jobs:
         with:
           command: build
           args: --release --all-features
-  docker_build_push:
-    name: Build/Push
+  docker:
+    name: Docker
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -33,9 +34,9 @@ jobs:
           registry: docker.pkg.github.com
           password: ${{ secrets.GITHUB_TOKEN }}
           buildargs: GIT_SHA
-  terraform:
-    needs: docker_build_push
-    name: Apply
+  deploy:
+    name: Deploy
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
