@@ -1,6 +1,6 @@
 # Tidal
 
-Tidal is a distributed video transcoder. The current implementation runs on AWS Lamabda and EC2. MP4 videos are segmentated and uploaded to s3. Then, lambda performs fan out transcoding for each segment. The resulting transcoded segments are stitched back together which creates the final video.
+Tidal is a distributed video transcoder. The current implementation runs on AWS Lamabda and ECS Fargate. MP4 videos are segmentated and uploaded to s3. Then, lambda performs fan out transcoding for each segment. The resulting transcoded segments are stitched back together which creates the final video.
 
 Tidal is under heavy development. The API will change drastically.
 
@@ -14,8 +14,8 @@ Tidal is under heavy development. The API will change drastically.
 ### Step 2: Transcoding
 
 1. When segments are written to the segments folder, this emits events. The act of placing a single segment emits 1 event, however, we read the manifest.json file and write 1 to many events into an sqs queue for transcoding. so each segment has multiple versions that need to be transcoded. The manifest file must exist or the enqueuing of the files will fail. Events are written to `tidal-dev-transcoding-requests`. This queue invokes the `tidal-dev-transcoder` which takes an s3 path and an ffmpeg command stream to run.
-2. The transcoded outputs files to `/segments/${videoId}/${presetName}/output-0000.mkv`, the lastSegment header must be passed to the segments, this tells the system when to wait for segments to become availible. 
-3. The 
+2. The transcoded outputs files to `/segments/${videoId}/${presetName}/output-0000.mkv`, the lastSegment header must be passed to the segments, this tells the system when to wait for segments to become availible.
+3. The
 
 ### Step 3: Concatination
 
@@ -52,3 +52,13 @@ Make sure your SQS messages look like the following
 ### Full pipeline
 
 `node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceKey=tests/test.mp4 --sourceBucket=media-bken --encodingQueueUrl=https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding --eventPublishingArn=arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events`
+
+## Experiments
+
+- EFS (slow and expensive, reverted back to s3)
+- EC2 (faster but difficult to manage, slower to boot than fargate)
+- Nodejs (initial cli was in node, rapid development, poor results and maintainability)
+- Rust (ongoing rewrite: very safe, slower to develop)
+- DigitalOcean (best dev experience hands down, hard to justify building everything)
+- Linode (fastest network I have ever used, 40gbit...100gbit...)
+- av1 (way too slow in ffmpeg, rav1e may be the key)
