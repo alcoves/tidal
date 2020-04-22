@@ -18,12 +18,19 @@ jobs:
         with:
           command: build
           args: --release --all-features
+      - uses: actions/upload-artifact@v1
+        with:
+          name: tidal
+          path: target/release/tidal
   docker:
     name: Docker
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - uses: actions/upload-artifact@v1
+        with:
+          name: tidal
       - name: Publish to GitHub
         uses: elgohr/Publish-Docker-Github-Action@master
         env:
