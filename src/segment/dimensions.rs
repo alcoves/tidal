@@ -26,6 +26,9 @@ pub fn get_dimensions(path: String) -> Vec<u16> {
         dimensions_u16_vec.push(s.parse::<u16>().unwrap())
     }
 
-    println!("Video is {}x{}", dimensions_u16_vec[0], dimensions_u16_vec[1]);
+    println!(
+        "Video is {}x{}",
+        dimensions_u16_vec[0], dimensions_u16_vec[1]
+    );
     return dimensions_u16_vec;
 }
