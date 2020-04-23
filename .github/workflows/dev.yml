@@ -20,7 +20,7 @@ jobs:
           args: --release --all-features
       - uses: actions/upload-artifact@v1
         with:
-          name: tidal
+          name: target/release
           path: target/release/tidal
   docker:
     name: Docker
@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/download-artifact@v1
         with:
-          name: tidal
+          name: target/release
       - name: Publish to GitHub
         uses: elgohr/Publish-Docker-Github-Action@master
         env:
