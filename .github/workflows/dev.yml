@@ -22,7 +22,19 @@ jobs:
         with:
           name: target
           path: target
-  docker:
+  ecr_docker_push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kciter/aws-ecr-action@v1
+        with:
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          repo: tidal
+          region: us-east-1
+          tags: dev,${{ github.sha }}
+          create_repo: false
+  github_docker_push:
     name: Docker
     needs: build
     runs-on: ubuntu-latest
@@ -43,7 +55,7 @@ jobs:
           buildargs: GIT_SHA
   deploy:
     name: Deploy
-    needs: docker
+    needs: ecr_docker_push
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
