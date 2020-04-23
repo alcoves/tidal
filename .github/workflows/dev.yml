@@ -23,8 +23,11 @@ jobs:
           name: target
           path: target
   ecr_docker_push:
+    name: ECR Docker Push
+    needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@master
       - uses: kciter/aws-ecr-action@v1
         with:
           access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -35,7 +38,7 @@ jobs:
           tags: dev,${{ github.sha }}
           create_repo: false
   github_docker_push:
-    name: Docker
+    name: Github Docker Push
     needs: build
     runs-on: ubuntu-latest
     steps:
