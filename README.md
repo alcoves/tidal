@@ -8,57 +8,84 @@ Tidal is under heavy development. The API will change drastically.
 
 ### Step 1: Segmentation
 
-1. Files are uploaded to the `tidal-dev-bken` bucket under `/source/${videoId}/source.mp4`
-2. The act of uploading a file here triggers the `tidal-dev-seg-launcher`. This lambda boots an ec2 with the proper amount of disk space to segment the file. The segmenter accepts the s3 path as an input and segments the file. Then, a manifest file is created which contains the list of formats that will be generated. The segmenter uploads segments to `/segments/${videoId}/segments/output-0000.mkv` and the manifest file to `/segments/${videoId}/manifest.json`. **The last segment has an amazon s3 custom metadata tag `lastSeg=true`. This is used by subsequent systems and is very imortant!**
+- Splits up a video into smaller segments
+- Splits the audio from the source clip
+
+Local example:
+
+```bash
+tidal segment test.mp4 .
+```
+
+S3 example:
+
+- If transcodeQueueUrl is passed, the transcode events are published to sqs
+
+```bash
+tidal segment s3://bucket/sources/id/test.mp4 s3://bucket/segments/id \
+  --transcodeQueueUrl=""
+
+# This yeilds an s3 directory that looks like...
+# s3://bucket/segments/id/source/output_0000.mkv
+# s3://bucket/segments/id/source/output_0001.mkv
+# s3://bucket/segments/id/source.wav
+```
 
 ### Step 2: Transcoding
 
-1. When segments are written to the segments folder, this emits events. The act of placing a single segment emits 1 event, however, we read the manifest.json file and write 1 to many events into an sqs queue for transcoding. so each segment has multiple versions that need to be transcoded. The manifest file must exist or the enqueuing of the files will fail. Events are written to `tidal-dev-transcoding-requests`. This queue invokes the `tidal-dev-transcoder` which takes an s3 path and an ffmpeg command stream to run.
-2. The transcoded outputs files to `/segments/${videoId}/${presetName}/output-0000.mkv`, the lastSegment header must be passed to the segments, this tells the system when to wait for segments to become availible.
-3. The
+- Transcode each part
+
+Local example:
+
+```bash
+tidal transcode ./segments ./transcoded --presets libx264_1080p
+```
+
+Deployed example:
+
+pass the `--transcodeQueueUrl` flag to the segment command. Transcode events will be sent to the queue specified by the `--transcodeQueueUrl` flag from the segmentation process. Use any compute you like to pull items from the queue to process. The event shape is as follows.
+
+```json
+{
+  "IN": "s3://bucket/segments/id/source/output_0000.mkv",
+  "FFMPEG_ARGS": "-c:v libx264 -crf 20",
+  "OUT": "s3://bucket/segments/id/libx264_1080p/output_0000.mkv"
+}
+```
+
+It's tough to determine when the process is complete. Right now I recommend running a daemon that crawls s3 looking for items to stich back together.
 
 ### Step 3: Concatination
 
-1. When a transcoded preset is finished, the `tidal-dev-concatination` lambda is fired. This lambda concatinates the transcoded segment files, muxes the audio in (re-encoding if needed) and saves the resulting file to `/transcoded/${videoId}/${presetName}.mp4`
+- For each preset, download the transcoded segments
+- Combine to final video
+- Combine with source audio
+- Upload to CDN
 
-### Step 4: Publishing
+Local example:
 
-1. When a preset video is placed in `/transcoded/${videoId}/${presetName}.mp4`, that action emits an event which is handled by the `tidal-dev-transcode-egress` lambda. This lambda copies the object to the wasabi bucket and emits an event to sns indicating that the video file is ready to be viewed.
+```bash
+tidal concat ./transcoded/libx264_1080p finished.mp4
+```
+
+Deployed example:
+
+```bash
+tidal concat s3://bucket/segments/id/libx264_1080p s3://bucket/transcoded/id/libx264_1080p.mp4
+```
 
 ## Benchmarks
 
 TODO
-
-## How to Run
-
-- Clone the repo, yarn at the root to install deps
-- Make sure the aws-cli and ffmpeg are installed on your machine
-- Create a custom lambda with ffmpeg and bash (follow this guide)
-- Create an sqs queue
-- export AWS_PROFILE=myCoolTestAccount
-
-You are ready to process some videos! Keep in mind that tidal is network intensive!
-
-### Listening Mode
-
-This runs the server perpetually. Messages are long polled from SQS. One processing operation is allowed at a time.
-
-`node src/listen.js --sqsQueueArn="test"`
-
-Make sure your SQS messages look like the following
-
-`{"bucket":"bken-dve-dev","sourceUrl":"https://s3.us-east-2.wasabisys.com/media-bken/tests/test.mp4","videoId":"t2","eventPublishingArn":"arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events","encodingQueueUrl":"https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding"}`
-
-### Full pipeline
-
-`node src/index.js --bucket=bken-dve-dev --videoId=t2 --sourceKey=tests/test.mp4 --sourceBucket=media-bken --encodingQueueUrl=https://sqs.us-east-1.amazonaws.com/594206825329/dev-transcoding --eventPublishingArn=arn:aws:sns:us-east-1:594206825329:bken-dev-tidal-events`
 
 ## Experiments
 
 - EFS (slow and expensive, reverted back to s3)
 - EC2 (faster but difficult to manage, slower to boot than fargate)
 - Nodejs (initial cli was in node, rapid development, poor results and maintainability)
-- Rust (ongoing rewrite: very safe, slower to develop)
+- Rust (ongoing rewrite: very safe, slower to develop, i'm bad at it)
 - DigitalOcean (best dev experience hands down, hard to justify building everything)
 - Linode (fastest network I have ever used, 40gbit...100gbit...)
-- av1 (way too slow in ffmpeg, rav1e may be the key)
+- av1 (way too slow in ffmpeg, rav1e may be the way to go)
+- Formats (need to conduct extensive format testing to see what video types work/don't work)
+- Audio (source audio is used, no logic to compress as of now, transcoder should handle compression)
