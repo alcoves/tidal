@@ -1,6 +1,5 @@
-// use rusoto_core::Region;
-// use rusoto_s3::S3Client;
-
+use rusoto_core::Region;
+use rusoto_s3::S3Client;
 use std::env;
 use std::fs;
 use std::process::Command;
@@ -17,22 +16,19 @@ fn mkdirp(path: String) -> std::io::Result<()> {
   Ok(())
 }
 
-pub fn run(args: clap::ArgMatches) {
-  let bucket = "tidal-bken-dev";
-  let filename = "uploads/3HM4Ka2OS/source.mp4";
-  let dest_path = "./tmp/test.mp4";
+pub fn run(remote_source_path: &str, remote_dest_path: &str) {
+  let client = S3Client::new(Region::UsEast1);
 
-  let download_res = download::get_object(bucket, filename, dest_path);
-  Runtime::new().unwrap().block_on(download_res);
+  let bucket = "tidal-bken-dev";
+  let key = "uploads/test/source.mp4";
 
   let current_dir = env::current_dir().unwrap();
-  println!("Current path: {}", current_dir.display());
-  println!("Segmentation module invoked, {:?}", args);
-
-  // TODO :: read from cli args
   let tmp_dir = format!("{}/tmp", current_dir.display());
   let path = format!("{}/test.mp4", tmp_dir);
   let segment_path = format!("{}/segments", tmp_dir);
+
+  // let download_res = download::get_object(remote_source_path, &tmp_dir);
+  // Runtime::new().unwrap().block_on(download_res);
 
   let _mk_dir_out = mkdirp(segment_path.clone());
 

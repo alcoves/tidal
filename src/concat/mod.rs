@@ -1,6 +1,5 @@
-use std::env;
+use std::fs;
 use std::process::Command;
-use std::{fs, io};
 
 fn create_manifest() -> String {
   let path = "./tmp/concat-manifest.txt";
@@ -29,8 +28,8 @@ fn create_manifest() -> String {
 pub fn run(args: clap::ArgMatches) {
   println!("Invoking concatination pipeline");
 
-  let tmp_dir = "./tmp";
-  let segment_dir = format!("{}/transcoded", tmp_dir);
+  //   let tmp_dir = "./tmp";
+  //   let segment_dir = format!("{}/transcoded", tmp_dir);
 
   let source_audio_path = "./tmp/test.wav";
   let out_audio_video_path = "./tmp/converted.mp4";
