@@ -1,43 +1,37 @@
-use rusoto_core::Region;
-use rusoto_s3::S3Client;
-use std::env;
+use clap;
 use std::fs;
+use serde_json::Result;
 use std::process::Command;
 use tokio::runtime::Runtime;
+use serde::{Deserialize, Serialize};
 
-mod dimensions;
-mod download;
+mod parse;
+mod mkdirp;
 mod presets;
+mod download;
+mod dimensions;
 
-// TODO :: Make util
-fn mkdirp(path: String) -> std::io::Result<()> {
-  println!("Creating directory {}", path);
-  fs::create_dir_all(path)?;
-  Ok(())
+#[derive(Serialize, Deserialize)]
+struct TranscodingMessage {
+  inPath: String,
+  outPath: String,
+  ffmpegCommand: String,
 }
 
-pub fn run(remote_source_path: &str, remote_dest_path: &str) {
-  let client = S3Client::new(Region::UsEast1);
+pub fn run(matches: clap::ArgMatches) {
+  let args = parse::SegArgs::new(matches);
 
-  let bucket = "tidal-bken-dev";
-  let key = "uploads/test/source.mp4";
+  let download_res = download::get_object(&args.remote_source_path, &args.source_path);
+  Runtime::new().unwrap().block_on(download_res);
 
-  let current_dir = env::current_dir().unwrap();
-  let tmp_dir = format!("{}/tmp", current_dir.display());
-  let path = format!("{}/test.mp4", tmp_dir);
-  let segment_path = format!("{}/segments", tmp_dir);
-
-  // let download_res = download::get_object(remote_source_path, &tmp_dir);
-  // Runtime::new().unwrap().block_on(download_res);
-
-  let _mk_dir_out = mkdirp(segment_path.clone());
+  let _mk_dir_out = mkdirp::run(args.segment_path.clone());
 
   // TODO :: move to helper fn
   println!("Segmenting video with ffmpeg");
   let _ffmpeg_seg = Command::new("ffmpeg")
     .arg("-y")
     .arg("-i")
-    .arg(path.clone())
+    .arg(args.source_path.clone())
     .arg("-c")
     .arg("copy")
     .arg("-f")
@@ -45,7 +39,7 @@ pub fn run(remote_source_path: &str, remote_dest_path: &str) {
     .arg("-segment_time")
     .arg("1")
     .arg("-an")
-    .arg(format!("{}/{}", segment_path.clone(), "output_%04d.mp4"))
+    .arg(format!("{}/{}", args.segment_path.clone(), "output_%06d.mkv"))
     .output();
 
   // TODO :: move to helper fn
@@ -53,26 +47,59 @@ pub fn run(remote_source_path: &str, remote_dest_path: &str) {
   let _ffmpeg_audio = Command::new("ffmpeg")
     .arg("-y")
     .arg("-i")
-    .arg(path.clone())
-    .arg("./tmp/test.wav")
+    .arg(args.work_dir.clone())
+    .arg(args.source_audio_path.clone())
     .output();
 
-  let dimensions = dimensions::get_dimensions(path.clone());
+  let dimensions = dimensions::get_dimensions(args.source_path.clone());
   let presets = presets::presets(dimensions[0]);
 
   // TODO :: create_thumbnail
 
-  let paths = fs::read_dir(segment_path).unwrap();
+  // Upload segments
+  let upload_res = Command::new("aws")
+  .arg("s3")
+  .arg("cp")
+  .arg("--recursive")
+  .arg(args.segment_path.clone())
+  .arg(args.remote_dest_path.clone())
+  .output()
+  .unwrap();
+
+  let paths = fs::read_dir(args.segment_path.clone()).unwrap();
 
   // TODO :: Performance Improvements
   // Could combine items into a vector
   // for 10 items in the vector, make an sqs batch reuqest
   // Then invoke all requests async
-  for s in 0..paths.count() {
-    for p in &presets {
-      println!("enqueueing segment: {} for preset {}", s, p)
-      // send sqs message
-    }
+  for path in paths {
+    // get the last part of the string
+    let segment_name = &path.unwrap().file_name().into_string().unwrap();
+    println!("path: {}", segment_name);
+
+    // for p in &presets {
+    //   // remote path = args.remote_dest_path.clone() replace 'source' with $preset_name
+
+    //   let msg_body = TranscodingMessage {
+    //     inPath: format!("{}/{}", args.remote_dest_path.clone(), segment_name).to_owned(),
+    //     outPath: "".to_owned(),
+    //     ffmpegCommand: "".to_owned()
+    //   };
+
+    //   let msg_body_string = serde_json::to_string(&msg_body).unwrap();
+    //   println!("{:?}", msg_body_string);
+    //   // println!("enqueueing segment: {} for preset {}", s, p);
+
+    //   let res = Command::new("aws")
+    //   .arg("sqs")
+    //   .arg("send-message")
+    //   .arg("--queue-url")
+    //   .arg("https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev")
+    //   .arg("--message-body")
+    //   .arg(msg_body_string)
+    //   .output()
+    //   .unwrap();
+    // }
   }
 
   // TODO :: add concatination job to sqs queue
