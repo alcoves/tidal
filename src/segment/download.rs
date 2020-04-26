@@ -1,19 +1,18 @@
 use std::process::Command;
 
-pub async fn get_object(bucket: &str, key: &str, dest_path: &str) {
-  let source_path = format!("s3://{}/{}", bucket, key);
+pub async fn get_object(remote_source_path: &str, local_tmp_path: &str) {
+  // TODO :: Assert remote_source_path matches s3://bucket/key format
 
-  let output = Command::new("aws")
+  let res = Command::new("aws")
     .arg("s3")
     .arg("cp")
-    .arg(source_path)
-    .arg(dest_path)
+    .arg(remote_source_path)
+    .arg(local_tmp_path)
     .output()
     .unwrap();
 
-  println!("status: {}", output.status);
-  println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-  println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
-  assert!(output.status.success());
+  println!("Downloaded source video: {}", res.status);
+  // println!("stdout: {}", String::from_utf8_lossy(&res.stdout));
+  // println!("stderr: {}", String::from_utf8_lossy(&res.stderr));
+  assert!(res.status.success());
 }
