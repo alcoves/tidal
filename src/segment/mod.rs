@@ -19,9 +19,7 @@ struct TranscodingMessage {
 
 pub fn run(matches: clap::ArgMatches) {
   let args = parse::SegArgs::new(matches);
-
   download::get_object(&args.remote_source_path, &args.source_path);
-
   let _mk_dir_out = mkdirp::run(args.segment_path.clone());
 
   // TODO :: move to helper fn
@@ -49,18 +47,28 @@ pub fn run(matches: clap::ArgMatches) {
     .arg(args.source_audio_path.clone())
     .output();
 
+  // TODO :: move to helper fn
+  println!("Uploading audio");
+  Command::new("aws")
+    .arg("s3")
+    .arg("cp")
+    .arg(args.source_audio_path.clone())
+    .arg(args.remote_dest_path.clone())
+    .output()
+    .unwrap();
+
   let dimensions = dimensions::get_dimensions(args.source_path.clone());
   let presets = presets::presets(dimensions[0]);
 
   // TODO :: create_thumbnail
 
-  // Upload segments
+  println!("Uploading segments");
   Command::new("aws")
   .arg("s3")
   .arg("cp")
   .arg("--recursive")
   .arg(args.segment_path.clone())
-  .arg(args.remote_dest_path.clone())
+  .arg(args.remote_segment_path.clone())
   .output()
   .unwrap();
 
@@ -75,8 +83,8 @@ pub fn run(matches: clap::ArgMatches) {
     let segment_name = &path.unwrap().file_name().into_string().unwrap();
 
     for p in &presets {
-      let in_path = format!("{}/{}", args.remote_dest_path.clone(), segment_name).to_owned();
-      let out_path = format!("{}/{}", args.remote_dest_path.clone().replace("/source", &format!("/{}", p.name)), &segment_name);
+      let in_path = format!("{}/{}", args.remote_segment_path.clone(), segment_name).to_owned();
+      let out_path = format!("{}/{}", args.remote_segment_path.clone().replace("/source", &format!("/{}", p.name)), &segment_name);
 
       let msg_body = TranscodingMessage {
         in_path: in_path.to_owned(),

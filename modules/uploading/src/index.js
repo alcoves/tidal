@@ -10,7 +10,7 @@ module.exports.handler = async (event) => {
       const segmentCommands = [
         "segment",
         `s3://${s3.bucket.name}/${s3.object.key}`,
-        `s3://${s3.bucket.name}/segments/${videoId}/source`,
+        `s3://${s3.bucket.name}/segments/${videoId}`,
         `--transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev`,
       ];
 
