@@ -1,8 +1,7 @@
 use clap;
 use std::fs;
-use serde_json::Result;
+use serde_json;
 use std::process::Command;
-use tokio::runtime::Runtime;
 use serde::{Deserialize, Serialize};
 
 mod parse;
@@ -13,16 +12,15 @@ mod dimensions;
 
 #[derive(Serialize, Deserialize)]
 struct TranscodingMessage {
-  inPath: String,
-  outPath: String,
-  ffmpegCommand: String,
+  in_path: String,
+  out_path: String,
+  ffmpeg_cmd: String,
 }
 
 pub fn run(matches: clap::ArgMatches) {
   let args = parse::SegArgs::new(matches);
 
-  let download_res = download::get_object(&args.remote_source_path, &args.source_path);
-  Runtime::new().unwrap().block_on(download_res);
+  download::get_object(&args.remote_source_path, &args.source_path);
 
   let _mk_dir_out = mkdirp::run(args.segment_path.clone());
 
@@ -57,7 +55,7 @@ pub fn run(matches: clap::ArgMatches) {
   // TODO :: create_thumbnail
 
   // Upload segments
-  let upload_res = Command::new("aws")
+  Command::new("aws")
   .arg("s3")
   .arg("cp")
   .arg("--recursive")
@@ -75,31 +73,30 @@ pub fn run(matches: clap::ArgMatches) {
   for path in paths {
     // get the last part of the string
     let segment_name = &path.unwrap().file_name().into_string().unwrap();
-    println!("path: {}", segment_name);
 
-    // for p in &presets {
-    //   // remote path = args.remote_dest_path.clone() replace 'source' with $preset_name
+    for p in &presets {
+      let in_path = format!("{}/{}", args.remote_dest_path.clone(), segment_name).to_owned();
+      let out_path = format!("{}/{}", args.remote_dest_path.clone().replace("/source", &format!("/{}", p.name)), &segment_name);
 
-    //   let msg_body = TranscodingMessage {
-    //     inPath: format!("{}/{}", args.remote_dest_path.clone(), segment_name).to_owned(),
-    //     outPath: "".to_owned(),
-    //     ffmpegCommand: "".to_owned()
-    //   };
+      let msg_body = TranscodingMessage {
+        in_path: in_path.to_owned(),
+        out_path: out_path.to_owned(),
+        ffmpeg_cmd: p.cmd.to_owned(),
+      };
 
-    //   let msg_body_string = serde_json::to_string(&msg_body).unwrap();
-    //   println!("{:?}", msg_body_string);
-    //   // println!("enqueueing segment: {} for preset {}", s, p);
+      let msg_body_string = serde_json::to_string(&msg_body).unwrap();
+      println!("{:?}", msg_body_string);
 
-    //   let res = Command::new("aws")
-    //   .arg("sqs")
-    //   .arg("send-message")
-    //   .arg("--queue-url")
-    //   .arg("https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev")
-    //   .arg("--message-body")
-    //   .arg(msg_body_string)
-    //   .output()
-    //   .unwrap();
-    // }
+      Command::new("aws")
+      .arg("sqs")
+      .arg("send-message")
+      .arg("--queue-url")
+      .arg(args.transcoding_queue_url.clone())
+      .arg("--message-body")
+      .arg(msg_body_string)
+      .output()
+      .unwrap();
+    }
   }
 
   // TODO :: add concatination job to sqs queue

@@ -2,14 +2,14 @@ function handler () {
   set -e
 
   echo "Cleaning up lambda"
-  rm -rf /tmp/*
+  rm -rf /tmp/tmp*
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
   echo "SQS_BODY: $SQS_BODY"
 
-  IN_PATH="s3://$(echo $SQS_BODY | jq -r '.inPath')"
-  OUT_PATH="s3://$(echo $SQS_BODY | jq -r '.outPath')"
-  FFMPEG_COMMAND=$(echo $SQS_BODY | jq -r '.ffmpegCommand')
+  IN_PATH="$(echo $SQS_BODY | jq -r '.in_path')"
+  OUT_PATH="$(echo $SQS_BODY | jq -r '.out_path')"
+  FFMPEG_COMMAND=$(echo $SQS_BODY | jq -r '.ffmpeg_cmd')
 
   LVIP_DIR=$(mktemp -d)
   LVOP_DIR=$(mktemp -d)
