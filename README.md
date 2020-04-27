@@ -89,3 +89,12 @@ TODO
 - av1 (way too slow in ffmpeg, rav1e may be the way to go)
 - Formats (need to conduct extensive format testing to see what video types work/don't work)
 - Audio (source audio is used, no logic to compress as of now, transcoder should handle compression)
+
+## Examples
+
+```sh
+cargo run -- segment \
+  s3://tidal-bken-dev/uploads/3HM4Ka2OS/source.mp4 \
+  s3://tidal-bken-dev/segments/3HM4Ka2OS/source \
+  --transcode_queue_url="https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
+```

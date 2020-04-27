@@ -6,4 +6,4 @@ RUN apt install -y awscli
 
 COPY ./target/release/tidal /usr/local/bin/tidal
 
-CMD [ "bash", "tidal --help" ]
+ENTRYPOINT ["/usr/local/bin/tidal"]

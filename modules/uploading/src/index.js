@@ -8,11 +8,10 @@ module.exports.handler = async (event) => {
     for (const { s3 } of Records) {
       const videoId = s3.object.key.split("/")[1];
       const segmentCommands = [
-        "/usr/local/bin/tidal",
         "segment",
         `s3://${s3.bucket.name}/${s3.object.key}`,
         `s3://${s3.bucket.name}/segments/${videoId}/source`,
-        `--transcode_queue_url="https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"`,
+        `--transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev`,
       ];
 
       await ecs
@@ -38,7 +37,7 @@ module.exports.handler = async (event) => {
             containerOverrides: [
               {
                 name: "segmenting",
-                command: ["sh", segmentCommands.join(" ")],
+                command: segmentCommands,
               },
             ],
           },
