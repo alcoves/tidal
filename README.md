@@ -103,5 +103,6 @@ cargo run -- segment \
 ```sh
 cargo run -- concat \
 --video_id=3HM4Ka2OS \
---preset=libx264_1080p
+--preset=libx264_1080p \
+--bucket_name tidal-bken-dev
 ```
