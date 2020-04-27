@@ -27,7 +27,7 @@ function handler () {
   aws s3 cp $LVOP $OUT_PATH
 
   echo "Cleaning up lambda"
-  rm -rf /tmp/*
+  rm -rf /tmp/tmp*
   
   echo "transcoding completed"
 }
