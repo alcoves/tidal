@@ -19,8 +19,9 @@ fn main() {
     .arg(Arg::with_name("out").index(3).required(true))
     .arg(
       Arg::with_name("transcode_queue_url")
+        .required(true)
         .takes_value(true)
-        .long("transcodeQueueUrl"),
+        .long("transcode_queue_url")
     )
     .get_matches();
 
