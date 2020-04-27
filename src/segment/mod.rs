@@ -19,7 +19,7 @@ struct TranscodingMessage {
 
 pub fn run(matches: clap::ArgMatches) {
   let args = parse::SegArgs::new(matches);
-  download::get_object(&args.remote_source_path, &args.source_path);
+  download::get_object(&args.remote_source_path, &args.source_video_path);
   let _mk_dir_out = mkdirp::run(args.segment_path.clone());
 
   // TODO :: move to helper fn
@@ -27,7 +27,7 @@ pub fn run(matches: clap::ArgMatches) {
   let _ffmpeg_seg = Command::new("ffmpeg")
     .arg("-y")
     .arg("-i")
-    .arg(args.source_path.clone())
+    .arg(args.source_video_path.clone())
     .arg("-c")
     .arg("copy")
     .arg("-f")
@@ -43,7 +43,7 @@ pub fn run(matches: clap::ArgMatches) {
   let _ffmpeg_audio = Command::new("ffmpeg")
     .arg("-y")
     .arg("-i")
-    .arg(args.work_dir.clone())
+    .arg(args.source_video_path.clone())
     .arg(args.source_audio_path.clone())
     .output();
 
@@ -53,11 +53,11 @@ pub fn run(matches: clap::ArgMatches) {
     .arg("s3")
     .arg("cp")
     .arg(args.source_audio_path.clone())
-    .arg(args.remote_dest_path.clone())
+    .arg(args.remote_audio_path.clone())
     .output()
     .unwrap();
 
-  let dimensions = dimensions::get_dimensions(args.source_path.clone());
+  let dimensions = dimensions::get_dimensions(args.source_video_path.clone());
   let presets = presets::presets(dimensions[0]);
 
   // TODO :: create_thumbnail
@@ -78,6 +78,7 @@ pub fn run(matches: clap::ArgMatches) {
   // Could combine items into a vector
   // for 10 items in the vector, make an sqs batch reuqest
   // Then invoke all requests async
+  // let results = futures::join!(future1, future2).await;
   for path in paths {
     // get the last part of the string
     let segment_name = &path.unwrap().file_name().into_string().unwrap();
