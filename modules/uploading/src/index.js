@@ -7,11 +7,23 @@ module.exports.handler = async (event) => {
     const { Records } = JSON.parse(body);
     for (const { s3 } of Records) {
       const videoId = s3.object.key.split("/")[1];
+      const filename = s3.object.key.split("/")[2];
+
+      let transcodingQueueUrl;
+      if (s3.bucket.name.includes("dev")) {
+        transcodingQueueUrl =
+          "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev";
+      } else {
+        transcodingQueueUrl =
+          "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-prod";
+      }
+
       const segmentCommands = [
         "segment",
-        `s3://${s3.bucket.name}/${s3.object.key}`,
-        `s3://${s3.bucket.name}/segments/${videoId}`,
-        `--transcode_queue_url=https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev`,
+        `--video_id=${videoId}`,
+        `--filename=${filename}`,
+        `--bucket_name=${s3.bucket.name}`,
+        `--transcode_queue_url=${transcodingQueueUrl}`,
       ];
 
       await ecs
