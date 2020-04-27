@@ -12,6 +12,7 @@ pub struct SegArgs {
   pub remote_dest_path: String,
   pub source_audio_path: String,
   pub remote_source_path: String,
+  pub remote_segment_path: String,
   pub transcode_queue_url: String,
 }
 
@@ -37,6 +38,7 @@ impl SegArgs {
       source_audio_path: format!("{}/{}.wav", work_dir, filename),
       mode: matches.value_of("mode").unwrap().to_string(),
       remote_dest_path: matches.value_of("out").unwrap().to_string(),
+      remote_segment_path: format!("{}/source", matches.value_of("out").unwrap().to_string()),
       remote_source_path: matches.value_of("in").unwrap().to_string(),
       transcode_queue_url: matches.value_of("transcode_queue_url").unwrap().to_string(),
     }
