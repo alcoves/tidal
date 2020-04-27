@@ -38,7 +38,7 @@ pub fn presets(width: u16) -> Vec<Preset> {
 
   let libx264_2160p = Preset {
     extension: "mkv".to_string(),
-    name: "libx264_3840p".to_string(),
+    name: "libx264_2160p".to_string(),
     cmd: "-c:v libx264 -preset medium -profile:v high -vf scale=3840:-2 -crf 22 -coder 1 -pix_fmt yuv420p -bf 2".to_string()
   };
 
