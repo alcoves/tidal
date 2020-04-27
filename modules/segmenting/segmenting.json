@@ -2,23 +2,6 @@
   {
     "name": "segmenting",
     "image": "${app_image}",
-    "repositoryCredentials": {
-      "credentialsParameter": "${credentials}"
-    },
-    "environment": [
-      {
-        "name": "TABLE_NAME",
-        "value": "${table_name}"
-      },
-      {
-        "name": "TRANSCODING_QUEUE_URL",
-        "value": "${transcoding_queue_url}"
-      },
-      {
-        "name": "TIDAL_MODULE",
-        "value": "segmenting"
-      }
-    ],
     "cpu": 4064,
     "memory": 8128,
     "logConfiguration": {

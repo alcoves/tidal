@@ -1,18 +1,12 @@
 variable "env" { type = string }
 variable "app_image" { type = string }
-variable "table_name" { type = string }
-variable "registry_secrets_arn" { type = string }
-variable "transcoding_queue_url" { type = string }
 
 data "template_file" "segmenting_conf" {
   template = file("${path.module}/segmenting.json")
 
   vars = {
-    app_image             = var.app_image
-    table_name            = var.table_name
-    credentials           = var.registry_secrets_arn
-    transcoding_queue_url = var.transcoding_queue_url
-    log_group             = aws_cloudwatch_log_group.segmenting.name
+    app_image = var.app_image
+    log_group = aws_cloudwatch_log_group.segmenting.name
   }
 }
 
