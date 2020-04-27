@@ -8,7 +8,7 @@ module.exports.handler = async (event) => {
     for (const { s3 } of Records) {
       const videoId = s3.object.key.split("/")[1];
       const segmentCommands = [
-        "tidal",
+        "/usr/local/bin/tidal",
         "segment",
         `s3://${s3.bucket.name}/${s3.object.key}`,
         `s3://${s3.bucket.name}/segments/${videoId}/source`,
@@ -38,7 +38,7 @@ module.exports.handler = async (event) => {
             containerOverrides: [
               {
                 name: "segmenting",
-                command: segmentCommands.join(" "),
+                command: ["sh", segmentCommands.join(" ")],
               },
             ],
           },
