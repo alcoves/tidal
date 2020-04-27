@@ -91,7 +91,7 @@ pub fn run(matches: clap::ArgMatches) {
       .arg("sqs")
       .arg("send-message")
       .arg("--queue-url")
-      .arg(args.transcoding_queue_url.clone())
+      .arg(args.transcode_queue_url.clone())
       .arg("--message-body")
       .arg(msg_body_string)
       .output()
