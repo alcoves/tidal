@@ -26,7 +26,6 @@ impl SegArgs {
     let work_dir = format!("{}/tmp/{}", current_dir, video_id);
     let filename = matches.value_of("filename").unwrap().to_string();
     let bucket_name = matches.value_of("bucket_name").unwrap().to_string();
-    
     SegArgs {
       work_dir: work_dir.clone(),
       video_id: video_id.clone(),
@@ -35,11 +34,31 @@ impl SegArgs {
       segment_path: format!("{}/segments", work_dir.clone()),
       source_audio_path: format!("{}/{}.wav", work_dir, filename.clone()),
       source_video_path: format!("{}/{}", work_dir.clone(), filename.clone()),
-      transcode_queue_url: matches.value_of("transcode_queue_url").unwrap().to_string(),
-      remote_dest_path: format!("s3://{}/segments/{}", bucket_name.clone(), video_id.clone()),
-      remote_segment_path: format!("s3://{}/segments/{}/source", bucket_name.clone(), video_id.clone()),
-      remote_audio_path: format!("s3://{}/audio/{}/source.wav", bucket_name.clone(), video_id.clone()),
-      remote_source_path: format!("s3://{}/uploads/{}/{}", bucket_name.clone(), video_id.clone(), filename.clone()),
+      transcode_queue_url: matches
+        .value_of("transcode_queue_url")
+        .unwrap()
+        .to_string(),
+      remote_dest_path: format!(
+        "s3://{}/segments/{}",
+        bucket_name.clone(),
+        video_id.clone()
+      ),
+      remote_segment_path: format!(
+        "s3://{}/segments/{}/source",
+        bucket_name.clone(),
+        video_id.clone()
+      ),
+      remote_audio_path: format!(
+        "s3://{}/audio/{}/source.wav",
+        bucket_name.clone(),
+        video_id.clone()
+      ),
+      remote_source_path: format!(
+        "s3://{}/uploads/{}/{}",
+        bucket_name.clone(),
+        video_id.clone(),
+        filename.clone()
+      ),
     }
   }
 }

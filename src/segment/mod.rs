@@ -1,14 +1,14 @@
 use clap;
-use std::fs;
-use serde_json;
-use std::process::Command;
 use serde::{Deserialize, Serialize};
+use serde_json;
+use std::fs;
+use std::process::Command;
 
-mod parse;
-mod mkdirp;
-mod presets;
-mod download;
 mod dimensions;
+mod download;
+mod mkdirp;
+mod parse;
+mod presets;
 
 #[derive(Serialize, Deserialize)]
 struct TranscodingMessage {
@@ -64,13 +64,13 @@ pub fn run(matches: clap::ArgMatches) {
 
   println!("Uploading segments");
   Command::new("aws")
-  .arg("s3")
-  .arg("cp")
-  .arg("--recursive")
-  .arg(args.segment_path.clone())
-  .arg(args.remote_segment_path.clone())
-  .output()
-  .unwrap();
+    .arg("s3")
+    .arg("cp")
+    .arg("--recursive")
+    .arg(args.segment_path.clone())
+    .arg(args.remote_segment_path.clone())
+    .output()
+    .unwrap();
 
   let paths = fs::read_dir(args.segment_path.clone()).unwrap();
 
@@ -84,8 +84,17 @@ pub fn run(matches: clap::ArgMatches) {
     let segment_name = &path.unwrap().file_name().into_string().unwrap();
 
     for p in &presets {
-      let in_path = format!("{}/{}", args.remote_segment_path.clone(), segment_name).to_owned();
-      let out_path = format!("{}/{}", args.remote_segment_path.clone().replace("/source", &format!("/{}", p.name)), &segment_name);
+      let in_path =
+        format!("{}/{}", args.remote_segment_path.clone(), segment_name)
+          .to_owned();
+      let out_path = format!(
+        "{}/{}",
+        args
+          .remote_segment_path
+          .clone()
+          .replace("/source", &format!("/{}", p.name)),
+        &segment_name
+      );
 
       let msg_body = TranscodingMessage {
         in_path: in_path.to_owned(),
@@ -97,14 +106,14 @@ pub fn run(matches: clap::ArgMatches) {
       println!("{:?}", msg_body_string);
 
       Command::new("aws")
-      .arg("sqs")
-      .arg("send-message")
-      .arg("--queue-url")
-      .arg(args.transcode_queue_url.clone())
-      .arg("--message-body")
-      .arg(msg_body_string)
-      .output()
-      .unwrap();
+        .arg("sqs")
+        .arg("send-message")
+        .arg("--queue-url")
+        .arg(args.transcode_queue_url.clone())
+        .arg("--message-body")
+        .arg(msg_body_string)
+        .output()
+        .unwrap();
     }
   }
 
