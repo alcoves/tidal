@@ -3,13 +3,13 @@ extern crate serde_json;
 
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
-struct Preset {
-  cmd: String,
-  name: String,
-  extension: String,
+pub struct Preset {
+  pub cmd: String,
+  pub name: String,
+  pub extension: String,
 }
 
-pub fn presets(width: u16) -> Vec<String> {
+pub fn presets(width: u16) -> Vec<Preset> {
   println!("Getting video presets");
 
   let libx264_480p = Preset {
@@ -42,33 +42,32 @@ pub fn presets(width: u16) -> Vec<String> {
     cmd: "-c:v libx264 -preset medium -profile:v high -vf scale=3840:-2 -crf 22 -coder 1 -pix_fmt yuv420p -bf2".to_string()
   };
 
-  let mut presets: Vec<String> = vec![];
+  let mut presets: Vec<Preset> = vec![];
 
   if width >= 854 {
     println!("Adding 480p preset");
-    presets.push(serde_json::to_string(&libx264_480p).unwrap());
+    presets.push(libx264_480p);
   }
 
   if width >= 1280 {
     println!("Adding 720p preset");
-    presets.push(serde_json::to_string(&libx264_720p).unwrap());
+    presets.push(libx264_720p);
   }
 
   if width >= 1920 {
     println!("Adding 720p preset");
-    presets.push(serde_json::to_string(&libx264_1080p).unwrap());
+    presets.push(libx264_1080p);
   }
 
   if width >= 2560 {
     println!("Adding 720p preset");
-    presets.push(serde_json::to_string(&libx264_1440p).unwrap());
+    presets.push(libx264_1440p);
   }
 
   if width >= 3840 {
     println!("Adding 720p preset");
-    presets.push(serde_json::to_string(&libx264_2160p).unwrap());
+    presets.push(libx264_2160p);
   }
 
-  println!("Video presets: {:?}", presets);
   return presets;
 }

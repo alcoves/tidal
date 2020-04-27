@@ -1,6 +1,6 @@
 use std::process::Command;
 
-pub async fn get_object(remote_source_path: &str, local_tmp_path: &str) {
+pub fn get_object(remote_source_path: &str, local_tmp_path: &str) {
   // TODO :: Assert remote_source_path matches s3://bucket/key format
 
   let res = Command::new("aws")
