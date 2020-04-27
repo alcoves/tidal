@@ -2,9 +2,6 @@
   {
     "name": "concatinating",
     "image": "${app_image}",
-    "repositoryCredentials": {
-      "credentialsParameter": "${credentials}"
-    },
     "environment": [
       {
         "name": "WASABI_ACCESS_KEY_ID",
@@ -13,18 +10,6 @@
       {
         "name": "WASABI_SECRET_ACCESS_KEY",
         "value": "${wasabi_secret_access_key}"
-      },
-      {
-        "name": "TABLE_NAME",
-        "value": "${table_name}"
-      },
-      {
-        "name": "TIDAL_ENV",
-        "value": "${tidal_env}"
-      },
-      {
-        "name": "TIDAL_MODULE",
-        "value": "concatinating"
       }
     ],
     "cpu": 4064,

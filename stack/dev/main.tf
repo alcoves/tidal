@@ -32,17 +32,12 @@ module "uploading" {
 
 module "segmenting" {
   env                   = var.env
-  registry_secrets_arn  = "github_registry_login"
   source                = "../../modules/segmenting"
-  table_name            = module.core.tidal_table_name
-  transcoding_queue_url = "https://sqs.us-east-1.amazonaws.com/594206825329/${module.transcoding.transcoding_queue_name}" 
-  app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+  app_image             = "594206825329.dkr.ecr.us-east-1.amazonaws.com/tidal:dev"
 }
 
 module "concatinating" {
   env                   = var.env
-  registry_secrets_arn  = "github_registry_login"
   source                = "../../modules/concatinating"
-  table_name            = module.core.tidal_table_name
-  app_image             = "docker.pkg.github.com/bken-io/tidal/tidal:dev"
+  app_image             = "594206825329.dkr.ecr.us-east-1.amazonaws.com/tidal:dev"
 }
