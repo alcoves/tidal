@@ -1,7 +1,9 @@
-FROM alpine:edge
+FROM ubuntu:bionic
+
+RUN apt update
+RUN apt install -y ffmpeg
+RUN apt install -y awscli
 
 COPY ./target/release/tidal /usr/local/bin/tidal
 
-RUN apk add --update --no-cache ffmpeg aws-cli
-
-CMD [ "sh", "tidal" ]
+CMD [ "bash", "tidal --help" ]
