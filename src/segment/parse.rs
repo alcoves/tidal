@@ -32,7 +32,7 @@ impl SegArgs {
       filename: filename.clone(),
       mode: matches.value_of("mode").unwrap().to_string(),
       segment_path: format!("{}/segments", work_dir.clone()),
-      source_audio_path: format!("{}/{}.wav", work_dir, filename.clone()),
+      source_audio_path: format!("{}/source.wav", work_dir),
       source_video_path: format!("{}/{}", work_dir.clone(), filename.clone()),
       transcode_queue_url: matches
         .value_of("transcode_queue_url")

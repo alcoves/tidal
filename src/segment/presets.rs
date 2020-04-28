@@ -55,17 +55,17 @@ pub fn presets(width: u16) -> Vec<Preset> {
   }
 
   if width >= 1920 {
-    println!("Adding 720p preset");
+    println!("Adding 1080p preset");
     presets.push(libx264_1080p);
   }
 
   if width >= 2560 {
-    println!("Adding 720p preset");
+    println!("Adding 1440p preset");
     presets.push(libx264_1440p);
   }
 
   if width >= 3840 {
-    println!("Adding 720p preset");
+    println!("Adding 2160p preset");
     presets.push(libx264_2160p);
   }
 

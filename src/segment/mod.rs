@@ -103,7 +103,7 @@ pub fn run(matches: clap::ArgMatches) {
       };
 
       let msg_body_string = serde_json::to_string(&msg_body).unwrap();
-      println!("{:?}", msg_body_string);
+      println!("{}:{}", segment_name.clone(), p.name.clone());
 
       Command::new("aws")
         .arg("sqs")
