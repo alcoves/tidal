@@ -94,15 +94,15 @@ TODO
 
 ```sh
 cargo run -- segment \
-  --video_id=3HM4Ka2OS \
-  --filename=source.mp4 \
+  --video_id=test \
+  --filename=test2.mp4 \
   --bucket_name tidal-bken-dev \
   --transcode_queue_url="https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
 ```
 
 ```sh
 cargo run -- concat \
---video_id=3HM4Ka2OS \
---preset=libx264_1080p \
+--video_id=test \
+--preset=libx264_720p \
 --bucket_name tidal-bken-dev
 ```

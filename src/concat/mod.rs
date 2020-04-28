@@ -1,42 +1,56 @@
+use clap;
 use std::fs;
 use std::process::Command;
 
-fn create_manifest() -> String {
-  let path = "./tmp/concat-manifest.txt";
-  let tmp_dir = String::from("./tmp");
-  let seg_path = format!("{}/segments", tmp_dir);
+mod parse;
+
+pub fn run(matches: clap::ArgMatches) {
+  println!("Parsing arguments");
+  let args = parse::ConcatArgs::new(matches);
+
+  println!(
+    "Downloading segments: {} | {}",
+    args.remote_segment_path.clone(),
+    args.local_segment_path.clone()
+  );
+  Command::new("aws")
+    .arg("s3")
+    .arg("cp")
+    .arg("--recursive")
+    .arg(args.remote_segment_path.clone())
+    .arg(args.local_segment_path.clone())
+    .output()
+    .unwrap();
+
+  println!("Downloading source audio");
+  Command::new("aws")
+    .arg("s3")
+    .arg("cp")
+    .arg(args.remote_audio_path.clone())
+    .arg(args.local_audio_path.clone())
+    .output()
+    .unwrap();
+
+  println!("Creating manifest");
   let mut segment_list = vec![];
-
-  let mut paths: Vec<_> =
-    fs::read_dir(seg_path).unwrap().map(|r| r.unwrap()).collect();
-
+  let mut paths: Vec<_> = fs::read_dir(args.local_segment_path.clone())
+    .unwrap()
+    .map(|r| r.unwrap())
+    .collect();
   paths.sort_by_key(|dir| dir.path());
 
   for path in paths {
-    let seg_path = path.path().display().to_string().replace(&tmp_dir, ".");
+    let seg_path =
+      path.path().display().to_string().replace(&args.work_dir, ".");
     let ffmpeg_import = format!("file '{}'", seg_path);
     println!("{}", ffmpeg_import);
     segment_list.push(ffmpeg_import);
   }
 
   let joined = segment_list.join("\n");
-  fs::write(path, joined).expect("Unable to write file");
+  fs::write(args.manifest_path.clone(), joined).expect("Unable to write file");
 
-  return path.to_owned();
-}
-
-pub fn run(args: clap::ArgMatches) {
-  println!("Invoking concatination pipeline");
-
-  //   let tmp_dir = "./tmp";
-  //   let segment_dir = format!("{}/transcoded", tmp_dir);
-
-  let source_audio_path = "./tmp/test.wav";
-  let out_audio_video_path = "./tmp/converted.mp4";
-  let out_video_path = "./tmp/converted-no-audio.mp4";
-  let manifest_path = create_manifest();
-
-  println!("Concatinating segments");
+  println!("Combining segments");
   let _ffmpeg_seg = Command::new("ffmpeg")
     .arg("-y")
     .arg("-f")
@@ -44,24 +58,34 @@ pub fn run(args: clap::ArgMatches) {
     .arg("-safe")
     .arg("0")
     .arg("-i")
-    .arg(manifest_path)
+    .arg(args.manifest_path.clone())
     .arg("-c")
     .arg("copy")
-    .arg(out_video_path)
-    .output();
+    .arg(args.local_transcoded_no_audio_path.clone())
+    .output()
+    .unwrap();
 
-  println!("Adding source audio");
+  println!("Combining audio and video");
   let _ffmpeg_seg = Command::new("ffmpeg")
     .arg("-y")
     .arg("-i")
-    .arg(out_video_path)
+    .arg(args.local_transcoded_no_audio_path.clone())
     .arg("-i")
-    .arg(source_audio_path)
+    .arg(args.local_audio_path.clone())
     .arg("-c:v")
     .arg("copy")
-    .arg(out_audio_video_path)
-    .output();
+    .arg(args.local_transcoded_with_audio_path.clone())
+    .output()
+    .unwrap();
 
-  // upload to wasabi cloud storage
-  // update database with done status
+  println!("Uploading transcoded video");
+  Command::new("aws")
+    .arg("s3")
+    .arg("cp")
+    .arg(args.local_transcoded_with_audio_path.clone())
+    .arg(args.remote_transcoded_path.clone())
+    .output()
+    .unwrap();
+
+  println!("Concatination complete");
 }

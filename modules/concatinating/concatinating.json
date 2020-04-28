@@ -22,17 +22,5 @@
         "awslogs-stream-prefix": "ecs"
       }
     }
-  },
-  {
-    "name": "xray-daemon",
-    "image": "amazon/aws-xray-daemon",
-    "cpu": 32,
-    "memory": 64,
-    "portMappings": [
-      {
-        "containerPort": 2000,
-        "protocol": "udp"
-      }
-    ]
   }
 ]
