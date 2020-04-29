@@ -19,25 +19,14 @@ module "core" {
   source    = "../../modules/core"
 }
 
-module "transcoding" {
-  env    = var.env
-  source = "../../modules/transcoding"
-}
-
 module "uploading" {
   env               = var.env
   source            = "../../modules/uploading"
   uploads_queue_arn = module.core.uploads_queue_arn
 }
 
-module "segmenting" {
+module "pipeline" {
   env                   = var.env
   source                = "../../modules/segmenting"
-  app_image             = "594206825329.dkr.ecr.us-east-1.amazonaws.com/tidal:dev"
-}
-
-module "concatinating" {
-  env                   = var.env
-  source                = "../../modules/concatinating"
   app_image             = "594206825329.dkr.ecr.us-east-1.amazonaws.com/tidal:dev"
 }
