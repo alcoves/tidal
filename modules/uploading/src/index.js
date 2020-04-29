@@ -30,6 +30,7 @@ module.exports.handler = async (event) => {
         .runTask({
           cluster: "tidal",
           launchType: "FARGATE",
+          platformVersion: "1.4.0",
           taskDefinition: "segmenting",
           networkConfiguration: {
             awsvpcConfiguration: {
