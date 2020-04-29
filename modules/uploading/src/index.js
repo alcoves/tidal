@@ -9,21 +9,32 @@ module.exports.handler = async (event) => {
       const videoId = s3.object.key.split("/")[1];
       const filename = s3.object.key.split("/")[2];
 
-      let transcodingQueueUrl;
-      if (s3.bucket.name.includes("dev")) {
-        transcodingQueueUrl =
-          "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev";
-      } else {
-        transcodingQueueUrl =
-          "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-prod";
-      }
+      const signedUrl = await s3
+        .getSignedUrlPromise("getObject", {
+          Bucket: s3.bucket.name,
+          Key: s3.object.key,
+        })
+        .promise();
 
-      const segmentCommands = [
-        "segment",
-        `--video_id=${videoId}`,
-        `--filename=${filename}`,
-        `--bucket_name=${s3.bucket.name}`,
-        `--transcode_queue_url=${transcodingQueueUrl}`,
+      const commands = [
+        "ffmpeg",
+        "-i",
+        `${signedUrl}`,
+        "-c:v",
+        "libx264",
+        "-crf",
+        "30",
+        "-f",
+        "mp4",
+        "-movflags",
+        "frag_keyframe+empty_moov",
+        "-",
+        "|",
+        "aws",
+        "s3",
+        "cp",
+        "-",
+        `s3://tidal-bken-dev/transcoded/${videoId}/test.mp4`,
       ];
 
       await ecs
@@ -31,7 +42,7 @@ module.exports.handler = async (event) => {
           cluster: "tidal",
           launchType: "FARGATE",
           platformVersion: "1.4.0",
-          taskDefinition: "segmenting",
+          taskDefinition: "pipeline",
           networkConfiguration: {
             awsvpcConfiguration: {
               assignPublicIp: "ENABLED",
@@ -49,8 +60,8 @@ module.exports.handler = async (event) => {
           overrides: {
             containerOverrides: [
               {
-                name: "segmenting",
-                command: segmentCommands,
+                name: "pipeline",
+                command: commands,
               },
             ],
           },
