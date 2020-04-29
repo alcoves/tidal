@@ -23,7 +23,7 @@ jobs:
   #         path: target
   ecr_docker_push:
     name: ECR Docker Push
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
