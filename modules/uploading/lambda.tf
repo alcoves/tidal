@@ -14,6 +14,13 @@ resource "aws_lambda_function" "tidal_uploading" {
   role             = "arn:aws:iam::594206825329:role/lambda-all"
   depends_on       = [aws_cloudwatch_log_group.tidal_uploading]
   source_code_hash = data.archive_file.tidal_uploading_zip.output_base64sha256
+
+  environment {
+    variables = {
+      SEGMENTER_FN_NAME       = var.segmenter_fn_name
+      AUDIO_EXTRACTOR_FN_NAME = var.audio_extractor_fn_name
+    }
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "tidal_uploading" {

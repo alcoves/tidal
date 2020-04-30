@@ -20,13 +20,29 @@ module "core" {
 }
 
 module "uploading" {
-  env               = var.env
-  source            = "../../modules/uploading"
-  uploads_queue_arn = module.core.uploads_queue_arn
+  env                     = var.env
+  source                  = "../../modules/uploading"
+  uploads_queue_arn       = module.core.uploads_queue_arn
+  segmenter_fn_name       = module.segmenting.fn_name
+  audio_extractor_fn_name = module.audio_extractor.fn_name
 }
 
-module "pipeline" {
-  env                   = var.env
-  source                = "../../modules/segmenting"
-  app_image             = "594206825329.dkr.ecr.us-east-1.amazonaws.com/tidal:dev"
+module "segmenting" {
+  env    = var.env
+  source = "../../modules/segmenting"
+}
+
+module "audio_extractor" {
+  env    = var.env
+  source = "../../modules/audio_extractor"
+}
+
+module "transcoding" {
+  env    = var.env
+  source = "../../modules/transcoding"
+}
+
+module "concatinator" {
+  env    = var.env
+  source = "../../modules/concatinator"
 }

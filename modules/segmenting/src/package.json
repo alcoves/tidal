@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "aws-sdk": "^2.666.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "dev": "node index.test.js"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "libx264-2160p": {
+    "ext": "mp4",
+    "cmd": [
+      "-c:v libx264",
+      "-preset fast",
+      "-profile:v high",
+      "-vf scale=3840:-2",
+      "-crf 23",
+      "-coder 1",
+      "-pix_fmt yuv420p",
+      "-bf 2"
+    ]
+  },
+  "libx264-1440p": {
+    "ext": "mp4",
+    "cmd": [
+      "-c:v libx264",
+      "-preset veryfast",
+      "-profile:v high",
+      "-vf scale=2560:-2",
+      "-crf 23",
+      "-coder 1",
+      "-pix_fmt yuv420p",
+      "-bf 2"
+    ]
+  },
+  "libx264-1080p": {
+    "ext": "mp4",
+    "cmd": [
+      "-c:v libx264",
+      "-preset veryfast",
+      "-profile:v high",
+      "-vf scale=1920:-2",
+      "-crf 23",
+      "-coder 1",
+      "-pix_fmt yuv420p",
+      "-bf 2"
+    ]
+  },
+  "libvpx_vp9-1080p": {
+    "ext": "webm",
+    "cmd": ["-b:v 0", "-crf 27", "-c:v libvpx-vp9", "-vf scale=1920:-2"]
+  },
+  "libx264-720p": {
+    "ext": "mp4",
+    "cmd": [
+      "-c:v libx264",
+      "-preset veryfast",
+      "-profile:v high",
+      "-vf scale=1280:-2",
+      "-crf 24",
+      "-coder 1",
+      "-pix_fmt yuv420p",
+      "-bf 2"
+    ]
+  },
+  "libx264-480p": {
+    "ext": "mp4",
+    "cmd": [
+      "-c:v libx264",
+      "-preset veryfast",
+      "-profile:v high",
+      "-vf scale=854:-2",
+      "-crf 28",
+      "-coder 1",
+      "-pix_fmt yuv420p",
+      "-bf 2"
+    ]
+  }
+}
