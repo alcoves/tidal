@@ -10,7 +10,6 @@ on:
 jobs:
   deploy:
     name: Deploy
-    needs: ecr_docker_push
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
