@@ -30,9 +30,8 @@ function handler () {
     -avoid_negative_ts 1 \
     -c:v copy -f matroska - | \
     /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
-    -c:v copy -f mp4 \
+    -c:v copy -f webm \
     -avoid_negative_ts 1 \
-    -movflags faststart+frag_keyframe+empty_moov - | \
     aws s3 cp - $OUT_PATH
 
   rm -f /tmp/manifest.txt

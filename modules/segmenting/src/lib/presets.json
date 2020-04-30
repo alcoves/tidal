@@ -40,7 +40,14 @@
   },
   "libvpx_vp9-1080p": {
     "ext": "webm",
-    "cmd": ["-b:v 0", "-crf 27", "-c:v libvpx-vp9", "-vf scale=1920:-2"]
+    "cmd": [
+      "-speed 5",
+      "-deadline realtime",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-vf scale=1920:-2"
+    ]
   },
   "libx264-720p": {
     "ext": "mp4",
