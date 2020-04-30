@@ -46,7 +46,9 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=1920:-2"
+      "-vf scale=1920:-2",
+      "-reset_timestamps 1",
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-720p": {
