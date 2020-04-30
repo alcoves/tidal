@@ -9,7 +9,7 @@ function handler () {
   IN_PATH="$(echo $EVENT | jq -r '.in_path')"
   OUT_PATH="$(echo $EVENT | jq -r '.out_path')"
   AUDIO_PATH="$(echo $EVENT | jq -r '.audio_path')"
-  
+
   AUDIO_URL=$(aws s3 presign $AUDIO_PATH)
 
   echo "list segments"
@@ -27,9 +27,11 @@ function handler () {
   /opt/ffmpeg/ffmpeg -f concat -safe 0 \
     -protocol_whitelist "file,http,https,tcp,tls" \
     -i /tmp/manifest.txt \
+    -avoid_negative_ts 1 \
     -c:v copy -f matroska - | \
     /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
     -c:v copy -f mp4 \
+    -avoid_negative_ts 1 \
     -movflags faststart+frag_keyframe+empty_moov - | \
     aws s3 cp - $OUT_PATH
 
