@@ -19,8 +19,7 @@ function handler () {
   touch /tmp/manifest.txt
 
   for SEGMENT in $SEGMENTS; do
-    SIGNED_URL=$(aws s3 presign s3://${BUCKET}/${SEGMENT})
-    echo "file '$SIGNED_URL'" >> /tmp/manifest.txt;
+    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
   done
 
   echo "concatinating started"
@@ -28,10 +27,12 @@ function handler () {
     -protocol_whitelist "file,http,https,tcp,tls" \
     -i /tmp/manifest.txt \
     -avoid_negative_ts 1 \
-    -c:v copy -f matroska - | \
+    -c:v copy \
+    -f matroska - | \
     /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
-    -c:v copy -f webm \
+    -c:v copy \
     -avoid_negative_ts 1 \
+    -f webm - | \
     aws s3 cp - $OUT_PATH
 
   rm -f /tmp/manifest.txt
