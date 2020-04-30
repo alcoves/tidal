@@ -8,62 +8,18 @@ on:
     branches:
       - dev
 jobs:
-  # build:
-  #   name: Build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: build
-  #         args: --release --all-features
-  #     - uses: actions/upload-artifact@v1
-  #       with:
-  #         name: target
-  #         path: target
-  ecr_docker_push:
-    name: ECR Docker Push
-    # needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      # - uses: actions/download-artifact@v1
-      #   with:
-      #     name: target
-      - uses: kciter/aws-ecr-action@v1
-        with:
-          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
-          repo: tidal
-          region: us-east-1
-          tags: dev,${{ github.sha }}
-          create_repo: false
-  # github_docker_push:
-  #   name: Github Docker Push
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: actions/download-artifact@v1
-  #       with:
-  #         name: target
-  #     - name: Publish to GitHub
-  #       uses: elgohr/Publish-Docker-Github-Action@master
-  #       env:
-  #         GIT_SHA: ${{ github.sha }}
-  #       with:
-  #         name: bken-io/tidal/tidal
-  #         username: ${{ github.actor }}
-  #         registry: docker.pkg.github.com
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #         buildargs: GIT_SHA
   deploy:
     name: Deploy
     needs: ecr_docker_push
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: borales/actions-yarn@v2.0.0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install deps
+        run: find . -name package.json -execdir yarn install --production {} \;
       - name: Terraform Init
         uses: hashicorp/terraform-github-actions@master
         with:
