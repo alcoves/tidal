@@ -1,4 +1,17 @@
 {
+  "libvpx_vp9-2160p": {
+    "ext": "webm",
+    "cmd": [
+      "-speed 5",
+      "-deadline realtime",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-vf scale=3840:-2",
+      "-reset_timestamps 1",
+      "-avoid_negative_ts 1"
+    ]
+  },
   "libx264-2160p": {
     "ext": "mp4",
     "cmd": [
@@ -10,6 +23,19 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
+    ]
+  },
+  "libvpx_vp9-1440p": {
+    "ext": "webm",
+    "cmd": [
+      "-speed 5",
+      "-deadline realtime",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-vf scale=2560:-2",
+      "-reset_timestamps 1",
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-1440p": {
@@ -51,6 +77,19 @@
       "-avoid_negative_ts 1"
     ]
   },
+  "libvpx_vp9-720p": {
+    "ext": "webm",
+    "cmd": [
+      "-speed 5",
+      "-deadline realtime",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-vf scale=1280:-2",
+      "-reset_timestamps 1",
+      "-avoid_negative_ts 1"
+    ]
+  },
   "libx264-720p": {
     "ext": "mp4",
     "cmd": [
@@ -62,6 +101,19 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
+    ]
+  },
+  "libvpx_vp9-480p": {
+    "ext": "webm",
+    "cmd": [
+      "-speed 5",
+      "-deadline realtime",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-vf scale=854:-2",
+      "-reset_timestamps 1",
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-480p": {
