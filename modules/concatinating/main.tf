@@ -35,6 +35,12 @@ resource "aws_lambda_function" "tidal_concatinating" {
   }
 }
 
+resource "aws_lambda_event_source_mapping" "tidal_concatinating" {
+  batch_size       = 1
+  event_source_arn = aws_sqs_queue.tidal_concatinating.arn
+  function_name    = aws_lambda_function.tidal_concatinating.function_name
+}
+
 resource "aws_cloudwatch_log_group" "tidal_concatinating" {
   retention_in_days = 30
   name              = "/aws/lambda/${local.function_name}"
