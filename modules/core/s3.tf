@@ -56,4 +56,13 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
       "s3:ObjectCreated:CompleteMultipartUpload",
     ]
   }
+
+  queue {
+    filter_prefix = "segments/transcoded"
+    queue_arn     = var.concatinating_queue_arn
+    events        = [
+      "s3:ObjectCreated:Put",
+      "s3:ObjectCreated:Copy",
+    ]
+  }
 }

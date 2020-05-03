@@ -39,7 +39,7 @@ module.exports = ({ videoId, filename }) => {
       console.log('FFPROBE STDOUT: ' + stdout);
       console.log('FFPROBE STDERR: ' + stderr);
 
-      const { width, height } = parseMetadata(stdout);
+      const { width } = parseMetadata(stdout);
 
       const ffmpegCmds = [
         ffmpeg,
@@ -48,7 +48,7 @@ module.exports = ({ videoId, filename }) => {
         '-an',
         '-f segment',
         '-segment_time 1',
-        `"http://localhost:3000/segments/${videoId}/source/${width}/%06d.mkv"`,
+        `"http://localhost:3000/segments/${videoId}/${width}/%06d.mkv"`,
       ];
 
       const ffmpegCmd = ffmpegCmds.join(' ');

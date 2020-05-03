@@ -1,19 +1,19 @@
-data "archive_file" "tidal_concatinator_zip" {
+data "archive_file" "tidal_concatinating_zip" {
   type        = "zip"
   source_dir  = "${path.module}/src/"
   output_path = local.archive_output_path
 }
 
-resource "aws_lambda_function" "tidal_concatinator" {
-  timeout          = 900
+resource "aws_lambda_function" "tidal_concatinating" {
   memory_size      = 3008
   runtime          = "provided"
+  timeout          = var.lambda_timeout
   function_name    = local.function_name
   handler          = "main.handler"
   filename         = local.archive_output_path
   role             = "arn:aws:iam::594206825329:role/lambda-all"
-  depends_on       = [aws_cloudwatch_log_group.tidal_concatinator]
-  source_code_hash = data.archive_file.tidal_concatinator_zip.output_base64sha256
+  depends_on       = [aws_cloudwatch_log_group.tidal_concatinating]
+  source_code_hash = data.archive_file.tidal_concatinating_zip.output_base64sha256
 
   layers = [
     "arn:aws:lambda:us-east-1:744348701589:layer:bash:8",
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "tidal_concatinator" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "tidal_concatinator" {
+resource "aws_cloudwatch_log_group" "tidal_concatinating" {
   retention_in_days = 30
   name              = "/aws/lambda/${local.function_name}"
 }
