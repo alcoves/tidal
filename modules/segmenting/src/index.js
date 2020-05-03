@@ -30,7 +30,7 @@ app.post('/segments/:videoId/:width/:segment', (req, res) => {
           MessageBody: JSON.stringify({
             ffmpeg_cmd: ffmpegCmdStr,
             in_path: `s3://${BUCKET}/segments/source/${videoId}/${segment}`,
-            out_path: `s3://${BUCKET}/segments/source/${videoId}/${presetName}/${segment}`,
+            out_path: `s3://${BUCKET}/segments/transcoded/${videoId}/${presetName}/${segment}`,
           }),
         };
       });
