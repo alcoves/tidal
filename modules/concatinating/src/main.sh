@@ -1,37 +1,51 @@
 function handler () {
   set -e
-  rm -f /tmp/manifest.txt
 
-  EVENT=$(echo $1 | jq -r '.')
-  echo "EVENT: $EVENT"
+  SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
+  echo "SQS_BODY: $SQS_BODY"
+  
+  BUCKET=$(echo $SQS_BODY | jq -r '.Records[0].s3.bucket.name')
+  echo "BUCKET: ${BUCKET}"
 
-  IN_PATH="$(echo $EVENT | jq -r '.in_path')"
-  OUT_PATH="$(echo $EVENT | jq -r '.out_path')"
-  CONCAT_WITH="$(echo $EVENT | jq -r '.concat_with')"
+  KEY=$(echo $SQS_BODY | jq -r '.Records[0].s3.object.key')
+  echo "KEY: ${KEY}"
+  
+  version="0002"
+  expr $version + 1
+  echo "$version"
 
-  # If level = 1 then we are making the final video from two segments
-  # early return
+  # SEGMENT_NUMBER = 0
+  # CURRENT_LEVEL = 1
 
-  # If level is not 1 then we are concating two segments and recursively invoking the segmenter
-  echo "Wait for concat_with segment to be created"
+  # IF SEGMENT_NUMBER is even
+  # then ODD_SEGMENT is SEGMENT_NUMBER + 1 and EVEN_SEGMENT is SEGMENT_NUMBER
+  # else ODD_SEGMENT is SEGMENT_NUMBER and EVEN_SEGMENT is SEGMENT_NUMBER - 1
 
-  echo "list segments"
-  SEGMENTS=$(aws s3 ls $IN_PATH --recursive | awk '{print $4}')
+  # Does the other segment exist?
+  # IE, PARTNER_SEGMENT = SEGMENT_NUMBER = EVEN_SEGMENT ? ODD_SEGMENT : EVEN_SEGMENT
+  # ls PARTNER_SEGMENT
+  
+  ## No, early return
 
-  echo "creating manifest"
-  touch /tmp/manifest.txt
+  ## Yes, concat EVEN_SEGMENT & ODD_SEGMENT
 
-  echo "file '$(aws s3 presign ${IN_PATH})'" >> /tmp/manifest.txt;
-  echo "file '$(aws s3 presign ${CONCAT_WITH})'" >> /tmp/manifest.txt;
+    # echo "creating manifest"
+    # touch /tmp/manifest.txt
 
-  echo "concatinating started"
-  /opt/ffmpeg/ffmpeg -f concat -safe 0 \
-    -protocol_whitelist "file,http,https,tcp,tls" \
-    -i /tmp/manifest.txt \
-    -c:v copy \
-    -f matroska - | \
-    aws s3 cp - $OUT_PATH
+    # echo "file '$(aws s3 presign ${IN_PATH})'" >> /tmp/manifest.txt;
+    # echo "file '$(aws s3 presign ${CONCAT_WITH})'" >> /tmp/manifest.txt;
 
-  rm -f /tmp/manifest.txt
-  echo "concatinating completed"
+    # echo "concatinating started"
+    # /opt/ffmpeg/ffmpeg -f concat -safe 0 \
+    #   -protocol_whitelist "file,http,https,tcp,tls" \
+    #   -i /tmp/manifest.txt \
+    #   -c:v copy \
+    #   -f matroska - | \
+    #   aws s3 cp - $OUT_PATH
+
+    # rm -f /tmp/manifest.txt
+    # echo "concatinating completed"
+
+
+  ## store at segments/transcoded/id/preset/l(l + 1)/${EVEN_SEGMENT}.mkv
 }
