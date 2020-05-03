@@ -5,10 +5,15 @@ function handler () {
   EVENT=$(echo $1 | jq -r '.')
   echo "EVENT: $EVENT"
 
-  BUCKET="$(echo $EVENT | jq -r '.bucket')"
   IN_PATH="$(echo $EVENT | jq -r '.in_path')"
   OUT_PATH="$(echo $EVENT | jq -r '.out_path')"
   CONCAT_WITH="$(echo $EVENT | jq -r '.concat_with')"
+
+  # If level = 1 then we are making the final video from two segments
+  # early return
+
+  # If level is not 1 then we are concating two segments and recursively invoking the segmenter
+  echo "Wait for concat_with segment to be created"
 
   echo "list segments"
   SEGMENTS=$(aws s3 ls $IN_PATH --recursive | awk '{print $4}')

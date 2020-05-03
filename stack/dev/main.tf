@@ -13,20 +13,6 @@ variable "env" {
   default = "dev"
 }
 
-module "core" {
-  env       = var.env
-  namespace = "bken"
-  source    = "../../modules/core"
-}
-
-module "uploading" {
-  env                     = var.env
-  source                  = "../../modules/uploading"
-  uploads_queue_arn       = module.core.uploads_queue_arn
-  segmenter_fn_name       = module.segmenting.fn_name
-  audio_extractor_fn_name = module.audio_extractor.fn_name
-}
-
 module "segmenting" {
   env    = var.env
   source = "../../modules/segmenting"
@@ -42,7 +28,22 @@ module "transcoding" {
   source = "../../modules/transcoding"
 }
 
-module "concatinator" {
+module "concatinating" {
   env    = var.env
-  source = "../../modules/concatinator"
+  source = "../../modules/concatinating"
+}
+
+module "core" {
+  env                     = var.env
+  namespace               = "bken"
+  source                  = "../../modules/core"
+  concatinating_queue_arn = module.concatinating.queue_arn
+}
+
+module "uploading" {
+  env                     = var.env
+  source                  = "../../modules/uploading"
+  uploads_queue_arn       = module.core.uploads_queue_arn
+  segmenter_fn_name       = module.segmenting.fn_name
+  audio_extractor_fn_name = module.audio_extractor.fn_name
 }
