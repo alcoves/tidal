@@ -5,10 +5,17 @@ function handler () {
   EVENT=$(echo $1 | jq -r '.')
   echo "EVENT: $EVENT"
 
+  # Segmenter gets invoked with
+  # in_path - the s3 path to a segment that is guarenteed to be there, always an even segment
+  # concat_with - the s3 path to a segment that may still be processing, should be the odd segment to the even in_path
+  # ffmpeg_cmd - the command to run when concatinating
+
   BUCKET="$(echo $EVENT | jq -r '.bucket')"
   IN_PATH="$(echo $EVENT | jq -r '.in_path')"
   OUT_PATH="$(echo $EVENT | jq -r '.out_path')"
-  CONCAT_WITH="$(echo $EVENT | jq -r '.concat_with')"
+  AUDIO_PATH="$(echo $EVENT | jq -r '.audio_path')"
+
+  AUDIO_URL=$(aws s3 presign $AUDIO_PATH)
 
   echo "list segments"
   SEGMENTS=$(aws s3 ls $IN_PATH --recursive | awk '{print $4}')
@@ -16,15 +23,21 @@ function handler () {
   echo "creating manifest"
   touch /tmp/manifest.txt
 
-  echo "file '$(aws s3 presign ${IN_PATH})'" >> /tmp/manifest.txt;
-  echo "file '$(aws s3 presign ${CONCAT_WITH})'" >> /tmp/manifest.txt;
+  for SEGMENT in $SEGMENTS; do
+    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
+  done
 
   echo "concatinating started"
   /opt/ffmpeg/ffmpeg -f concat -safe 0 \
     -protocol_whitelist "file,http,https,tcp,tls" \
     -i /tmp/manifest.txt \
+    -avoid_negative_ts 1 \
     -c:v copy \
     -f matroska - | \
+    /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
+    -c:v copy \
+    -avoid_negative_ts 1 \
+    -f webm - | \
     aws s3 cp - $OUT_PATH
 
   rm -f /tmp/manifest.txt
