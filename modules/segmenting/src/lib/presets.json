@@ -10,7 +10,7 @@
       "-vf scale=3840:-2",
       "-reset_timestamps 1",
       "-avoid_negative_ts 1",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -25,7 +25,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -40,7 +40,7 @@
       "-vf scale=2560:-2",
       "-reset_timestamps 1",
       "-avoid_negative_ts 1",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -55,7 +55,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -70,7 +70,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -85,7 +85,7 @@
       "-vf scale=1920:-2",
       "-reset_timestamps 1",
       "-avoid_negative_ts 1",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -100,7 +100,7 @@
       "-vf scale=1280:-2",
       "-reset_timestamps 1",
       "-avoid_negative_ts 1",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -115,7 +115,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -130,7 +130,7 @@
       "-vf scale=854:-2",
       "-reset_timestamps 1",
       "-avoid_negative_ts 1",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   },
@@ -145,7 +145,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-f mkv",
+      "-f mastroka",
       "-"
     ]
   }
