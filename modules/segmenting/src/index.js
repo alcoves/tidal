@@ -24,30 +24,31 @@ app.post('/segments/:videoId/:width/:segment', (req, res) => {
   })
     .promise()
     .then((data) => {
-      const messages = getPresets(width).map(({ presetName, ffmpegCmdStr }) => {
-        return {
-          QueueUrl: TRANSCODING_QUEUE_URL,
-          MessageBody: JSON.stringify({
-            ffmpeg_cmd: ffmpegCmdStr,
-            in_path: `s3://${BUCKET}/segments/source/${videoId}/${segment}`,
-            out_path: `s3://${BUCKET}/segments/transcoded/${videoId}/${presetName}/1/${segment}`,
-          }),
-        };
-      });
+      // const messages = getPresets(width).map(({ presetName, ffmpegCmdStr }) => {
+      //   return {
+      //     QueueUrl: TRANSCODING_QUEUE_URL,
+      //     MessageBody: JSON.stringify({
+      //       ffmpeg_cmd: ffmpegCmdStr,
+      //       in_path: `s3://${BUCKET}/segments/source/${videoId}/${segment}`,
+      //       out_path: `s3://${BUCKET}/segments/transcoded/${videoId}/${presetName}/1/${segment}`,
+      //     }),
+      //   };
+      // });
 
-      Promise.all(
-        messages.map((m) => {
-          console.log('sending sqs message');
-          sqs.sendMessage(m).promise();
-        })
-      )
-        .then(() => {
-          console.log('segment upload success', data.Key);
-        })
-        .catch((error) => {
-          console.error('failed to send message to sqs');
-          throw error;
-        });
+      // Promise.all(
+      //   messages.map((m) => {
+      //     console.log('sending sqs message');
+      //     sqs.sendMessage(m).promise();
+      //   })
+      // )
+      //   .then(() => {
+      //     console.log('segment upload success', data.Key);
+      //   })
+      //   .catch((error) => {
+      //     console.error('failed to send message to sqs');
+      //     throw error;
+      //   });
+      console.log(`done with ${videoId}/${segment}`);
       res.end();
     })
     .catch((error) => {
@@ -65,8 +66,14 @@ module.exports.handler = ({ videoId, filename }) => {
     console.log(`Example app listening at http://localhost:${port}`);
     segment({ videoId, filename })
       .then(() => {
-        console.error('closing server from then');
-        server.close();
+        markLastOddSegment()
+          .then(() => {
+            console.error('closing server from then');
+            server.close();
+          })
+          .catch((error) => {
+            throw error;
+          });
       })
       .catch((error) => {
         console.error('closing server from catch', error);
