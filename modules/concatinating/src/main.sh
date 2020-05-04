@@ -18,7 +18,7 @@ function handler () {
   echo "PRESET_NAME: ${PRESET_NAME}"
   
   LEVEL="$(echo $KEY | cut -d'/' -f5)"
-  NEXT_LEVEL=$(($LEVEL + 1))
+  NEXT_LEVEL=`expr $LEVEL + 1`
   echo "LEVEL: ${LEVEL}"
   echo "NEXT_LEVEL: ${NEXT_LEVEL}"
   
@@ -30,9 +30,9 @@ function handler () {
   
   PADDING_LEN=${#SEGMENT_NUM}
   
-  if (($SEGMENT_NUM % 2)); then
+  if `expr $SEGMENT_NUM % 2`; then
     echo "$SEGMENT_NUM is odd"
-    PARTNER_SEGMENT_NUM=$(($SEGMENT_NUM - 1))
+    PARTNER_SEGMENT_NUM=`expr $SEGMENT_NUM - 1`
     PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
     PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
     
@@ -45,7 +45,7 @@ function handler () {
     ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
   else
     echo "$SEGMENT_NUM is even"
-    PARTNER_SEGMENT_NUM=$(($SEGMENT_NUM + 1))
+    PARTNER_SEGMENT_NUM=`expr $SEGMENT_NUM + 1`
     PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
     PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
     
@@ -58,9 +58,10 @@ function handler () {
     ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
   fi
   
-  NEXT_SEGMENT_NUM=$(($EVEN_SEGMENT_NUM / 2))
+  NEXT_SEGMENT_NUM=`expr $EVEN_SEGMENT_NUM / 2`
   NEXT_SEGMENT_NAME=`printf %0${PADDING_LEN}d $NEXT_SEGMENT_NUM`
   NEXT_SEGMENT_NAME="${NEXT_SEGMENT_NAME}.mkv"
+
   PARTNER_KEY="${KEY/$SEGMENT_NAME/$PARTNER_SEGMENT_NAME}"
   
   echo "PADDING_LEN: $PADDING_LEN"
@@ -73,9 +74,30 @@ function handler () {
   echo "NEXT_SEGMENT_NUM: $NEXT_SEGMENT_NUM"
   echo "NEXT_SEGMENT_NAME: $NEXT_SEGMENT_NAME"
   
-  object_exists=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || false)
-  if [ $object_exists ]; then
+  PARTNER_EXISTS=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || true)
+  echo "PARTNER_EXISTS: $PARTNER_EXISTS"
+  if [ -z $PARTNER_EXISTS ]; then
     echo "Partner segment does not exist"
+    # When the partner does not exist, it's possible we've reached the last segment
+    # We handle the last odd segment by passing it to the next level
+    # First we have to check that the segment is the last segment
+    SEGMENT_EXISTS=$(aws s3api head-object --bucket $BUCKET --key $KEY || true)
+    echo "SEGMENT_EXISTS: $SEGMENT_EXISTS"
+
+    if [ -z $SEGMENT_EXISTS ]; then
+      echo "Event segment was not found"
+    else
+      echo "Event segment exists"
+      LAST_ODD_SEGMENT=$(echo $SEGMENT_EXISTS | jq -r ".Metadata.last_odd_segment")
+      if [ "$LAST_ODD_SEGMENT" = "true" ]; then
+        echo "Last segment found, passing it down!"
+        LAST_SEGMENT_OUT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${NEXT_LEVEL}/${NEXT_SEGMENT_NAME}"
+        aws s3 cp "s3://${BUCKET}/$KEY" "$LAST_SEGMENT_OUT_PATH"
+      else
+        echo "Last segment not found, skipping"
+      fi
+    fi
+
   else
     echo "Beginning concatination"
     touch /tmp/manifest.txt
