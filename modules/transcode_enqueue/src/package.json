@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "aws-sdk": "^2.668.0"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.0"
+  }
+}

@@ -1,22 +1,9 @@
 const AWS = require('aws-sdk');
 const { exec } = require('child_process');
-
-const getPresets = require('./getPresets');
-
 const s3 = new AWS.S3({ region: 'us-east-1' });
 
 const ffmpeg =
   process.env.NODE_ENV === 'production' ? '/opt/ffmpeg/ffmpeg' : 'ffmpeg';
-const ffprobe =
-  process.env.NODE_ENV === 'production' ? '/opt/ffmpeg/ffprobe' : 'ffprobe';
-
-const parseMetadata = (data) => {
-  return JSON.parse(data).streams.reduce((acc, { width, height }) => {
-    if (width) acc.width = width;
-    if (height) acc.height = height;
-    return acc;
-  }, {});
-};
 
 module.exports = ({ videoId, filename }) => {
   return new Promise(async (resolve, reject) => {
@@ -25,45 +12,25 @@ module.exports = ({ videoId, filename }) => {
       Key: `uploads/${videoId}/${filename}`,
     });
 
-    const ffprobeCmds = [
-      ffprobe,
-      `-v error`,
-      '-show_entries stream=width,height',
-      '-of json',
-      `"${signedUrl}"`,
+    const ffmpegCmds = [
+      ffmpeg,
+      `-i "${signedUrl}"`,
+      '-c:v copy',
+      '-an',
+      '-f segment',
+      '-segment_time 1',
+      `"http://localhost:3000/segments/${videoId}/%06d.mkv"`,
     ];
 
-    const ffprobeCmd = ffprobeCmds.join(' ');
-    console.log('ffprobeCmd', ffprobeCmd);
+    const ffmpegCmd = ffmpegCmds.join(' ');
+    console.log('ffmpegCmd', ffmpegCmd);
 
-    exec(ffprobeCmd, (error, stdout, stderr) => {
+    exec(ffmpegCmd, (error, stdout, stderr) => {
+      // ffmpeg early returns even though segments are still uploading
       if (error) reject(error);
-      console.log('FFPROBE STDOUT: ' + stdout);
-      console.log('FFPROBE STDERR: ' + stderr);
-
-      const { width } = parseMetadata(stdout);
-      const presets = getPresets(width);
-
-      const ffmpegCmds = [
-        ffmpeg,
-        `-i "${signedUrl}"`,
-        '-c:v copy',
-        '-an',
-        '-f segment',
-        '-segment_time 1',
-        `"http://localhost:3000/segments/${videoId}/%06d.mkv"`,
-      ];
-
-      const ffmpegCmd = ffmpegCmds.join(' ');
-      console.log('ffmpegCmd', ffmpegCmd);
-
-      exec(ffmpegCmd, (error, stdout, stderr) => {
-        // ffmpeg early returns even though segments are still uploading
-        if (error) reject(error);
-        console.log('FFMPEG STDOUT: ' + stdout);
-        console.log('FFMPEG STDERR: ' + stderr);
-        resolve({ presets });
-      });
+      console.log('FFMPEG STDOUT: ' + stdout);
+      console.log('FFMPEG STDERR: ' + stderr);
+      resolve();
     });
   });
 };
