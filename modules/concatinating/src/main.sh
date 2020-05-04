@@ -1,5 +1,4 @@
 function handler () {
-  set -e
   rm -f /tmp/manifest.txt
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
