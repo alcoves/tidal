@@ -36,26 +36,31 @@ function handler () {
     PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
     PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
     
-    ODD_SEGMENT_NAME=$SEGMENT_NAME
-    ODD_SEGMENT_NUM=$SEGMENT_NUM
     EVEN_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
     EVEN_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
+    EVEN_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${EVEN_SEGMENT_NAME}"
+
+    ODD_SEGMENT_NUM=$SEGMENT_NUM
+    ODD_SEGMENT_NAME=$SEGMENT_NAME
+    ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
   else
     echo "$SEGMENT_NUM is even"
     PARTNER_SEGMENT_NUM=$(($SEGMENT_NUM + 1))
     PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
     PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
     
-    ODD_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
-    ODD_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
     EVEN_SEGMENT_NUM=$SEGMENT_NUM
     EVEN_SEGMENT_NAME=$SEGMENT_NAME
+    EVEN_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${EVEN_SEGMENT_NAME}"
+
+    ODD_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
+    ODD_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
+    ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
   fi
   
   NEXT_SEGMENT_NUM=$(($EVEN_SEGMENT_NUM / 2))
   NEXT_SEGMENT_NAME=`printf %0${PADDING_LEN}d $NEXT_SEGMENT_NUM`
   NEXT_SEGMENT_NAME="${NEXT_SEGMENT_NAME}.mkv"
-  PARTNER_KEY="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/$PARTNER_SEGMENT_NAME"
   PARTNER_KEY="${KEY/$SEGMENT_NAME/$PARTNER_SEGMENT_NAME}"
   
   echo "PADDING_LEN: $PADDING_LEN"
@@ -68,7 +73,7 @@ function handler () {
   echo "NEXT_SEGMENT_NUM: $NEXT_SEGMENT_NUM"
   echo "NEXT_SEGMENT_NAME: $NEXT_SEGMENT_NAME"
   
-  object_exists=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || true)
+  object_exists=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || false)
   if [ $object_exists ]; then
     echo "Partner segment does not exist"
   else
@@ -78,8 +83,8 @@ function handler () {
     OUT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${NEXT_LEVEL}/${NEXT_SEGMENT_NAME}"
     echo "OUT_PATH: $OUT_PATH"
     
-    echo "file '$(aws s3 presign s3://${BUCKET}/${KEY})'" >> /tmp/manifest.txt;
-    echo "file '$(aws s3 presign s3://${BUCKET}/${PARTNER_KEY})'" >> /tmp/manifest.txt;
+    echo "file '$(aws s3 presign $EVEN_SEGMENT_PATH)'" >> /tmp/manifest.txt;
+    echo "file '$(aws s3 presign $ODD_SEGMENT_PATH)'" >> /tmp/manifest.txt;
     
     /opt/ffmpeg/ffmpeg -f concat -safe 0 \
       -protocol_whitelist "file,http,https,tcp,tls" \
