@@ -58,7 +58,17 @@ module.exports = ({ videoId, filename }) => {
         if (error) reject(error);
         console.log('FFMPEG STDOUT: ' + stdout);
         console.log('FFMPEG STDERR: ' + stderr);
+
+        console.log(
+          'ffmpeg command exited, all files should be uploaded by now'
+        );
         resolve(stdout);
+
+        // With all the objects uploaded
+        // Read the segments from s3
+        // Update the metadata if the last segment is odd (even because zero index)
+        // Then get the presets
+        // Then enqueue all the requests to the transformer
       });
     });
   });
