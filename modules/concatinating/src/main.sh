@@ -1,8 +1,9 @@
 function handler () {
   set -e
+  rm -f /tmp/manifest.txt
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
-  echo "SQS_BODY: $SQS_BODY"
+  # echo "SQS_BODY: $SQS_BODY"
   
   BUCKET=$(echo $SQS_BODY | jq -r '.Records[0].s3.bucket.name')
   echo "BUCKET: ${BUCKET}"
@@ -10,42 +11,83 @@ function handler () {
   KEY=$(echo $SQS_BODY | jq -r '.Records[0].s3.object.key')
   echo "KEY: ${KEY}"
   
-  version="0002"
-  expr $version + 1
-  echo "$version"
-
-  # SEGMENT_NUMBER = 0
-  # CURRENT_LEVEL = 1
-
-  # IF SEGMENT_NUMBER is even
-  # then ODD_SEGMENT is SEGMENT_NUMBER + 1 and EVEN_SEGMENT is SEGMENT_NUMBER
-  # else ODD_SEGMENT is SEGMENT_NUMBER and EVEN_SEGMENT is SEGMENT_NUMBER - 1
-
-  # Does the other segment exist?
-  # IE, PARTNER_SEGMENT = SEGMENT_NUMBER = EVEN_SEGMENT ? ODD_SEGMENT : EVEN_SEGMENT
-  # ls PARTNER_SEGMENT
+  VIDEO_ID="$(echo $KEY | cut -d'/' -f3)"
+  echo "VIDEO_ID: ${VIDEO_ID}"
   
-  ## No, early return
-
-  ## Yes, concat EVEN_SEGMENT & ODD_SEGMENT
-
-    # echo "creating manifest"
-    # touch /tmp/manifest.txt
-
-    # echo "file '$(aws s3 presign ${IN_PATH})'" >> /tmp/manifest.txt;
-    # echo "file '$(aws s3 presign ${CONCAT_WITH})'" >> /tmp/manifest.txt;
-
-    # echo "concatinating started"
-    # /opt/ffmpeg/ffmpeg -f concat -safe 0 \
-    #   -protocol_whitelist "file,http,https,tcp,tls" \
-    #   -i /tmp/manifest.txt \
-    #   -c:v copy \
-    #   -f matroska - | \
-    #   aws s3 cp - $OUT_PATH
-
-    # rm -f /tmp/manifest.txt
-    # echo "concatinating completed"
-
-
-  ## store at segments/transcoded/id/preset/l(l + 1)/${EVEN_SEGMENT}.mkv
+  PRESET_NAME="$(echo $KEY | cut -d'/' -f4)"
+  echo "PRESET_NAME: ${PRESET_NAME}"
+  
+  LEVEL="$(echo $KEY | cut -d'/' -f5)"
+  NEXT_LEVEL=$(($LEVEL + 1))
+  echo "LEVEL: ${LEVEL}"
+  echo "NEXT_LEVEL: ${NEXT_LEVEL}"
+  
+  SEGMENT_NAME="$(echo $KEY | cut -d'/' -f6)"
+  echo "SEGMENT_NAME: ${SEGMENT_NAME}"
+  
+  SEGMENT_NUM="$(echo $SEGMENT_NAME | cut -d'.' -f1)"
+  echo "SEGMENT_NUM: ${SEGMENT_NUM}"
+  
+  PADDING_LEN=${#SEGMENT_NUM}
+  
+  if (($SEGMENT_NUM % 2)); then
+    echo "$SEGMENT_NUM is odd"
+    PARTNER_SEGMENT_NUM=$(($SEGMENT_NUM - 1))
+    PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
+    PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
+    
+    ODD_SEGMENT_NAME=$SEGMENT_NAME
+    ODD_SEGMENT_NUM=$SEGMENT_NUM
+    EVEN_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
+    EVEN_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
+  else
+    echo "$SEGMENT_NUM is even"
+    PARTNER_SEGMENT_NUM=$(($SEGMENT_NUM + 1))
+    PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
+    PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
+    
+    ODD_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
+    ODD_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
+    EVEN_SEGMENT_NUM=$SEGMENT_NUM
+    EVEN_SEGMENT_NAME=$SEGMENT_NAME
+  fi
+  
+  NEXT_SEGMENT_NUM=$(($EVEN_SEGMENT_NUM / 2))
+  NEXT_SEGMENT_NAME=`printf %0${PADDING_LEN}d $NEXT_SEGMENT_NUM`
+  NEXT_SEGMENT_NAME="${NEXT_SEGMENT_NAME}.mkv"
+  PARTNER_KEY="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/$PARTNER_SEGMENT_NAME"
+  PARTNER_KEY="${KEY/$SEGMENT_NAME/$PARTNER_SEGMENT_NAME}"
+  
+  echo "PADDING_LEN: $PADDING_LEN"
+  echo "PARTNER_KEY: $PARTNER_KEY"
+  echo "ODD_SEGMENT_NAME: $ODD_SEGMENT_NAME"
+  echo "ODD_SEGMENT_NUM: $ODD_SEGMENT_NUM"
+  echo "EVEN_SEGMENT_NAME: $EVEN_SEGMENT_NAME"
+  echo "EVEN_SEGMENT_NUM: $EVEN_SEGMENT_NUM"
+  echo "PARTNER_SEGMENT_NAME: $PARTNER_SEGMENT_NAME"
+  echo "NEXT_SEGMENT_NUM: $NEXT_SEGMENT_NUM"
+  echo "NEXT_SEGMENT_NAME: $NEXT_SEGMENT_NAME"
+  
+  object_exists=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || true)
+  if [ $object_exists ]; then
+    echo "Partner segment does not exist"
+  else
+    echo "Beginning concatination"
+    touch /tmp/manifest.txt
+    
+    OUT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${NEXT_LEVEL}/${NEXT_SEGMENT_NAME}"
+    echo "OUT_PATH: $OUT_PATH"
+    
+    echo "file '$(aws s3 presign s3://${BUCKET}/${KEY})'" >> /tmp/manifest.txt;
+    echo "file '$(aws s3 presign s3://${BUCKET}/${PARTNER_KEY})'" >> /tmp/manifest.txt;
+    
+    /opt/ffmpeg/ffmpeg -f concat -safe 0 \
+      -protocol_whitelist "file,http,https,tcp,tls" \
+      -i /tmp/manifest.txt \
+      -c copy \
+      -f matroska - | \
+      aws s3 cp - $OUT_PATH
+      
+    rm -f /tmp/manifest.txt
+  fi
 }
