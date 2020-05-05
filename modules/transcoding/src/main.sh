@@ -7,7 +7,6 @@ function handler () {
   IN_PATH="$(echo $SQS_BODY | jq -r '.in_path')"
   OUT_PATH="$(echo $SQS_BODY | jq -r '.out_path')"
   FFMPEG_COMMAND=$(echo $SQS_BODY | jq -r '.ffmpeg_cmd')
-  LAST_ODD_SEGMENT="$(echo $SQS_BODY | jq -r '.last_odd_segment')"
 
   echo $IN_PATH
   echo $OUT_PATH
@@ -15,7 +14,7 @@ function handler () {
 
   echo "transcoding started"
   SIGNED_IN_URL=$(aws s3 presign $IN_PATH)
-  /opt/ffmpeg/ffmpeg -i "$SIGNED_IN_URL" $FFMPEG_COMMAND | aws s3 cp - $OUT_PATH --metadata last_odd_segment=$LAST_ODD_SEGMENT
+  /opt/ffmpeg/ffmpeg -i "$SIGNED_IN_URL" $FFMPEG_COMMAND | aws s3 cp - $OUT_PATH
   
   echo "transcoding completed"
 }

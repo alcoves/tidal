@@ -77,26 +77,6 @@ function handler () {
   echo "PARTNER_EXISTS: $PARTNER_EXISTS"
   if [ -z $PARTNER_EXISTS ]; then
     echo "Partner segment does not exist"
-    # When the partner does not exist, it's possible we've reached the last segment
-    # We handle the last odd segment by passing it to the next level
-    # First we have to check that the segment is the last segment
-    SEGMENT_EXISTS=$(aws s3api head-object --bucket $BUCKET --key $KEY || true)
-    echo "SEGMENT_EXISTS: $SEGMENT_EXISTS"
-
-    if [ -z $SEGMENT_EXISTS ]; then
-      echo "Event segment was not found"
-    else
-      echo "Event segment exists"
-      LAST_ODD_SEGMENT=$(echo $SEGMENT_EXISTS | jq -r ".Metadata.last_odd_segment")
-      if [ "$LAST_ODD_SEGMENT" = "true" ]; then
-        echo "Last segment found, passing it down!"
-        LAST_SEGMENT_OUT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${NEXT_LEVEL}/${NEXT_SEGMENT_NAME}"
-        aws s3 cp "s3://${BUCKET}/$KEY" "$LAST_SEGMENT_OUT_PATH"
-      else
-        echo "Last segment not found, skipping"
-      fi
-    fi
-
   else
     echo "Beginning concatination"
     touch /tmp/manifest.txt
