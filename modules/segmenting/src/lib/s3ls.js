@@ -1,6 +1,5 @@
 const AWS = require('aws-sdk');
-AWS.config.update({ region: 'us-east-1' });
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({ region: 'us-east-1' });
 
 const s3ls = async (params, items = []) => {
   const { Contents, NextContinuationToken } = await s3
@@ -11,7 +10,7 @@ const s3ls = async (params, items = []) => {
     params.ContinuationToken = NextContinuationToken;
     return s3ls(params, items);
   }
-  return items;
+  return items.sort();
 };
 
 module.exports = s3ls;

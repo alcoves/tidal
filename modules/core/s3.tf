@@ -58,6 +58,7 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
   }
 
   queue {
+    filter_suffix = ".mkv"
     filter_prefix = "segments/transcoded/"
     queue_arn     = var.concatinating_queue_arn
     events        = [
