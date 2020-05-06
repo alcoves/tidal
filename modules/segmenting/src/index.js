@@ -7,12 +7,11 @@ const enqueue = require('./lib/enqueue');
 const getMetdata = require('./lib/getMetdata');
 const getPresets = require('./lib/getPresets');
 
+const { Bucket } = require('./config/config');
+
 const port = 3000;
 const app = express();
 const s3 = new AWS.S3({ region: 'us-east-1' });
-
-const Bucket =
-  process.env.NODE_ENV === 'production' ? process.env.BUCKET : 'tidal-bken-dev';
 
 const requests = [];
 let processing = false;

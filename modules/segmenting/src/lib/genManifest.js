@@ -1,19 +1,14 @@
-const bucket = 'tidal-bken-dev';
+const { Bucket } = require('../config/config');
 
 const genManifest = (segments, level = 1, levels = {}) => {
-  console.log('segments', segments);
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
-    console.log('segment', segment);
 
     if (!levels.hasOwnProperty(level)) {
       levels[level] = {};
     }
 
     const segSplit = segment.split('/');
-
-    // `segments/transcoded/${videoId}/${presetName}/${level}/${segment}`;
-    console.log('segSplit', segSplit);
     const prefix = `${segSplit[0]}/${segSplit[1]}`;
     const videoId = segSplit[2];
     const presetName = segSplit[3];
@@ -26,8 +21,8 @@ const genManifest = (segments, level = 1, levels = {}) => {
     if (segments.length === 1) {
       levels[level][segment] = {
         mode: 'mux',
-        combineWith: `s3://${bucket}/audio/${videoId}/source.ogg`,
-        to: `s3://${bucket}/transcoded/${videoId}/${presetName}.webm`,
+        combineWith: `s3://${Bucket}/audio/${videoId}/source.ogg`,
+        to: `s3://${Bucket}/transcoded/${videoId}/${presetName}.webm`,
       };
 
       break;
@@ -45,15 +40,15 @@ const genManifest = (segments, level = 1, levels = {}) => {
         const nextSegment = `${level + 1}/${Math.floor(segNum / 2)
           .toString()
           .padStart(padLen, '0')}.mkv`;
-        to = `s3://${bucket}/${prefix}/${videoId}/${presetName}/${nextSegment}`;
+        to = `s3://${Bucket}/${prefix}/${videoId}/${presetName}/${nextSegment}`;
       } else {
         const nextSegment = `${level + 1}/${(segNum / 2)
           .toString()
           .padStart(padLen, '0')}.mkv`;
         mode = 'concat';
         isParent = 'true';
-        to = `s3://${bucket}/${prefix}/${videoId}/${presetName}/${nextSegment}`;
-        combineWith = `s3://${bucket}/${prefix}/${videoId}/${presetName}/${level}/${(
+        to = `s3://${Bucket}/${prefix}/${videoId}/${presetName}/${nextSegment}`;
+        combineWith = `s3://${Bucket}/${prefix}/${videoId}/${presetName}/${level}/${(
           segNum + 1
         )
           .toString()
@@ -65,10 +60,10 @@ const genManifest = (segments, level = 1, levels = {}) => {
         .padStart(padLen, '0')}.mkv`;
       mode = 'concat';
       isParent = 'false';
-      to = `s3://${bucket}/${prefix}/${videoId}/${presetName}/${
+      to = `s3://${Bucket}/${prefix}/${videoId}/${presetName}/${
         level + 1
       }/${nextSegment}`;
-      combineWith = `s3://${bucket}/${prefix}/${videoId}/${presetName}/${level}/${(
+      combineWith = `s3://${Bucket}/${prefix}/${videoId}/${presetName}/${level}/${(
         segNum - 1
       )
         .toString()
@@ -105,6 +100,5 @@ module.exports = (presetName, segments) => {
     return `segments/transcoded/${videoId}/${presetName}/1/${segment}`;
   });
 
-  console.log('transformedSegments', transformedSegments);
   return genManifest(transformedSegments);
 };

@@ -1,4 +1,6 @@
 variable "env" { type = string }
+variable  "tidal_bucket" { type = string }
+variable  "tidal_transcoding_queue_url" { type = string }
 
 locals {
   function_name       = "tidal-segmenter-${var.env}"
