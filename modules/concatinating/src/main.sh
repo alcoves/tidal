@@ -56,10 +56,20 @@ function handler () {
     echo "=== MUX MODE ==="
     FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
     SIGNED_AUDIO_URL=$(aws s3 presign $COMBINE_WITH)
+    FIRST_MUX_PASS="s3://${BUCKET}/muxing/${KEY}"
 
+    echo "First mux pass"
     /opt/ffmpeg/ffmpeg \
       -i "$FINAL_SEGMENT_URL" \
       -i "$SIGNED_AUDIO_URL" \
+      -c copy \
+      -f webm - | \
+      aws s3 cp - $FIRST_MUX_PASS
+
+    FIRST_MUX_PASS_URL=$(aws s3 presign $FIRST_MUX_PASS)
+    echo "Second mux pass"
+    /opt/ffmpeg/ffmpeg \
+      -i "$FIRST_MUX_PASS_URL" \
       -c copy \
       -f webm - | \
       aws s3 cp - $TO
@@ -92,8 +102,6 @@ function handler () {
         -protocol_whitelist "file,http,https,tcp,tls" \
         -i /tmp/manifest.txt \
         -c copy \
-        -reset_timestamps 1 \
-        -avoid_negative_ts 1 \
         -f matroska - | \
         aws s3 cp - $TO
     fi
