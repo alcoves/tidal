@@ -37,34 +37,37 @@ app.post('/segments/:videoId/:segment', async (req, res) => {
 const server = app.listen(port, () => console.log(`http://localhost:${port}`));
 
 module.exports.handler = async ({ videoId, filename }) => {
-  const signedUrl = await s3.getSignedUrlPromise('getObject', {
-    Bucket,
-    Key: `uploads/${videoId}/${filename}`,
+  return new Promise(async (resolve, reject) => {
+    const signedUrl = await s3.getSignedUrlPromise('getObject', {
+      Bucket,
+      Key: `uploads/${videoId}/${filename}`,
+    });
+
+    const segmentFolder = `segments/source/${videoId}/`;
+    await segment(signedUrl, videoId);
+
+    const interval = setInterval(() => {
+      if (processing && !requests.length) {
+        console.log('server is done processing');
+        server.close(async () => {
+          console.log('server is closed');
+          clearInterval(interval);
+
+          const metadata = await getMetdata(signedUrl);
+          console.log(metadata);
+
+          const presets = getPresets(metadata.width);
+          console.log('presets', presets);
+
+          let segments = await s3ls({ Bucket, Prefix: segmentFolder });
+          console.log(`segment length: ${segments.length}`);
+
+          await enqueue(segments, presets, videoId);
+          resolve();
+        });
+      } else {
+        console.log('server is still processing');
+      }
+    }, 250);
   });
-
-  const segmentFolder = `segments/source/${videoId}/`;
-  await segment(signedUrl, videoId);
-
-  const interval = setInterval(() => {
-    if (processing && !requests.length) {
-      console.log('server is done processing');
-      server.close(async () => {
-        console.log('server is closed');
-        clearInterval(interval);
-
-        const metadata = await getMetdata(signedUrl);
-        console.log(metadata);
-
-        const presets = getPresets(metadata.width);
-        console.log('presets', presets);
-
-        let segments = await s3ls({ Bucket, Prefix: segmentFolder });
-        console.log(`segment length: ${segments.length}`);
-
-        await enqueue(segments, presets, videoId);
-      });
-    } else {
-      console.log('server is still processing');
-    }
-  }, 250);
 };
