@@ -51,9 +51,7 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     filter_prefix = "uploads/"
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
     events        = [
-      "s3:ObjectCreated:Put",
-      "s3:ObjectCreated:Copy",
-      "s3:ObjectCreated:CompleteMultipartUpload",
+      "s3:ObjectCreated:*",
     ]
   }
 
@@ -62,8 +60,7 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     filter_prefix = "segments/transcoded/"
     queue_arn     = var.concatinating_queue_arn
     events        = [
-      "s3:ObjectCreated:Put",
-      "s3:ObjectCreated:Copy",
+      "s3:ObjectCreated:*",
     ]
   }
 }
