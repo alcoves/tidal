@@ -15,6 +15,10 @@ resource "aws_lambda_function" "tidal_concatinating" {
   depends_on       = [aws_cloudwatch_log_group.tidal_concatinating]
   source_code_hash = data.archive_file.tidal_concatinating_zip.output_base64sha256
 
+  tracing_config {
+    mode = "Active"
+  }
+
   layers = [
     "arn:aws:lambda:us-east-1:744348701589:layer:bash:8",
     "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5"

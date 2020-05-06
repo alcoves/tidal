@@ -15,6 +15,9 @@ variable "env" {
 
 module "segmenting" {
   env    = var.env
+  // TODO :: Cleanup these
+  tidal_bucket = "tidal-bken-dev"
+  tidal_transcoding_queue_url = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
   source = "../../modules/segmenting"
 }
 

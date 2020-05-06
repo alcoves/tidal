@@ -5,7 +5,7 @@ data "archive_file" "tidal_segmenter_zip" {
 }
 
 resource "aws_lambda_function" "tidal_segmenter" {
-  timeout          = 30
+  timeout          = 900
   memory_size      = 3008
   runtime          = "nodejs12.x"
   handler          = "index.handler"
@@ -15,13 +15,19 @@ resource "aws_lambda_function" "tidal_segmenter" {
   depends_on       = [aws_cloudwatch_log_group.tidal_segmenter]
   source_code_hash = data.archive_file.tidal_segmenter_zip.output_base64sha256
 
+  tracing_config {
+    mode = "Active"
+  }
+
   layers = [
     "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5",
   ]
 
   environment {
     variables = {
-      NODE_ENV = "production"
+      NODE_ENV                    = "production"
+      TIDAL_BUCKET                = var.tidal_bucket
+      TIDAL_TRANSCODING_QUEUE_URL = var.tidal_transcoding_queue_url
     }
   }
 }

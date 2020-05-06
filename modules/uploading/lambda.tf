@@ -15,6 +15,10 @@ resource "aws_lambda_function" "tidal_uploading" {
   depends_on       = [aws_cloudwatch_log_group.tidal_uploading]
   source_code_hash = data.archive_file.tidal_uploading_zip.output_base64sha256
 
+  tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       SEGMENTER_FN_NAME       = var.segmenter_fn_name

@@ -1,5 +1,7 @@
 function handler () {
-  rm -f /tmp/manifest.txt
+  echo "Cleaning up lambda env"
+  rm -f /tmp/*.txt
+  rm -f /tmp/*.json
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
   # echo "SQS_BODY: $SQS_BODY"
@@ -15,7 +17,7 @@ function handler () {
   
   PRESET_NAME="$(echo $KEY | cut -d'/' -f4)"
   echo "PRESET_NAME: ${PRESET_NAME}"
-  
+
   LEVEL="$(echo $KEY | cut -d'/' -f5)"
   NEXT_LEVEL=`expr $LEVEL + 1`
   echo "LEVEL: ${LEVEL}"
@@ -23,77 +25,80 @@ function handler () {
   
   SEGMENT_NAME="$(echo $KEY | cut -d'/' -f6)"
   echo "SEGMENT_NAME: ${SEGMENT_NAME}"
-  
+
   SEGMENT_NUM="$(echo $SEGMENT_NAME | cut -d'.' -f1)"
   echo "SEGMENT_NUM: ${SEGMENT_NUM}"
   
   PADDING_LEN=${#SEGMENT_NUM}
-  
-  if [[ $((SEGMENT_NUM % 2)) -eq 0 ]]; then
-    echo "$SEGMENT_NUM is even"
-    PARTNER_SEGMENT_NUM=`expr $SEGMENT_NUM + 1`
-    PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
-    PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
-    
-    EVEN_SEGMENT_NUM=$SEGMENT_NUM
-    EVEN_SEGMENT_NAME=$SEGMENT_NAME
-    EVEN_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${EVEN_SEGMENT_NAME}"
+  echo "PADDING_LEN: ${PADDING_LEN}"
 
-    ODD_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
-    ODD_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
-    ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
-  else
-    echo "$SEGMENT_NUM is odd"
-    PARTNER_SEGMENT_NUM=`expr $SEGMENT_NUM - 1`
-    PARTNER_SEGMENT_NAME=`printf %0${PADDING_LEN}d $PARTNER_SEGMENT_NUM`
-    PARTNER_SEGMENT_NAME="${PARTNER_SEGMENT_NAME}.mkv"
-    
-    EVEN_SEGMENT_NUM=$PARTNER_SEGMENT_NUM
-    EVEN_SEGMENT_NAME=$PARTNER_SEGMENT_NAME
-    EVEN_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${EVEN_SEGMENT_NAME}"
+  echo "Getting manifest from s3"
+  MANIFEST_LOCAL_PATH="/tmp/${VIDEO_ID}-${PRESET_NAME}.json"
+  MANIFEST_REMOTE_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}.json"
+  aws s3 cp $MANIFEST_REMOTE_PATH $MANIFEST_LOCAL_PATH
 
-    ODD_SEGMENT_NUM=$SEGMENT_NUM
-    ODD_SEGMENT_NAME=$SEGMENT_NAME
-    ODD_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${LEVEL}/${ODD_SEGMENT_NAME}"
-  fi
+  TO=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].to')
+  MODE=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].mode')
+  IS_PARENT=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].isParent')
+  COMBINE_WITH=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].combineWith')
   
-  NEXT_SEGMENT_NUM=`expr $EVEN_SEGMENT_NUM / 2`
-  NEXT_SEGMENT_NAME=`printf %0${PADDING_LEN}d $NEXT_SEGMENT_NUM`
-  NEXT_SEGMENT_NAME="${NEXT_SEGMENT_NAME}.mkv"
+  echo $TO
+  echo $MODE
+  echo $IS_PARENT
+  echo $COMBINE_WITH
 
-  PARTNER_KEY="${KEY/$SEGMENT_NAME/$PARTNER_SEGMENT_NAME}"
-  
-  echo "PADDING_LEN: $PADDING_LEN"
-  echo "PARTNER_KEY: $PARTNER_KEY"
-  echo "ODD_SEGMENT_NAME: $ODD_SEGMENT_NAME"
-  echo "ODD_SEGMENT_NUM: $ODD_SEGMENT_NUM"
-  echo "EVEN_SEGMENT_NAME: $EVEN_SEGMENT_NAME"
-  echo "EVEN_SEGMENT_NUM: $EVEN_SEGMENT_NUM"
-  echo "PARTNER_SEGMENT_NAME: $PARTNER_SEGMENT_NAME"
-  echo "NEXT_SEGMENT_NUM: $NEXT_SEGMENT_NUM"
-  echo "NEXT_SEGMENT_NAME: $NEXT_SEGMENT_NAME"
-  
-  PARTNER_EXISTS=$(aws s3api head-object --bucket $BUCKET --key $PARTNER_KEY || true)
-  echo "PARTNER_EXISTS: $PARTNER_EXISTS"
-  if [ -z $PARTNER_EXISTS ]; then
-    echo "Partner segment does not exist"
-  else
-    echo "Beginning concatination"
-    touch /tmp/manifest.txt
-    
-    OUT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${NEXT_LEVEL}/${NEXT_SEGMENT_NAME}"
-    echo "OUT_PATH: $OUT_PATH"
-    
-    echo "file '$(aws s3 presign $EVEN_SEGMENT_PATH)'" >> /tmp/manifest.txt;
-    echo "file '$(aws s3 presign $ODD_SEGMENT_PATH)'" >> /tmp/manifest.txt;
-    
-    /opt/ffmpeg/ffmpeg -f concat -safe 0 \
-      -protocol_whitelist "file,http,https,tcp,tls" \
-      -i /tmp/manifest.txt \
+  # "mode": "concat",
+  # "isParent": "true",
+  # "to": "s3://tidal-bken-dev/segments/transcoded/test/libvpx_vp9-720p/2/000000.mkv",
+  # "combineWith": "s3://tidal-bken-dev/segments/transcoded/test/libvpx_vp9-720p/1/000001.mkv"
+
+  if [ "$MODE" = "mux" ]; then
+    echo "=== MUX MODE ==="
+    FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
+    SIGNED_AUDIO_URL=$(aws s3 presign $COMBINE_WITH)
+
+    /opt/ffmpeg/ffmpeg \
+      -i "$FINAL_SEGMENT_URL" \
+      -i "$SIGNED_AUDIO_URL" \
       -c copy \
-      -f matroska - | \
-      aws s3 cp - $OUT_PATH
-      
-    rm -f /tmp/manifest.txt
+      -f webm - | \
+      aws s3 cp - $TO
   fi
+
+  if [ "$MODE" = "passthru" ]; then
+    echo "=== PASSTHRU MODE ==="
+    aws s3 cp s3://$BUCKET/$KEY $TO
+  fi
+
+  if [ "$MODE" = "concat" ]; then
+    COMBINE_WITH_KEY="$(echo $COMBINE_WITH | cut -d'/' -f4-)"
+    PARTNER_EXISTS=$(aws s3api head-object --bucket $BUCKET --key $COMBINE_WITH_KEY || true)
+    echo "PARTNER_EXISTS: $PARTNER_EXISTS"
+    if [ -z $PARTNER_EXISTS ]; then
+      echo "Partner segment does not exist"
+    else
+      echo "=== CONCAT MODE ==="
+      touch /tmp/manifest.txt
+      
+      if [ "$IS_PARENT" = "true" ]; then
+        echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
+        echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
+      else
+        echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
+        echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
+      fi
+
+      /opt/ffmpeg/ffmpeg -f concat -safe 0 \
+        -protocol_whitelist "file,http,https,tcp,tls" \
+        -i /tmp/manifest.txt \
+        -c copy \
+        -reset_timestamps 1 \
+        -avoid_negative_ts 1 \
+        -f matroska - | \
+        aws s3 cp - $TO
+    fi
+  fi
+
+  rm -f /tmp/*.txt
+  rm -f /tmp/*.json
 }
