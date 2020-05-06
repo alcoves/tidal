@@ -2,8 +2,8 @@
   "libvpx_vp9-2160p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 0",
-      "-deadline good",
+      "-speed 5",
+      "-deadline realtime",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
@@ -32,8 +32,8 @@
   "libvpx_vp9-1440p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 0",
-      "-deadline good",
+      "-speed 5",
+      "-deadline realtime",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
@@ -77,8 +77,8 @@
   "libvpx_vp9-1080p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 0",
-      "-deadline good",
+      "-speed 5",
+      "-deadline realtime",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
@@ -92,8 +92,8 @@
   "libvpx_vp9-720p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 0",
-      "-deadline good",
+      "-speed 5",
+      "-deadline realtime",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
@@ -122,8 +122,8 @@
   "libvpx_vp9-480p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 0",
-      "-deadline good",
+      "-speed 5",
+      "-deadline realtime",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
