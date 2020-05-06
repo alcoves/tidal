@@ -62,14 +62,14 @@ function handler () {
     #   -f webm - | \
     #   aws s3 cp - $TO
 
-
     FIRST_MUX_PASS="s3://${BUCKET}/muxing/${KEY}"
 
     echo "First mux pass"
     /opt/ffmpeg/ffmpeg \
       -i "$FINAL_SEGMENT_URL" \
       -i "$SIGNED_AUDIO_URL" \
-      -c copy \
+      -c:v copy \
+      -movflags faststart \
       -f matroska - | \
       aws s3 cp - $FIRST_MUX_PASS
 
@@ -77,7 +77,8 @@ function handler () {
     echo "Second mux pass"
     /opt/ffmpeg/ffmpeg \
       -i "$FIRST_MUX_PASS_URL" \
-      -c copy \
+      -c:v copy \
+      -movflags faststart \
       -f webm - | \
       aws s3 cp - $TO
 
