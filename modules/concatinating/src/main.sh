@@ -56,20 +56,15 @@ function handler () {
     #   -i "$FINAL_SEGMENT_URL" \
     #   -i "$SIGNED_AUDIO_URL" \
     #   -c copy \
-    #   -movflags faststart \
-    #   -reset_timestamps 1 \
-    #   -avoid_negative_ts 1 \
     #   -f webm - | \
     #   aws s3 cp - $TO
 
     FIRST_MUX_PASS="s3://${BUCKET}/muxing/${KEY}"
-
     echo "First mux pass"
     /opt/ffmpeg/ffmpeg \
       -i "$FINAL_SEGMENT_URL" \
       -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
-      -movflags faststart \
       -f matroska - | \
       aws s3 cp - $FIRST_MUX_PASS
 
@@ -78,7 +73,6 @@ function handler () {
     /opt/ffmpeg/ffmpeg \
       -i "$FIRST_MUX_PASS_URL" \
       -c:v copy \
-      -movflags faststart \
       -f webm - | \
       aws s3 cp - $TO
 
@@ -111,7 +105,7 @@ function handler () {
       /opt/ffmpeg/ffmpeg -f concat -safe 0 \
         -protocol_whitelist "file,http,https,tcp,tls" \
         -i /tmp/manifest.txt \
-        -c copy \
+        -c:v copy \
         -f matroska - | \
         aws s3 cp - $TO
     fi
