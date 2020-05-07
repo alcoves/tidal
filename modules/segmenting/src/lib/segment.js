@@ -8,8 +8,9 @@ module.exports = (signedUrl, videoId) => {
     const ffmpegCmds = [
       ffmpeg,
       `-i "${signedUrl}"`,
-      '-c:v copy',
       '-an',
+      '-copyts',
+      '-c:v copy',
       '-f segment',
       '-segment_time 10',
       `"http://localhost:3000/segments/${videoId}/%06d.mkv"`,
