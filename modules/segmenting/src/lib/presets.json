@@ -9,9 +9,7 @@
       "-c:v libvpx-vp9",
       "-vf scale=3840:-2",
       "-reset_timestamps 1",
-      "-avoid_negative_ts 1",
-      "-f matroska",
-      "-"
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-2160p": {
@@ -24,9 +22,7 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-f matroska",
-      "-"
+      "-bf 2"
     ]
   },
   "libvpx_vp9-1440p": {
@@ -39,9 +35,7 @@
       "-c:v libvpx-vp9",
       "-vf scale=2560:-2",
       "-reset_timestamps 1",
-      "-avoid_negative_ts 1",
-      "-f matroska",
-      "-"
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-1440p": {
@@ -54,9 +48,7 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-f matroska",
-      "-"
+      "-bf 2"
     ]
   },
   "libx264-1080p": {
@@ -69,9 +61,7 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-f matroska",
-      "-"
+      "-bf 2"
     ]
   },
   "libvpx_vp9-1080p": {
@@ -84,9 +74,7 @@
       "-c:v libvpx-vp9",
       "-vf scale=1920:-2",
       "-reset_timestamps 1",
-      "-avoid_negative_ts 1",
-      "-f matroska",
-      "-"
+      "-avoid_negative_ts 1"
     ]
   },
   "libvpx_vp9-720p": {
@@ -99,9 +87,7 @@
       "-c:v libvpx-vp9",
       "-vf scale=1280:-2",
       "-reset_timestamps 1",
-      "-avoid_negative_ts 1",
-      "-f matroska",
-      "-"
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-720p": {
@@ -114,9 +100,7 @@
       "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-f matroska",
-      "-"
+      "-bf 2"
     ]
   },
   "libvpx_vp9-480p": {
@@ -129,9 +113,7 @@
       "-c:v libvpx-vp9",
       "-vf scale=854:-2",
       "-reset_timestamps 1",
-      "-avoid_negative_ts 1",
-      "-f matroska",
-      "-"
+      "-avoid_negative_ts 1"
     ]
   },
   "libx264-480p": {
@@ -144,9 +126,7 @@
       "-crf 28",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-f matroska",
-      "-"
+      "-bf 2"
     ]
   }
 }
