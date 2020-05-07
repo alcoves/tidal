@@ -65,6 +65,7 @@ function handler () {
       -i "$FINAL_SEGMENT_URL" \
       -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
+      -copyts \ 
       -f matroska - | \
       aws s3 cp - $FIRST_MUX_PASS
 
@@ -73,6 +74,7 @@ function handler () {
     /opt/ffmpeg/ffmpeg \
       -i "$FIRST_MUX_PASS_URL" \
       -c:v copy \
+      -copyts \ 
       -f webm - | \
       aws s3 cp - $TO
 
@@ -106,6 +108,7 @@ function handler () {
         -protocol_whitelist "file,http,https,tcp,tls" \
         -i /tmp/manifest.txt \
         -c:v copy \
+        -copyts \ 
         -f matroska - | \
         aws s3 cp - $TO
     fi
