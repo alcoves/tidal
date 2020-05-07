@@ -9,10 +9,10 @@ module.exports = (signedUrl, videoId) => {
       ffmpeg,
       `-i "${signedUrl}"`,
       '-an',
-      '-copyts',
       '-c:v copy',
       '-f segment',
       '-segment_time 10',
+      '-reset_timestamps 1',
       `"http://localhost:3000/segments/${videoId}/%06d.mkv"`,
     ];
 
