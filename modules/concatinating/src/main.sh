@@ -2,6 +2,8 @@ function handler () {
   echo "Cleaning up lambda env"
   rm -f /tmp/*.txt
   rm -f /tmp/*.json
+  rm -f /tmp/*.webm
+  rm -f /tmp/*.mkv
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
   # echo "SQS_BODY: $SQS_BODY"
@@ -65,6 +67,9 @@ function handler () {
     echo "list segments"
     TRANSCODED_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/1/"
     SEGMENTS=$(aws s3 ls $TRANSCODED_SEGMENT_PATH --recursive | awk '{print $4}')
+    
+    echo $TRANSCODED_SEGMENT_PATH
+    echo $SEGMENTS
 
     for SEGMENT in $SEGMENTS; do
       echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
@@ -74,15 +79,15 @@ function handler () {
     /opt/ffmpeg/ffmpeg -f concat -safe 0 \
       -protocol_whitelist "file,http,https,tcp,tls" \
       -i /tmp/manifest.txt \
-      -avoid_negative_ts 1 \
       -c:v copy \
       -f matroska - | \
-      /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
+      /opt/ffmpeg/ffmpeg \
+      -i - -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
-      -avoid_negative_ts 1 \
-      -f webm - | \
-      aws s3 cp - $TO
-
+      /tmp/out2.webm
+    
+    aws s3 cp /tmp/out2.webm $TO
+    rm -f /tmp/*.webm
     echo "concatinating completed"
   fi
 
