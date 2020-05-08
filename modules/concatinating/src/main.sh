@@ -49,34 +49,41 @@ function handler () {
 
   if [ "$MODE" = "mux" ]; then
     echo "=== MUX MODE ==="
-    FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
+    # FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
     SIGNED_AUDIO_URL=$(aws s3 presign $COMBINE_WITH)
     
-    /opt/ffmpeg/ffmpeg \
-      -i "$FINAL_SEGMENT_URL" \
-      -i "$SIGNED_AUDIO_URL" \
-      -c copy \
-      -f webm - | \
-      aws s3 cp - $TO
-
-    # FIRST_MUX_PASS="s3://${BUCKET}/muxing/${KEY}"
-    # echo "First mux pass"
     # /opt/ffmpeg/ffmpeg \
     #   -i "$FINAL_SEGMENT_URL" \
     #   -i "$SIGNED_AUDIO_URL" \
-    #   -c:v copy \
-    #   -f matroska - | \
-    #   aws s3 cp - $FIRST_MUX_PASS
-
-    # FIRST_MUX_PASS_URL=$(aws s3 presign $FIRST_MUX_PASS)
-    # echo "Second mux pass"
-    # /opt/ffmpeg/ffmpeg \
-    #   -i "$FIRST_MUX_PASS_URL" \
-    #   -c:v copy \
+    #   -c copy \
     #   -f webm - | \
     #   aws s3 cp - $TO
+    
+    echo "creating manifest"
+    touch /tmp/manifest.txt
 
-    # aws s3 rm $FIRST_MUX_PASS
+    echo "list segments"
+    TRANSCODED_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/1/"
+    SEGMENTS=$(aws s3 ls $TRANSCODED_SEGMENT_PATH --recursive | awk '{print $4}')
+
+    for SEGMENT in $SEGMENTS; do
+      echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
+    done
+
+    echo "concatinating started"
+    /opt/ffmpeg/ffmpeg -f concat -safe 0 \
+      -protocol_whitelist "file,http,https,tcp,tls" \
+      -i /tmp/manifest.txt \
+      -avoid_negative_ts 1 \
+      -c:v copy \
+      -f matroska - | \
+      /opt/ffmpeg/ffmpeg -i - -i "$AUDIO_URL" \
+      -c:v copy \
+      -avoid_negative_ts 1 \
+      -f webm - | \
+      aws s3 cp - $TO
+
+    echo "concatinating completed"
   fi
 
   if [ "$MODE" = "passthru" ]; then
