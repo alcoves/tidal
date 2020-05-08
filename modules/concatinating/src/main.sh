@@ -63,7 +63,7 @@ function handler () {
     touch /tmp/manifest.txt
 
     echo "list segments"
-    TRANSCODED_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/1/"
+    TRANSCODED_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/1/"
     SEGMENTS=$(aws s3 ls $TRANSCODED_SEGMENT_PATH --recursive | awk '{print $4}')
 
     for SEGMENT in $SEGMENTS; do
