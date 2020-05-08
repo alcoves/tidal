@@ -85,9 +85,9 @@ function handler () {
       /opt/ffmpeg/ffmpeg \
       -i - -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
-      /tmp/out.webm
+      -f webm - | \
+      aws s3 cp - $TO
     
-    aws s3 cp /tmp/out.webm $TO
     rm -f /tmp/*.webm
     echo "concatinating completed"
   fi
