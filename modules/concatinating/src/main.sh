@@ -6,7 +6,7 @@ function handler () {
   rm -f /tmp/*.mkv
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
-  # echo "SQS_BODY: $SQS_BODY"
+  echo "SQS_BODY: $SQS_BODY"
   
   BUCKET=$(echo $SQS_BODY | jq -r '.Records[0].s3.bucket.name')
   echo "BUCKET: ${BUCKET}"
@@ -44,16 +44,17 @@ function handler () {
   IS_PARENT=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].isParent')
   COMBINE_WITH=$(cat $MANIFEST_LOCAL_PATH | jq -r --arg level $LEVEL --arg key $KEY '.[$level][$key].combineWith')
   
-  echo $TO
-  echo $MODE
-  echo $IS_PARENT
-  echo $COMBINE_WITH
+  echo "TO: $TO"
+  echo "MODE: $MODE"
+  echo "IS_PARENT: $IS_PARENT"
+  echo "COMBINE_WITH: $COMBINE_WITH"
 
   if [ "$MODE" = "mux" ]; then
     echo "=== MUX MODE ==="
-    # FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
     SIGNED_AUDIO_URL=$(aws s3 presign $COMBINE_WITH)
-    
+
+    # CONCAT MODE DISABLED DUE TO TIMESTAMP ISSUES
+    # FINAL_SEGMENT_URL=$(aws s3 presign s3://${BUCKET}/${KEY})
     # /opt/ffmpeg/ffmpeg \
     #   -i "$FINAL_SEGMENT_URL" \
     #   -i "$SIGNED_AUDIO_URL" \
@@ -68,8 +69,8 @@ function handler () {
     TRANSCODED_SEGMENT_PATH="s3://${BUCKET}/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/1/"
     SEGMENTS=$(aws s3 ls $TRANSCODED_SEGMENT_PATH --recursive | awk '{print $4}')
     
-    echo $TRANSCODED_SEGMENT_PATH
-    echo $SEGMENTS
+    echo "TRANSCODED_SEGMENT_PATH: $TRANSCODED_SEGMENT_PATH"
+    echo "SEGMENTS: $SEGMENTS"
 
     for SEGMENT in $SEGMENTS; do
       echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
@@ -84,16 +85,19 @@ function handler () {
       /opt/ffmpeg/ffmpeg \
       -i - -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
-      /tmp/out2.webm
+      /tmp/out.webm
     
-    aws s3 cp /tmp/out2.webm $TO
+    aws s3 cp /tmp/out.webm $TO
     rm -f /tmp/*.webm
     echo "concatinating completed"
   fi
 
   if [ "$MODE" = "passthru" ]; then
     echo "=== PASSTHRU MODE ==="
-    aws s3 cp s3://$BUCKET/$KEY $TO
+    touch /tmp/manifest.txt
+    aws s3 cp /tmp/manifest.txt $TO
+    # CONCAT MODE DISABLED DUE TO TIMESTAMP ISSUES
+    # aws s3 cp s3://$BUCKET/$KEY $TO
   fi
 
   if [ "$MODE" = "concat" ]; then
@@ -105,21 +109,23 @@ function handler () {
     else
       echo "=== CONCAT MODE ==="
       touch /tmp/manifest.txt
+      aws s3 cp /tmp/manifest.txt $TO
       
-      if [ "$IS_PARENT" = "true" ]; then
-        echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
-        echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
-      else
-        echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
-        echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
-      fi
+      # CONCAT MODE DISABLED DUE TO TIMESTAMP ISSUES
+      # if [ "$IS_PARENT" = "true" ]; then
+      #   echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
+      #   echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
+      # else
+      #   echo "file '$(aws s3 presign $COMBINE_WITH)'" >> /tmp/manifest.txt;
+      #   echo "file '$(aws s3 presign s3://$BUCKET/$KEY)'" >> /tmp/manifest.txt;
+      # fi
 
-      /opt/ffmpeg/ffmpeg -f concat -safe 0 \
-        -protocol_whitelist "file,http,https,tcp,tls" \
-        -i /tmp/manifest.txt \
-        -c:v copy \
-        -f webm - | \
-        aws s3 cp - $TO
+      # /opt/ffmpeg/ffmpeg -f concat -safe 0 \
+      #   -protocol_whitelist "file,http,https,tcp,tls" \
+      #   -i /tmp/manifest.txt \
+      #   -c:v copy \
+      #   -f webm - | \
+      #   aws s3 cp - $TO
     fi
   fi
 
