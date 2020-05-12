@@ -85,6 +85,7 @@ function handler () {
       /opt/ffmpeg/ffmpeg \
       -i - -i "$SIGNED_AUDIO_URL" \
       -c:v copy \
+      -fflags +genpts \
       -f webm - | \
       aws s3 cp - $TO
     
