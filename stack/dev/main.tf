@@ -36,11 +36,17 @@ module "concatinating" {
   source = "../../modules/concatinating"
 }
 
+module "transcode_egress" {
+  env    = var.env
+  source = "../../modules/transcode_egress"
+}
+
 module "core" {
-  env                     = var.env
-  namespace               = "bken"
-  source                  = "../../modules/core"
-  concatinating_queue_arn = module.concatinating.queue_arn
+  env                           = var.env
+  namespace                     = "bken"
+  source                        = "../../modules/core"
+  concatinating_queue_arn       = module.concatinating.queue_arn
+  transcode_egress_function_arn = module.transcode_egress.function_arn
 }
 
 module "uploading" {

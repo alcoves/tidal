@@ -10,6 +10,10 @@ variable "concatinating_queue_arn" {
   type = string
 }
 
+variable "transcode_egress_function_arn" {
+  type = string
+}
+
 locals {
   uploads_queue_name = "tidal-uploads-${var.env}"
   bucket_name        = "tidal-${var.namespace}-${var.env}"
