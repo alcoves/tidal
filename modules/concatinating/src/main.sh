@@ -80,14 +80,15 @@ function handler () {
     /opt/ffmpeg/ffmpeg -f concat -safe 0 \
       -protocol_whitelist "file,http,https,tcp,tls" \
       -i /tmp/manifest.txt \
-      -c:v copy \
+      -c copy \
       -f matroska - | \
       /opt/ffmpeg/ffmpeg \
       -i - -i "$SIGNED_AUDIO_URL" \
-      -c:v copy \
-      -fflags +genpts \
-      -f webm - | \
-      aws s3 cp - $TO
+      -c copy \
+      /tmp/out.webm
+      
+    echo "uploading file"
+    aws s3 cp /tmp/out.webm $TO
     
     rm -f /tmp/*.webm
     echo "concatinating completed"
