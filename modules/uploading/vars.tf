@@ -1,4 +1,5 @@
 variable "env" { type = string }
+variable "metadata_fn_name" { type = string }
 variable "uploads_queue_arn" { type = string }
 variable "segmenter_fn_name" { type = string }
 variable "audio_extractor_fn_name" { type = string }

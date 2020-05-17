@@ -21,6 +21,11 @@ module "segmenting" {
   source = "../../modules/segmenting"
 }
 
+module "metadata" {
+  env    = var.env
+  source = "../../modules/metadata"
+}
+
 module "audio_extractor" {
   env    = var.env
   source = "../../modules/audio_extractor"
@@ -51,8 +56,9 @@ module "core" {
 
 module "uploading" {
   env                     = var.env
+  metadata_fn_name        = module.metadata.fn_name
   source                  = "../../modules/uploading"
-  uploads_queue_arn       = module.core.uploads_queue_arn
   segmenter_fn_name       = module.segmenting.fn_name
+  uploads_queue_arn       = module.core.uploads_queue_arn
   audio_extractor_fn_name = module.audio_extractor.fn_name
 }

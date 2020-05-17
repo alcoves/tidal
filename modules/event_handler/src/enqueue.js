@@ -5,7 +5,10 @@ const sqs = new AWS.SQS({ region: 'us-east-1' });
 const genManifest = require('./genManifest');
 
 const { v4: uuidv4 } = require('uuid');
-const { Bucket, transcodingQueueUrl } = require('../config/config');
+const {
+  Bucket,
+  transcodingQueueUrl,
+} = require('../../segmenting/src/config/config');
 
 const chunk = (arr, chunkSize = 1, cache = []) => {
   const tmp = [...arr];
