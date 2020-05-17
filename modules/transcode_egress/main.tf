@@ -55,6 +55,6 @@ resource "aws_lambda_function" "transcode_egress" {
 }
 
 resource "aws_cloudwatch_log_group" "transcode_egress" {
-  retention_in_days = 5
+  retention_in_days = 7
   name              = "/aws/lambda/${local.function_name}"
 }

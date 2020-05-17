@@ -40,6 +40,6 @@ resource "aws_lambda_function" "tidal_audio_extractor" {
 }
 
 resource "aws_cloudwatch_log_group" "tidal_audio_extractor" {
-  retention_in_days = 30
+  retention_in_days = 7
   name              = "/aws/lambda/${local.function_name}"
 }

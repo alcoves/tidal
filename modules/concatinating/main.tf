@@ -46,6 +46,6 @@ resource "aws_lambda_event_source_mapping" "tidal_concatinating" {
 }
 
 resource "aws_cloudwatch_log_group" "tidal_concatinating" {
-  retention_in_days = 30
+  retention_in_days = 7
   name              = "/aws/lambda/${local.function_name}"
 }
