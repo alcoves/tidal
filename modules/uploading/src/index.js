@@ -1,6 +1,12 @@
 const AWS = require('aws-sdk');
 const lambda = new AWS.Lambda({ region: 'us-east-1' });
 
+// Invoke the segmenter
+// Invoke the audio extractor
+
+// Modify this lambda to use ffmpeg to generate the presets
+// Write db entries to dynamodb, that kicks off the process
+
 module.exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
   for (const { body } of event.Records) {
