@@ -30,8 +30,8 @@ function handler () {
   aws dynamodb update-item \
     --table-name tidal-dev \
     --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
-    --update-expression 'SET transcoded.#segName = :status' \
-    --expression-attribute-names '{"#segName":'\"$SEGMENT_NAME\"'}' \
+    --update-expression 'SET #segments.#segName = :status' \
+    --expression-attribute-names '{"#segName":'\"$SEGMENT_NAME\"',"#segments":"segments"}' \
     --expression-attribute-values '{":status":{"BOOL":true}}'
   
   rm -f /tmp/out.mkv

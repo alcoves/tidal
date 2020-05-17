@@ -13,12 +13,16 @@ variable "env" {
   default = "dev"
 }
 
+// TODO :: Interpolate
+variable "transcoding_queue_name" { 
+  default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
+}
+
 module "segmenting" {
-  env    = var.env
-  // TODO :: Cleanup these
-  tidal_bucket = "tidal-bken-dev"
-  tidal_transcoding_queue_url = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
-  source = "../../modules/segmenting"
+  env                         = var.env
+  source                      = "../../modules/segmenting"
+  tidal_transcoding_queue_url = var.transcoding_queue_name
+  tidal_bucket                = module.core.tidal_bucket_name
 }
 
 module "metadata" {
@@ -52,6 +56,14 @@ module "core" {
   source                        = "../../modules/core"
   concatinating_queue_arn       = module.concatinating.queue_arn
   transcode_egress_function_arn = module.transcode_egress.function_arn
+}
+
+module "event_handler" {
+  env                         = var.env
+  tidal_transcoding_queue_url = var.transcoding_queue_name
+  source                      = "../../modules/event_handler"
+  tidal_bucket                = module.core.tidal_bucket_name
+  tidal_db_stream_arn         = module.core.tidal_db_stream_arn
 }
 
 module "uploading" {

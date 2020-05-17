@@ -61,13 +61,6 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
   }
 
-  queue {
-    filter_suffix = ".mkv"
-    filter_prefix = "segments/transcoded/"
-    events        = [ "s3:ObjectCreated:*" ]
-    queue_arn     = var.concatinating_queue_arn
-  }
-
   // lambda_function  {
   //   filter_suffix       = ".webm"
   //   filter_prefix       = "transcoded/"

@@ -49,13 +49,7 @@ module.exports.handler = async (event) => {
           .promise(),
       ]);
 
-      const segments = JSON.parse(segmenterRes.Payload);
-      const transcoded = segments.reduce((acc, cv) => {
-        const segName = cv.Key.split('/').pop();
-        acc[segName] = false;
-        return acc;
-      }, {});
-
+      const parsedSegRes = JSON.parse(segmenterRes.Payload);
       const { width } = parseMetadata(metadataRes.Payload);
       const presets = getPresets(width);
 
@@ -64,18 +58,20 @@ module.exports.handler = async (event) => {
 
       await Promise.all(
         presets.map(({ presetName, ffmpegCmdStr }) => {
+          const segments = parsedSegRes.reduce((acc, { Key }) => {
+            acc[Key.split('/').pop()] = false;
+            return acc;
+          }, {});
+
           return db
             .put({
               TableName: 'tidal-dev',
               Item: {
+                segments,
                 id: videoId,
-                preset: presetName,
                 cmd: ffmpegCmdStr,
-                createdAt: Date.now(),
-                modifiedAt: Date.now(),
+                preset: presetName,
                 status: 'segmented',
-                segments: segments.length,
-                transcoded,
               },
             })
             .promise();

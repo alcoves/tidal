@@ -1,7 +1,7 @@
 variable "env" { type = string }
-variable "uploads_queue_arn" { type = string }
-// variable "segmenter_fn_name" { type = string }
-// variable "audio_extractor_fn_name" { type = string }
+variable  "tidal_bucket" { type = string }
+variable "tidal_db_stream_arn" { type = string }
+variable  "tidal_transcoding_queue_url" { type = string }
 
 locals {
   function_name       = "tidal-stream-handler-${var.env}"
@@ -16,7 +16,7 @@ data "archive_file" "tidal_stream_handler_zip" {
 
 resource "aws_lambda_function" "tidal_stream_handler" {
   timeout          = 30
-  memory_size      = 256
+  memory_size      = 512
   runtime          = "nodejs12.x"
   handler          = "index.handler"
   function_name    = local.function_name
@@ -29,21 +29,23 @@ resource "aws_lambda_function" "tidal_stream_handler" {
     mode = "Active"
   }
 
-  // environment {
-  //   variables = {
-  //     SEGMENTER_FN_NAME       = var.segmenter_fn_name
-  //     AUDIO_EXTRACTOR_FN_NAME = var.audio_extractor_fn_name
-  //   }
-  // }
+    environment {
+    variables = {
+      NODE_ENV                    = "production"
+      TIDAL_BUCKET                = var.tidal_bucket
+      TIDAL_TRANSCODING_QUEUE_URL = var.tidal_transcoding_queue_url
+    }
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "tidal_stream_handler" {
-  batch_size       = 1
-  event_source_arn = var.uploads_queue_arn
-  function_name    = aws_lambda_function.tidal_stream_handler.function_name
+  batch_size        = 1
+  starting_position = "LATEST"
+  event_source_arn  = var.tidal_db_stream_arn
+  function_name     = aws_lambda_function.tidal_stream_handler.function_name
 }
 
 resource "aws_cloudwatch_log_group" "tidal_stream_handler" {
-  retention_in_days = 30
+  retention_in_days = 7
   name              = "/aws/lambda/${local.function_name}"
 }
