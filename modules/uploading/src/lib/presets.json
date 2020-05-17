@@ -7,9 +7,7 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=3840:-2",
-      "-reset_timestamps 1",
-      "-avoid_negative_ts 1"
+      "-vf scale=3840:-2"
     ]
   },
   "libx264-2160p": {
@@ -33,9 +31,7 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=2560:-2",
-      "-reset_timestamps 1",
-      "-avoid_negative_ts 1"
+      "-vf scale=2560:-2"
     ]
   },
   "libx264-1440p": {
@@ -72,9 +68,7 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=1920:-2",
-      "-reset_timestamps 1",
-      "-avoid_negative_ts 1"
+      "-vf scale=1920:-2"
     ]
   },
   "libvpx_vp9-720p": {
@@ -85,9 +79,7 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=1280:-2",
-      "-reset_timestamps 1",
-      "-avoid_negative_ts 1"
+      "-vf scale=1280:-2"
     ]
   },
   "libx264-720p": {
@@ -111,9 +103,7 @@
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=854:-2",
-      "-reset_timestamps 1",
-      "-avoid_negative_ts 1"
+      "-vf scale=854:-2"
     ]
   },
   "libx264-480p": {

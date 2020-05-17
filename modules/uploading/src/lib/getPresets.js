@@ -1,7 +1,6 @@
 const presets = require('./presets.json');
 
 module.exports = (width) => {
-  width = parseInt(width);
   const selectedPresets = [];
 
   selectedPresets.push({

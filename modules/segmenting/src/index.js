@@ -3,9 +3,6 @@ const express = require('express');
 const segment = require('./lib/segment');
 
 const s3ls = require('./lib/s3ls');
-const enqueue = require('./lib/enqueue');
-const getMetdata = require('./lib/getMetdata');
-const getPresets = require('./lib/getPresets');
 
 const { Bucket } = require('./config/config');
 
@@ -53,17 +50,9 @@ module.exports.handler = async ({ videoId, filename }) => {
           console.log('server is closed');
           clearInterval(interval);
 
-          const metadata = await getMetdata(signedUrl);
-          console.log(metadata);
-
-          const presets = getPresets(metadata.width);
-          console.log('presets', presets);
-
           let segments = await s3ls({ Bucket, Prefix: segmentFolder });
           console.log(`segment length: ${segments.length}`);
-
-          await enqueue(segments, presets, videoId);
-          resolve();
+          resolve(segments);
         });
       } else {
         console.log('server is still processing');
