@@ -29,6 +29,10 @@ module.exports.handler = async ({ Records }) => {
       } else if (transcoded && !transcoding) {
         // All segments are done, concatinate the video
         console.log('all segments are transcoded, invoking concatinator');
+
+        // if the video is small enough, concat it on lambda for faster speed
+        // if the video is too large for lambda, concatinate it on fargate (~60 seconds to boot)
+
         await sqs
           .sendMessage({
             MessageBody: JSON.stringify({
