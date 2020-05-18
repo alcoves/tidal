@@ -2,11 +2,12 @@
   "libvpx_vp9-2160p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 5",
-      "-deadline realtime",
+      "-speed 3",
+      "-deadline good",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
+      "-pix_fmt yuv420p",
       "-vf scale=3840:-2"
     ]
   },
@@ -26,12 +27,13 @@
   "libvpx_vp9-1440p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 5",
-      "-deadline realtime",
+      "-speed 3",
+      "-deadline good",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=2560:-2"
+      "-pix_fmt yuv420p",
+      "-vf scale=2360:-2"
     ]
   },
   "libx264-1440p": {
@@ -40,7 +42,7 @@
       "-c:v libx264",
       "-preset veryfast",
       "-profile:v high",
-      "-vf scale=2560:-2",
+      "-vf scale=2360:-2",
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
@@ -63,22 +65,24 @@
   "libvpx_vp9-1080p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 5",
-      "-deadline realtime",
+      "-speed 3",
+      "-deadline good",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
+      "-pix_fmt yuv420p",
       "-vf scale=1920:-2"
     ]
   },
   "libvpx_vp9-720p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 5",
-      "-deadline realtime",
+      "-speed 3",
+      "-deadline good",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
+      "-pix_fmt yuv420p",
       "-vf scale=1280:-2"
     ]
   },
@@ -98,12 +102,13 @@
   "libvpx_vp9-480p": {
     "ext": "mkv",
     "cmd": [
-      "-speed 5",
-      "-deadline realtime",
+      "-speed 3",
+      "-deadline good",
       "-b:v 0",
       "-crf 38",
       "-c:v libvpx-vp9",
-      "-vf scale=854:-2"
+      "-pix_fmt yuv420p",
+      "-vf scale=834:-2"
     ]
   },
   "libx264-480p": {
@@ -112,7 +117,7 @@
       "-c:v libx264",
       "-preset veryfast",
       "-profile:v high",
-      "-vf scale=854:-2",
+      "-vf scale=834:-2",
       "-crf 28",
       "-coder 1",
       "-pix_fmt yuv420p",
