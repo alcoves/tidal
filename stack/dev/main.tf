@@ -18,6 +18,11 @@ variable "transcoding_queue_name" {
   default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
 }
 
+// TODO :: Interpolate
+variable "tidal_concat_queue_url" {
+  default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-concatinating-dev"
+}
+
 module "segmenting" {
   env                         = var.env
   source                      = "../../modules/segmenting"
@@ -61,6 +66,7 @@ module "core" {
 module "event_handler" {
   env                         = var.env
   tidal_transcoding_queue_url = var.transcoding_queue_name
+  tidal_concat_queue_url      = var.tidal_concat_queue_url
   source                      = "../../modules/event_handler"
   tidal_bucket                = module.core.tidal_bucket_name
   tidal_db_stream_arn         = module.core.tidal_db_stream_arn

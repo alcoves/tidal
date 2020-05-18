@@ -1,7 +1,8 @@
 variable "env" { type = string }
-variable  "tidal_bucket" { type = string }
+variable "tidal_bucket" { type = string }
 variable "tidal_db_stream_arn" { type = string }
-variable  "tidal_transcoding_queue_url" { type = string }
+variable "tidal_concat_queue_url" { type = string }
+variable "tidal_transcoding_queue_url" { type = string }
 
 locals {
   function_name       = "tidal-stream-handler-${var.env}"
@@ -33,6 +34,7 @@ resource "aws_lambda_function" "tidal_stream_handler" {
     variables = {
       NODE_ENV                    = "production"
       TIDAL_BUCKET                = var.tidal_bucket
+      TIDAL_CONCAT_QUEUE_URL      = var.tidal_concat_queue_url
       TIDAL_TRANSCODING_QUEUE_URL = var.tidal_transcoding_queue_url
     }
   }
