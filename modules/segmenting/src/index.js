@@ -31,32 +31,32 @@ app.post('/segments/:videoId/:segment', async (req, res) => {
   requests.pop();
 });
 
-const server = app.listen(port, () => console.log(`http://localhost:${port}`));
-
 module.exports.handler = async ({ videoId, filename }) => {
-  return new Promise(async (resolve, reject) => {
-    const signedUrl = await s3.getSignedUrlPromise('getObject', {
-      Bucket,
-      Key: `uploads/${videoId}/${filename}`,
-    });
+  const server = app.listen(port, () =>
+    console.log(`http://127.0.0.1:${port}`)
+  );
 
-    const segmentFolder = `segments/source/${videoId}/`;
-    await segment(signedUrl, videoId);
+  const signedUrl = await s3.getSignedUrlPromise('getObject', {
+    Bucket,
+    Key: `uploads/${videoId}/${filename}`,
+  });
 
+  const segmentFolder = `segments/source/${videoId}/`;
+  await segment(signedUrl, videoId);
+
+  return new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       if (processing && !requests.length) {
         console.log('server is done processing');
-        server.close(async () => {
-          console.log('server is closed');
+        server.close(() => {
           clearInterval(interval);
-
-          let segments = await s3ls({ Bucket, Prefix: segmentFolder });
-          console.log(`segment length: ${segments.length}`);
-          resolve(segments);
+          console.log('server is closed');
+          s3ls({ Bucket, Prefix: segmentFolder }).then((segments) => {
+            console.log(`segment length: ${segments.length}`);
+            resolve(segments);
+          });
         });
-      } else {
-        console.log('server is still processing');
       }
-    }, 250);
+    }, 1000);
   });
 };
