@@ -4,7 +4,7 @@ const ffmpeg =
   process.env.NODE_ENV === 'production' ? '/opt/ffmpeg/ffmpeg' : 'ffmpeg';
 
 module.exports = (signedUrl, videoId) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const ffmpegCmds = [
       ffmpeg,
       `-i "${signedUrl}"`,
@@ -12,8 +12,7 @@ module.exports = (signedUrl, videoId) => {
       '-c:v copy',
       '-f segment',
       '-segment_time 10',
-      '-avoid_negative_ts 1',
-      `"http://localhost:3000/segments/${videoId}/%06d.mkv"`,
+      `http://127.0.0.1:3000/segments/${videoId}/%06d.mkv`,
     ];
 
     const ffmpegCmd = ffmpegCmds.join(' ');

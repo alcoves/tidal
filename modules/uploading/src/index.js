@@ -57,11 +57,18 @@ module.exports.handler = async (event) => {
       // console.log('presets', presets);
 
       await Promise.all(
-        presets.map(({ presetName, ffmpegCmdStr }) => {
+        presets.map(async ({ presetName, ffmpegCmdStr }) => {
           const segments = parsedSegRes.reduce((acc, { Key }) => {
             acc[Key.split('/').pop()] = false;
             return acc;
           }, {});
+
+          await db
+            .delete({
+              TableName: 'tidal-dev',
+              Key: { id: videoId, preset: presetName },
+            })
+            .promise();
 
           return db
             .put({

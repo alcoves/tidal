@@ -18,3 +18,7 @@ output "function_arn" {
 output "queue_arn" {
   value = aws_sqs_queue.tidal_concatinating.arn
 }
+
+output "fn_name" {
+  value = local.function_name
+}
