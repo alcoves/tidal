@@ -15,7 +15,7 @@
     "ext": "mkv",
     "cmd": [
       "-c:v libx264",
-      "-preset fast",
+      "-preset veryfast",
       "-profile:v high",
       "-vf scale=3840:-2",
       "-crf 23",
@@ -49,6 +49,18 @@
       "-bf 2"
     ]
   },
+  "libvpx_vp9-1080p": {
+    "ext": "mkv",
+    "cmd": [
+      "-speed 3",
+      "-deadline good",
+      "-b:v 0",
+      "-crf 38",
+      "-c:v libvpx-vp9",
+      "-pix_fmt yuv420p",
+      "-vf scale=1920:-2"
+    ]
+  },
   "libx264-1080p": {
     "ext": "mkv",
     "cmd": [
@@ -60,18 +72,6 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
-    ]
-  },
-  "libvpx_vp9-1080p": {
-    "ext": "mkv",
-    "cmd": [
-      "-speed 3",
-      "-deadline good",
-      "-b:v 0",
-      "-crf 38",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf scale=1920:-2"
     ]
   },
   "libvpx_vp9-720p": {
