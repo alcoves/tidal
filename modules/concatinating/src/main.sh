@@ -19,6 +19,7 @@ function handler () {
   PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f7)"
   echo "PRESET_NAME: ${PRESET_NAME}"
 
+  # Get signed url based on format or from input command
   echo "creating signed audio url"
   SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.ogg)
 
@@ -30,8 +31,9 @@ function handler () {
   echo "SEGMENTS: $SEGMENTS"
 
   for SEGMENT in $SEGMENTS; do
-    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt;
+    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt &
   done
+  wait
 
   echo "concatinating started"
   /opt/ffmpeg/ffmpeg -f concat -safe 0 \
