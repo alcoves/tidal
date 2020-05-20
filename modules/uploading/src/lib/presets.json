@@ -1,6 +1,7 @@
 {
   "libvpx_vp9-2160p": {
-    "ext": "mkv",
+    "preset": "libvpx_vp9-2160p",
+    "ext": "webm",
     "cmd": [
       "-speed 3",
       "-deadline good",
@@ -12,10 +13,11 @@
     ]
   },
   "libx264-2160p": {
-    "ext": "mkv",
+    "preset": "libx264-2160p",
+    "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset veryfast",
+      "-preset faster",
       "-profile:v high",
       "-vf scale=3840:-2",
       "-crf 23",
@@ -25,7 +27,8 @@
     ]
   },
   "libvpx_vp9-1440p": {
-    "ext": "mkv",
+    "preset": "libvpx_vp9-1440p",
+    "ext": "webm",
     "cmd": [
       "-speed 3",
       "-deadline good",
@@ -37,10 +40,11 @@
     ]
   },
   "libx264-1440p": {
-    "ext": "mkv",
+    "preset": "libx264-1440p",
+    "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset veryfast",
+      "-preset faster",
       "-profile:v high",
       "-vf scale=2360:-2",
       "-crf 23",
@@ -50,7 +54,8 @@
     ]
   },
   "libvpx_vp9-1080p": {
-    "ext": "mkv",
+    "preset": "libvpx_vp9-1080p",
+    "ext": "webm",
     "cmd": [
       "-speed 3",
       "-deadline good",
@@ -62,10 +67,11 @@
     ]
   },
   "libx264-1080p": {
-    "ext": "mkv",
+    "preset": "libx264-1080p",
+    "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset veryfast",
+      "-preset faster",
       "-profile:v high",
       "-vf scale=1920:-2",
       "-crf 23",
@@ -75,7 +81,8 @@
     ]
   },
   "libvpx_vp9-720p": {
-    "ext": "mkv",
+    "preset": "libvpx_vp9-720p",
+    "ext": "webm",
     "cmd": [
       "-speed 3",
       "-deadline good",
@@ -87,20 +94,22 @@
     ]
   },
   "libx264-720p": {
-    "ext": "mkv",
+    "preset": "libx264-720p",
+    "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset veryfast",
+      "-preset faster",
       "-profile:v high",
       "-vf scale=1280:-2",
-      "-crf 24",
+      "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
     ]
   },
   "libvpx_vp9-480p": {
-    "ext": "mkv",
+    "preset": "libvpx_vp9-480p",
+    "ext": "webm",
     "cmd": [
       "-speed 3",
       "-deadline good",
@@ -112,13 +121,14 @@
     ]
   },
   "libx264-480p": {
-    "ext": "mkv",
+    "preset": "libx264-480p",
+    "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset veryfast",
+      "-preset faster",
       "-profile:v high",
       "-vf scale=834:-2",
-      "-crf 28",
+      "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
