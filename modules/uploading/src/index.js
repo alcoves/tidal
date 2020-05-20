@@ -15,7 +15,12 @@ module.exports.handler = async (event) => {
       const videoId = s3.object.key.split('/')[1];
       const filename = s3.object.key.split('/')[2];
 
-      const [audioRes, metadataRes, segmenterRes] = await Promise.all([
+      const [
+        oggAudioRes,
+        aacAudioRes,
+        metadataRes,
+        segmenterRes,
+      ] = await Promise.all([
         lambda
           .invoke({
             InvocationType: 'RequestResponse',
@@ -24,6 +29,19 @@ module.exports.handler = async (event) => {
               JSON.stringify({
                 ffmpeg_cmd: `-vn -c:a libopus -f opus`,
                 out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
+              })
+            ),
+          })
+          .promise(),
+        lambda
+          .invoke({
+            InvocationType: 'RequestResponse',
+            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
+            Payload: Buffer.from(
+              JSON.stringify({
+                ffmpeg_cmd: `-vn -c:a aac -f adts`,
+                out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
               })
             ),
@@ -53,11 +71,8 @@ module.exports.handler = async (event) => {
       const { width } = parseMetadata(metadataRes.Payload);
       const presets = getPresets(width);
 
-      // console.log('segments', segments);
-      // console.log('presets', presets);
-
       await Promise.all(
-        presets.map(async ({ presetName, ffmpegCmdStr }) => {
+        presets.map(async ({ preset, cmd, ext }) => {
           const segments = parsedSegRes.reduce((acc, { Key }) => {
             acc[Key.split('/').pop()] = false;
             return acc;
@@ -66,7 +81,7 @@ module.exports.handler = async (event) => {
           await db
             .delete({
               TableName: 'tidal-dev',
-              Key: { id: videoId, preset: presetName },
+              Key: { id: videoId, preset },
             })
             .promise();
 
@@ -74,10 +89,11 @@ module.exports.handler = async (event) => {
             .put({
               TableName: 'tidal-dev',
               Item: {
+                cmd,
+                ext,
+                preset,
                 segments,
                 id: videoId,
-                cmd: ffmpegCmdStr,
-                preset: presetName,
                 status: 'segmented',
               },
             })
