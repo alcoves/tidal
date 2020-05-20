@@ -37,7 +37,7 @@ module.exports.handler = async ({ Records }) => {
           .sendMessage({
             MessageBody: JSON.stringify({
               in_path: `s3://${process.env.TIDAL_BUCKET}/segments/transcoded/${item.id}/${item.preset}/`,
-              out_path: `s3://${process.env.TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.webm`,
+              out_path: `s3://${process.env.TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.${item.ext}`,
             }),
             QueueUrl: process.env.TIDAL_CONCAT_QUEUE_URL,
           })
