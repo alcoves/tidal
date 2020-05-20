@@ -1,7 +1,8 @@
 function handler () {
   echo "Cleaning up lambda env"
-  rm -f /tmp/*.mkv
   rm -f /tmp/*.txt
+  rm -f /tmp/*.mkv
+  rm -f /tmp/*.mp4
   rm -f /tmp/*.webm
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
@@ -19,10 +20,6 @@ function handler () {
   PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f7)"
   echo "PRESET_NAME: ${PRESET_NAME}"
 
-  # Get signed url based on format or from input command
-  echo "creating signed audio url"
-  SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.ogg)
-
   echo "creating manifest"
   touch /tmp/manifest.txt
 
@@ -31,9 +28,19 @@ function handler () {
   echo "SEGMENTS: $SEGMENTS"
 
   for SEGMENT in $SEGMENTS; do
-    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt &
+    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt
   done
-  wait
+
+  FILE_EXT="${OUT_PATH##*.}"
+  echo "FILE_EXT: ${FILE_EXT}"
+
+  if [ "$FILE_EXT" = "webm" ]; then
+    echo "creating signed audio url"
+    SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.ogg)
+  else
+    echo "creating signed audio url"
+    SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.aac)
+  fi
 
   echo "concatinating started"
   /opt/ffmpeg/ffmpeg -f concat -safe 0 \
@@ -44,13 +51,17 @@ function handler () {
     /opt/ffmpeg/ffmpeg \
     -i - -i "$SIGNED_AUDIO_URL" \
     -c copy \
-    /tmp/out.webm
+    /tmp/out.${FILE_EXT}
     
   echo "uploading file"
-  aws s3 cp /tmp/out.webm $OUT_PATH
+  aws s3 cp /tmp/out.${FILE_EXT} $OUT_PATH
 
-  rm -f /tmp/*.mkv
+  # try -use_wallclock_as_timestamps true
+  # make http request to remuxing server
+
   rm -f /tmp/*.txt
+  rm -f /tmp/*.mkv
+  rm -f /tmp/*.mp4
   rm -f /tmp/*.webm
   echo "concatinating completed"
 }
