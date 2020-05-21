@@ -117,7 +117,8 @@
       "-crf 38",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
-      "-vf scale=834:-2"
+      "-vf scale=834:-2",
+      "-vsync 0 -r 30"
     ]
   },
   "libx264-480p": {
@@ -131,7 +132,8 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2"
+      "-bf 2",
+      "-vsync 0 -r 30"
     ]
   }
 }
