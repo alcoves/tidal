@@ -7,6 +7,6 @@ function handler () {
   FFMPEG_CMD="$(echo $BODY | jq -r '.ffmpeg_cmd')"
 
   echo "in: $IN_PATH | out: $OUT_PATH"
-  /opt/ffmpeg/ffmpeg -i "$(aws s3 presign $IN_PATH)" $FFMPEG_CMD - | aws s3 cp - $OUT_PATH
+  aws s3 cp $IN_PATH - | /opt/ffmpeg/ffmpeg -i - $FFMPEG_CMD - | aws s3 cp - $OUT_PATH
   echo "audio extraction completed"
 }
