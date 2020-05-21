@@ -36,6 +36,7 @@ module.exports.handler = async ({ Records }) => {
         await sqs
           .sendMessage({
             MessageBody: JSON.stringify({
+              duration: item.duration,
               in_path: `s3://${process.env.TIDAL_BUCKET}/segments/transcoded/${item.id}/${item.preset}/`,
               out_path: `s3://${process.env.TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.${item.ext}`,
             }),
