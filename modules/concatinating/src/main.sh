@@ -1,9 +1,12 @@
 function handler () {
   echo "Cleaning up lambda env"
-  rm -f /tmp/*.txt
-  rm -f /tmp/*.mkv
-  rm -f /tmp/*.mp4
-  rm -f /tmp/*.webm
+  rm -rf /tmp/links
+  rm -rf /tmp/*.txt
+  rm -rf /tmp/*.mkv
+  rm -rf /tmp/*.mp4
+  rm -rf /tmp/*.webm
+  
+  mkdir -p /tmp/links
 
   SQS_BODY=$(echo $1 | jq -r '.Records[0].body')
   echo "SQS_BODY: $SQS_BODY"
@@ -28,8 +31,13 @@ function handler () {
   SEGMENTS=$(aws s3 ls $IN_PATH --recursive | awk '{print $4}')
   echo "SEGMENTS: $SEGMENTS"
 
+  # TODO :: Generating links here is slow.
   for SEGMENT in $SEGMENTS; do
-    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/manifest.txt
+    echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> /tmp/links/$(echo $SEGMENT | cut -d'/' -f5)
+  done
+
+  for LINK in $(ls /tmp/links); do
+    cat /tmp/links/$LINK >> /tmp/manifest.txt
   done
 
   FILE_EXT="${OUT_PATH##*.}"
@@ -59,9 +67,10 @@ function handler () {
     -f $FFMPEG_FORMAT - | \
     aws s3 cp - $OUT_PATH
 
-  rm -f /tmp/*.txt
-  rm -f /tmp/*.mkv
-  rm -f /tmp/*.mp4
-  rm -f /tmp/*.webm
+  rm -rf /tmp/links
+  rm -rf /tmp/*.txt
+  rm -rf /tmp/*.mkv
+  rm -rf /tmp/*.mp4
+  rm -rf /tmp/*.webm
   echo "concatinating completed"
 }
