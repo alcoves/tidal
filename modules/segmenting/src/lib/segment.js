@@ -11,7 +11,7 @@ module.exports = (signedUrl, videoId) => {
       '-an',
       '-c:v copy',
       '-f segment',
-      '-segment_time 10',
+      '-segment_time 3',
       `http://127.0.0.1:3000/segments/${videoId}/%06d.mkv`,
     ];
 

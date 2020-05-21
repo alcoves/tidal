@@ -10,6 +10,7 @@ function handler () {
 
   IN_PATH="$(echo $SQS_BODY | jq -r '.in_path')"
   OUT_PATH="$(echo $SQS_BODY | jq -r '.out_path')"
+  DURATION="$(echo $SQS_BODY | jq -r '.duration')"
 
   BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
   echo "BUCKET: ${BUCKET}"
@@ -37,9 +38,11 @@ function handler () {
   if [ "$FILE_EXT" = "webm" ]; then
     echo "creating signed audio url"
     SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.ogg)
+    FFMPEG_FORMAT="webm"
   else
     echo "creating signed audio url"
     SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.aac)
+    FFMPEG_FORMAT="mp4"
   fi
 
   echo "concatinating started"
@@ -50,14 +53,11 @@ function handler () {
     -f matroska - | \
     /opt/ffmpeg/ffmpeg \
     -i - -i "$SIGNED_AUDIO_URL" \
-    -c copy \
-    /tmp/out.${FILE_EXT}
-    
-  echo "uploading file"
-  aws s3 cp /tmp/out.${FILE_EXT} $OUT_PATH
-
-  # try -use_wallclock_as_timestamps true
-  # make http request to remuxing server
+    -c:v copy \
+    -metadata duration=$DURATION \
+    -movflags frag_keyframe+empty_moov \
+    -f $FFMPEG_FORMAT - | \
+    aws s3 cp - $OUT_PATH
 
   rm -f /tmp/*.txt
   rm -f /tmp/*.mkv

@@ -68,7 +68,7 @@ module.exports.handler = async (event) => {
       ]);
 
       const parsedSegRes = JSON.parse(segmenterRes.Payload);
-      const { width } = parseMetadata(metadataRes.Payload);
+      const { width, duration } = parseMetadata(metadataRes.Payload);
       const presets = getPresets(width);
 
       await Promise.all(
@@ -92,6 +92,7 @@ module.exports.handler = async (event) => {
                 cmd,
                 ext,
                 preset,
+                duration,
                 segments,
                 id: videoId,
                 status: 'segmented',
