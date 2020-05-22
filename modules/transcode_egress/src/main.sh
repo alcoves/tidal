@@ -19,6 +19,7 @@ function handler () {
   echo "BUCKET: $BUCKET"
   echo "VIDEO_ID: $VIDEO_ID"
   echo "FILENAME: $FILENAME"
+  echo "EVENT_NAME: $EVENT_NAME"
   
   aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
   aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
@@ -31,14 +32,10 @@ function handler () {
     WASABI_BUCKET="dev-cdn.bken.io"
   fi
   
-  if [ "$EVENT_NAME" = "ObjectCreated:Put" ]; then
-    echo "copying to wasabi"
-    aws s3 cp s3://$BUCKET/$KEY - | \
-    aws s3 cp - s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${FILENAME} \
-    --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
-  else
-    echo "event did not match"
-  fi
+  echo "copying to wasabi"
+  aws s3 cp s3://$BUCKET/$KEY - | \
+  aws s3 cp - s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${FILENAME} \
+  --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
 
   echo "updating tidal database with status"
   aws dynamodb update-item \
