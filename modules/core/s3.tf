@@ -61,10 +61,9 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
   }
 
-  // lambda_function  {
-  //   filter_suffix       = ".webm"
-  //   filter_prefix       = "transcoded/"
-  //   events              = [ "s3:ObjectCreated:*" ]
-  //   lambda_function_arn = var.transcode_egress_function_arn
-  // }
+  lambda_function  {
+    filter_prefix       = "transcoded/"
+    events              = [ "s3:ObjectCreated:*" ]
+    lambda_function_arn = var.transcode_egress_function_arn
+  }
 }
