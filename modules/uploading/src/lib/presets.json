@@ -3,10 +3,10 @@
     "preset": "libvpx_vp9-2160p",
     "ext": "webm",
     "cmd": [
-      "-speed 3",
+      "-speed 0",
       "-deadline good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=3840:-2"
@@ -17,7 +17,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset faster",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=3840:-2",
       "-crf 23",
@@ -30,10 +30,10 @@
     "preset": "libvpx_vp9-1440p",
     "ext": "webm",
     "cmd": [
-      "-speed 3",
+      "-speed 0",
       "-deadline good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=2360:-2"
@@ -44,7 +44,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset faster",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=2360:-2",
       "-crf 23",
@@ -57,10 +57,10 @@
     "preset": "libvpx_vp9-1080p",
     "ext": "webm",
     "cmd": [
-      "-speed 3",
+      "-speed 0",
       "-deadline good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=1920:-2"
@@ -71,7 +71,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset faster",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=1920:-2",
       "-crf 23",
@@ -84,10 +84,10 @@
     "preset": "libvpx_vp9-720p",
     "ext": "webm",
     "cmd": [
-      "-speed 3",
+      "-speed 0",
       "-deadline good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=1280:-2"
@@ -98,7 +98,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset faster",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=1280:-2",
       "-crf 23",
@@ -111,10 +111,10 @@
     "preset": "libvpx_vp9-480p",
     "ext": "webm",
     "cmd": [
-      "-speed 3",
+      "-speed 0",
       "-deadline good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=834:-2",
@@ -126,7 +126,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset faster",
+      "-preset medium",
       "-profile:v high",
       "-vf scale=834:-2",
       "-crf 23",
