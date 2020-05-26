@@ -17,7 +17,7 @@ function handler () {
   SIGNED_VIDEO_URL=$(aws s3 presign $IN_PATH)
 
   echo "in: $IN_PATH | out: $OUT_PATH"
-  /opt/ffmpeg/ffmpeg -i "$SIGNED_VIDEO_URL" $LOCAL_OUT_PATH
+  /opt/ffmpeg/ffmpeg -i "$SIGNED_VIDEO_URL" $FFMPEG_CMD $LOCAL_OUT_PATH
   aws s3 cp $LOCAL_OUT_PATH $OUT_PATH
   rm -f $LOCAL_OUT_PATH
   echo "audio extraction completed"
