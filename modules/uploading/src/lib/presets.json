@@ -133,7 +133,7 @@
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2",
-      "-filter:v fps=fps=30 "
+      "-filter:v fps=fps=30"
     ]
   }
 }
