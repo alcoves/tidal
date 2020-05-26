@@ -1,8 +1,9 @@
 #!/bin/bash
-set -u
+set -e
 
 IN_PATH="$(echo $1)"
 OUT_PATH="$(echo $2)"
+BASE_DIR=$(echo $3)
 
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
@@ -13,7 +14,9 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f7)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
-TMP_DIR=$(mktemp -d)
+TMP_DIR=${BASE_DIR}/${VIDEO_ID}/${PRESET_NAME}
+rm -rf $TMP_DIR
+mkdir -p $TMP_DIR
 echo "tmp dir: $TMP_DIR"
 
 echo "creating workdirs"
@@ -56,4 +59,6 @@ ffmpeg -f concat -safe 0 \
   $LOCAL_VIDEO_PATH
 
 aws s3 cp $LOCAL_VIDEO_PATH $OUT_PATH
+
+rm -rf $TMP_DIR
 echo "concatinating completed"
