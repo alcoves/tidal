@@ -40,6 +40,7 @@ module.exports.handler = async (event) => {
             FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
             Payload: Buffer.from(
               JSON.stringify({
+                // -ar 44100 -b:a 128k
                 ffmpeg_cmd: `-vn -c:a aac`,
                 out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
