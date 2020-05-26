@@ -27,7 +27,7 @@ module.exports.handler = async (event) => {
             FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
             Payload: Buffer.from(
               JSON.stringify({
-                ffmpeg_cmd: `-vn -c:a libopus -f opus`,
+                ffmpeg_cmd: `-vn -c:a libopus`,
                 out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
               })
@@ -40,7 +40,7 @@ module.exports.handler = async (event) => {
             FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
             Payload: Buffer.from(
               JSON.stringify({
-                ffmpeg_cmd: `-vn -c:a aac -f adts`,
+                ffmpeg_cmd: `-vn -c:a aac`,
                 out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
               })
