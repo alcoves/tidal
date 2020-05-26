@@ -117,7 +117,7 @@
       "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
-      "-vf \"fps=fps=30, scale=834:-2\""
+      "-vf fps=fps=30,scale=834:-2"
     ]
   },
   "libx264-480p": {
@@ -131,7 +131,7 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-vf \"fps=fps=30, scale=834:-2\""
+      "-vf fps=fps=30,scale=834:-2"
     ]
   }
 }
