@@ -17,7 +17,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset medium",
+      "-preset veryfast",
       "-profile:v high",
       "-vf scale=3840:-2",
       "-crf 23",
@@ -44,7 +44,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset medium",
+      "-preset veryfast",
       "-profile:v high",
       "-vf scale=2360:-2",
       "-crf 23",
@@ -71,7 +71,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset medium",
+      "-preset veryfast",
       "-profile:v high",
       "-vf scale=1920:-2",
       "-crf 23",
@@ -98,7 +98,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset medium",
+      "-preset veryfast",
       "-profile:v high",
       "-vf scale=1280:-2",
       "-crf 23",
@@ -125,7 +125,7 @@
     "ext": "mp4",
     "cmd": [
       "-c:v libx264",
-      "-preset medium",
+      "-preset veryfast",
       "-profile:v high",
       "-bf 2",
       "-crf 23",
