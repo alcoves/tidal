@@ -36,27 +36,32 @@ module.exports.handler = async ({ videoId, filename }) => {
     console.log(`http://127.0.0.1:${port}`)
   );
 
-  const signedUrl = await s3.getSignedUrlPromise('getObject', {
-    Bucket,
-    Key: `uploads/${videoId}/${filename}`,
-  });
+  try {
+    const signedUrl = await s3.getSignedUrlPromise('getObject', {
+      Bucket,
+      Key: `uploads/${videoId}/${filename}`,
+    });
 
-  const segmentFolder = `segments/source/${videoId}/`;
-  await segment(signedUrl, videoId);
+    const segmentFolder = `segments/source/${videoId}/`;
+    await segment(signedUrl, videoId);
 
-  return new Promise((resolve, reject) => {
-    const interval = setInterval(() => {
-      if (processing && !requests.length) {
-        console.log('server is done processing');
-        server.close(() => {
-          clearInterval(interval);
-          console.log('server is closed');
-          s3ls({ Bucket, Prefix: segmentFolder }).then((segments) => {
-            console.log(`segment length: ${segments.length}`);
-            resolve(segments);
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (processing && !requests.length) {
+          console.log('server is done processing');
+          server.close(() => {
+            clearInterval(interval);
+            console.log('server is closed');
+            s3ls({ Bucket, Prefix: segmentFolder }).then((segments) => {
+              console.log(`segment length: ${segments.length}`);
+              resolve(segments);
+            });
           });
-        });
-      }
-    }, 1000);
-  });
+        }
+      }, 1000);
+    });
+  } catch (error) {
+    console.error('catch error', error);
+    server.close();
+  }
 };
