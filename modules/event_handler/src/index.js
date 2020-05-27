@@ -27,13 +27,10 @@ module.exports.handler = async ({ Records }) => {
         console.log('unmarshalled', item);
         await enqueue(item);
       } else if (transcoded && !transcoding) {
-        console.log(
-          'audio check',
-          item.audio && Object.keys(item.audio).length >= 2
-        );
+        const hasAllAudio = item.audio && Object.keys(item.audio).length >= 2;
         // ogg and aac audio should have reported in by now
 
-        if (item.audio && Object.keys(item.audio) >= 2) {
+        if (hasAllAudio) {
           // All segments are done, concatinate the video
           console.log('all segments are transcoded, invoking concatinator');
 
