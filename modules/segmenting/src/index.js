@@ -2,8 +2,6 @@ const AWS = require('aws-sdk');
 const express = require('express');
 const segment = require('./lib/segment');
 
-const s3ls = require('./lib/s3ls');
-
 const { Bucket } = require('./config/config');
 
 const port = 3000;
@@ -42,7 +40,6 @@ module.exports.handler = async ({ videoId, filename }) => {
       Key: `uploads/${videoId}/${filename}`,
     });
 
-    const segmentFolder = `segments/source/${videoId}/`;
     await segment(signedUrl, videoId);
 
     return new Promise((resolve, reject) => {
@@ -52,10 +49,7 @@ module.exports.handler = async ({ videoId, filename }) => {
           server.close(() => {
             clearInterval(interval);
             console.log('server is closed');
-            s3ls({ Bucket, Prefix: segmentFolder }).then((segments) => {
-              console.log(`segment length: ${segments.length}`);
-              resolve(segments);
-            });
+            resolve();
           });
         }
       }, 1000);

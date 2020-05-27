@@ -23,6 +23,12 @@ variable "tidal_concat_queue_url" {
   default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-concatinating-dev"
 }
 
+module "source_segment_enqueue" {
+  env                         = var.env
+  source                      = "../../modules/source_segment_enqueue"
+  tidal_transcoding_queue_url = var.transcoding_queue_name
+}
+
 module "segmenting" {
   env                         = var.env
   source                      = "../../modules/segmenting"
@@ -56,11 +62,12 @@ module "transcode_egress" {
 }
 
 module "core" {
-  env                           = var.env
-  namespace                     = "bken"
-  source                        = "../../modules/core"
-  concatinating_queue_arn       = module.concatinating.queue_arn
-  transcode_egress_function_arn = module.transcode_egress.function_arn
+  env                                 = var.env
+  namespace                           = "bken"
+  source                              = "../../modules/core"
+  concatinating_queue_arn             = module.concatinating.queue_arn
+  transcode_egress_function_arn       = module.transcode_egress.function_arn
+  source_segment_enqueue_function_arn = module.source_segment_enqueue.function_arn
 }
 
 module "event_handler" {

@@ -30,23 +30,8 @@ module.exports.handler = async (event) => {
       const { width, duration } = parseMetadata(metadataRes.Payload);
       const presets = getPresets(width);
 
-      // TODO :: Improve speed by making segments async self report to db
-      const segmenterRes = await lambda
-        .invoke({
-          InvocationType: 'RequestResponse',
-          FunctionName: process.env.SEGMENTER_FN_NAME,
-          Payload: Buffer.from(JSON.stringify({ videoId, filename })),
-        })
-        .promise();
-
-      const parsedSegRes = JSON.parse(segmenterRes.Payload);
       await Promise.all(
         presets.map(async ({ preset, cmd, ext }) => {
-          const segments = parsedSegRes.reduce((acc, { Key }) => {
-            acc[Key.split('/').pop()] = false;
-            return acc;
-          }, {});
-
           await db
             .delete({
               TableName: 'tidal-dev',
@@ -54,7 +39,7 @@ module.exports.handler = async (event) => {
             })
             .promise();
 
-          return db
+          await db
             .put({
               TableName: 'tidal-dev',
               Item: {
@@ -62,10 +47,10 @@ module.exports.handler = async (event) => {
                 ext,
                 preset,
                 duration,
-                segments,
                 audio: {},
                 id: videoId,
-                status: 'segmented',
+                segments: {},
+                status: 'segmenting',
               },
             })
             .promise();
@@ -73,6 +58,13 @@ module.exports.handler = async (event) => {
       );
 
       await Promise.all([
+        await lambda
+          .invoke({
+            InvocationType: 'Event',
+            FunctionName: process.env.SEGMENTER_FN_NAME,
+            Payload: Buffer.from(JSON.stringify({ videoId, filename })),
+          })
+          .promise(),
         lambda
           .invoke({
             InvocationType: 'Event',
