@@ -48,13 +48,13 @@ echo "downloading audio"
 aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/${AUDIO_FILENAME} ${TMP_DIR}/${AUDIO_FILENAME} --quiet
 
 echo "concatinating segments"
-ffmpeg -f concat -safe 0 \
+ffmpeg -hide_banner -loglevel panic -f concat -safe 0 \
   -i ${TMP_DIR}/manifest.txt \
   -c:v copy \
   ${TMP_DIR}/premux.mkv
 
 echo "remuxing with audio"
-ffmpeg -i $TMP_DIR/premux.mkv \
+ffmpeg -hide_banner -loglevel panic -i $TMP_DIR/premux.mkv \
   -i ${TMP_DIR}/${AUDIO_FILENAME} \
   -c:v copy \
   -movflags faststart \
