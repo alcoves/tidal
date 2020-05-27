@@ -27,6 +27,7 @@ resource "aws_lambda_function" "tidal_segmenter" {
     variables = {
       NODE_ENV                    = "production"
       TIDAL_BUCKET                = var.tidal_bucket
+      TIDAL_TABLE                 = "tidal-${var.env}"
       TIDAL_TRANSCODING_QUEUE_URL = var.tidal_transcoding_queue_url
     }
   }

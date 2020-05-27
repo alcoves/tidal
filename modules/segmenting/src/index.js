@@ -2,11 +2,13 @@ const AWS = require('aws-sdk');
 const express = require('express');
 const segment = require('./lib/segment');
 
-const { Bucket } = require('./config/config');
+const { Bucket, TIDAL_TABLE } = require('./config/config');
 
 const port = 3000;
 const app = express();
+
 const s3 = new AWS.S3({ region: 'us-east-1' });
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const requests = [];
 let processing = false;
@@ -23,6 +25,31 @@ app.post('/segments/:videoId/:segment', async (req, res) => {
       Key: `segments/source/${videoId}/${segment}`,
     })
     .promise();
+
+  const { Items } = await db
+    .query({
+      TableName: TIDAL_TABLE,
+      KeyConditionExpression: 'id = :id',
+      ExpressionAttributeValues: { ':id': videoId },
+    })
+    .promise();
+
+  await Promise.all(
+    Items.map(({ preset }) => {
+      return db
+        .update({
+          TableName: TIDAL_TABLE,
+          Key: { id: videoId, preset },
+          UpdateExpression: 'set #segments.#segName = :status',
+          ExpressionAttributeNames: {
+            '#segName': segment,
+            '#segments': 'segments',
+          },
+          ExpressionAttributeValues: { ':status': false },
+        })
+        .promise();
+    })
+  );
 
   console.log(`express uploaded ${videoId}/${segment}`, Date.now());
   res.end();
