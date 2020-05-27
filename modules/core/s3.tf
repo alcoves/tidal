@@ -43,6 +43,14 @@ resource "aws_s3_bucket" "tidal" {
   }
 }
 
+resource "aws_lambda_permission" "allow_source_segment_enqueue_s3_events" {
+  principal     = "s3.amazonaws.com"
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  source_arn    = aws_s3_bucket.tidal.arn
+  function_name = var.source_segment_enqueue_function_arn
+}
+
 resource "aws_lambda_permission" "allow_transcode_egress_s3_events" {
   principal     = "s3.amazonaws.com"
   statement_id  = "AllowExecutionFromS3"
@@ -65,5 +73,11 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     filter_prefix       = "transcoded/"
     events              = [ "s3:ObjectCreated:*" ]
     lambda_function_arn = var.transcode_egress_function_arn
+  }
+
+  lambda_function  {
+    filter_prefix       = "segments/source"
+    events              = [ "s3:ObjectCreated:*" ]
+    lambda_function_arn = var.source_segment_enqueue_function_arn
   }
 }
