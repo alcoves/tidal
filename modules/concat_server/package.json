@@ -1,9 +1,13 @@
 {
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "pm2": "^4.4.0"
   },
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start": "pm2 start ecosystem.config.js",
+    "reload": "pm2 reload concat",
+    "stop": "pm2 stop concat"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
