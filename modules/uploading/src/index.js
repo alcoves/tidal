@@ -15,63 +15,31 @@ module.exports.handler = async (event) => {
       const videoId = s3.object.key.split('/')[1];
       const filename = s3.object.key.split('/')[2];
 
-      const [
-        oggAudioRes,
-        aacAudioRes,
-        metadataRes,
-        segmenterRes,
-      ] = await Promise.all([
-        lambda
-          .invoke({
-            InvocationType: 'RequestResponse',
-            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                ffmpeg_cmd: `-vn -c:a libopus -f opus`,
-                out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-        lambda
-          .invoke({
-            InvocationType: 'RequestResponse',
-            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                // -ar 44100 -b:a 128k
-                ffmpeg_cmd: `-vn -c:a aac`,
-                out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-        lambda
-          .invoke({
-            InvocationType: 'RequestResponse',
-            FunctionName: process.env.METADATA_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-        lambda
-          .invoke({
-            InvocationType: 'RequestResponse',
-            FunctionName: process.env.SEGMENTER_FN_NAME,
-            Payload: Buffer.from(JSON.stringify({ videoId, filename })),
-          })
-          .promise(),
-      ]);
+      const metadataRes = await lambda
+        .invoke({
+          InvocationType: 'RequestResponse',
+          FunctionName: process.env.METADATA_FN_NAME,
+          Payload: Buffer.from(
+            JSON.stringify({
+              in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
+            })
+          ),
+        })
+        .promise();
 
-      const parsedSegRes = JSON.parse(segmenterRes.Payload);
       const { width, duration } = parseMetadata(metadataRes.Payload);
       const presets = getPresets(width);
 
+      // TODO :: Improve speed by making segments async self report to db
+      const segmenterRes = await lambda
+        .invoke({
+          InvocationType: 'RequestResponse',
+          FunctionName: process.env.SEGMENTER_FN_NAME,
+          Payload: Buffer.from(JSON.stringify({ videoId, filename })),
+        })
+        .promise();
+
+      const parsedSegRes = JSON.parse(segmenterRes.Payload);
       await Promise.all(
         presets.map(async ({ preset, cmd, ext }) => {
           const segments = parsedSegRes.reduce((acc, { Key }) => {
@@ -102,6 +70,38 @@ module.exports.handler = async (event) => {
             .promise();
         })
       );
+
+      await Promise.all([
+        lambda
+          .invoke({
+            InvocationType: 'Event',
+            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
+            Payload: Buffer.from(
+              JSON.stringify({
+                presets,
+                ffmpeg_cmd: `-vn -c:a libopus -f opus`,
+                out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
+              })
+            ),
+          })
+          .promise(),
+        lambda
+          .invoke({
+            InvocationType: 'Event',
+            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
+            Payload: Buffer.from(
+              JSON.stringify({
+                // -ar 44100 -b:a 128k
+                presets,
+                ffmpeg_cmd: `-vn -c:a aac`,
+                out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
+                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
+              })
+            ),
+          })
+          .promise(),
+      ]);
     }
   }
 };
