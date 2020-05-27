@@ -63,6 +63,7 @@ module.exports.handler = async (event) => {
                 preset,
                 duration,
                 segments,
+                audio: {},
                 id: videoId,
                 status: 'segmented',
               },

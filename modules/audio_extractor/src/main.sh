@@ -14,17 +14,19 @@ function handler () {
   BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
   echo "BUCKET: ${BUCKET}"
 
-  VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f4)"
+  VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
   echo "VIDEO_ID: ${VIDEO_ID}"
 
   FILENAME=$(basename -- "$OUT_PATH")
   EXT="${FILENAME##*.}"
+  echo "FILENAME: ${FILENAME}"
+  echo "EXT: ${EXT}"
   
   LOCAL_OUT_PATH="/tmp/out.${EXT}"
   SIGNED_VIDEO_URL=$(aws s3 presign $IN_PATH)
 
   echo "in: $IN_PATH | out: $OUT_PATH"
-  /opt/ffmpeg/ffmpeg -i "$SIGNED_VIDEO_URL" $FFMPEG_CMD $LOCAL_OUT_PATH
+  /opt/ffmpeg/ffmpeg -hide_banner -loglevel panic -i "$SIGNED_VIDEO_URL" $FFMPEG_CMD $LOCAL_OUT_PATH
   aws s3 cp $LOCAL_OUT_PATH $OUT_PATH
   rm -f $LOCAL_OUT_PATH
   echo "audio extraction completed"
@@ -35,7 +37,7 @@ function handler () {
     }
 
     PRESET=$(_jq '.preset')
-    echo "Updating $PRESET with audio path"
+    echo "Updating $VIDEO_ID $PRESET with audio path"
     aws dynamodb update-item \
       --table-name tidal-dev \
       --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET\"'}}' \
