@@ -26,28 +26,27 @@ module.exports.handler = async ({ Records }) => {
         console.log('no segments transcoded, no segments transcoding');
         console.log('unmarshalled', item);
         await enqueue(item);
-      } else if (
-        transcoded &&
-        !transcoding &&
-        item.audio &&
-        Object.keys(item.audio) >= 2 // ogg and aac audio should have reported in by now
-      ) {
-        // All segments are done, concatinate the video
-        console.log('all segments are transcoded, invoking concatinator');
+      } else if (transcoded && !transcoding) {
+        console.log(
+          'audio check',
+          item.audio && Object.keys(item.audio).length >= 2
+        );
+        // ogg and aac audio should have reported in by now
 
-        // if the video is small enough, concat it on lambda for faster speed
-        // if the video is too large for lambda, concatinate it on fargate (~60 seconds to boot)
+        if (item.audio && Object.keys(item.audio) >= 2) {
+          // All segments are done, concatinate the video
+          console.log('all segments are transcoded, invoking concatinator');
 
-        await sqs
-          .sendMessage({
-            MessageBody: JSON.stringify({
-              duration: item.duration,
-              in_path: `s3://${process.env.TIDAL_BUCKET}/segments/transcoded/${item.id}/${item.preset}/`,
-              out_path: `s3://${process.env.TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.${item.ext}`,
-            }),
-            QueueUrl: process.env.TIDAL_CONCAT_QUEUE_URL,
-          })
-          .promise();
+          await sqs
+            .sendMessage({
+              MessageBody: JSON.stringify({
+                in_path: `s3://${process.env.TIDAL_BUCKET}/segments/transcoded/${item.id}/${item.preset}/`,
+                out_path: `s3://${process.env.TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.${item.ext}`,
+              }),
+              QueueUrl: process.env.TIDAL_CONCAT_QUEUE_URL,
+            })
+            .promise();
+        }
       }
     }
   }
