@@ -2,6 +2,34 @@ resource "aws_s3_bucket" "tidal" {
   acl    = "private"
   bucket = local.bucket_name
 
+  policy = <<POLICY
+{
+  "Id": "Policy1397632521960",
+  "Statement": [
+    {
+      "Action": ["s3:GetObject"],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::tidal-bken-dev/segments/*",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      }
+    },
+    {
+      "Action": ["s3:GetObject"],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::tidal-bken-dev/audio/*",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      }
+    }
+  ]
+}
+POLICY
+
   cors_rule {
     max_age_seconds = 3000
     allowed_headers = ["*"]
@@ -65,19 +93,19 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
 
   queue {
     filter_prefix = "uploads/"
-    events        = [ "s3:ObjectCreated:*" ]
+    events        = ["s3:ObjectCreated:*"]
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
   }
 
-  lambda_function  {
+  lambda_function {
     filter_prefix       = "transcoded/"
-    events              = [ "s3:ObjectCreated:*" ]
+    events              = ["s3:ObjectCreated:*"]
     lambda_function_arn = var.transcode_egress_function_arn
   }
 
-  lambda_function  {
+  lambda_function {
     filter_prefix       = "segments/source"
-    events              = [ "s3:ObjectCreated:*" ]
+    events              = ["s3:ObjectCreated:*"]
     lambda_function_arn = var.source_segment_enqueue_function_arn
   }
 }
