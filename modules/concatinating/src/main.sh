@@ -5,12 +5,15 @@ function handler () {
   IN_PATH="$(echo $SQS_BODY | jq -r '.in_path')"
   OUT_PATH="$(echo $SQS_BODY | jq -r '.out_path')"
 
-  # If the transcoded segments are larger than 400mb, we ask fargate to concat
-  # else we concat locally on lambda
+  LAMBDA_SIZE_LIMIT="419430400"
+  TOTAL_SEGMENT_SIZE=$(aws s3 ls $IN_PATH --recursive --summarize | grep "Total Size: " | cut -d':' -f2 | xargs)
 
-  ./concat.sh $IN_PATH $OUT_PATH
-
-  # echo "invoking concatination server"
-  # curl -X GET "http://172.31.33.233:4000/concat?in_path=${IN_PATH}&out_path=${OUT_PATH}"
-  # echo "concatination completed"
+  if (( $TOTAL_SEGMENT_SIZE > $LAMBDA_SIZE_LIMIT )); then
+    ./concat.sh $IN_PATH $OUT_PATH
+  else
+    echo "segments were larger than 400mb"
+    echo "invoking concatination server"
+    curl -X GET "http://172.31.33.233:4000/concat?in_path=${IN_PATH}&out_path=${OUT_PATH}"
+    echo "concatination completed"
+  fi
 }
