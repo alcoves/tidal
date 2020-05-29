@@ -6,7 +6,7 @@ data "archive_file" "tidal_audio_extractor_zip" {
 
 resource "aws_lambda_function" "tidal_audio_extractor" {
   timeout          = 900
-  memory_size      = 3008
+  memory_size      = 1664
   runtime          = "provided"
   function_name    = local.function_name
   handler          = "main.handler"
