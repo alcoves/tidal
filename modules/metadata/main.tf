@@ -5,7 +5,7 @@ data "archive_file" "tidal_metadata_zip" {
 }
 
 resource "aws_lambda_function" "tidal_metadata" {
-  memory_size      = 3008
+  memory_size      = 1664
   runtime          = "provided"
   handler          = "main.handler"
   timeout          = var.lambda_timeout

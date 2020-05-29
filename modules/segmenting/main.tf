@@ -6,7 +6,7 @@ data "archive_file" "tidal_segmenter_zip" {
 
 resource "aws_lambda_function" "tidal_segmenter" {
   timeout          = 900
-  memory_size      = 3008
+  memory_size      = 1664
   runtime          = "nodejs12.x"
   handler          = "index.handler"
   function_name    = local.function_name
