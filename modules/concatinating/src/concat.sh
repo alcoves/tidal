@@ -1,7 +1,8 @@
 #!/bin/bash
-set -eux
+set -e
 
-FFMPEG="$(which ffmpeg)"
+# FFMPEG="ffmpeg"
+FFMPEG="/opt/ffmpeg/ffmpeg"
 TMP_DIR="/tmp"
 WORKDIR="${TMP_DIR}/tidal"
 mkdir -p $WORKDIR
@@ -32,38 +33,36 @@ echo "list segments"
 SEGMENTS=$(aws s3 ls $IN_PATH --recursive | awk '{print $4}')
 echo "SEGMENTS: $SEGMENTS"
 
-# TODO :: Generating links here is slow.
 for SEGMENT in $SEGMENTS; do
-  echo "file '$(aws s3 presign s3://${BUCKET}/${SEGMENT})'" >> ${WORKDIR}/links/$(echo $SEGMENT | cut -d'/' -f5) &
+  echo "file 'https://${BUCKET}.s3.amazonaws.com/${SEGMENT}'" >> ${WORKDIR}/links/$(echo $SEGMENT | cut -d'/' -f5)
 done
-wait
 
 for LINK in $(ls ${WORKDIR}/links); do
   cat ${WORKDIR}/links/$LINK >> ${WORKDIR}/manifest.txt
 done
 
 if [ "$FILE_EXT" = "webm" ]; then
-  echo "creating signed audio url"
-  SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.ogg)
+  AUDIO_URL="https://${BUCKET}.s3.amazonaws.com/audio/${VIDEO_ID}/source.ogg"
 else
-  echo "creating signed audio url"
-  SIGNED_AUDIO_URL=$(aws s3 presign s3://${BUCKET}/audio/${VIDEO_ID}/source.aac)
+  AUDIO_URL="https://${BUCKET}.s3.amazonaws.com/audio/${VIDEO_ID}/source.aac"
 fi
 
+echo "AUDIO_URL: $AUDIO_URL"
+
 echo "concatinating started"
-$FFMPEG -f concat -safe 0 \
+$FFMPEG -hide_banner -loglevel panic -f concat -safe 0 \
   -protocol_whitelist "file,http,https,tcp,tls" \
   -i ${WORKDIR}/manifest.txt \
   -c copy \
   -f matroska - | \
-  $FFMPEG \
-  -i - -i "$SIGNED_AUDIO_URL" \
+  $FFMPEG -hide_banner -loglevel panic \
+  -i - -i "$AUDIO_URL" \
   -c copy \
   -movflags faststart \
   ${WORKDIR}/out.${FILE_EXT}
 
 echo "uploading video to s3"
-aws s3 cp ${WORKDIR}/out.${FILE_EXT} $OUT_PATH
+aws s3 mv ${WORKDIR}/out.${FILE_EXT} $OUT_PATH --quiet
 
 rm -rf $WORKDIR
 echo "concatinating completed"
