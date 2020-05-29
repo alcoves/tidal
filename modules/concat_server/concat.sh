@@ -50,13 +50,13 @@ aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/${AUDIO_FILENAME} ${TMP_DIR}/${AUDIO_
 echo "concatinating segments"
 ffmpeg -hide_banner -loglevel panic -f concat -safe 0 \
   -i ${TMP_DIR}/manifest.txt \
-  -c:v copy \
+  -c copy \
   ${TMP_DIR}/premux.mkv
 
 echo "remuxing with audio"
 ffmpeg -hide_banner -loglevel panic -i $TMP_DIR/premux.mkv \
   -i ${TMP_DIR}/${AUDIO_FILENAME} \
-  -c:v copy \
+  -c copy \
   -movflags faststart \
   $LOCAL_VIDEO_PATH
 
