@@ -5,7 +5,7 @@ data "archive_file" "tidal_concatinating_zip" {
 }
 
 resource "aws_lambda_function" "tidal_concatinating" {
-  memory_size      = 256
+  memory_size      = 3008
   runtime          = "provided"
   timeout          = var.lambda_timeout
   function_name    = local.function_name
