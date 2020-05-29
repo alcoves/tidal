@@ -6,9 +6,13 @@ function handler () {
   OUT_PATH="$(echo $SQS_BODY | jq -r '.out_path')"
 
   LAMBDA_SIZE_LIMIT="419430400"
-  TOTAL_SEGMENT_SIZE=$(aws s3 ls $IN_PATH --recursive --summarize | grep "Total Size: " | cut -d':' -f2 | xargs)
+  TOTAL_SEGMENT_SIZE="$(aws s3 ls $IN_PATH --recursive --summarize | grep "Total Size: " | cut -d':' -f2 | xargs)"
 
-  if (( $TOTAL_SEGMENT_SIZE > $LAMBDA_SIZE_LIMIT )); then
+  echo "LAMBDA_SIZE_LIMIT: $LAMBDA_SIZE_LIMIT"
+  echo "TOTAL_SEGMENT_SIZE: $TOTAL_SEGMENT_SIZE"
+
+  if (( $TOTAL_SEGMENT_SIZE < $LAMBDA_SIZE_LIMIT )); then
+    echo "Video is getting concatinated on Lambda"
     ./concat.sh $IN_PATH $OUT_PATH
   else
     echo "segments were larger than 400mb"
