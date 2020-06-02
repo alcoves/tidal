@@ -27,9 +27,11 @@ function handler () {
   if [[ "$BUCKET" == *"prod"* ]]; then
     echo "using prod wasabi bucket"
     WASABI_BUCKET="cdn.bken.io"
+    WASABI_HTTP_CDN="cdn.bken.io"
   else
     echo "using dev wasabi bucket"
     WASABI_BUCKET="dev-cdn.bken.io"
+    WASABI_HTTP_CDN="dev-cdn.bken.io"
   fi
   
   echo "copying to wasabi"
@@ -37,11 +39,14 @@ function handler () {
   aws s3 cp - s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${FILENAME} \
   --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
 
+  LINK="https://${WASABI_HTTP_CDN}/v/${VIDEO_ID}/${FILENAME}"
+  echo "LINK: $LINK"
+
   echo "updating tidal database with status"
   aws dynamodb update-item \
     --table-name tidal-dev \
     --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET\"'}}' \
-    --update-expression 'SET #status = :status' \
-    --expression-attribute-names '{"#status":'\"status\"'}' \
-    --expression-attribute-values '{":status":{"S":"completed"}}'
+    --update-expression 'SET #status = :status, #link = :link' \
+    --expression-attribute-names '{"#status":'\"status\"',"#link":'\"link\"'}' \
+    --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
 }
