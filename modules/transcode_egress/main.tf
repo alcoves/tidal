@@ -4,12 +4,12 @@ data "archive_file" "transcode_egress_zip" {
   output_path = local.archive_output_path
 }
 
-data "aws_secretsmanager_secret_version" "wasabi_access_key_id" {
-  secret_id = "wasabi_access_key_id"
+data "aws_ssm_parameter" "wasabi_access_key_id" {
+  name = "wasabi_access_key_id"
 }
 
-data "aws_secretsmanager_secret_version" "wasabi_secret_access_key" {
-  secret_id = "wasabi_secret_access_key"
+data "aws_ssm_parameter" "wasabi_secret_access_key" {
+  name = "wasabi_secret_access_key"
 }
 
 resource "aws_lambda_function" "transcode_egress" {
@@ -26,8 +26,8 @@ resource "aws_lambda_function" "transcode_egress" {
   // Caution! Terraform plan/applys can leak the keys 
   environment {
     variables = {
-      WASABI_ACCESS_KEY_ID     = data.aws_secretsmanager_secret_version.wasabi_access_key_id.secret_string
-      WASABI_SECRET_ACCESS_KEY = data.aws_secretsmanager_secret_version.wasabi_secret_access_key.secret_string
+      WASABI_ACCESS_KEY_ID     = data.aws_ssm_parameter.wasabi_access_key_id.value
+      WASABI_SECRET_ACCESS_KEY = data.aws_ssm_parameter.wasabi_secret_access_key.value
     }
   }
 
