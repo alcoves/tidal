@@ -39,10 +39,3 @@ data "aws_subnet" "sub5" {
     values = ["bken1_sub5"]
   }
 }
-
-data "aws_subnet" "sub6" {
-  filter {
-    name   = "tag:Name"
-    values = ["bken1_sub6"]
-  }
-}
