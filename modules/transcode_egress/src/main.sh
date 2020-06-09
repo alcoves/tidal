@@ -12,6 +12,9 @@ function handler () {
   FILENAME=$(basename -- "$FULL_FILENAME")
   EXT="${FILENAME##*.}"
   PRESET="${FILENAME%.*}"
+
+  WASABI_ACCESS_KEY_ID=$(aws ssm get-parameter --name "wasabi_access_key_id" --with-decryption --query 'Parameter.Value' --output text)
+  WASABI_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "wasabi_secret_access_key" --with-decryption --query 'Parameter.Value' --output text)
     
   echo "KEY: $KEY"
   echo "EXT: $EXT"
