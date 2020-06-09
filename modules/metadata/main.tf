@@ -32,7 +32,6 @@ resource "aws_lambda_function" "tidal_metadata" {
       "subnet-00bcc265",
       "subnet-11635158",
       "subnet-2c4a0701",
-      "subnet-9446c4a8",
       "subnet-c7275c9c",
       "subnet-fd3a56f1",
     ]
