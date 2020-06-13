@@ -10,10 +10,6 @@ variable "concatinating_queue_arn" {
   type = string
 }
 
-variable "transcode_egress_function_arn" {
-  type = string
-}
-
 variable "source_segment_enqueue_function_arn" {
   type = string
 }
