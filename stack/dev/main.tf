@@ -61,6 +61,11 @@ module "transcode_egress" {
   source = "../../modules/transcode_egress"
 }
 
+module "thumbnailer" {
+  env    = var.env
+  source = "../../modules/thumbnailer"
+}
+
 module "core" {
   env                                 = var.env
   namespace                           = "bken"
@@ -84,6 +89,7 @@ module "uploading" {
   metadata_fn_name        = module.metadata.fn_name
   source                  = "../../modules/uploading"
   segmenter_fn_name       = module.segmenting.fn_name
+  thumbnailer_fn_name     = module.thumbnailer.fn_name
   uploads_queue_arn       = module.core.uploads_queue_arn
   audio_extractor_fn_name = module.audio_extractor.fn_name
 }

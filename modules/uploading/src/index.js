@@ -65,6 +65,17 @@ module.exports.handler = async (event) => {
             Payload: Buffer.from(JSON.stringify({ videoId, filename })),
           })
           .promise(),
+        await lambda
+          .invoke({
+            InvocationType: 'Event',
+            FunctionName: process.env.THUMBNAILER_FN_NAME,
+            Payload: Buffer.from(
+              JSON.stringify({
+                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
+              })
+            ),
+          })
+          .promise(),
         lambda
           .invoke({
             InvocationType: 'Event',
