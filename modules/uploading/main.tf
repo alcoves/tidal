@@ -23,6 +23,7 @@ resource "aws_lambda_function" "tidal_uploading" {
     variables = {
       METADATA_FN_NAME        = var.metadata_fn_name
       SEGMENTER_FN_NAME       = var.segmenter_fn_name
+      THUMBNAILER_FN_NAME     = var.thumbnailer_fn_name
       AUDIO_EXTRACTOR_FN_NAME = var.audio_extractor_fn_name
     }
   }
