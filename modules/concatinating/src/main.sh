@@ -16,8 +16,9 @@ function handler () {
     ./concat.sh $IN_PATH $OUT_PATH
   else
     echo "segments were larger than 400mb"
-    echo "invoking concatination server"
-    curl -X GET "http://172.31.33.233:4000/concat?in_path=${IN_PATH}&out_path=${OUT_PATH}"
-    echo "concatination completed"
+    exit 1
+    # echo "invoking concatination server"
+    # curl -X GET "http://172.31.33.233:4000/concat?in_path=${IN_PATH}&out_path=${OUT_PATH}"
+    # echo "concatination completed"
   fi
 }

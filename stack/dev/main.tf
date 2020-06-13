@@ -56,11 +56,6 @@ module "concatinating" {
   source = "../../modules/concatinating"
 }
 
-module "transcode_egress" {
-  env    = var.env
-  source = "../../modules/transcode_egress"
-}
-
 module "thumbnailer" {
   env    = var.env
   source = "../../modules/thumbnailer"
