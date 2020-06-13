@@ -1,3 +1,3 @@
 FROM alpine:edge
 
-RUN apk add --no-cache ffmpeg bash aws-cli
+RUN apk add --no-cache ffmpeg
