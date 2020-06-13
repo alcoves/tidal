@@ -69,22 +69,6 @@ POLICY
       days = 2
     }
   }
-
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 30
-    enabled                                = true
-    prefix                                 = "transcoded/"
-    id                                     = "ExpireTranscoded"
-
-    expiration {
-      days                         = 30
-      expired_object_delete_marker = false
-    }
-
-    noncurrent_version_expiration {
-      days = 2
-    }
-  }
 }
 
 resource "aws_lambda_permission" "allow_source_segment_enqueue_s3_events" {

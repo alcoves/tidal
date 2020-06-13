@@ -60,9 +60,35 @@ $FFMPEG -hide_banner -loglevel panic -f concat -safe 0 \
   -c copy \
   -movflags faststart \
   ${WORKDIR}/out.${FILE_EXT}
+  
+echo "setting up wasabi client"
+WASABI_ACCESS_KEY_ID=$(aws ssm get-parameter --name "wasabi_access_key_id" --with-decryption --query 'Parameter.Value' --output text)
+WASABI_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "wasabi_secret_access_key" --with-decryption --query 'Parameter.Value' --output text)
+aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
+aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
 
-echo "uploading video to s3"
-aws s3 mv ${WORKDIR}/out.${FILE_EXT} $OUT_PATH --quiet
+if [[ "$BUCKET" == *"prod"* ]]; then
+  echo "using prod wasabi bucket"
+  WASABI_BUCKET="cdn.bken.io"
+else
+  echo "using dev wasabi bucket"
+  WASABI_BUCKET="dev-cdn.bken.io"
+fi
+
+echo "uploading video to cdn"
+aws s3 mv ${WORKDIR}/out.${FILE_EXT} s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT} \
+--endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$FILE_EXT" --quiet
+
+LINK="https://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT}"
+echo "LINK: $LINK"
+
+echo "updating tidal database with status"
+aws dynamodb update-item \
+  --table-name tidal-dev \
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET\"'}}' \
+  --update-expression 'SET #status = :status, #link = :link' \
+  --expression-attribute-names '{"#status":'\"status\"',"#link":'\"link\"'}' \
+  --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
 
 rm -rf $WORKDIR
 echo "concatinating completed"
