@@ -66,7 +66,6 @@ module "core" {
   namespace                           = "bken"
   source                              = "../../modules/core"
   concatinating_queue_arn             = module.concatinating.queue_arn
-  transcode_egress_function_arn       = module.transcode_egress.function_arn
   source_segment_enqueue_function_arn = module.source_segment_enqueue.function_arn
 }
 
