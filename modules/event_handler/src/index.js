@@ -23,7 +23,7 @@ module.exports.handler = async ({ Records }) => {
         await sqs
           .sendMessage({
             MessageBody: JSON.stringify({
-              in_path: `s3://${TIDAL_BUCKET}/segments/transcoded/${item.id}/${item.preset}/`,
+              in_path: `/mnt/tidal/segments/transcoded/${item.id}/${item.preset}/`,
               out_path: `s3://${TIDAL_BUCKET}/transcoded/${item.id}/${item.preset}.${item.ext}`,
             }),
             QueueUrl: TIDAL_CONCAT_QUEUE_URL,

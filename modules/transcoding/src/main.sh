@@ -17,14 +17,16 @@ function handler () {
   PRESET_NAME="$(echo $OUT_PATH | cut -d'/' -f7)"
   SEGMENT_NAME="$(echo $OUT_PATH | cut -d'/' -f8)"
 
+  echo "make sure directory exists"
+  mkdir -p /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}
+
   echo "VIDEO_ID: ${VIDEO_ID}"
   echo "PRESET_NAME: ${PRESET_NAME}"
   echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
   echo "transcoding started"
   SIGNED_IN_URL=$(aws s3 presign $IN_PATH)
-  /opt/ffmpeg/ffmpeg -i "$SIGNED_IN_URL" $FFMPEG_COMMAND /tmp/out.mkv
-  aws s3 cp /tmp/out.mkv $OUT_PATH
+  /opt/ffmpeg/ffmpeg -i "$SIGNED_IN_URL" $FFMPEG_COMMAND $OUT_PATH
 
   echo "updating tidal database with status"
   aws dynamodb update-item \
@@ -34,6 +36,5 @@ function handler () {
     --expression-attribute-names '{"#segName":'\"$SEGMENT_NAME\"',"#segments":"segments"}' \
     --expression-attribute-values '{":status":{"BOOL":true}}'
   
-  rm -f /tmp/out.mkv
   echo "transcoding completed"
 }

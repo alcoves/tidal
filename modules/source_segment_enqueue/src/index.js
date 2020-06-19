@@ -30,7 +30,7 @@ module.exports.handler = async function (event) {
           MessageBody: JSON.stringify({
             ffmpeg_cmd: cmd,
             in_path: `s3://${TIDAL_BUCKET}/segments/source/${id}/${segmentName}`,
-            out_path: `s3://${TIDAL_BUCKET}/segments/transcoded/${id}/${preset}/${segmentName}`,
+            out_path: `/mnt/tidal/segments/transcoded/${id}/${preset}/${segmentName}`,
           }),
         });
       });
