@@ -19,7 +19,7 @@ function handler () {
 
   echo "make sure directory exists"
   [[ -d /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME} ]] \
-    || mkdir /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}
+    || mkdir -p /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}
 
   echo "VIDEO_ID: ${VIDEO_ID}"
   echo "PRESET_NAME: ${PRESET_NAME}"
