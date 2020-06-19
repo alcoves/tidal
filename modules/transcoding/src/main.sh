@@ -27,7 +27,7 @@ function handler () {
 
   echo "transcoding started"
   SIGNED_IN_URL=$(aws s3 presign $IN_PATH)
-  /opt/ffmpeg/ffmpeg -i "$SIGNED_IN_URL" $FFMPEG_COMMAND $OUT_PATH
+  /opt/ffmpeg/ffmpeg -y -i "$SIGNED_IN_URL" $FFMPEG_COMMAND $OUT_PATH
 
   echo "updating tidal database with status"
   aws dynamodb update-item \
