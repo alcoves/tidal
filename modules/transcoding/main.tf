@@ -19,6 +19,11 @@ resource "aws_lambda_function" "tidal_transcoding" {
     mode = "Active"
   }
 
+  file_system_config {
+    local_mount_path = "/mnt/tidal"
+    arn              = "arn:aws:elasticfilesystem:us-east-1:594206825329:access-point/fsap-0706d9a480f02472d"
+  }
+
   layers = [
     "arn:aws:lambda:us-east-1:744348701589:layer:bash:8",
     "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5"
