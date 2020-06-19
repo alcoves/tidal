@@ -18,7 +18,8 @@ function handler () {
   SEGMENT_NAME="$(echo $OUT_PATH | cut -d'/' -f8)"
 
   echo "make sure directory exists"
-  mkdir -p /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}
+  [[ -d /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME} ]] \
+    || mkdir /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}
 
   echo "VIDEO_ID: ${VIDEO_ID}"
   echo "PRESET_NAME: ${PRESET_NAME}"
