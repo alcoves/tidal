@@ -48,7 +48,7 @@ else
 fi
 
 echo "AUDIO_URL: $AUDIO_URL"
-EFS_STORE_PATH="${TMP_DIR}/${VIDEO_ID}-${PRESET_NAME}.${FILE_EXT}"
+VIDEO_STORE_PATH="${TMP_DIR}/${VIDEO_ID}-${PRESET_NAME}.${FILE_EXT}"
 S3_STORE_PATH="s3://${BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT}"
 
 echo "concatinating started"
@@ -61,12 +61,11 @@ $FFMPEG -hide_banner -loglevel panic -f concat -safe 0 \
   -i - -i "$AUDIO_URL" \
   -c copy \
   -movflags faststart \
-  ${EFS_STORE_PATH}
+  ${VIDEO_STORE_PATH}
   
-echo "ls"
-ls /mnt/tidal
-aws s3 mv $EFS_STORE_PATH $S3_STORE_PATH --quiet
+echo "moving video from efs to s3"
+aws s3 mv $VIDEO_STORE_PATH $S3_STORE_PATH --quiet
 
 rm -rf $WORKDIR
-rm -rf $EFS_STORE_PATH
+rm -rf $VIDEO_STORE_PATH
 echo "concatinating completed"
