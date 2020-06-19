@@ -20,7 +20,7 @@ module.exports = (width) => {
 
   if (width >= 1920) {
     selectedPresets.push(addPreset('libx264-1080p'));
-    // selectedPresets.push(addPreset('libvpx_vp9-1080p'));
+    selectedPresets.push(addPreset('libvpx_vp9-1080p'));
   }
 
   if (width >= 2560) {
