@@ -61,11 +61,17 @@ module "thumbnailer" {
   source = "../../modules/thumbnailer"
 }
 
+module "cdn_egress" {
+  env    = var.env
+  source = "../../modules/cdn_egress"
+}
+
 module "core" {
   env                                 = var.env
   namespace                           = "bken"
   source                              = "../../modules/core"
   concatinating_queue_arn             = module.concatinating.queue_arn
+  cdn_egress_function_arn             = module.cdn_egress.function_arn
   source_segment_enqueue_function_arn = module.source_segment_enqueue.function_arn
 }
 

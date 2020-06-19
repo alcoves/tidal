@@ -13,12 +13,9 @@ function handler () {
 
   if (( $TOTAL_SEGMENT_SIZE < $LAMBDA_SIZE_LIMIT )); then
     echo "Video is getting concatinated on Lambda"
-    ./concat.sh $IN_PATH $OUT_PATH
+    ./concat.sh $IN_PATH $OUT_PATH /tmp
   else
     echo "segments were larger than 400mb"
-    exit 1
-    # echo "invoking concatination server"
-    # curl -X GET "http://172.31.33.233:4000/concat?in_path=${IN_PATH}&out_path=${OUT_PATH}"
-    # echo "concatination completed"
+    ./concat.sh $IN_PATH $OUT_PATH /mnt/tidal
   fi
 }

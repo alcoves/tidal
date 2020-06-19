@@ -1,34 +1,7 @@
 resource "aws_s3_bucket" "tidal" {
   acl    = "private"
   bucket = local.bucket_name
-
-  policy = <<POLICY
-{
-  "Id": "Policy1397632521960",
-  "Statement": [
-    {
-      "Action": ["s3:GetObject"],
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::tidal-bken-dev/segments/*",
-      "Principal": {
-        "AWS": [
-          "*"
-        ]
-      }
-    },
-    {
-      "Action": ["s3:GetObject"],
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::tidal-bken-dev/audio/*",
-      "Principal": {
-        "AWS": [
-          "*"
-        ]
-      }
-    }
-  ]
-}
-POLICY
+  policy = data.aws_iam_policy_document.tidal_bucket_policy.json
 
   cors_rule {
     max_age_seconds = 3000
@@ -71,6 +44,26 @@ POLICY
   }
 }
 
+data "aws_iam_policy_document" "tidal_bucket_policy" {
+  statement {
+    actions   = [ "s3:GetObject"]
+    resources = ["arn:aws:s3:::tidal-bken-dev/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+}
+
+resource "aws_lambda_permission" "allow_cdn_egress_s3_events" {
+  principal     = "s3.amazonaws.com"
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  source_arn    = aws_s3_bucket.tidal.arn
+  function_name = var.cdn_egress_function_arn
+}
+
 resource "aws_lambda_permission" "allow_source_segment_enqueue_s3_events" {
   principal     = "s3.amazonaws.com"
   statement_id  = "AllowExecutionFromS3"
@@ -87,6 +80,12 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     filter_prefix = "uploads/"
     events        = ["s3:ObjectCreated:*"]
     queue_arn     = aws_sqs_queue.tidal_uploads.arn
+  }
+
+  lambda_function {
+    filter_prefix       = "v/"
+    events              = ["s3:ObjectCreated:*"]
+    lambda_function_arn = var.cdn_egress_function_arn
   }
 
   lambda_function {

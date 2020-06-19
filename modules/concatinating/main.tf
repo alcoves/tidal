@@ -24,18 +24,17 @@ resource "aws_lambda_function" "tidal_concatinating" {
     "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5"
   ]
 
-  # vpc_config {
-  #   security_group_ids = [
-  #     "sg-665de11a",
-  #   ]
-  #   subnet_ids = [
-  #     "subnet-00bcc265",
-  #     "subnet-11635158",
-  #     "subnet-2c4a0701",
-  #     "subnet-c7275c9c",
-  #     "subnet-fd3a56f1",
-  #   ]
-  # }
+  vpc_config {
+    security_group_ids = [ "sg-665de11a" ]
+    subnet_ids = [
+      "subnet-00bcc265",
+      "subnet-11635158",
+      "subnet-2c4a0701",
+      "subnet-c7275c9c",
+      "subnet-fd3a56f1",
+      "subnet-03610098622e74ca2"
+    ]
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "tidal_concatinating" {
