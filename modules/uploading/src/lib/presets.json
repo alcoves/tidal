@@ -3,7 +3,7 @@
     "preset": "libvpx_vp9-2160p",
     "ext": "webm",
     "cmd": [
-      "-speed 0",
+      "-speed 2",
       "-deadline good",
       "-b:v 0",
       "-crf 40",
@@ -30,7 +30,7 @@
     "preset": "libvpx_vp9-1440p",
     "ext": "webm",
     "cmd": [
-      "-speed 0",
+      "-speed 2",
       "-deadline good",
       "-b:v 0",
       "-crf 40",
@@ -57,7 +57,7 @@
     "preset": "libvpx_vp9-1080p",
     "ext": "webm",
     "cmd": [
-      "-speed 0",
+      "-speed 2",
       "-deadline good",
       "-b:v 0",
       "-crf 40",
@@ -77,16 +77,14 @@
       "-crf 23",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2",
-      "-maxrate 9M",
-      "-bufsize 18M"
+      "-bf 2"
     ]
   },
   "libvpx_vp9-720p": {
     "preset": "libvpx_vp9-720p",
     "ext": "webm",
     "cmd": [
-      "-speed 0",
+      "-speed 2",
       "-deadline good",
       "-b:v 0",
       "-crf 40",
@@ -113,7 +111,7 @@
     "preset": "libvpx_vp9-480p",
     "ext": "webm",
     "cmd": [
-      "-speed 0",
+      "-speed 2",
       "-deadline good",
       "-b:v 0",
       "-crf 40",
