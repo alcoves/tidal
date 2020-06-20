@@ -41,6 +41,9 @@ function handler () {
   aws s3 cp s3://$BUCKET/$KEY - | \
   aws s3 cp - s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${FILENAME} \
   --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
+  
+  echo "removing file from s3"
+  aws s3 rm s3://$BUCKET/$KEY
 
   LINK="https://${WASABI_HTTP_CDN}/v/${VIDEO_ID}/${FILENAME}"
   echo "LINK: $LINK"
