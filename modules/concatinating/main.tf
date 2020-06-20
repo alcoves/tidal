@@ -30,14 +30,11 @@ resource "aws_lambda_function" "tidal_concatinating" {
   ]
 
   vpc_config {
-    security_group_ids = [ "sg-665de11a" ]
+    security_group_ids = [
+      "sg-665de11a",
+    ]
     subnet_ids = [
-      "subnet-00bcc265",
-      "subnet-11635158",
-      "subnet-2c4a0701",
       "subnet-c7275c9c",
-      "subnet-fd3a56f1",
-      "subnet-03610098622e74ca2"
     ]
   }
 }
