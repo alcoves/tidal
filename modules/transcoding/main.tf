@@ -34,11 +34,7 @@ resource "aws_lambda_function" "tidal_transcoding" {
       "sg-665de11a",
     ]
     subnet_ids = [
-      "subnet-00bcc265",
-      "subnet-11635158",
-      "subnet-2c4a0701",
       "subnet-c7275c9c",
-      "subnet-fd3a56f1",
     ]
   }
 }
