@@ -44,13 +44,12 @@ S3_STORE_PATH="s3://tidal-bken-dev/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT}"
 
 echo "concatinating started"
 # -hide_banner -loglevel panic
-$FFMPEG -f concat -safe 0 \
-  -protocol_whitelist "file,http,https,tcp,tls" \
+$FFMPEG -y -f concat -safe 0 \
   -i ${WORKDIR}/manifest.txt \
   -c copy \
   -f matroska - | \
   $FFMPEG \
-  -i - -i "$AUDIO_URL" \
+  -y -i - -i "$AUDIO_URL" \
   -c copy \
   -movflags faststart \
   ${VIDEO_STORE_PATH}
