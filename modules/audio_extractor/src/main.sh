@@ -10,7 +10,7 @@ function handler () {
   VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
   echo "VIDEO_ID: ${VIDEO_ID}"
     
-  rm -rf /mnt/tidal/audio/$VIDEO_ID
+  echo "creating audio directory"
   mkdir -p /mnt/tidal/audio/$VIDEO_ID
 
   FILENAME=$(basename -- "$OUT_PATH")
