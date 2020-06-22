@@ -3,9 +3,9 @@
     "preset": "libvpx_vp9-2160p",
     "ext": "webm",
     "cmd": [
-      "-speed 1",
-      "-b:v 3000",
-      "-crf 38",
+      "-speed 5",
+      "-b:v 0",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=3840:-2"
@@ -29,10 +29,10 @@
     "preset": "libvpx_vp9-1440p",
     "ext": "webm",
     "cmd": [
-      "-speed 1",
+      "-speed 5",
       "-quality good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=2360:-2"
@@ -56,10 +56,10 @@
     "preset": "libvpx_vp9-1080p",
     "ext": "webm",
     "cmd": [
-      "-speed 1",
+      "-speed 5",
       "-quality good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=1920:-2"
@@ -83,10 +83,10 @@
     "preset": "libvpx_vp9-720p",
     "ext": "webm",
     "cmd": [
-      "-speed 1",
+      "-speed 5",
       "-quality good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf scale=1280:-2"
@@ -110,10 +110,10 @@
     "preset": "libvpx_vp9-480p",
     "ext": "webm",
     "cmd": [
-      "-speed 1",
+      "-speed 5",
       "-quality good",
       "-b:v 0",
-      "-crf 38",
+      "-crf 40",
       "-c:v libvpx-vp9",
       "-pix_fmt yuv420p",
       "-vf fps=fps=30,scale=834:-2"
