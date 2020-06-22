@@ -84,7 +84,7 @@ module.exports.handler = async (event) => {
               JSON.stringify({
                 presets,
                 ffmpeg_cmd: `-vn -c:a libopus -f opus`,
-                out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+                out_path: `/mnt/tidal/audio/${videoId}/source.ogg`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
               })
             ),
@@ -96,7 +96,6 @@ module.exports.handler = async (event) => {
             FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
             Payload: Buffer.from(
               JSON.stringify({
-                // -ar 44100 -b:a 128k
                 presets,
                 ffmpeg_cmd: `-vn -c:a aac`,
                 out_path: `/mnt/tidal/audio/${videoId}/source.aac`,
