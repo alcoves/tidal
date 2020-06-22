@@ -17,9 +17,12 @@ function handler () {
   EXT="${FILENAME##*.}"
   echo "FILENAME: ${FILENAME}"
   echo "EXT: ${EXT}"
+  
+  SOURCE_URL=$(aws s3 presign $IN_PATH)
 
   echo "in: $IN_PATH | out: $OUT_PATH"
-  /opt/ffmpeg/ffmpeg -y -hide_banner -loglevel panic -i $IN_PATH $FFMPEG_CMD $OUT_PATH
+  # -hide_banner -loglevel panic
+  /opt/ffmpeg/ffmpeg -y -i "$SOURCE_URL" $FFMPEG_CMD $OUT_PATH
   echo "audio extraction completed"
 
   for row in $(echo "${PRESETS}" | jq -r '.[] | @base64'); do
