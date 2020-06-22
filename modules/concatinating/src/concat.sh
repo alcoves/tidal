@@ -33,12 +33,12 @@ for SEGMENT in $SEGMENTS; do
 done
 
 if [ "$FILE_EXT" = "webm" ]; then
-  AUDIO_URL="https://tidal-bken-dev.s3.amazonaws.com/audio/${VIDEO_ID}/source.ogg"
+  AUDIO_PATH="/mnt/tidal/audio/${VIDEO_ID}/source.ogg"
 else
-  AUDIO_URL="https://tidal-bken-dev.s3.amazonaws.com/audio/${VIDEO_ID}/source.aac"
+  AUDIO_PATH="/mnt/tidal/audio/${VIDEO_ID}/source.aac"
 fi
 
-echo "AUDIO_URL: $AUDIO_URL"
+echo "AUDIO_PATH: $AUDIO_PATH"
 VIDEO_STORE_PATH="${TMP_DIR}/${VIDEO_ID}-${PRESET_NAME}.${FILE_EXT}"
 S3_STORE_PATH="s3://tidal-bken-dev/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT}"
 
@@ -49,7 +49,7 @@ $FFMPEG -y -f concat -safe 0 \
   -c copy \
   -f matroska - | \
   $FFMPEG \
-  -y -i - -i "$AUDIO_URL" \
+  -y -i - -i $AUDIO_PATH \
   -c copy \
   -movflags faststart \
   ${VIDEO_STORE_PATH}

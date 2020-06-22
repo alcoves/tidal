@@ -99,7 +99,7 @@ module.exports.handler = async (event) => {
                 // -ar 44100 -b:a 128k
                 presets,
                 ffmpeg_cmd: `-vn -c:a aac`,
-                out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
+                out_path: `/mnt/tidal/audio/${videoId}/source.aac`,
                 in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
               })
             ),
