@@ -54,43 +54,45 @@ $FFMPEG -y -f concat -safe 0 \
   -movflags faststart \
   ${VIDEO_STORE_PATH}
 
+# #################################
+# # Fully replaces cdn_egress lambda if this works
+# echo "TESTING WASABI UPLOAD"
 
-#################################
-# Fully replaces cdn_egress lambda if this works
-echo "TESTING WASABI UPLOAD"
+# WASABI_ACCESS_KEY_ID=$(aws ssm get-parameter --name "wasabi_access_key_id" --with-decryption --query 'Parameter.Value' --output text)
+# WASABI_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "wasabi_secret_access_key" --with-decryption --query 'Parameter.Value' --output text)
 
-aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
-aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
+# aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
+# aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
 
-WASABI_BUCKET="dev-cdn.bken.io"
-WASABI_HTTP_CDN="dev-cdn.bken.io"
+# WASABI_BUCKET="dev-cdn.bken.io"
+# WASABI_HTTP_CDN="dev-cdn.bken.io"
 
-# if [[ "$BUCKET" == *"prod"* ]]; then
-#   echo "using prod wasabi bucket"
-#   WASABI_BUCKET="cdn.bken.io"
-#   WASABI_HTTP_CDN="cdn.bken.io"
-# else
-#   echo "using dev wasabi bucket"
-#   WASABI_BUCKET="dev-cdn.bken.io"
-#   WASABI_HTTP_CDN="dev-cdn.bken.io"
-# fi
+# # if [[ "$BUCKET" == *"prod"* ]]; then
+# #   echo "using prod wasabi bucket"
+# #   WASABI_BUCKET="cdn.bken.io"
+# #   WASABI_HTTP_CDN="cdn.bken.io"
+# # else
+# #   echo "using dev wasabi bucket"
+# #   WASABI_BUCKET="dev-cdn.bken.io"
+# #   WASABI_HTTP_CDN="dev-cdn.bken.io"
+# # fi
 
-echo "copying to wasabi"
-aws s3 cp $VIDEO_STORE_PATH s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT} \
---endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
+# echo "copying to wasabi"
+# aws s3 cp $VIDEO_STORE_PATH s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT} \
+# --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
 
-LINK="https://${WASABI_HTTP_CDN}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT}"
-echo "LINK: $LINK"
+# LINK="https://${WASABI_HTTP_CDN}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT}"
+# echo "LINK: $LINK"
 
-echo "updating tidal database with status"
-aws dynamodb update-item \
-  --table-name tidal-dev \
-  --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
-  --update-expression 'SET #status = :status, #link = :link' \
-  --expression-attribute-names '{"#status":'\"status\"',"#link":'\"link\"'}' \
-  --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
+# echo "updating tidal database with status"
+# aws dynamodb update-item \
+#   --table-name tidal-dev \
+#   --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
+#   --update-expression 'SET #status = :status, #link = :link' \
+#   --expression-attribute-names '{"#status":'\"status\"',"#link":'\"link\"'}' \
+#   --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
 
-#################################
+# #################################
 
 echo "moving video from efs to s3"
 aws s3 mv $VIDEO_STORE_PATH $S3_STORE_PATH --quiet
