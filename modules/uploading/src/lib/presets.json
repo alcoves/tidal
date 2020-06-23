@@ -19,7 +19,7 @@
       "-preset faster",
       "-profile:v high",
       "-vf scale=3840:-2",
-      "-crf 22",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -46,7 +46,7 @@
       "-preset faster",
       "-profile:v high",
       "-vf scale=2360:-2",
-      "-crf 22",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -73,7 +73,7 @@
       "-preset faster",
       "-profile:v high",
       "-vf scale=1920:-2",
-      "-crf 22",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -100,7 +100,7 @@
       "-preset faster",
       "-profile:v high",
       "-vf scale=1280:-2",
-      "-crf 22",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-bf 2"
@@ -127,7 +127,7 @@
       "-preset faster",
       "-profile:v high",
       "-bf 2",
-      "-crf 22",
+      "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
       "-vf fps=fps=30,scale=834:-2"
