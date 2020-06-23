@@ -21,8 +21,6 @@
       "-vf scale=3840:-2",
       "-crf 22",
       "-coder 1",
-      "-x264opts keyint=25:min-keyint=25:no-scenecut",
-      "-vsync passthrough",
       "-pix_fmt yuv420p",
       "-bf 2"
     ]
@@ -50,8 +48,6 @@
       "-vf scale=2360:-2",
       "-crf 22",
       "-coder 1",
-      "-x264opts keyint=25:min-keyint=25:no-scenecut",
-      "-vsync passthrough",
       "-pix_fmt yuv420p",
       "-bf 2"
     ]
@@ -79,8 +75,6 @@
       "-vf scale=1920:-2",
       "-crf 22",
       "-coder 1",
-      "-x264opts keyint=25:min-keyint=25:no-scenecut",
-      "-vsync passthrough",
       "-pix_fmt yuv420p",
       "-bf 2"
     ]
@@ -108,8 +102,6 @@
       "-vf scale=1280:-2",
       "-crf 22",
       "-coder 1",
-      "-x264opts keyint=25:min-keyint=25:no-scenecut",
-      "-vsync passthrough",
       "-pix_fmt yuv420p",
       "-bf 2"
     ]
@@ -137,8 +129,6 @@
       "-bf 2",
       "-crf 22",
       "-coder 1",
-      "-x264opts keyint=25:min-keyint=25:no-scenecut",
-      "-vsync passthrough",
       "-pix_fmt yuv420p",
       "-vf fps=fps=30,scale=834:-2"
     ]
