@@ -5,7 +5,7 @@ data "archive_file" "tidal_uploading_zip" {
 }
 
 resource "aws_lambda_function" "tidal_uploading" {
-  timeout          = 900
+  timeout          = 300
   memory_size      = 1024
   runtime          = "nodejs12.x"
   handler          = "index.handler"
