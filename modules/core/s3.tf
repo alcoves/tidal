@@ -79,4 +79,10 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
     events              = ["s3:ObjectCreated:*"]
     lambda_function_arn = var.s3_event_handler_function_arn
   }
+
+  lambda_function {
+    filter_prefix       = "audio"
+    events              = ["s3:ObjectCreated:*"]
+    lambda_function_arn = var.s3_event_handler_function_arn
+  }
 }
