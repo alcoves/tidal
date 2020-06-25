@@ -32,7 +32,7 @@ job "transcoding" {
 
     resources {
       cpu    = 2048
-      memory = 2048
+      memory = 4096
     }
   }
 }
