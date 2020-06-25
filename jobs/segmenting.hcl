@@ -29,9 +29,5 @@ job "segmenting" {
         "${NOMAD_META_CMD}",
       ]
     }
-
-    resources {
-      cpu = 4000
-    }
   }
 }
