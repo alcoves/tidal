@@ -56,15 +56,7 @@ data "aws_iam_policy_document" "tidal_bucket_policy" {
   }
 }
 
-resource "aws_lambda_permission" "allow_cdn_egress_s3_events" {
-  principal     = "s3.amazonaws.com"
-  statement_id  = "AllowExecutionFromS3"
-  action        = "lambda:InvokeFunction"
-  source_arn    = aws_s3_bucket.tidal.arn
-  function_name = var.cdn_egress_function_arn
-}
-
-resource "aws_lambda_permission" "allow_source_segment_enqueue_s3_events" {
+resource "aws_lambda_permission" "allow_s3_events" {
   principal     = "s3.amazonaws.com"
   statement_id  = "AllowExecutionFromS3"
   action        = "lambda:InvokeFunction"
