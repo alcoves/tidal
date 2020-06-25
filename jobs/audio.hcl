@@ -1,4 +1,4 @@
-job "transcoding" {
+job "audio" {
   type        = "batch"
   datacenters = ["dc1"]
 

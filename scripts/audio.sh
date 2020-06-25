@@ -18,7 +18,7 @@ echo "FILENAME: ${FILENAME}"
 echo "EXT: ${EXT}"
 
 echo "creating tmpfile"
-TMP_FILE=$(mktemp --sufix=$EXT)
+TMP_FILE=$(mktemp --suffix=$EXT)
 
 echo "creating signed source url"
 SOURCE_URL=$(aws s3 presign $IN_PATH)
