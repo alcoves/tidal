@@ -18,7 +18,7 @@ job "transcoding" {
       delay    = "10s"
     }
 
-    resource {
+    resources {
       cpu = 4000
     }
 
