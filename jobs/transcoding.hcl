@@ -14,8 +14,12 @@ job "transcoding" {
 
   task "transcode" {
     restart {
-      attempts = 3
+      attempts = 0
       delay    = "10s"
+    }
+
+    resources {
+      cpu = 4000
     }
 
     driver = "raw_exec"
