@@ -12,6 +12,8 @@ module.exports.handler = async (event) => {
   // console.log(JSON.stringify(event, null, 2));
 
   // Turn on workers to process video events
+  // Query what workers are doing first, then start them if they aren't
+  // Maybe sent an alert if something fails here, otherwise videos will be stuck not processing
   await ec2.startInstances({ InstanceIds: ['i-0d692bffc7eaa36ed'] }).promise();
 
   for (const { s3 } of event.Records) {
