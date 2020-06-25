@@ -14,7 +14,7 @@ job "thumbnail" {
 
   task "thumbnail" {
     restart {
-      attempts = 3
+      attempts = 1
       delay    = "10s"
     }
 

@@ -14,7 +14,7 @@ job "segmenting" {
 
   task "segmenting" {
     restart {
-      attempts = 3
+      attempts = 1
       delay    = "10s"
     }
 

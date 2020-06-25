@@ -14,7 +14,7 @@ job "audio" {
 
   task "transcode" {
     restart {
-      attempts = 3
+      attempts = 1
       delay    = "10s"
     }
 
