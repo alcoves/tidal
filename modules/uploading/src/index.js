@@ -64,7 +64,7 @@ module.exports.handler = async (event) => {
     //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     // });
 
-    await dispatchJob('segmentation', {
+    await dispatchJob('segmenting', {
       s3_in: sourceS3Path,
       cmd: '-an -c:v copy -f segment -segment_time 10',
       s3_out: `s3://${bucket}/segments/${videoId}/source`,
