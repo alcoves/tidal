@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk');
-const ec2 = new AWS.EC2({ region: 'us-east-1' });
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const getPresets = require('./lib/getPresets');
@@ -11,10 +10,9 @@ const { WASABI_BUCKET } = process.env;
 module.exports.handler = async (event) => {
   // console.log(JSON.stringify(event, null, 2));
 
-  // Turn on workers to process video events
-  // Query what workers are doing first, then start them if they aren't
-  // Maybe sent an alert if something fails here, otherwise videos will be stuck not processing
-  await ec2.startInstances({ InstanceIds: ['i-0d692bffc7eaa36ed'] }).promise();
+  // TODO :: Create lambda that fires for uploads and is outside the vpc
+  // This lambda will be the one spawning instances
+  // await ec2.startInstances({ InstanceIds: ['i-0d692bffc7eaa36ed'] }).promise();
 
   for (const { s3 } of event.Records) {
     const bucket = s3.bucket.name;
