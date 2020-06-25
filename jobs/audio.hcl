@@ -1,6 +1,7 @@
 job "audio" {
   type        = "batch"
   datacenters = ["dc1"]
+  priority    = 100
 
   parameterized {
     payload       = "optional"
