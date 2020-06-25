@@ -12,6 +12,8 @@ module.exports.handler = async function (event) {
     const folder = record.s3.object.key.split('/')[0];
 
     if (folder === 'audio') {
+      const [, id] = record.s3.object.key.split('/');
+
       console.log('audio file uploaded');
       const { Items } = await db
         .query({
@@ -57,7 +59,8 @@ module.exports.handler = async function (event) {
         await Promise.all(
           Items.map(({ cmd, preset }) => {
             // TODO :: Use environment variable once nomad servers are tracked in tf
-            const nomadAddr = '172.31.87.53/v1/job/transcoding/dispatch';
+            const nomadAddr =
+              'http://172.31.87.53:4646/v1/job/transcoding/dispatch';
             return axios.post(nomadAddr, {
               Meta: {
                 cmd,
