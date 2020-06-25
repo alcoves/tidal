@@ -19,6 +19,15 @@ resource "aws_lambda_function" "tidal_uploading" {
     mode = "Active"
   }
 
+  vpc_config {
+    security_group_ids = [
+      "sg-665de11a",
+    ]
+    subnet_ids = [
+      "subnet-c7275c9c",
+    ]
+  }
+
   layers = [
     "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5"
   ]
