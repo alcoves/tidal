@@ -61,17 +61,16 @@ module "cdn_egress" {
 }
 
 module "core" {
-  env                                 = var.env
-  namespace                           = "bken"
-  source                              = "../../modules/core"
-  concatinating_queue_arn             = module.concatinating.queue_arn
-  cdn_egress_function_arn             = module.cdn_egress.function_arn
-  source_segment_enqueue_function_arn = module.source_segment_enqueue.function_arn
+  env                           = var.env
+  namespace                     = "bken"
+  source                        = "../../modules/core"
+  concatinating_queue_arn       = module.concatinating.queue_arn
+  cdn_egress_function_arn       = module.cdn_egress.function_arn
+  s3_event_handler_function_arn = module.s3_event_handler.function_arn
 }
 
 module "db_event_handler" {
   env                         = var.env
-  tidal_transcoding_queue_url = var.transcoding_queue_name
   tidal_concat_queue_url      = var.tidal_concat_queue_url
   tidal_bucket                = module.core.tidal_bucket_name
   tidal_db_stream_arn         = module.core.tidal_db_stream_arn

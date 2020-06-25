@@ -69,7 +69,7 @@ resource "aws_lambda_permission" "allow_source_segment_enqueue_s3_events" {
   statement_id  = "AllowExecutionFromS3"
   action        = "lambda:InvokeFunction"
   source_arn    = aws_s3_bucket.tidal.arn
-  function_name = var.source_segment_enqueue_function_arn
+  function_name = var.s3_event_handler_function_arn
 }
 
 resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
@@ -83,14 +83,8 @@ resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
   }
 
   lambda_function {
-    filter_prefix       = "v/"
+    filter_prefix       = "segments"
     events              = ["s3:ObjectCreated:*"]
-    lambda_function_arn = var.cdn_egress_function_arn
-  }
-
-  lambda_function {
-    filter_prefix       = "segments/source"
-    events              = ["s3:ObjectCreated:*"]
-    lambda_function_arn = var.source_segment_enqueue_function_arn
+    lambda_function_arn = var.s3_event_handler_function_arn
   }
 }

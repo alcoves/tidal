@@ -14,7 +14,7 @@ variable "cdn_egress_function_arn" {
   type = string
 }
 
-variable "source_segment_enqueue_function_arn" {
+variable "s3_event_handler_function_arn" {
   type = string
 }
 
