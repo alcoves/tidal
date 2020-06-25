@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
-const lambda = new AWS.Lambda({ region: 'us-east-1' });
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const getPresets = require('./lib/getPresets');
+const dispatchJob = require('./lib/dispatchJob');
 const getMetadata = require('./lib/getMetadata');
 
 const { WASABI_BUCKET } = process.env;
@@ -52,22 +52,22 @@ module.exports.handler = async (event) => {
       out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
     });
 
-    await dispatchJob('audio', {
-      cmd: '-vn -c:a libopus -f opus',
-      in_path: sourceS3Path,
-      out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
-    });
+    // await dispatchJob('audio', {
+    //   cmd: '-vn -c:a libopus -f opus',
+    //   in_path: sourceS3Path,
+    //   out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+    // });
 
-    await dispatchJob('thumbnail', {
-      cmd: '-s 640x360 -vframes 1 -q:v 40',
-      in_path: sourceS3Path,
-      out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
-    });
+    // await dispatchJob('thumbnail', {
+    //   cmd: '-s 640x360 -vframes 1 -q:v 40',
+    //   in_path: sourceS3Path,
+    //   out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+    // });
 
-    await dispatchJob('segmentation', {
-      cmd: '-s 640x360 -vframes 1 -q:v 40',
-      in_path: sourceS3Path,
-      out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
-    });
+    // await dispatchJob('segmentation', {
+    //   cmd: '-s 640x360 -vframes 1 -q:v 40',
+    //   in_path: sourceS3Path,
+    //   out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+    // });
   }
 };
