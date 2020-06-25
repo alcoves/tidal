@@ -48,26 +48,26 @@ module.exports.handler = async (event) => {
 
     await dispatchJob('audio', {
       cmd: '-vn -c:a aac',
-      in_path: sourceS3Path,
-      out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
+      s3_in: sourceS3Path,
+      s3_out: `s3://${bucket}/audio/${videoId}/source.aac`,
     });
 
     // await dispatchJob('audio', {
     //   cmd: '-vn -c:a libopus -f opus',
-    //   in_path: sourceS3Path,
-    //   out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+    //   s3_in: sourceS3Path,
+    //   s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
     // });
 
     // await dispatchJob('thumbnail', {
     //   cmd: '-s 640x360 -vframes 1 -q:v 40',
-    //   in_path: sourceS3Path,
-    //   out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+    //   s3_in: sourceS3Path,
+    //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     // });
 
     // await dispatchJob('segmentation', {
     //   cmd: '-s 640x360 -vframes 1 -q:v 40',
-    //   in_path: sourceS3Path,
-    //   out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+    //   s3_in: sourceS3Path,
+    //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     // });
   }
 };
