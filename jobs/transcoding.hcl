@@ -1,6 +1,7 @@
 job "transcoding" {
   type        = "batch"
   datacenters = ["dc1"]
+  priority    = 1
 
   parameterized {
     payload       = "optional"
