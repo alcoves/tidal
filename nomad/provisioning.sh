@@ -15,8 +15,8 @@ mv nomad /usr/local/bin
 git clone https://github.com/bken-io/tidal.git
 
 # Create service definitions
-sudo cp /root/tidal/nomad/client.service /etc/systemd/system/nomad-client.service
-sudo cp /root/tidal/nomad/server.service /etc/systemd/system/nomad-server.service
+sudo cp /home/ubuntu/tidal/nomad/client.service /etc/systemd/system/nomad-client.service
+sudo cp /home/ubuntu/tidal/nomad/server.service /etc/systemd/system/nomad-server.service
 
 sudo systemctl enable nomad-server.service
 sudo systemctl start nomad-server.service
@@ -27,12 +27,15 @@ sudo systemctl start nomad-client.service
 sudo su - ubuntu
 sudo apt update
 sudo apt upgrade -y
-sudo apt -y install ffmpeg htop unzip zip curl wget git build-essential nasm
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-# curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-rm -rf aws awscliv2.zip
+sudo apt -y install ffmpeg htop unzip zip curl wget git build-essential nasm awscli
+
+sudo aws configure set region us-east-1 --profile default
+
+# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+# # curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+# unzip awscliv2.zip
+# sudo ./aws/install
+# rm -rf aws awscliv2.zip
 curl "https://releases.hashicorp.com/nomad/0.12.0-beta1/nomad_0.12.0-beta1_linux_amd64.zip" -o "nomad.zip"
 # curl "https://releases.hashicorp.com/nomad/0.12.0-beta1/nomad_0.12.0-beta1_linux_arm64.zip" -o "nomad.zip"
 unzip nomad.zip

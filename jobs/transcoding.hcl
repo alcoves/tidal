@@ -3,7 +3,7 @@ job "transcoding" {
   datacenters = ["dc1"]
 
   parameterized {
-    payload       = "required"
+    payload       = "optional"
     meta_required = [
       "cmd",
       "s3_in",
@@ -21,7 +21,12 @@ job "transcoding" {
 
     config {
       command = "/usr/bin/bash"
-      args    = ["/home/ubuntu/tidal/scripts/transcode.sh", "s3_in", "s3_out", "cmd"]
+      args    = [
+        "/home/ubuntu/tidal/scripts/transcode.sh",
+        "${NOMAD_META_S3_IN}",
+        "${NOMAD_META_S3_OUT}",
+        "${NOMAD_META_CMD}",
+      ]
     }
   }
 }
