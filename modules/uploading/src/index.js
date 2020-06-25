@@ -52,11 +52,11 @@ module.exports.handler = async (event) => {
       s3_out: `s3://${bucket}/audio/${videoId}/source.aac`,
     });
 
-    // await dispatchJob('audio', {
-    //   cmd: '-vn -c:a libopus -f opus',
-    //   s3_in: sourceS3Path,
-    //   s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
-    // });
+    await dispatchJob('audio', {
+      cmd: '-vn -c:a libopus -f opus',
+      s3_in: sourceS3Path,
+      s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
+    });
 
     // await dispatchJob('thumbnail', {
     //   cmd: '-s 640x360 -vframes 1 -q:v 40',
