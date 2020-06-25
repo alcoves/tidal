@@ -6,14 +6,6 @@ variable "namespace" {
   type = string
 }
 
-variable "concatinating_queue_arn" {
-  type = string
-}
-
-variable "cdn_egress_function_arn" {
-  type = string
-}
-
 variable "s3_event_handler_function_arn" {
   type = string
 }

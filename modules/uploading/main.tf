@@ -6,7 +6,7 @@ data "archive_file" "tidal_uploading_zip" {
 
 resource "aws_lambda_function" "tidal_uploading" {
   timeout          = 900
-  memory_size      = 256
+  memory_size      = 1024
   runtime          = "nodejs12.x"
   handler          = "index.handler"
   function_name    = local.function_name
@@ -19,12 +19,15 @@ resource "aws_lambda_function" "tidal_uploading" {
     mode = "Active"
   }
 
+  layers = [
+    "arn:aws:lambda:us-east-1:594206825329:layer:ffmpeg:5"
+  ]
+
   environment {
     variables = {
-      METADATA_FN_NAME        = var.metadata_fn_name
-      SEGMENTER_FN_NAME       = var.segmenter_fn_name
-      THUMBNAILER_FN_NAME     = var.thumbnailer_fn_name
-      AUDIO_EXTRACTOR_FN_NAME = var.audio_extractor_fn_name
+      FFMPEG_PATH   = "/opt/ffmpeg/ffmpeg"
+      FFPROBE_PATH  = "/opt/ffmpeg/ffprobe"
+      WASABI_BUCKET = "tidal-bken-${var.env}"
     }
   }
 }

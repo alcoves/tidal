@@ -3,7 +3,9 @@ const lambda = new AWS.Lambda({ region: 'us-east-1' });
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
 const getPresets = require('./lib/getPresets');
-const parseMetadata = require('./lib/parseMetadata');
+const getMetadata = require('./lib/getMetadata');
+
+const { WASABI_BUCKET } = process.env;
 
 module.exports.handler = async (event) => {
   // console.log(JSON.stringify(event, null, 2));
@@ -14,20 +16,9 @@ module.exports.handler = async (event) => {
       const bucket = s3.bucket.name;
       const videoId = s3.object.key.split('/')[1];
       const filename = s3.object.key.split('/')[2];
+      const sourceS3Path = `s3://${bucket}/uploads/${videoId}/${filename}`;
 
-      const metadataRes = await lambda
-        .invoke({
-          InvocationType: 'RequestResponse',
-          FunctionName: process.env.METADATA_FN_NAME,
-          Payload: Buffer.from(
-            JSON.stringify({
-              in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-            })
-          ),
-        })
-        .promise();
-
-      const { width, duration } = parseMetadata(metadataRes.Payload);
+      const { width, duration } = await getMetadata(sourceS3Path);
       const presets = getPresets(width);
 
       await Promise.all(
@@ -57,54 +48,29 @@ module.exports.handler = async (event) => {
         })
       );
 
-      await Promise.all([
-        await lambda
-          .invoke({
-            InvocationType: 'Event',
-            FunctionName: process.env.SEGMENTER_FN_NAME,
-            Payload: Buffer.from(JSON.stringify({ videoId, filename })),
-          })
-          .promise(),
-        await lambda
-          .invoke({
-            InvocationType: 'Event',
-            FunctionName: process.env.THUMBNAILER_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-        lambda
-          .invoke({
-            InvocationType: 'Event',
-            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                presets,
-                ffmpeg_cmd: `-vn -c:a libopus -f opus`,
-                out_path: `/mnt/tidal/audio/${videoId}/source.ogg`,
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-        lambda
-          .invoke({
-            InvocationType: 'Event',
-            FunctionName: process.env.AUDIO_EXTRACTOR_FN_NAME,
-            Payload: Buffer.from(
-              JSON.stringify({
-                presets,
-                ffmpeg_cmd: `-vn -c:a aac`,
-                out_path: `/mnt/tidal/audio/${videoId}/source.aac`,
-                in_path: `s3://${bucket}/uploads/${videoId}/${filename}`,
-              })
-            ),
-          })
-          .promise(),
-      ]);
+      await dispatchJob('audio', {
+        cmd: '-vn -c:a aac',
+        in_path: sourceS3Path,
+        out_path: `s3://${bucket}/audio/${videoId}/source.aac`,
+      });
+
+      await dispatchJob('audio', {
+        cmd: '-vn -c:a libopus -f opus',
+        in_path: sourceS3Path,
+        out_path: `s3://${bucket}/audio/${videoId}/source.ogg`,
+      });
+
+      await dispatchJob('thumbnail', {
+        cmd: '-s 640x360 -vframes 1 -q:v 40',
+        in_path: sourceS3Path,
+        out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+      });
+
+      await dispatchJob('segmentation', {
+        cmd: '-s 640x360 -vframes 1 -q:v 40',
+        in_path: sourceS3Path,
+        out_path: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+      });
     }
   }
 };

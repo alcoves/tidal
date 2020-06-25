@@ -13,76 +13,27 @@ variable "env" {
   default = "dev"
 }
 
-// TODO :: Interpolate
-variable "transcoding_queue_name" { 
-  default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-transcoding-dev"
-}
-
-// TODO :: Interpolate
-variable "tidal_concat_queue_url" {
-  default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-concatinating-dev"
-}
-
 module "s3_event_handler" {
   env    = var.env
   source = "../../modules/s3_event_handler"
 }
 
-module "segmenting" {
-  env                         = var.env
-  source                      = "../../modules/segmenting"
-  tidal_transcoding_queue_url = var.transcoding_queue_name
-  tidal_bucket                = module.core.tidal_bucket_name
-}
-
-module "metadata" {
-  env    = var.env
-  source = "../../modules/metadata"
-}
-
-module "audio_extractor" {
-  env    = var.env
-  source = "../../modules/audio_extractor"
-}
-
-module "concatinating" {
-  env    = var.env
-  source = "../../modules/concatinating"
-}
-
-module "thumbnailer" {
-  env    = var.env
-  source = "../../modules/thumbnailer"
-}
-
-module "cdn_egress" {
-  env    = var.env
-  source = "../../modules/cdn_egress"
+module "db_event_handler" {
+  env                 = var.env
+  tidal_bucket        = module.core.tidal_bucket_name
+  tidal_db_stream_arn = module.core.tidal_db_stream_arn
+  source              = "../../modules/db_event_handler"
 }
 
 module "core" {
   env                           = var.env
   namespace                     = "bken"
   source                        = "../../modules/core"
-  concatinating_queue_arn       = module.concatinating.queue_arn
-  cdn_egress_function_arn       = module.cdn_egress.function_arn
   s3_event_handler_function_arn = module.s3_event_handler.function_arn
 }
 
-module "db_event_handler" {
-  env                         = var.env
-  tidal_concat_queue_url      = var.tidal_concat_queue_url
-  tidal_bucket                = module.core.tidal_bucket_name
-  tidal_db_stream_arn         = module.core.tidal_db_stream_arn
-  source                      = "../../modules/db_event_handler"
-}
-
 module "uploading" {
-  env                     = var.env
-  metadata_fn_name        = module.metadata.fn_name
-  source                  = "../../modules/uploading"
-  segmenter_fn_name       = module.segmenting.fn_name
-  thumbnailer_fn_name     = module.thumbnailer.fn_name
-  uploads_queue_arn       = module.core.uploads_queue_arn
-  audio_extractor_fn_name = module.audio_extractor.fn_name
+  env               = var.env
+  source            = "../../modules/uploading"
+  uploads_queue_arn = module.core.uploads_queue_arn
 }
