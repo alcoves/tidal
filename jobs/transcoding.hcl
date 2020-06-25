@@ -18,6 +18,10 @@ job "transcoding" {
       delay    = "10s"
     }
 
+    resource {
+      cpu = 4000
+    }
+
     driver = "raw_exec"
 
     config {
