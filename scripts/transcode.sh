@@ -30,12 +30,4 @@ ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_VIDEO_PATH
 echo "moving transcode to s3"
 aws s3 mv $TMP_VIDEO_PATH $S3_OUT
 
-# echo "updating tidal database with status"
-# aws dynamodb update-item \
-#   --table-name tidal-dev \
-#   --update-expression 'SET #segments.#segName = :status' \
-#   --expression-attribute-values '{":status":{"BOOL":true}}' \
-#   --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
-#   --expression-attribute-names '{"#segName":'\"$SEGMENT_NAME\"',"#segments":"segments"}'
-
 echo "transcoding completed"
