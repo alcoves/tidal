@@ -31,7 +31,7 @@ module.exports.handler = async function (event) {
               TableName: TIDAL_TABLE,
               UpdateExpression: 'SET #audio.#audioExt = :path',
               ExpressionAttributeValues: {
-                ':path': { S: record.s3.object.key },
+                ':path': record.s3.object.key,
               },
               ExpressionAttributeNames: {
                 // TODO :: Probably unreliable way of getting extension
@@ -76,7 +76,7 @@ module.exports.handler = async function (event) {
             Key: { id, preset },
             TableName: TIDAL_TABLE,
             UpdateExpression: 'SET #segments.#segName = :status',
-            ExpressionAttributeValues: { ':status': { BOOL: true } },
+            ExpressionAttributeValues: { ':status': true },
             ExpressionAttributeNames: {
               '#segName': segment,
               '#segments': 'segments',
