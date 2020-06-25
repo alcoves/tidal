@@ -25,7 +25,7 @@ SOURCE_URL=$(aws s3 presign $IN_PATH)
 
 echo "in: $IN_PATH | out: $OUT_PATH"
 # -hide_banner -loglevel panic
-ffmpeg -i "$SOURCE_URL" $FFMPEG_CMD $TMP_FILE
+ffmpeg -y -i "$SOURCE_URL" $FFMPEG_CMD $TMP_FILE
 
 echo "uploading audio file to s3"
 aws s3 mv $TMP_FILE $OUT_PATH
