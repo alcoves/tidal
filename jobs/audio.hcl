@@ -31,8 +31,8 @@ job "audio" {
     }
 
     resources {
-      cpu    = 1024
-      memory = 1024
+      cpu    = 2000
+      memory = 4000
     }
   }
 }
