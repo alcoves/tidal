@@ -1,23 +1,25 @@
-resource "aws_sqs_queue" "tidal_uploads" {
-  visibility_timeout_seconds = 120
-  name                       = local.uploads_queue_name
+data "aws_iam_policy_document" "tidal_upload_queue_policy" {
+  statement {
+    actions   = [ "sqs:SendMessage"]
+    resources = [ "arn:aws:sqs:*:*:${local.uploads_queue_name}" ]
 
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:*:*:${local.uploads_queue_name}",
-      "Condition": {
-        "ArnEquals": { "aws:SourceArn": "${aws_s3_bucket.tidal.arn}" }
-      }
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
     }
-  ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [ "${aws_s3_bucket.tidal.arn}" ]
+    }
+  }
 }
-POLICY
+
+resource "aws_sqs_queue" "tidal_uploads" {
+  visibility_timeout_seconds = 300
+  name                       = local.uploads_queue_name
+  policy                     = data.aws_iam_policy_document.tidal_upload_queue_policy.json
 }
 
 output "uploads_queue_arn" {
