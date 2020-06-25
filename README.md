@@ -1,32 +1,13 @@
-The segmenter invokes the first round of transformer requests
+# Modules
 
-For each segment, publish a message that says
+## Segmenter
 
+This module splits a video into chunks and uploads them to s3. When chunks are uploaded, a lambda fires off that will handle enqueueing source segments or updating tidal-db from transcoded segments
+
+```bash
+S3_IN="s3://tidal-bken-dev/uploads/test/source.mp4"
+S3_OUT="s3://tidal-bken-dev/segments/test/source"
+FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
+
+./segment.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
 ```
-in_path: 's3://tidal-bken-dev/segments/id/source/000.mkv',
-out_path: 's3://tidal-bken-dev/segments/id/libvpx_vp9-1080p/000.mkv',
-ffmpeg_cmd: '-c:v libvpx-vp9 -crf 38 -b:f 0',
-concat_with: 's3://tidal-bken-dev/segments/id/source/001.mkv',
-```
-
-The first requests
-
-```
-in_path: 's3://tidal-bken-dev/segments/id/source/000.mkv',
-out_path: 's3://tidal-bken-dev/segments/id/libvpx_vp9-1080p/000.mkv',
-ffmpeg_cmd: '-c:v libvpx-vp9 -crf 38 -b:f 0',
-concat_with: 's3://tidal-bken-dev/segments/id/source/001.mkv',
-```
-
-`ffmpeg -i in_path -i concat_with ffmpeg_cmd | out_path`
-
-The next requests
-
-```
-in_path: 's3://tidal-bken-dev/segments/id/source/000.mkv',
-out_path: 's3://tidal-bken-dev/segments/id/libvpx_vp9-1080p/l2/000.mkv',
-ffmpeg_cmd: '-c:v libvpx-vp9 -crf 38 -b:f 0',
-concat_with: 's3://tidal-bken-dev/segments/id/source/001.mkv',
-```
-
-``
