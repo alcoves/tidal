@@ -29,5 +29,10 @@ job "audio" {
         "${NOMAD_META_CMD}",
       ]
     }
+
+    resources {
+      cpu    = 1024
+      memory = 1024
+    }
   }
 }

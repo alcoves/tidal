@@ -29,5 +29,10 @@ job "transcoding" {
         "${NOMAD_META_CMD}",
       ]
     }
+
+    resources {
+      cpu    = 2048
+      memory = 2048
+    }
   }
 }
