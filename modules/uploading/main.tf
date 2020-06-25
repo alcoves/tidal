@@ -41,12 +41,6 @@ resource "aws_lambda_function" "tidal_uploading" {
   }
 }
 
-resource "aws_lambda_event_source_mapping" "tidal_uploading" {
-  batch_size       = 1
-  event_source_arn = var.uploads_queue_arn
-  function_name    = aws_lambda_function.tidal_uploading.function_name
-}
-
 resource "aws_cloudwatch_log_group" "tidal_uploading" {
   retention_in_days = 7
   name              = "/aws/lambda/${local.function_name}"
