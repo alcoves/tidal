@@ -11,3 +11,17 @@ FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
 
 ./segment.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
 ```
+
+## Transcoder
+
+This module transcodes segments with the given ffmpeg command, completed segments are uploaded to s3. When segments land in s3, a separate lambda is fired which updates the database.
+
+```bash
+S3_IN="s3://tidal-bken-dev/uploads/test/source.mp4"
+S3_OUT="s3://tidal-bken-dev/segments/test/source"
+FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
+
+./segment.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
+```
+
+nomad job dispatch -detach transcode config.json

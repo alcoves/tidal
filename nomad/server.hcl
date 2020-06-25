@@ -1,4 +1,4 @@
-bind_addr = "{{ GetInterfaceIP \"ens5\" }}"
+bind_addr = "0.0.0.0"
 data_dir  = "/var/lib/nomad"
 
 server {
