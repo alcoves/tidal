@@ -47,14 +47,14 @@ module.exports.handler = async (event) => {
     );
 
     await dispatchJob('audio', {
-      cmd: '-vn -c:a aac',
       s3_in: sourceS3Path,
+      cmd: '-vn -c:a aac',
       s3_out: `s3://${bucket}/audio/${videoId}/source.aac`,
     });
 
     await dispatchJob('audio', {
-      cmd: '-vn -c:a libopus -f opus',
       s3_in: sourceS3Path,
+      cmd: '-vn -c:a libopus -f opus',
       s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
     });
 
@@ -64,10 +64,10 @@ module.exports.handler = async (event) => {
     //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     // });
 
-    // await dispatchJob('segmentation', {
-    //   cmd: '-s 640x360 -vframes 1 -q:v 40',
-    //   s3_in: sourceS3Path,
-    //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
-    // });
+    await dispatchJob('segmentation', {
+      s3_in: sourceS3Path,
+      cmd: '-an -c:v copy -f segment -segment_time 10',
+      s3_out: `s3://${bucket}/segments/${videoId}/source`,
+    });
   }
 };

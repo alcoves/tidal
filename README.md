@@ -21,7 +21,7 @@ S3_IN="s3://tidal-bken-dev/uploads/test/source.mp4"
 S3_OUT="s3://tidal-bken-dev/segments/test/source"
 FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
 
-./segment.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
+./segmenting.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
 ```
 
 nomad job dispatch -detach -meta s3_in="s3://tidal-bken-dev/uploads/test/source.mp4" -meta s3_out="s3://tidal-bken-dev/transcoded/test/libx264-720p.mp4" -meta cmd="-c:v libx264 -an -crf 40 -vf scale=720:-2" transcoding
