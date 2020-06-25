@@ -23,10 +23,9 @@ variable "tidal_concat_queue_url" {
   default = "https://sqs.us-east-1.amazonaws.com/594206825329/tidal-concatinating-dev"
 }
 
-module "source_segment_enqueue" {
-  env                         = var.env
-  source                      = "../../modules/source_segment_enqueue"
-  tidal_transcoding_queue_url = var.transcoding_queue_name
+module "s3_event_handler" {
+  env    = var.env
+  source = "../../modules/s3_event_handler"
 }
 
 module "segmenting" {
@@ -44,11 +43,6 @@ module "metadata" {
 module "audio_extractor" {
   env    = var.env
   source = "../../modules/audio_extractor"
-}
-
-module "transcoding" {
-  env    = var.env
-  source = "../../modules/transcoding"
 }
 
 module "concatinating" {
@@ -75,13 +69,13 @@ module "core" {
   source_segment_enqueue_function_arn = module.source_segment_enqueue.function_arn
 }
 
-module "event_handler" {
+module "db_event_handler" {
   env                         = var.env
   tidal_transcoding_queue_url = var.transcoding_queue_name
   tidal_concat_queue_url      = var.tidal_concat_queue_url
-  source                      = "../../modules/event_handler"
   tidal_bucket                = module.core.tidal_bucket_name
   tidal_db_stream_arn         = module.core.tidal_db_stream_arn
+  source                      = "../../modules/db_event_handler"
 }
 
 module "uploading" {
