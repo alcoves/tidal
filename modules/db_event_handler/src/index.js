@@ -1,3 +1,4 @@
+const AWS = require('aws-sdk');
 const axios = require('axios');
 
 const { CDN_BUCKET, TIDAL_BUCKET } = process.env;
