@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const axios = require('axios');
 
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 const { CDN_BUCKET, TIDAL_BUCKET } = process.env;
 
 module.exports.handler = async ({ Records }) => {
@@ -23,8 +24,25 @@ module.exports.handler = async ({ Records }) => {
           s3_out: `s3://${CDN_BUCKET}/v/${item.id}/${item.preset}.${item.ext}`,
         };
         const nomadAddr = `http://172.31.29.153:4646/v1/job/concatinating/dispatch`;
+
+        const { Item } = await db
+          .get({
+            TableName: 'config',
+            Key: { id: 'NOMAD_TOKEN' },
+          })
+          .promise();
+
         await axios
-          .post(nomadAddr, { Meta }, { timeout: 1000 * 10 })
+          .post(
+            nomadAddr,
+            { Meta },
+            {
+              headers: {
+                'X-Nomad-Token': Item.value,
+              },
+              timeout: 1000 * 10,
+            }
+          )
           .catch((error) => {
             console.error(error);
             throw error;
