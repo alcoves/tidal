@@ -3,100 +3,93 @@ set -e
 
 IN_PATH=$1
 OUT_PATH=$2
-TMP_DIR=$3
-FFMPEG="/opt/ffmpeg/ffmpeg"
-LAMBDA_TMP_DIR="/tmp"
 
-VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f6)"
+BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
+echo "BUCKET: ${BUCKET}"
+
+TIDAL_ENV="$(echo $BUCKET | cut -d'-' -f3)"
+echo "TIDAL_ENV: ${TIDAL_ENV}"
+
+VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
-PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f7)"
+PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
-FILE_EXT="${OUT_PATH##*.}"
-echo "FILE_EXT: ${FILE_EXT}"
+WASABI_BUCKET="$(echo $OUT_PATH | cut -d'/' -f3)"
+echo "WASABI_BUCKET: ${WASABI_BUCKET}"
 
-echo "Cleaning up lambda env"
-WORKDIR="${LAMBDA_TMP_DIR}/${VIDEO_ID}"
-rm -rf $WORKDIR
-mkdir -p $WORKDIR
+VIDEO_EXTENSION="${OUT_PATH##*.}"
+echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
+
+echo "creating tmp dir"
+TMP_DIR=$(mktemp -d)
+mkdir $TMP_DIR/audio
+mkdir $TMP_DIR/segments
+echo "TMP_DIR: $TMP_DIR"
+
+TMP_VIDEO_PATH="${TMP_DIR}/${PRESET_NAME}.${VIDEO_EXTENSION}"
+echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
 echo "creating manifest"
-touch ${WORKDIR}/manifest.txt
+MANIFEST=${TMP_DIR}/manifest.txt
+touch $MANIFEST
 
-echo "list segments"
-SEGMENTS=$(ls /mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME})
-echo "SEGMENTS: $SEGMENTS"
+echo "download segments"
+aws s3 sync $IN_PATH $TMP_DIR/segments
 
-for SEGMENT in $SEGMENTS; do
-  echo "file '/mnt/tidal/segments/transcoded/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}'" >> ${WORKDIR}/manifest.txt
+for SEGMENT in $(ls $TMP_DIR/segments); do
+  echo "file '${TMP_DIR}/segments/${SEGMENT}'" >> $MANIFEST
 done
 
-if [ "$FILE_EXT" = "webm" ]; then
-  AUDIO_PATH="/mnt/tidal/audio/${VIDEO_ID}/source.ogg"
-else
-  AUDIO_PATH="/mnt/tidal/audio/${VIDEO_ID}/source.aac"
+if [ "$VIDEO_EXTENSION" = "webm" ]; then
+  AUDIO_EXT="ogg"
+else 
+  AUDIO_EXT="aac"
 fi
 
+AUDIO_PATH="${TMP_DIR}/audio/source.${AUDIO_EXT}"
+
+echo "AUDIO_EXT: $AUDIO_EXT"
 echo "AUDIO_PATH: $AUDIO_PATH"
-VIDEO_STORE_PATH="${TMP_DIR}/${VIDEO_ID}-${PRESET_NAME}.${FILE_EXT}"
-S3_STORE_PATH="s3://tidal-bken-dev/v/${VIDEO_ID}/${PRESET_NAME}.${FILE_EXT}"
+
+echo "downloading audio"
+aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/source.${AUDIO_EXT} $AUDIO_PATH
 
 echo "concatinating started"
 # -hide_banner -loglevel panic
-$FFMPEG -y -f concat -safe 0 \
-  -i ${WORKDIR}/manifest.txt \
+ffmpeg -y -f concat -safe 0 \
+  -i $MANIFEST \
   -c copy \
   -f matroska - | \
-  $FFMPEG \
+  ffmpeg \
   -y -i - -i $AUDIO_PATH \
   -c copy \
   -movflags faststart \
-  ${VIDEO_STORE_PATH}
+  $TMP_VIDEO_PATH
 
-# #################################
-# # Fully replaces cdn_egress lambda if this works
-# echo "TESTING WASABI UPLOAD"
+WASABI_ACCESS_KEY_ID=$(aws ssm get-parameter --name "wasabi_access_key_id" --with-decryption --query 'Parameter.Value' --output text)
+WASABI_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "wasabi_secret_access_key" --with-decryption --query 'Parameter.Value' --output text)
 
-# WASABI_ACCESS_KEY_ID=$(aws ssm get-parameter --name "wasabi_access_key_id" --with-decryption --query 'Parameter.Value' --output text)
-# WASABI_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "wasabi_secret_access_key" --with-decryption --query 'Parameter.Value' --output text)
+aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
+aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
 
-# aws configure set aws_access_key_id "$WASABI_ACCESS_KEY_ID" --profile wasabi
-# aws configure set aws_secret_access_key "$WASABI_SECRET_ACCESS_KEY" --profile wasabi
+echo "copying to wasabi"
+aws s3 mv $TMP_VIDEO_PATH $OUT_PATH \
+  --profile wasabi \
+  --content-type "video/$VIDEO_EXTENSION" \
+  --endpoint=https://us-east-2.wasabisys.com
 
-# WASABI_BUCKET="dev-cdn.bken.io"
-# WASABI_HTTP_CDN="dev-cdn.bken.io"
+LINK="https://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${VIDEO_EXTENSION}"
+echo "LINK: $LINK"
 
-# # if [[ "$BUCKET" == *"prod"* ]]; then
-# #   echo "using prod wasabi bucket"
-# #   WASABI_BUCKET="cdn.bken.io"
-# #   WASABI_HTTP_CDN="cdn.bken.io"
-# # else
-# #   echo "using dev wasabi bucket"
-# #   WASABI_BUCKET="dev-cdn.bken.io"
-# #   WASABI_HTTP_CDN="dev-cdn.bken.io"
-# # fi
+echo "updating tidal database with status"
+aws dynamodb update-item \
+  --table-name "tidal-${TIDAL_ENV}" \
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
+  --update-expression 'SET #status = :status, #link = :link' \
+  --expression-attribute-names '{"#status":"status","#link":"link"}' \
+  --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
 
-# echo "copying to wasabi"
-# aws s3 cp $VIDEO_STORE_PATH s3://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT} \
-# --endpoint=https://us-east-2.wasabisys.com --profile wasabi --content-type "video/$EXT"
-
-# LINK="https://${WASABI_HTTP_CDN}/v/${VIDEO_ID}/${PRESET_NAME}.${EXT}"
-# echo "LINK: $LINK"
-
-# echo "updating tidal database with status"
-# aws dynamodb update-item \
-#   --table-name tidal-dev \
-#   --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
-#   --update-expression 'SET #status = :status, #link = :link' \
-#   --expression-attribute-names '{"#status":'\"status\"',"#link":'\"link\"'}' \
-#   --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
-
-# #################################
-
-echo "moving video from efs to s3"
-aws s3 mv $VIDEO_STORE_PATH $S3_STORE_PATH --quiet
-
-rm -rf $WORKDIR
-rm -rf $VIDEO_STORE_PATH
-echo "concatinating completed"
+echo "removing tmp dir"
+rm -rf $TMP_DIR

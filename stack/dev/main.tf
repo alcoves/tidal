@@ -25,7 +25,6 @@ module "s3_event_handler" {
 
 module "db_event_handler" {
   env                 = var.env
-  tidal_bucket        = module.core.tidal_bucket_name
   tidal_db_stream_arn = module.core.tidal_db_stream_arn
   source              = "../../modules/db_event_handler"
 }
