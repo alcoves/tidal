@@ -57,17 +57,33 @@ module.exports.handler = async function (event) {
           .promise();
 
         await Promise.all(
-          Items.map(({ cmd, preset }) => {
+          Items.map(async ({ cmd, preset }) => {
             // TODO :: Use environment variable once nomad servers are tracked in tf
             const nomadAddr =
               'http://172.31.87.53:4646/v1/job/transcoding/dispatch';
-            return axios.post(nomadAddr, {
-              Meta: {
-                cmd,
-                s3_in: `s3://${bucket}/segments/${id}/source/${segment}`,
-                s3_out: `s3://${bucket}/segments/${id}/${preset}/${segment}`,
+
+            const { Item } = await db
+              .get({
+                TableName: 'config',
+                Key: { id: 'NOMAD_TOKEN' },
+              })
+              .promise();
+
+            return axios.post(
+              nomadAddr,
+              {
+                Meta: {
+                  cmd,
+                  s3_in: `s3://${bucket}/segments/${id}/source/${segment}`,
+                  s3_out: `s3://${bucket}/segments/${id}/${preset}/${segment}`,
+                },
               },
-            });
+              {
+                headers: {
+                  'X-Nomad-Token': Item.value,
+                },
+              }
+            );
           })
         );
       } else {
