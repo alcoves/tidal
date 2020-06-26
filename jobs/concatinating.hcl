@@ -1,7 +1,7 @@
 job "concatinating" {
   type        = "batch"
   datacenters = ["dc1"]
-  priority    = 1
+  priority    = 100
 
   parameterized {
     payload       = "optional"
