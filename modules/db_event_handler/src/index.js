@@ -19,11 +19,16 @@ module.exports.handler = async ({ Records }) => {
         Object.keys(item.audio).length >= 2
       ) {
         const Meta = {
-          in_path: `s3://${TIDAL_BUCKET}/segments/${item.id}/${item.preset}`,
-          out_path: `s3://${CDN_BUCKET}/v/${item.id}/${item.preset}.${item.ext}`,
+          s3_in: `s3://${TIDAL_BUCKET}/segments/${item.id}/${item.preset}`,
+          s3_out: `s3://${CDN_BUCKET}/v/${item.id}/${item.preset}.${item.ext}`,
         };
         const nomadAddr = `http://172.31.29.153:4646/v1/job/concatinating/dispatch`;
-        await axios.post(nomadAddr, { Meta }, { timeout: 1000 * 10 });
+        await axios
+          .post(nomadAddr, { Meta }, { timeout: 1000 * 10 })
+          .catch((error) => {
+            console.error(error);
+            throw error;
+          });
       }
     }
   }
