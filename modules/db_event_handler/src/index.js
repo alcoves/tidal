@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const { CDN_BUCKET, TIDAL_BUCKET } = proces.env;
+const { CDN_BUCKET, TIDAL_BUCKET } = process.env;
 
 module.exports.handler = async ({ Records }) => {
   for (const event of Records) {
