@@ -1,5 +1,4 @@
 variable "env" { type = string }
-variable "tidal_bucket" { type = string }
 variable "tidal_db_stream_arn" { type = string }
 
 locals {
@@ -28,10 +27,20 @@ resource "aws_lambda_function" "tidal_db_event_handler" {
     mode = "Active"
   }
 
+  vpc_config {
+    security_group_ids = [
+      "sg-665de11a",
+    ]
+    subnet_ids = [
+      "subnet-c7275c9c",
+    ]
+  }
+
   environment {
     variables = {
       NODE_ENV     = "production"
-      TIDAL_BUCKET = var.tidal_bucket
+      TIDAL_BUCKET = "tidal-bken-${var.env}"
+      CDN_BUCKET   = "${var.env}-cdn.bken.io"
     }
   }
 }

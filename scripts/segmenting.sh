@@ -27,10 +27,34 @@ TMP_SEGMENT_DIR=$(mktemp -d)
 echo "segmentation started"
 ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.mkv
 
+echo "tally segments"
+SEGMENT_COUNT=$(ls -1q $TMP_SEGMENT_DIR | wc -l)
+
 echo "moving segments to s3"
 aws s3 sync $TMP_SEGMENT_DIR $S3_OUT
 
 echo "removing tmp segment dir"
 rm -rf $TMP_SEGMENT_DIR
+
+echo "updating tidal db"
+ITEMS=$(aws dynamodb query \
+  --table-name tidal-dev \
+  --key-condition-expression "id = :id" \
+  --expression-attribute-values "{\":id\":{\"S\":\"$VIDEO_ID\"}}" \
+  | jq -r '.Items')
+
+for row in $(echo "${ITEMS}" | jq -r '.[] | @base64'); do
+  _jq() {
+    echo ${row} | base64 --decode | jq -r ${1}
+  }
+  
+  PRESET=$(_jq '.preset.S')
+  
+  aws dynamodb update-item \
+    --table-name tidal-dev \
+    --key "{\"id\":{\"S\":\"$VIDEO_ID\"},\"preset\":{\"S\":\"$PRESET\"}}" \
+    --update-expression "SET segmentCount = :segmentCount" \
+    --expression-attribute-values "{\":segmentCount\":{\"N\":\"$SEGMENT_COUNT\"}}"
+done
 
 echo "segmentation completed"
