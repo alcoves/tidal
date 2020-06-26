@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "tidal" {
   acl    = "private"
   bucket = local.bucket_name
-  policy = data.aws_iam_policy_document.tidal_bucket_policy.json
+  # policy = data.aws_iam_policy_document.tidal_bucket_policy.json
 
   cors_rule {
     max_age_seconds = 3000
@@ -44,17 +44,17 @@ resource "aws_s3_bucket" "tidal" {
   }
 }
 
-data "aws_iam_policy_document" "tidal_bucket_policy" {
-  statement {
-    actions   = [ "s3:GetObject"]
-    resources = ["arn:aws:s3:::tidal-bken-dev/*"]
+# data "aws_iam_policy_document" "tidal_bucket_policy" {
+#   statement {
+#     actions   = ["s3:GetObject"]
+#     resources = ["arn:aws:s3:::tidal-bken-dev/*"]
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
-}
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
+#   }
+# }
 
 resource "aws_lambda_permission" "allow_s3_events" {
   principal     = "s3.amazonaws.com"
@@ -73,7 +73,7 @@ resource "aws_lambda_permission" "allow_uploading_events" {
 }
 
 resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
-  bucket     = aws_s3_bucket.tidal.id
+  bucket = aws_s3_bucket.tidal.id
 
   lambda_function {
     filter_prefix       = "uploads/"
