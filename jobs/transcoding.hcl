@@ -17,9 +17,9 @@ job "transcoding" {
       attempts = 1
       delay    = "10s"
     }
-
+    
     resources {
-      cpu    = 4000
+      cpu    = 3000
       memory = 1500
     }
 

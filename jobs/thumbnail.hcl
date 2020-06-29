@@ -18,6 +18,11 @@ job "thumbnail" {
       delay    = "10s"
     }
 
+    resources {
+      cpu    = 3000
+      memory = 1500
+    }
+
     driver = "raw_exec"
 
     config {

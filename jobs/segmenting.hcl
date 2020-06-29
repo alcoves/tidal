@@ -20,6 +20,11 @@ job "segmenting" {
 
     driver = "raw_exec"
 
+    resources {
+      cpu    = 3000
+      memory = 1500
+    }
+
     config {
       command = "/usr/bin/bash"
       args    = [
