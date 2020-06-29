@@ -80,7 +80,8 @@ aws s3 mv $TMP_VIDEO_PATH $OUT_PATH \
   --content-type "video/$VIDEO_EXTENSION" \
   --endpoint=https://us-east-2.wasabisys.com
 
-LINK="https://${WASABI_BUCKET}/v/${VIDEO_ID}/${PRESET_NAME}.${VIDEO_EXTENSION}"
+CDN_PROTOCAL="https"
+LINK="${OUT_PATH/s3/$CDN_PROTOCAL}"
 echo "LINK: $LINK"
 
 echo "updating tidal database with status"
