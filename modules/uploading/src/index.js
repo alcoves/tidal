@@ -62,11 +62,11 @@ module.exports.handler = async (event) => {
       s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
     });
 
-    // await dispatchJob('thumbnail', {
-    //   cmd: '-s 640x360 -vframes 1 -q:v 40',
-    //   s3_in: sourceS3Path,
-    //   s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
-    // });
+    await dispatchJob('thumbnail', {
+      cmd: '-vf crop=854:480 -vframes 1 -q:v 40',
+      s3_in: sourceS3Path,
+      s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
+    });
 
     await dispatchJob('segmenting', {
       s3_in: sourceS3Path,
