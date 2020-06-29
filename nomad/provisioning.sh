@@ -25,8 +25,7 @@ sudo systemctl enable nomad-client.service
 sudo systemctl start nomad-client.service
 
 sudo su - ubuntu
-sudo apt update
-sudo apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 sudo apt -y install ffmpeg htop unzip zip curl wget git build-essential nasm awscli jq unzip docker.io
 
 sudo aws configure set region us-east-1 --profile default
