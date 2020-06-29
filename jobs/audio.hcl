@@ -12,15 +12,15 @@ job "audio" {
     ]
   }
 
-  resources {
-    cpu    = 3000
-    memory = 1500
-  }
-
   task "transcode" {
     restart {
       attempts = 1
       delay    = "10s"
+    }
+
+    resources {
+      cpu    = 3000
+      memory = 1500
     }
 
     driver = "raw_exec"
