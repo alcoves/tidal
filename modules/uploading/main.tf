@@ -36,7 +36,7 @@ resource "aws_lambda_function" "tidal_uploading" {
     variables = {
       FFMPEG_PATH   = "/opt/ffmpeg/ffmpeg"
       FFPROBE_PATH  = "/opt/ffmpeg/ffprobe"
-      WASABI_BUCKET = "tidal-bken-${var.env}"
+      WASABI_BUCKET = "${var.env}-cdn.bken.io"
     }
   }
 }
