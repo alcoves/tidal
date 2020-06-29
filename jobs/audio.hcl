@@ -12,6 +12,11 @@ job "audio" {
     ]
   }
 
+  resources {
+    cpu    = 3000
+    memory = 1500
+  }
+
   task "transcode" {
     restart {
       attempts = 1

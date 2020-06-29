@@ -18,8 +18,8 @@ job "concatinating" {
     }
 
     resources {
-      cpu    = 2000
-      memory = 2000
+      cpu    = 3000
+      memory = 1500
     }
 
     driver = "raw_exec"
