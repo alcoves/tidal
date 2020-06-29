@@ -46,6 +46,7 @@ module.exports.handler = async function (event) {
 
     if (folder === 'segments') {
       const [, id, preset, segment] = record.s3.object.key.split('/');
+      console.log('segment', { id, preset, segment });
 
       if (preset === 'source') {
         const { Items } = await db
@@ -56,11 +57,12 @@ module.exports.handler = async function (event) {
           })
           .promise();
 
+        console.log('enqueuing transcoding job');
         await Promise.all(
           Items.map(async ({ cmd, preset }) => {
             // TODO :: Use environment variable once nomad servers are tracked in tf
             const nomadAddr =
-              'http://172.31.87.53:4646/v1/job/transcoding/dispatch';
+              'http://172.31.29.153:4646/v1/job/transcoding/dispatch';
 
             const { Item } = await db
               .get({
