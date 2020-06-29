@@ -19,8 +19,8 @@ job "segmenting" {
     }
 
     resources {
-      cpu    = 3000
-      memory = 1500
+      cpu    = 1500
+      memory = 1000
     }
 
     driver = "raw_exec"
