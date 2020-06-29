@@ -20,7 +20,7 @@ job "transcoding" {
 
     resources {
       cpu    = 4000
-      memory = 2000
+      memory = 1500
     }
 
     driver = "raw_exec"
