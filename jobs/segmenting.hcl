@@ -18,12 +18,12 @@ job "segmenting" {
       delay    = "10s"
     }
 
-    driver = "raw_exec"
-
     resources {
       cpu    = 3000
       memory = 1500
     }
+
+    driver = "raw_exec"
 
     config {
       command = "/usr/bin/bash"
