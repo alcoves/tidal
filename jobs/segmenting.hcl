@@ -23,7 +23,7 @@ job "segmenting" {
     config {
       command = "/usr/bin/bash"
       args    = [
-        "/home/ubuntu/tidal/scripts/segmenting.sh",
+        "/mnt/tidal/dev/scripts/segmenting.sh",
         "${NOMAD_META_S3_IN}",
         "${NOMAD_META_S3_OUT}",
         "${NOMAD_META_CMD}",

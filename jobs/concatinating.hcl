@@ -27,7 +27,7 @@ job "concatinating" {
     config {
       command = "/usr/bin/bash"
       args    = [
-        "/home/ubuntu/tidal/scripts/concatinating.sh",
+        "/mnt/tidal/dev/scripts/concatinating.sh",
         "${NOMAD_META_S3_IN}",
         "${NOMAD_META_S3_OUT}",
       ]

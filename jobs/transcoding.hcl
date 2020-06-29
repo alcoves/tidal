@@ -28,7 +28,7 @@ job "transcoding" {
     config {
       command = "/usr/bin/bash"
       args    = [
-        "/home/ubuntu/tidal/scripts/transcoding.sh",
+        "/mnt/tidal/dev/scripts/transcoding.sh",
         "${NOMAD_META_S3_IN}",
         "${NOMAD_META_S3_OUT}",
         "${NOMAD_META_CMD}",
