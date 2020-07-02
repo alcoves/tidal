@@ -17,10 +17,12 @@ resource "aws_lambda_function" "tidal_s3_event_handler" {
 
   vpc_config {
     security_group_ids = [
-      "sg-665de11a",
+      "sg-0370122acfac20fd8",
     ]
     subnet_ids = [
-      "subnet-c7275c9c",
+      "subnet-05118fa49fa1cd19e",
+      "subnet-0720fb8390bdfd4c4",
+      "subnet-0de5d84f8ec696cf8"
     ]
   }
 

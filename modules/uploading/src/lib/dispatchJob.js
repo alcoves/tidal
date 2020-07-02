@@ -10,7 +10,7 @@ module.exports = async function (job, Meta) {
     })
     .promise();
 
-  const nomadAddr = `http://172.31.29.153:4646/v1/job/${job}/dispatch`;
+  const nomadAddr = `http://10.0.3.87:4646/v1/job/${job}/dispatch`;
   return axios
     .post(
       nomadAddr,
