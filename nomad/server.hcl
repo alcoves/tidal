@@ -4,10 +4,10 @@ data_dir  = "/var/lib/nomad"
 server {
   bootstrap_expect = 1
   enabled          = true
+}
 
-  acl {
-    enabled = true
-  }
+acl {
+  enabled = true
 }
 
 client { enabled = false }
