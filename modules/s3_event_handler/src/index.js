@@ -62,7 +62,7 @@ module.exports.handler = async function (event) {
           Items.map(async ({ cmd, preset }) => {
             // TODO :: Use environment variable once nomad servers are tracked in tf
             const nomadAddr =
-              'http://172.31.29.153:4646/v1/job/transcoding/dispatch';
+              'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
 
             const { Item } = await db
               .get({

@@ -23,7 +23,7 @@ module.exports.handler = async ({ Records }) => {
           s3_in: `s3://${TIDAL_BUCKET}/segments/${item.id}/${item.preset}`,
           s3_out: `s3://${CDN_BUCKET}/v/${item.id}/${item.preset}.${item.ext}`,
         };
-        const nomadAddr = `http://172.31.29.153:4646/v1/job/concatinating/dispatch`;
+        const nomadAddr = `http://10.0.3.87:4646/v1/job/concatinating/dispatch`;
 
         const { Item } = await db
           .get({
