@@ -63,7 +63,7 @@ module.exports.handler = async (event) => {
     });
 
     await dispatchJob('thumbnail', {
-      cmd: '-vf crop=854:480 -vframes 1 -q:v 40',
+      cmd: '-vf scale=1280:-2,crop=854:480 -vframes 1 -q:v 40',
       s3_in: sourceS3Path,
       s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     });
