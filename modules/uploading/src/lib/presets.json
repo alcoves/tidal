@@ -49,7 +49,9 @@
       "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2"
+      "-bf 2",
+      "-g 60",
+      "-keyint_min 30"
     ]
   },
   "libvpx_vp9-1080p": {
@@ -76,7 +78,9 @@
       "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2"
+      "-bf 2",
+      "-g 60",
+      "-keyint_min 30"
     ]
   },
   "libvpx_vp9-720p": {
@@ -103,7 +107,9 @@
       "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
-      "-bf 2"
+      "-bf 2",
+      "-g 60",
+      "-keyint_min 30"
     ]
   },
   "libvpx_vp9-480p": {
@@ -127,6 +133,8 @@
       "-preset faster",
       "-profile:v high",
       "-bf 2",
+      "-g 60",
+      "-keyint_min 30",
       "-crf 24",
       "-coder 1",
       "-pix_fmt yuv420p",
