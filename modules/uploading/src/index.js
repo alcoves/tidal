@@ -8,23 +8,20 @@ const getMetadata = require('./lib/getMetadata');
 const { WASABI_BUCKET } = process.env;
 
 module.exports.handler = async (event) => {
-  // console.log(JSON.stringify(event, null, 2));
-
-  // TODO :: Create lambda that fires for uploads and is outside the vpc
-  // This lambda will be the one spawning instances
-  // await ec2.startInstances({ InstanceIds: ['i-0d692bffc7eaa36ed'] }).promise();
-
   for (const { s3 } of event.Records) {
     const bucket = s3.bucket.name;
     const videoId = s3.object.key.split('/')[1];
     const filename = s3.object.key.split('/')[2];
     const sourceS3Path = `s3://${bucket}/uploads/${videoId}/${filename}`;
+    console.log({ bucket, videoId, filename, sourceS3Path });
 
     const { width, duration } = await getMetadata(sourceS3Path);
     const presets = getPresets(width);
+    console.log({ width, duration, presets });
 
     await Promise.all(
       presets.map(async ({ preset, cmd, ext }) => {
+        console.log({ preset, cmd, ext });
         await db
           .delete({
             TableName: 'tidal-dev',
@@ -32,21 +29,21 @@ module.exports.handler = async (event) => {
           })
           .promise();
 
-        await db
-          .put({
-            TableName: 'tidal-dev',
-            Item: {
-              cmd,
-              ext,
-              preset,
-              duration,
-              audio: {},
-              id: videoId,
-              segments: {},
-              status: 'segmenting',
-            },
-          })
-          .promise();
+        const params = {
+          TableName: 'tidal-dev',
+          Item: {
+            cmd,
+            ext,
+            preset,
+            duration,
+            audio: {},
+            id: videoId,
+            segments: {},
+            status: 'segmenting',
+          },
+        };
+        console.log('put', params);
+        await db.put(params).promise();
       })
     );
 
