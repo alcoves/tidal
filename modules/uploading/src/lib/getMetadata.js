@@ -15,15 +15,40 @@ module.exports = function getMetadata(url) {
     });
 
     ffmpeg.ffprobe(signedUrl, function (err, metadata) {
+      console.log('ffprobe', metadata);
       if (err) reject(err);
-      resolve(
-        metadata.streams.reduce((acc, cv) => {
-          if (cv.width) acc.width = parseInt(cv.width);
-          if (cv.height) acc.height = parseInt(cv.height);
-          if (cv.duration) acc.duration = parseFloat(cv.duration);
+      let duration = 0;
+
+      if (metadata && metadata.format && metadata.format.duration) {
+        duration = parseFloat(metadata.format.duration);
+      }
+
+      const parsedMetadata = metadata.streams.reduce(
+        (acc, cv) => {
+          const streamWidth = parseFloat(cv.width);
+          const streamHeight = parseFloat(cv.height);
+          const streamDuration = parseFloat(cv.duration);
+
+          if (streamWidth) {
+            if (streamWidth > acc.width) acc.width = streamWidth;
+          }
+
+          if (streamHeight) {
+            if (streamHeight > acc.height) acc.height = streamHeight;
+          }
+
+          // Fallback to stream duration if container duration is undefined
+          if (!duration && streamDuration > acc.duration) {
+            acc.duration = streamDuration;
+          }
+
           return acc;
-        }, {})
+        },
+        { width: 0, height: 0, duration }
       );
+
+      console.log('parsedMetadata', parsedMetadata);
+      resolve(parsedMetadata);
     });
   });
 };
