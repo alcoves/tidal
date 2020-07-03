@@ -25,7 +25,7 @@ VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
 
-BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
+BUCKET="$(echo $S3_IN | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
 TIDAL_ENV="$(echo $BUCKET | cut -d'-' -f3)"
@@ -36,7 +36,7 @@ echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
 echo "downloading video"
-aws s3 cp $IN_PATH $VIDEO_PATH
+aws s3 cp $S3_IN $VIDEO_PATH
 
 echo "segmentation started"
 ffmpeg -y -i $VIDEO_PATH $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.$VIDEO_EXTENSION
