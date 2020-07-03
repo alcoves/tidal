@@ -5,7 +5,7 @@ const getPresets = require('./lib/getPresets');
 const dispatchJob = require('./lib/dispatchJob');
 const getMetadata = require('./lib/getMetadata');
 
-const { WASABI_BUCKET } = process.env;
+const { WASABI_BUCKET, TIDAL_ENV } = process.env;
 
 module.exports.handler = async (event) => {
   for (const { s3 } of event.Records) {
@@ -24,13 +24,13 @@ module.exports.handler = async (event) => {
         console.log({ preset, cmd, ext });
         await db
           .delete({
-            TableName: 'tidal-dev',
+            TableName: `tidal-${TIDAL_ENV}`,
             Key: { id: videoId, preset },
           })
           .promise();
 
         const params = {
-          TableName: 'tidal-dev',
+          TableName: `tidal-${TIDAL_ENV}`,
           Item: {
             cmd,
             ext,

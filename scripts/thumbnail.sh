@@ -47,7 +47,7 @@ echo "link to image: $LINK"
 
 echo "updating tidal database with thumbnail"
 aws dynamodb update-item \
-  --table-name videos-dev \
+  --table-name "videos-${TIDAL_ENV}" \
   --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
   --update-expression 'SET #thumbnail = :thumbnail' \
   --expression-attribute-names '{"#thumbnail":'\"thumbnail\"'}' \
