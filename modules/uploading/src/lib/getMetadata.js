@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const ffmpeg = require('fluent-ffmpeg');
-const s3 = new AWS.S3({ region: 'us-east-1' });
+const s3 = new AWS.S3({ region: 'us-east-2' });
 
 module.exports = function getMetadata(url) {
   return new Promise(async (resolve, reject) => {

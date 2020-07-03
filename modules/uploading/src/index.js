@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 
 const getPresets = require('./lib/getPresets');
 const dispatchJob = require('./lib/dispatchJob');

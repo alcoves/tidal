@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const axios = require('axios');
 
-const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 const TIDAL_TABLE = process.env.TIDAL_TABLE;
 
 module.exports.handler = async function (event) {

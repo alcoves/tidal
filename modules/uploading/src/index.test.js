@@ -13,7 +13,7 @@ describe('upload tests', () => {
               {
                 eventVersion: '2.1',
                 eventSource: 'aws:s3',
-                awsRegion: 'us-east-1',
+                awsRegion: 'us-east-2',
                 eventTime: '2020-04-05T20:00:22.229Z',
                 eventName: 'ObjectCreated:CompleteMultipartUpload',
                 userIdentity: { principalId: 'A3DM7NBP99T08P' },
@@ -51,8 +51,8 @@ describe('upload tests', () => {
           md5OfBody: 'bd7bafe409900a8b8e046da13b450914',
           eventSource: 'aws:sqs',
           eventSourceARN:
-            'arn:aws:sqs:us-east-1:594206825329:tidal-uploads-dev',
-          awsRegion: 'us-east-1',
+            'arn:aws:sqs:us-east-2:594206825329:tidal-uploads-dev',
+          awsRegion: 'us-east-2',
         },
       ],
     };
