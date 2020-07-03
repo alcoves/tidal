@@ -13,8 +13,16 @@ job "concatinating" {
 
   task "concatinating" {
     restart {
-      attempts = 1
+      attempts = 2
       delay    = "10s"
+    }
+
+    reschedule {
+      attempts       = 3
+      delay          = "10s"
+      max_delay      = "30m"
+      unlimited      = false
+      delay_function = "exponential"
     }
 
     resources {
