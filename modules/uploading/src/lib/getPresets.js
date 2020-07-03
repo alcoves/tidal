@@ -11,7 +11,7 @@ module.exports = (width) => {
   const selectedPresets = [];
 
   selectedPresets.push(addPreset('libx264-480p'));
-  selectedPresets.push(addPreset('libvpx_vp9-480p'));
+  // selectedPresets.push(addPreset('libvpx_vp9-480p'));
 
   if (width >= 1280) {
     selectedPresets.push(addPreset('libx264-720p'));
