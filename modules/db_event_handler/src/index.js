@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const axios = require('axios');
 
-const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 const { CDN_BUCKET, TIDAL_BUCKET } = process.env;
 
 module.exports.handler = async ({ Records }) => {
