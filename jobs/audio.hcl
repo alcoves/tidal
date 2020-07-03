@@ -12,10 +12,29 @@ job "audio" {
     ]
   }
 
-  task "transcode" {
-    restart {
-      attempts = 2
-      delay    = "10s"
+  group "transcode" {
+    task "transcode" {
+      restart {
+        attempts = 2
+        delay    = "10s"
+      }
+
+      resources {
+        cpu    = 1500
+        memory = 1000
+      }
+
+      driver = "raw_exec"
+
+      config {
+        command = "/usr/bin/bash"
+        args    = [
+          "/mnt/tidal/dev/scripts/audio.sh",
+          "${NOMAD_META_S3_IN}",
+          "${NOMAD_META_S3_OUT}",
+          "${NOMAD_META_CMD}",
+        ]
+      }
     }
 
     reschedule {
@@ -24,23 +43,6 @@ job "audio" {
       max_delay      = "30m"
       unlimited      = false
       delay_function = "exponential"
-    }
-
-    resources {
-      cpu    = 1500
-      memory = 1000
-    }
-
-    driver = "raw_exec"
-
-    config {
-      command = "/usr/bin/bash"
-      args    = [
-        "/mnt/tidal/dev/scripts/audio.sh",
-        "${NOMAD_META_S3_IN}",
-        "${NOMAD_META_S3_OUT}",
-        "${NOMAD_META_CMD}",
-      ]
     }
   }
 }
