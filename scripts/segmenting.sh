@@ -12,6 +12,15 @@ echo "FFMPEG_COMMAND: ${FFMPEG_COMMAND}"
 echo "creating signed source url"
 SIGNED_SOURCE_URL=$(aws s3 presign $S3_IN)
 
+VIDEO_EXTENSION="${S3_IN##*.}"
+echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
+
+# if [ "$VIDEO_EXTENSION" = "webm" ] || [ "$VIDEO_EXTENSION" = "mkv" ]; then
+#   SEGMENTATION_EXT="mkv"
+# else 
+#   SEGMENTATION_EXT="mp4"
+# fi
+
 echo "parsing variables"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"  
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
@@ -31,7 +40,7 @@ echo "creating tmp directory"
 TMP_SEGMENT_DIR=$(mktemp -d)
 
 echo "segmentation started"
-ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.mkv
+ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.$VIDEO_EXTENSION
 
 echo "tally segments"
 SEGMENT_COUNT=$(ls -1q $TMP_SEGMENT_DIR | wc -l)
