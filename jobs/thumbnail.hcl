@@ -14,10 +14,18 @@ job "thumbnail" {
 
   task "thumbnail" {
     restart {
-      attempts = 1
+      attempts = 3
       delay    = "10s"
     }
 
+    reschedule {
+      attempts       = 3
+      delay          = "10s"
+      max_delay      = "30m"
+      unlimited      = false
+      delay_function = "exponential"
+    }
+    
     resources {
       cpu    = 1500
       memory = 1000
