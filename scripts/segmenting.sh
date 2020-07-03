@@ -9,17 +9,16 @@ echo "S3_IN: ${S3_IN}"
 echo "S3_OUT: ${S3_OUT}"
 echo "FFMPEG_COMMAND: ${FFMPEG_COMMAND}"
 
-echo "creating signed source url"
-SIGNED_SOURCE_URL=$(aws s3 presign $S3_IN)
+echo "creating tmp directory"
+TMP_DIR=$(mktemp -d)
+TMP_SEGMENT_DIR=$TMP_DIR/segments
+mkdir $TMP_SEGMENT_DIR
 
 VIDEO_EXTENSION="${S3_IN##*.}"
 echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
-# if [ "$VIDEO_EXTENSION" = "webm" ] || [ "$VIDEO_EXTENSION" = "mkv" ]; then
-#   SEGMENTATION_EXT="mkv"
-# else 
-#   SEGMENTATION_EXT="mp4"
-# fi
+VIDEO_PATH="$TMP_DIR/${VIDEO_ID}.${VIDEO_EXTENSION}"
+echo "VIDEO_PATH: ${VIDEO_PATH}"
 
 echo "parsing variables"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"  
@@ -36,11 +35,11 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
-echo "creating tmp directory"
-TMP_SEGMENT_DIR=$(mktemp -d)
+echo "downloading video"
+aws s3 cp $IN_PATH $VIDEO_PATH
 
 echo "segmentation started"
-ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.$VIDEO_EXTENSION
+ffmpeg -y -i $VIDEO_PATH $FFMPEG_COMMAND $TMP_SEGMENT_DIR/%08d.$VIDEO_EXTENSION
 
 echo "tally segments"
 SEGMENT_COUNT=$(ls -1q $TMP_SEGMENT_DIR | wc -l)
@@ -48,8 +47,8 @@ SEGMENT_COUNT=$(ls -1q $TMP_SEGMENT_DIR | wc -l)
 echo "moving segments to s3"
 aws s3 sync $TMP_SEGMENT_DIR $S3_OUT
 
-echo "removing tmp segment dir"
-rm -rf $TMP_SEGMENT_DIR
+echo "removing tmp dir"
+rm -rf $TMP_DIR
 
 echo "updating tidal db"
 ITEMS=$(aws dynamodb query \
