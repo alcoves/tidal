@@ -20,7 +20,7 @@ job "transcoding" {
       }
 
       resources {
-        cpu    = 1500
+        cpu    = 4000
         memory = 1000
       }
 
@@ -36,7 +36,7 @@ job "transcoding" {
         ]
       }
     }
-    
+
     reschedule {
       attempts       = 3
       delay          = "10s"
