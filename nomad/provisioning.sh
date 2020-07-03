@@ -3,7 +3,7 @@
 
 sudo su - ubuntu
 sudo apt update && sudo apt upgrade -y
-sudo apt -y install ffmpeg htop unzip zip curl wget git build-essential nasm awscli jq unzip docker.io
+sudo apt -y install ffmpeg htop nfs-common unzip zip curl wget git build-essential nasm awscli jq unzip docker.io
 
 # Configure aws cli
 sudo aws configure set region us-east-2 --profile default
