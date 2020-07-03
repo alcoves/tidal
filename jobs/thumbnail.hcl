@@ -18,12 +18,10 @@ job "thumbnail" {
           attempts = 3
           delay    = "10s"
         }
-
-
         
         resources {
-          cpu    = 1500
-          memory = 1000
+          cpu    = 500
+          memory = 500
         }
         
         driver = "raw_exec"
@@ -39,7 +37,7 @@ job "thumbnail" {
         }
       }
     }
-    
+
     reschedule {
       attempts       = 3
       delay          = "10s"

@@ -49,25 +49,25 @@ module.exports.handler = async (event) => {
 
     await dispatchJob('audio', {
       s3_in: sourceS3Path,
-      cmd: '-vn -c:a aac',
+      cmd: '-vn -c:a aac -threads 2',
       s3_out: `s3://${bucket}/audio/${videoId}/source.aac`,
     });
 
     await dispatchJob('audio', {
       s3_in: sourceS3Path,
-      cmd: '-vn -c:a libopus -f opus',
+      cmd: '-vn -c:a libopus -f opus -threads 2',
       s3_out: `s3://${bucket}/audio/${videoId}/source.ogg`,
     });
 
     await dispatchJob('thumbnail', {
-      cmd: '-vf scale=854:-2,crop=854:480 -vframes 1 -q:v 50',
+      cmd: '-vf scale=854:-2,crop=854:480 -vframes 1 -q:v 50 -threads 1',
       s3_in: sourceS3Path,
       s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     });
 
     await dispatchJob('segmenting', {
       s3_in: sourceS3Path,
-      cmd: '-an -c:v copy -f segment -segment_time 10',
+      cmd: '-an -c:v copy -f segment -segment_time 10 -threads 2',
       s3_out: `s3://${bucket}/segments/${videoId}/source`,
     });
   }
