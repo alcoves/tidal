@@ -12,6 +12,8 @@ function parseFramerate(r_frame_rate) {
       return 30
     } else if (framerate >= 23) {
       return 24
+    } else if (framerate > 0) {
+      return parseInt(framerate)
     }
   }
 
