@@ -12,8 +12,8 @@ job "audio" {
     ]
   }
 
-  group "transcode" {
-    task "transcode" {
+  group "audio" {
+    task "audio" {
       restart {
         attempts = 2
         delay    = "10s"
