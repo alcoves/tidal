@@ -44,6 +44,7 @@ module.exports = function getMetadata(url) {
           const streamWidth = parseFloat(cv.width);
           const streamHeight = parseFloat(cv.height);
           const streamDuration = parseFloat(cv.duration);
+          const framerate = parseFramerate(cv.r_frame_rate);
 
           if (streamWidth) {
             if (streamWidth > acc.width) acc.width = streamWidth;
@@ -53,8 +54,8 @@ module.exports = function getMetadata(url) {
             if (streamHeight > acc.height) acc.height = streamHeight;
           }
 
-          if (cv.r_frame_rate) {
-            cv.framerate = parseFramerate(cv.r_frame_rate)
+          if (framerate) {
+            if (framerate > acc.framerate) acc.framerate = framerate;
           }
 
           // Fallback to stream duration if container duration is null
@@ -68,6 +69,7 @@ module.exports = function getMetadata(url) {
       );
 
       if (!parsedMetadata.width || !parsedMetadata.height || !parsedMetadata.duration || !parsedMetadata.framerate) {
+        console.log('parsedMetadata', parsedMetadata);
         throw new Error('metadata parsing failed');
       }
 
