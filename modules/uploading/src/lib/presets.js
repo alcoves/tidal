@@ -1,11 +1,11 @@
 const presets = require('./presets.json');
 
-module.exports = (preset, framerate) => {
-  if (!preset || !framerate) {
+module.exports = (presetName, framerate) => {
+  if (!presetName || !framerate) {
     throw new Error('preset and framerate must be defined');
   }
 
-  const preset = presets[preset];
+  const preset = presets[presetName];
 
   // Constant frame rate mode
   preset.cmd['-vf'] = `fps=${framerate},${preset.cmd['-vf']}`;
