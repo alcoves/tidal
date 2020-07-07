@@ -15,8 +15,8 @@ module.exports.handler = async (event) => {
     const sourceS3Path = `s3://${bucket}/uploads/${videoId}/${filename}`;
     console.log({ bucket, videoId, filename, sourceS3Path });
 
-    const { width, duration } = await getMetadata(sourceS3Path);
-    const presets = getPresets(width);
+    const { width, duration, framerate } = await getMetadata(sourceS3Path);
+    const presets = getPresets(width, framerate);
     console.log({ width, duration, presets });
 
     await Promise.all(

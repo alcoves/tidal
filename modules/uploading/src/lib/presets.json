@@ -2,148 +2,143 @@
   "libvpx_vp9-2160p": {
     "preset": "libvpx_vp9-2160p",
     "ext": "webm",
-    "cmd": [
-      "-speed 5",
-      "-b:v 0",
-      "-crf 40",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf scale=3840:-2"
-    ]
-  },
-  "libx264-2160p": {
-    "preset": "libx264-2160p",
-    "ext": "mp4",
-    "cmd": [
-      "-c:v libx264",
-      "-preset faster",
-      "-vsync 1",
-      "-profile:v high",
-      "-vf scale=3840:-2",
-      "-crf 24",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-bf 3"
-    ]
-  },
-  "libvpx_vp9-1440p": {
-    "preset": "libvpx_vp9-1440p",
-    "ext": "webm",
-    "cmd": [
-      "-speed 5",
-      "-quality good",
-      "-b:v 0",
-      "-crf 40",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf scale=2360:-2"
-    ]
-  },
-  "libx264-1440p": {
-    "preset": "libx264-1440p",
-    "ext": "mp4",
-    "cmd": [
-      "-c:v libx264",
-      "-preset faster",
-      "-vsync 1",
-      "-profile:v high",
-      "-vf scale=2360:-2",
-      "-crf 24",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-bf 3",
-      "-g 60",
-      "-keyint_min 60"
-    ]
-  },
-  "libvpx_vp9-1080p": {
-    "preset": "libvpx_vp9-1080p",
-    "ext": "webm",
-    "cmd": [
-      "-speed 5",
-      "-quality good",
-      "-b:v 0",
-      "-crf 40",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf scale=1920:-2"
-    ]
-  },
-  "libx264-1080p": {
-    "preset": "libx264-1080p",
-    "ext": "mp4",
-    "cmd": [
-      "-c:v libx264",
-      "-preset faster",
-      "-vsync 1",
-      "-profile:v high",
-      "-vf scale=1920:-2",
-      "-crf 24",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-bf 3",
-      "-g 60",
-      "-keyint_min 60"
-    ]
-  },
-  "libvpx_vp9-720p": {
-    "preset": "libvpx_vp9-720p",
-    "ext": "webm",
-    "cmd": [
-      "-speed 5",
-      "-quality good",
-      "-b:v 0",
-      "-crf 40",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf scale=1280:-2"
-    ]
-  },
-  "libx264-720p": {
-    "preset": "libx264-720p",
-    "ext": "mp4",
-    "cmd": [
-      "-c:v libx264",
-      "-preset faster",
-      "-vsync 1",
-      "-profile:v high",
-      "-vf scale=1280:-2",
-      "-crf 24",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-bf 3",
-      "-g 60",
-      "-keyint_min 60"
-    ]
-  },
-  "libvpx_vp9-480p": {
-    "preset": "libvpx_vp9-480p",
-    "ext": "webm",
-    "cmd": [
-      "-speed 5",
-      "-quality good",
-      "-b:v 0",
-      "-crf 40",
-      "-c:v libvpx-vp9",
-      "-pix_fmt yuv420p",
-      "-vf fps=fps=30,scale=834:-2"
-    ]
-  },
-  "libx264-480p": {
-    "preset": "libx264-480p",
-    "ext": "mp4",
-    "cmd": [
-      "-c:v libx264",
-      "-preset faster",
-      "-vsync 1",
-      "-profile:v high",
-      "-bf 3",
-      "-g 60",
-      "-keyint_min 60",
-      "-crf 24",
-      "-coder 1",
-      "-pix_fmt yuv420p",
-      "-vf fps=fps=30,scale=834:-2"
-    ]
+    "cmd": {
+      "-speed5": "5",
+      "-b:v": "0",
+      "-crf": "40",
+      "-c:v": "libvpx-vp9",
+      "-pix_fmt": "yuv420p",
+      "-vf": "scale=3840:-2"
+    },
+    "libx264-2160p": {
+      "preset": "libx264-2160p",
+      "ext": "mp4",
+      "cmd": {
+        "-c:v": "libx264",
+        "-preset": "faster",
+        "-profile:v": "high",
+        "-vf": "scale=3840:-2",
+        "-crf": "24",
+        "-coder": "1",
+        "-pix_fmt": "yuv420p",
+        "-bf": "3"
+      }
+    },
+    "libvpx_vp9-1440p": {
+      "preset": "libvpx_vp9-1440p",
+      "ext": "webm",
+      "cmd": {
+        "-speed": "5",
+        "-quality": "good",
+        "-b:v": " 0",
+        "-crf": " 40",
+        "-c:v": " libvpx-vp9",
+        "-pix_fmt": "yuv420p",
+        "-vf": "scale=2360:-2"
+      }
+    },
+    "libx264-1440p": {
+      "preset": "libx264-1440p",
+      "ext": "mp4",
+      "cmd": {
+        "-c:v": "libx264",
+        "-preset": "faster",
+        "-profile:v": "high",
+        "-vf": "scale=2360:-2",
+        "-crf": "24",
+        "-coder": "1",
+        "-pix_fmt": "yuv420p",
+        "-bf": "3",
+        "-g": "60",
+        "-keyint_min": "60"
+      }
+    },
+    "libvpx_vp9-1080p": {
+      "preset": "libvpx_vp9-1080p",
+      "ext": "webm",
+      "cmd": {
+        "-speed": "5",
+        "-quality": "good",
+        "-b:v": " 0",
+        "-crf": " 40",
+        "-c:v": " libvpx-vp9",
+        "-pix_fmt": "yuv420p",
+        "-vf": "scale=1920:-2"
+      }
+    },
+    "libx264-1080p": {
+      "preset": "libx264-1080p",
+      "ext": "mp4",
+      "cmd": {
+        "-c:v": "libx264",
+        "-preset": "faster",
+        "-profile:v": "high",
+        "-vf": "scale=1920:-2",
+        "-crf": "24",
+        "-coder": "1",
+        "-pix_fmt": "yuv420p",
+        "-bf": "3",
+        "-g": "60",
+        "-keyint_min ": "60"
+      }
+    },
+    "libvpx_vp9-720p": {
+      "preset": "libvpx_vp9-720p",
+      "ext": "webm",
+      "cmd": {
+        "-speed": "5",
+        "-quality": "good",
+        "-b:v": " 0",
+        "-crf": " 40",
+        "-c:v": " libvpx-vp9",
+        "-pix_fmt": "yuv420p",
+        "-vf": "scale=1280:-2"
+      }
+    },
+    "libx264-720p": {
+      "preset": "libx264-720p",
+      "ext": "mp4",
+      "cmd": {
+        "-c:v": "libx264",
+        "-preset": "faster",
+        "-profile:v": "high",
+        "-vf": "scale=1280:-2",
+        "-crf": "24",
+        "-coder": "1",
+        "-pix_fmt": "yuv420p",
+        "-bf": "3",
+        "-g": "60",
+        "-keyint_min": "60"
+      }
+    },
+    "libvpx_vp9-480p": {
+      "preset": "libvpx_vp9-480p",
+      "ext": "webm",
+      "cmd": {
+        "-speed": "5",
+        "-quality": "good",
+        "-b:v": " 0",
+        "-crf": " 40",
+        "-c:v": " libvpx-vp9",
+        "-pix_fmt": "yuv420p",
+        "-vf": "scale=834:-2"
+      }
+    },
+    "libx264-480p": {
+      "preset": "libx264-480p",
+      "ext": "mp4",
+      "cmd": {
+        "-c:v": "libx264",
+        "-preset": "faster",
+        "-profile:v": "high",
+        "-bf": "3",
+        "-g": "60",
+        "-keyint_min": "60",
+        "-crf": "24",
+        "-coder": "1",
+        "-pix_fmt": "yuv420p",
+        "-vf": "scale=834:-2"
+      }
+    }
   }
 }

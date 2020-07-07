@@ -1,36 +1,29 @@
-const presets = require('./presets.json');
+const presets = require('./presets');
 
-function addPreset(name) {
-  return {
-    ...presets[name],
-    cmd: presets[name].cmd.join(' '),
-  };
-}
-
-module.exports = (width) => {
+module.exports = (width, framerate) => {
   const selectedPresets = [];
 
-  selectedPresets.push(addPreset('libx264-480p'));
-  // selectedPresets.push(addPreset('libvpx_vp9-480p'));
+  selectedPresets.push(presets('libx264-480p', framerate));
+  // selectedPresets.push(presets('libvpx_vp9-480p', framerate));
 
   if (width >= 1280) {
-    selectedPresets.push(addPreset('libx264-720p'));
-    // selectedPresets.push(addPreset('libvpx_vp9-720p'));
+    selectedPresets.push(presets('libx264-720p', framerate));
+    // selectedPresets.push(presets('libvpx_vp9-720p', framerate));
   }
 
   if (width >= 1920) {
-    selectedPresets.push(addPreset('libx264-1080p'));
-    // selectedPresets.push(addPreset('libvpx_vp9-1080p'));
+    selectedPresets.push(presets('libx264-1080p', framerate));
+    // selectedPresets.push(presets('libvpx_vp9-1080p', framerate));
   }
 
   if (width >= 2560) {
-    selectedPresets.push(addPreset('libx264-1440p'));
-    // selectedPresets.push(addPreset('libvpx_vp9-1440p'));
+    selectedPresets.push(presets('libx264-1440p', framerate));
+    // selectedPresets.push(presets('libvpx_vp9-1440p', framerate));
   }
 
   if (width >= 3840) {
-    selectedPresets.push(addPreset('libx264-2160p'));
-    // selectedPresets.push(addPreset('libvpx_vp9-2160p'));
+    selectedPresets.push(presets('libx264-2160p', framerate));
+    // selectedPresets.push(presets('libvpx_vp9-2160p', framerate));
   }
 
   return selectedPresets;
