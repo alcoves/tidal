@@ -4,14 +4,14 @@ function x264(framerate, width) {
   }
 
   const commands = [
-    "-c:v libx264",
-    "-preset faster",
-    "-profile:v high",
-    "-bf 3",
-    "-g 60",
-    "-keyint_min 60",
+    "-bf 2",
+    "-g 30",
     "-crf 24",
     "-coder 1",
+    "-c:v libx264",
+    "-preset faster",
+    "-keyint_min 30",
+    "-profile:v high",
     "-pix_fmt yuv420p",
     `-vf fps=fps=${framerate},scale=${width}:-2`
   ]
