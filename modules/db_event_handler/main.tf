@@ -42,7 +42,7 @@ resource "aws_lambda_function" "tidal_db_event_handler" {
     variables = {
       NODE_ENV     = "production"
       TIDAL_BUCKET = "tidal-bken-${var.env}"
-      CDN_BUCKET   = "${var.env}-cdn.bken.io"
+      CDN_BUCKET   = "${var.env == "dev" ? "dev-" : ""}cdn.bken.io"
     }
   }
 }
