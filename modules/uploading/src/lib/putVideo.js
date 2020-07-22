@@ -3,7 +3,7 @@ const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 
 const { TIDAL_ENV } = process.env;
 
-async function putVideo({ id, presets }) {
+async function putVideo({ id, presets, duration }) {
   await db
     .delete({
       Key: { id },
@@ -16,30 +16,8 @@ async function putVideo({ id, presets }) {
       ext,
       cmd,
       link: null,
-      status: {
-        upload: {
-          createdAt: 0,
-          updatedAt: 0
-        },
-        segmenting: {
-          createdAt: 0,
-          updatedAt: 0
-        },
-        transcoding: {
-          createdAt: 0,
-          updatedAt: 0
-        },
-        concatinating: {
-          createdAt: 0,
-          updatedAt: 0
-        },
-        publishing: {
-          createdAt: 0,
-          updatedAt: 0
-        },
-      },
+      status: 'segmenting'
     }
-
     return acc;
   }, {});
 
