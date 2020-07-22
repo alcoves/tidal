@@ -4,6 +4,7 @@ const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 const TIDAL_TABLE = process.env.TIDAL_TABLE;
 
 function updateAudio({ id, object }) {
+  console.log('updateAudio', { id, object });
   if (!id || !object) throw new Error('Undefined arguments');
   return db
     .update({
@@ -23,6 +24,7 @@ function updateAudio({ id, object }) {
 }
 
 function updateSegmentStatus({ id, preset, segment, status = false }) {
+  console.log('updateSegmentStatus', { id, preset, segment, status });
   if (!id || !segment) throw new Error('Undefined arguments');
   return db
     .update({
@@ -33,7 +35,7 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
       ExpressionAttributeNames: {
         '#preset': preset,
         '#segName': segment,
-        '#status': "status",
+        '#status': 'status',
         '#segments': 'segments',
       },
     })
