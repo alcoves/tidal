@@ -22,7 +22,7 @@ module.exports.handler = async function (event) {
       if (preset === 'source') {
         await enqueueJob({ id, bucket, segment });
       } else {
-        await updateSegmentStatus({ id, segment, status: true });
+        await updateSegmentStatus({ id, preset, segment, status: true });
       }
     }
   }

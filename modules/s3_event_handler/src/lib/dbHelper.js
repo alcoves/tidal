@@ -22,17 +22,20 @@ function updateAudio({ id, object }) {
     .promise();
 }
 
-function updateSegmentStatus({ id, segment, status = false }) {
+function updateSegmentStatus({ id, preset, segment, status = false }) {
   if (!id || !segment) throw new Error('Undefined arguments');
   return db
     .update({
       Key: { id },
       TableName: TIDAL_TABLE,
-      UpdateExpression: 'SET #segments.#segName = :status',
+      UpdateExpression: 'SET #segments.#preset.#segName.#status = :status',
       ExpressionAttributeValues: { ':status': status },
       ExpressionAttributeNames: {
+        '#preset': preset,
         '#segName': segment,
+        '#status': "status",
         '#segments': 'segments',
+        '#versions': 'versions',
       },
     })
     .promise();
