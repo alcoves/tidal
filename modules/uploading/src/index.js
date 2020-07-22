@@ -17,7 +17,7 @@ module.exports.handler = async (event) => {
     const presets = getPresets(width, framerate);
     console.log({ width, duration, presets });
 
-    await putVideo({ id: videoId, presets });
+    await putVideo({ id: videoId, presets, duration });
 
     await dispatchJob('audio', {
       s3_in: sourceS3Path,
