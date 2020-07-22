@@ -35,7 +35,6 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
       ExpressionAttributeNames: {
         '#preset': preset,
         '#segName': segment,
-        '#status': 'status',
         '#versions': 'versions',
       },
     })
