@@ -1,6 +1,6 @@
 const {
   updateAudio,
-  updateSegmentStatus,
+  incrementSegmentCount,
 } = require('./lib/dbHelper');
 
 const enqueueJob = require('./lib/enqueueJob');
@@ -22,7 +22,7 @@ module.exports.handler = async function (event) {
       if (preset === 'source') {
         await enqueueJob({ id, bucket, segment });
       } else {
-        await updateSegmentStatus({ id, preset, segment, status: true });
+        await incrementSegmentCount({ id, preset });
       }
     }
   }
