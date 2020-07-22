@@ -30,13 +30,13 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
     .update({
       Key: { id },
       TableName: TIDAL_TABLE,
-      UpdateExpression: 'SET #versions.#preset.#segments.#segName = :status',
-      ExpressionAttributeValues: { ':status': status },
+      UpdateExpression: 'SET #versions.#preset.#segmentsCompleted = #versions.#preset.#segmentsCompleted + :val',
+      ExpressionAttributeValues: { ':val': 1 },
       ExpressionAttributeNames: {
         '#preset': preset,
         '#segName': segment,
         '#versions': 'versions',
-        '#segments': 'segments',
+        '#segmentsCompleted': 'segmentsCompleted',
       },
     })
     .promise();

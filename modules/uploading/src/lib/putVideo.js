@@ -16,8 +16,8 @@ async function putVideo({ id, presets, duration }) {
       ext,
       cmd,
       link: null,
-      segments: {},
-      status: 'segmenting'
+      status: 'segmenting',
+      segmentsCompleted: 0,
     }
     return acc;
   }, {});
