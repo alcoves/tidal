@@ -1,13 +1,11 @@
 
 const axios = require('axios');
+const AWS = require('aws-sdk');
 
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 const TIDAL_TABLE = process.env.TIDAL_TABLE;
 
 async function enqueueTranscodingJob({ id, bucket, segment }) {
-  // TODO :: Use environment variable once nomad servers are tracked in tf
-  const nomadAddr =
-    'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
-
   const { Item: nomad } = await db
     .get({
       TableName: 'config',
@@ -21,6 +19,10 @@ async function enqueueTranscodingJob({ id, bucket, segment }) {
       Key: { id },
     })
     .promise();
+
+  // TODO :: Use environment variable once nomad servers are tracked in tf
+  const nomadAddr =
+    'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
 
   await Promise.all(video.versions.map(({ cmd, preset }) => {
     return axios.post(
