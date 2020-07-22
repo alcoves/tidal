@@ -87,10 +87,10 @@ echo "LINK: $LINK"
 echo "updating tidal database with status"
 aws dynamodb update-item \
   --table-name "tidal-${TIDAL_ENV}" \
-  --key '{"id": {"S": '\"$VIDEO_ID\"'}' \
-  --update-expression 'SET #status = :status, #link = :link' \
-  --expression-attribute-names '{"#status":'\"versions.${PRESET_NAME}.status\"',"#link":'\"versions.${PRESET_NAME}.link\"'}' \
-  --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
+  --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}' \
+  --update-expression 'SET #versions.#preset.#status = :status, #versions.#preset.#link = :link' \
+  --expression-attribute-names '{"#versions":"versions","#status":"status","#link":"link","#preset":'\"$PRESET_NAME\"'}'
 
 echo "removing tmp dir"
 rm -rf $TMP_DIR
