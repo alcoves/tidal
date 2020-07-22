@@ -24,7 +24,7 @@ async function enqueueTranscodingJob({ id, bucket, segment }) {
   const nomadAddr =
     'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
 
-  await Promise.all(video.versions.map(({ cmd, preset }) => {
+  await Promise.all(Object.entries(video.versions).map(([preset, { cmd }]) => {
     return axios.post(
       nomadAddr,
       {
