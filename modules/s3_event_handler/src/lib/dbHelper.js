@@ -23,9 +23,9 @@ function updateAudio({ id, object }) {
     .promise();
 }
 
-function updateSegmentStatus({ id, preset, segment, status = false }) {
-  console.log('updateSegmentStatus', { id, preset, segment, status });
-  if (!id || !segment || !preset) throw new Error('Undefined arguments');
+function incrementSegmentCount({ id, preset }) {
+  console.log('incrementSegmentCount', { id, preset });
+  if (!id || !preset) throw new Error('Undefined arguments');
   return db
     .update({
       Key: { id },
@@ -34,7 +34,6 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
       ExpressionAttributeValues: { ':val': 1 },
       ExpressionAttributeNames: {
         '#preset': preset,
-        '#segName': segment,
         '#versions': 'versions',
         '#segmentsCompleted': 'segmentsCompleted',
       },
@@ -44,5 +43,5 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
 
 module.exports = {
   updateAudio,
-  updateSegmentStatus
+  incrementSegmentCount
 }
