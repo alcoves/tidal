@@ -35,7 +35,6 @@ function updateSegmentStatus({ id, preset, segment, status = false }) {
         '#segName': segment,
         '#status': "status",
         '#segments': 'segments',
-        '#versions': 'versions',
       },
     })
     .promise();
