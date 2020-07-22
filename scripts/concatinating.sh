@@ -87,9 +87,9 @@ echo "LINK: $LINK"
 echo "updating tidal database with status"
 aws dynamodb update-item \
   --table-name "tidal-${TIDAL_ENV}" \
-  --key '{"id": {"S": '\"$VIDEO_ID\"'}, "preset": {"S": '\"$PRESET_NAME\"'}}' \
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}' \
   --update-expression 'SET #status = :status, #link = :link' \
-  --expression-attribute-names '{"#status":"status","#link":"link"}' \
+  --expression-attribute-names '{"#status":'\"versions.${PRESET_NAME}.status\"',"#link":'\"versions.${PRESET_NAME}.link\"'}' \
   --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}'
 
 echo "removing tmp dir"

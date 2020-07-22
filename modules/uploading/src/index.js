@@ -1,11 +1,9 @@
-const AWS = require('aws-sdk');
-const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
-
+const putVideo = require('./lib/putVideo');
 const getPresets = require('./lib/getPresets');
 const dispatchJob = require('./lib/dispatchJob');
 const getMetadata = require('./lib/getMetadata');
 
-const { WASABI_BUCKET, TIDAL_ENV } = process.env;
+const { WASABI_BUCKET } = process.env;
 
 module.exports.handler = async (event) => {
   for (const { s3 } of event.Records) {
@@ -19,33 +17,7 @@ module.exports.handler = async (event) => {
     const presets = getPresets(width, framerate);
     console.log({ width, duration, presets });
 
-    await Promise.all(
-      presets.map(async ({ preset, cmd, ext }) => {
-        console.log({ preset, cmd, ext });
-        await db
-          .delete({
-            TableName: `tidal-${TIDAL_ENV}`,
-            Key: { id: videoId, preset },
-          })
-          .promise();
-
-        const params = {
-          TableName: `tidal-${TIDAL_ENV}`,
-          Item: {
-            cmd,
-            ext,
-            preset,
-            duration,
-            audio: {},
-            id: videoId,
-            segments: {},
-            status: 'segmenting',
-          },
-        };
-        console.log('put', params);
-        await db.put(params).promise();
-      })
-    );
+    await putVideo({ id: videoId, presets });
 
     await dispatchJob('audio', {
       s3_in: sourceS3Path,
