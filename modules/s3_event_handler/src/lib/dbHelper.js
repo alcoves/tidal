@@ -25,7 +25,7 @@ function updateAudio({ id, object }) {
 
 function updateSegmentStatus({ id, preset, segment, status = false }) {
   console.log('updateSegmentStatus', { id, preset, segment, status });
-  if (!id || !segment) throw new Error('Undefined arguments');
+  if (!id || !segment || !preset) throw new Error('Undefined arguments');
   return db
     .update({
       Key: { id },
