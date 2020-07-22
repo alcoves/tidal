@@ -66,7 +66,7 @@ for row in $(echo "${ITEMS}" | jq -r '.[] | @base64'); do
   
   aws dynamodb update-item \
     --table-name "tidal-${TIDAL_ENV}" \
-    --key "{\"id\":{\"S\":\"$VIDEO_ID\"}" \
+    --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
     --update-expression "SET segmentCount = :segmentCount" \
     --expression-attribute-values "{\":segmentCount\":{\"N\":\"$SEGMENT_COUNT\"}}"
 done
