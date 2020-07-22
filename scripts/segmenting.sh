@@ -50,25 +50,11 @@ aws s3 sync $TMP_SEGMENT_DIR $S3_OUT
 echo "removing tmp dir"
 rm -rf $TMP_DIR
 
-echo "updating tidal db"
-ITEMS=$(aws dynamodb query \
+echo "Updating tidal db"
+aws dynamodb update-item \
   --table-name "tidal-${TIDAL_ENV}" \
-  --key-condition-expression "id = :id" \
-  --expression-attribute-values "{\":id\":{\"S\":\"$VIDEO_ID\"}}" \
-  | jq -r '.Items')
-
-for row in $(echo "${ITEMS}" | jq -r '.[] | @base64'); do
-  _jq() {
-    echo ${row} | base64 --decode | jq -r ${1}
-  }
-  
-  PRESET=$(_jq '.preset.S')
-  
-  aws dynamodb update-item \
-    --table-name "tidal-${TIDAL_ENV}" \
-    --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
-    --update-expression "SET segmentCount = :segmentCount" \
-    --expression-attribute-values "{\":segmentCount\":{\"N\":\"$SEGMENT_COUNT\"}}"
-done
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
+  --update-expression "SET segmentCount = :segmentCount" \
+  --expression-attribute-values '{":segmentCount":{"N":'\"$SEGMENT_COUNT\"'}}'
 
 echo "segmentation completed"
