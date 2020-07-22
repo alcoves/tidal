@@ -3,7 +3,7 @@ const {
   updateSegmentStatus,
 } = require('./lib/dbHelper');
 
-const enqueueTranscoidngJob = require('./lib/enqueueTranscoidngJob');
+const enqueueJob = require('./lib/enqueueJob');
 
 module.exports.handler = async function (event) {
   console.log(JSON.stringify(event));
@@ -20,7 +20,7 @@ module.exports.handler = async function (event) {
     if (folder === 'segments') {
       const [, id, preset, segment] = record.s3.object.key.split('/');
       if (preset === 'source') {
-        await enqueueTranscoidngJob({ id, bucket, segment });
+        await enqueueJob({ id, bucket, segment });
       } else {
         await updateSegmentStatus({ id, segment, status: true });
       }
