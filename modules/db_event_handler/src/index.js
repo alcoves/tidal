@@ -1,8 +1,7 @@
 const AWS = require('aws-sdk');
 const dispatchJob = require('./lib/dispatchJob');
-// const obtainDbLock = require('./lib/obtainDbLock');
 
-const { CDN_BUCKET, TIDAL_BUCKET } = process.env;
+const { CDN_BUCKET, TIDAL_BUCKET, TIDAL_TABLE } = process.env;
 
 module.exports.handler = async ({ Records }) => {
   for (const event of Records) {
@@ -28,6 +27,20 @@ module.exports.handler = async ({ Records }) => {
             s3_in: `s3://${TIDAL_BUCKET}/segments/${newVideo.id}/${version.preset}`,
             s3_out: `s3://${CDN_BUCKET}/v/${newVideo.id}/${version.preset}.${version.ext}`,
           });
+
+          await db
+            .update({
+              Key: { id },
+              TableName: TIDAL_TABLE,
+              UpdateExpression: 'set #versions.#preset.#status = :concatinating',
+              ExpressionAttributeValues: { ':segmenting': 'segmenting', ':concatinating': 'concatinating' },
+              ExpressionAttributeNames: {
+                '#versions': 'versions',
+                '#preset': version.preset,
+                '#status': 'concatinating',
+              },
+            })
+            .promise();
         }
       }
     }
