@@ -9,7 +9,7 @@ module.exports.handler = async ({ Records }) => {
     console.log(JSON.stringify(event));
     const video = AWS.DynamoDB.Converter.unmarshall(event.dynamodb.NewImage);
 
-    for (const version of video.versions) {
+    for (const version of Object.values(video.versions)) {
       if ((version.status === 'segmenting') && (version.segmentsCompleted === video.segmentCount) && (Object.keys(video.audio).length >= 2)) {
         if (await obtainDbLock(version.preset)) {
           await dispatchJob('concatinating', {
