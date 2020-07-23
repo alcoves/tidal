@@ -1,3 +1,4 @@
+const AWS = require('aws-sdk');
 const dispatchJob = require('./lib/dispatchJob');
 const obtainDbLock = require('./lib/obtainDbLock');
 
