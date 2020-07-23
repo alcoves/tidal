@@ -1,6 +1,8 @@
 const AWS = require('aws-sdk');
 const dispatchJob = require('./lib/dispatchJob');
 
+const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
+
 const { CDN_BUCKET, TIDAL_BUCKET, TIDAL_TABLE } = process.env;
 
 module.exports.handler = async ({ Records }) => {
