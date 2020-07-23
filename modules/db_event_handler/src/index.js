@@ -32,7 +32,7 @@ module.exports.handler = async ({ Records }) => {
 
           await db
             .update({
-              Key: { id },
+              Key: { id: newVideo.id },
               TableName: TIDAL_TABLE,
               UpdateExpression: 'set #versions.#preset.#status = :concatinating',
               ExpressionAttributeValues: { ':concatinating': 'concatinating' },
