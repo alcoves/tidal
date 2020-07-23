@@ -26,7 +26,7 @@ module.exports.handler = async ({ Records }) => {
           console.log(`concatinating ${version.preset}`);
           await dispatchJob('concatinating', {
             s3_in: `s3://${TIDAL_BUCKET}/segments/${newVideo.id}/${version.preset}`,
-            s3_out: `s3://${CDN_BUCKET}/v/${newVideo.id}/${version.preset}.${newVideo.ext}`,
+            s3_out: `s3://${CDN_BUCKET}/v/${newVideo.id}/${version.preset}.${version.ext}`,
           });
         }
       }
