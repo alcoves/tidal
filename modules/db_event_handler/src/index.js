@@ -35,7 +35,7 @@ module.exports.handler = async ({ Records }) => {
               Key: { id },
               TableName: TIDAL_TABLE,
               UpdateExpression: 'set #versions.#preset.#status = :concatinating',
-              ExpressionAttributeValues: { ':segmenting': 'segmenting', ':concatinating': 'concatinating' },
+              ExpressionAttributeValues: { ':concatinating': 'concatinating' },
               ExpressionAttributeNames: {
                 '#versions': 'versions',
                 '#preset': version.preset,
