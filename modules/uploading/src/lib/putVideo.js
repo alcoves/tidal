@@ -19,21 +19,24 @@ async function putVideo({ id, presets, duration }) {
       link: null,
       status: 'segmenting',
       segmentsCompleted: 0,
-    }
+    };
     return acc;
   }, {});
 
-  await db.put({
-    TableName: `tidal-${TIDAL_ENV}`,
-    Item: {
-      id,
-      duration,
-      versions,
-      audio: {},
-      segmentCount: 0,
-      status: 'segmenting',
-    },
-  }).promise();
+  await db
+    .put({
+      TableName: `tidal-${TIDAL_ENV}`,
+      Item: {
+        id,
+        duration,
+        versions,
+        audio: {},
+        segmentCount: 0,
+        status: 'segmenting',
+        thumbnail: 'https://cdn.bken.io/static/default-thumbnail-sm.jpg',
+      },
+    })
+    .promise();
 }
 
-module.exports = putVideo
+module.exports = putVideo;
