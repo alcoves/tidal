@@ -32,7 +32,8 @@ module.exports.handler = async (event) => {
     });
 
     await dispatchJob('thumbnail', {
-      cmd: '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50 -threads 1',
+      cmd:
+        '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50 -threads 1',
       s3_in: sourceS3Path,
       s3_out: `s3://${WASABI_BUCKET}/i/${videoId}/default.webp`,
     });

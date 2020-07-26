@@ -30,7 +30,8 @@ function incrementSegmentCount({ id, preset }) {
     .update({
       Key: { id },
       TableName: TIDAL_TABLE,
-      UpdateExpression: 'SET #versions.#preset.#segmentsCompleted = #versions.#preset.#segmentsCompleted + :val',
+      UpdateExpression:
+        'SET #versions.#preset.#segmentsCompleted = #versions.#preset.#segmentsCompleted + :val',
       ExpressionAttributeValues: { ':val': 1 },
       ExpressionAttributeNames: {
         '#preset': preset,
@@ -43,5 +44,5 @@ function incrementSegmentCount({ id, preset }) {
 
 module.exports = {
   updateAudio,
-  incrementSegmentCount
-}
+  incrementSegmentCount,
+};

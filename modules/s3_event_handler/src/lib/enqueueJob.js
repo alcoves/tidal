@@ -1,4 +1,3 @@
-
 const axios = require('axios');
 const AWS = require('aws-sdk');
 
@@ -21,26 +20,27 @@ async function enqueueTranscodingJob({ id, bucket, segment }) {
     .promise();
 
   // TODO :: Use environment variable once nomad servers are tracked in tf
-  const nomadAddr =
-    'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
+  const nomadAddr = 'http://10.0.3.87:4646/v1/job/transcoding/dispatch';
 
-  await Promise.all(Object.entries(video.versions).map(([preset, { cmd }]) => {
-    return axios.post(
-      nomadAddr,
-      {
-        Meta: {
-          cmd,
-          s3_in: `s3://${bucket}/segments/${id}/source/${segment}`,
-          s3_out: `s3://${bucket}/segments/${id}/${preset}/${segment}`,
+  await Promise.all(
+    Object.entries(video.versions).map(([preset, { cmd }]) => {
+      return axios.post(
+        nomadAddr,
+        {
+          Meta: {
+            cmd,
+            s3_in: `s3://${bucket}/segments/${id}/source/${segment}`,
+            s3_out: `s3://${bucket}/segments/${id}/${preset}/${segment}`,
+          },
         },
-      },
-      {
-        headers: {
-          'X-Nomad-Token': nomad.value,
-        },
-      }
-    );
-  }))
+        {
+          headers: {
+            'X-Nomad-Token': nomad.value,
+          },
+        }
+      );
+    })
+  );
 }
 
-module.exports = enqueueTranscodingJob
+module.exports = enqueueTranscodingJob;

@@ -4,19 +4,19 @@ function x264(framerate, width) {
   }
 
   const commands = [
-    "-bf 2",
-    "-g 30",
-    "-crf 24",
-    "-coder 1",
-    "-c:v libx264",
-    "-preset faster",
-    "-keyint_min 30",
-    "-profile:v high",
-    "-pix_fmt yuv420p",
-    `-vf fps=fps=${framerate},scale=${width}:-2`
-  ]
+    '-bf 2',
+    '-g 30',
+    '-crf 24',
+    '-coder 1',
+    '-c:v libx264',
+    '-preset faster',
+    '-keyint_min 30',
+    '-profile:v high',
+    '-pix_fmt yuv420p',
+    `-vf fps=fps=${framerate},scale=${width}:-2`,
+  ];
 
-  return commands.join(' ')
+  return commands.join(' ');
 }
 
 module.exports = function (presetName, framerate) {
@@ -28,33 +28,33 @@ module.exports = function (presetName, framerate) {
     return {
       ext: 'mp4',
       preset: 'libx264-480p',
-      cmd: x264(framerate, 854)
-    }
+      cmd: x264(framerate, 854),
+    };
   } else if (presetName === 'libx264-720p') {
     return {
       ext: 'mp4',
       preset: 'libx264-720p',
-      cmd: x264(framerate, 1280)
-    }
+      cmd: x264(framerate, 1280),
+    };
   } else if (presetName === 'libx264-1080p') {
     return {
       ext: 'mp4',
       preset: 'libx264-1080p',
-      cmd: x264(framerate, 1920)
-    }
+      cmd: x264(framerate, 1920),
+    };
   } else if (presetName === 'libx264-1440p') {
     return {
       ext: 'mp4',
       preset: 'libx264-1440p',
-      cmd: x264(framerate, 2360)
-    }
+      cmd: x264(framerate, 2360),
+    };
   } else if (presetName === 'libx264-2160p') {
     return {
       ext: 'mp4',
       preset: 'libx264-2160p',
-      cmd: x264(framerate, 3840)
-    }
+      cmd: x264(framerate, 3840),
+    };
   } else {
     throw new Error(`preset: ${presetName} not found`);
   }
-}
+};

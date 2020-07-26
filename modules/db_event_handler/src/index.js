@@ -12,18 +12,25 @@ module.exports.handler = async ({ Records }) => {
     const newVideo = AWS.DynamoDB.Converter.unmarshall(event.dynamodb.NewImage);
 
     if (Object.keys(oldVideo).length && Object.keys(newVideo).length) {
-      const versions = Object.values(newVideo.versions)
+      const versions = Object.values(newVideo.versions);
 
       for (const version of versions) {
         const [oldVersion] = Object.values(oldVideo.versions).filter((old) => {
           if (old.preset === version.preset) {
             return true;
           }
-        })
+        });
 
-        console.log(version.preset, oldVersion.segmentsCompleted === newVideo.segmentCount - 1, version.segmentsCompleted === newVideo.segmentCount);
+        console.log(
+          version.preset,
+          oldVersion.segmentsCompleted === newVideo.segmentCount - 1,
+          version.segmentsCompleted === newVideo.segmentCount
+        );
 
-        if ((oldVersion.segmentsCompleted === newVideo.segmentCount - 1) && (version.segmentsCompleted === newVideo.segmentCount)) {
+        if (
+          oldVersion.segmentsCompleted === newVideo.segmentCount - 1 &&
+          version.segmentsCompleted === newVideo.segmentCount
+        ) {
           console.log(`concatinating ${version.preset}`);
           await dispatchJob('concatinating', {
             s3_in: `s3://${TIDAL_BUCKET}/segments/${newVideo.id}/${version.preset}`,
@@ -34,7 +41,8 @@ module.exports.handler = async ({ Records }) => {
             .update({
               Key: { id: newVideo.id },
               TableName: TIDAL_TABLE,
-              UpdateExpression: 'set #versions.#preset.#status = :concatinating',
+              UpdateExpression:
+                'set #versions.#preset.#status = :concatinating',
               ExpressionAttributeValues: { ':concatinating': 'concatinating' },
               ExpressionAttributeNames: {
                 '#versions': 'versions',

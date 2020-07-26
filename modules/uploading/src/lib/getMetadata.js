@@ -4,16 +4,16 @@ const s3 = new AWS.S3({ region: 'us-east-2' });
 
 function parseFramerate(r_frame_rate) {
   if (r_frame_rate) {
-    const framerate = parseFloat(r_frame_rate.split('/')[0])
+    const framerate = parseFloat(r_frame_rate.split('/')[0]);
 
     if (framerate >= 59) {
-      return 60
+      return 60;
     } else if (framerate >= 29) {
-      return 30
+      return 30;
     } else if (framerate >= 23) {
-      return 24
+      return 24;
     } else if (framerate > 0) {
-      return parseInt(framerate)
+      return parseInt(framerate);
     }
   }
 
@@ -70,7 +70,12 @@ module.exports = function getMetadata(url) {
         { width: 0, height: 0, framerate: 0, duration }
       );
 
-      if (!parsedMetadata.width || !parsedMetadata.height || !parsedMetadata.duration || !parsedMetadata.framerate) {
+      if (
+        !parsedMetadata.width ||
+        !parsedMetadata.height ||
+        !parsedMetadata.duration ||
+        !parsedMetadata.framerate
+      ) {
         console.log('parsedMetadata', parsedMetadata);
         throw new Error('metadata parsing failed');
       }

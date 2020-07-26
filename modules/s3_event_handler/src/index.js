@@ -1,7 +1,4 @@
-const {
-  updateAudio,
-  incrementSegmentCount,
-} = require('./lib/dbHelper');
+const { updateAudio, incrementSegmentCount } = require('./lib/dbHelper');
 
 const enqueueJob = require('./lib/enqueueJob');
 
