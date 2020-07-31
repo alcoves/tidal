@@ -1,3 +1,5 @@
+const AWS = require('aws-sdk');
+
 const handleCompletion = require('./lib/handleCompletion');
 const handleConcatination = require('./lib/handleConcatination');
 
