@@ -37,9 +37,9 @@ module.exports = async function (oldImage, newImage) {
           UpdateExpression: 'set #versions.#preset.#status = :concatinating',
           ExpressionAttributeValues: { ':concatinating': 'concatinating' },
           ExpressionAttributeNames: {
+            '#status': 'status',
             '#versions': 'versions',
             '#preset': version.preset,
-            '#status': 'concatinating',
           },
         })
         .promise();
