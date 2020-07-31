@@ -25,25 +25,30 @@ module.exports = async function (oldImage, newImage) {
         oldVersion.segmentsCompleted === newImage.segmentCount - 1 &&
         version.segmentsCompleted === newImage.segmentCount
       ) {
-        console.log(`concatinating ${version.preset}`);
-        await dispatchJob('concatinating', {
-          s3_in: `s3://${TIDAL_BUCKET}/segments/${newImage.id}/${version.preset}`,
-          s3_out: `s3://${CDN_BUCKET}/v/${newImage.id}/${version.preset}.${version.ext}`,
-        });
+        try {
+          console.log(`concatinating ${version.preset}`);
+          await dispatchJob('concatinating', {
+            s3_in: `s3://${TIDAL_BUCKET}/segments/${newImage.id}/${version.preset}`,
+            s3_out: `s3://${CDN_BUCKET}/v/${newImage.id}/${version.preset}.${version.ext}`,
+          });
 
-        await db
-          .update({
-            Key: { id: newImage.id },
-            TableName: TIDAL_TABLE,
-            UpdateExpression: 'set #versions.#preset.#status = :concatinating',
-            ExpressionAttributeValues: { ':concatinating': 'concatinating' },
-            ExpressionAttributeNames: {
-              '#status': 'status',
-              '#versions': 'versions',
-              '#preset': version.preset,
-            },
-          })
-          .promise();
+          await db
+            .update({
+              Key: { id: newImage.id },
+              TableName: TIDAL_TABLE,
+              UpdateExpression:
+                'set #versions.#preset.#status = :concatinating',
+              ExpressionAttributeValues: { ':concatinating': 'concatinating' },
+              ExpressionAttributeNames: {
+                '#status': 'status',
+                '#versions': 'versions',
+                '#preset': version.preset,
+              },
+            })
+            .promise();
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
   }
