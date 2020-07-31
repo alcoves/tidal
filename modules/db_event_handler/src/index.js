@@ -9,7 +9,7 @@ module.exports.handler = async ({ Records }) => {
     const oldImage = AWS.DynamoDB.Converter.unmarshall(event.dynamodb.OldImage);
     const newImage = AWS.DynamoDB.Converter.unmarshall(event.dynamodb.NewImage);
 
-    if (Object.keys(oldRecord).length && Object.keys(newImage).length) {
+    if (Object.keys(oldImage).length && Object.keys(newImage).length) {
       await handleConcatination(oldImage, newImage);
       await handleCompletion(oldImage, newImage);
     }
