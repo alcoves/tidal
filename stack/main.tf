@@ -33,7 +33,7 @@ module "core" {
   env                           = var.env
   namespace                     = "bken"
   vpc_name                      = "bken_1"
-  subnet_2                      = "bken_1_a"
+  subnet_1                      = "bken_1_a"
   subnet_2                      = "bken_1_b"
   subnet_3                      = "bken_1_c"
   source                        = "../../modules/core"
