@@ -1,13 +1,11 @@
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 
-const { TIDAL_ENV } = process.env;
-
-async function putVideo({ id, presets, duration }) {
+async function putVideo({ id, presets, duration, framerate }) {
   await db
     .delete({
       Key: { id },
-      TableName: `tidal-${TIDAL_ENV}`,
+      TableName: 'tidal',
     })
     .promise();
 
@@ -18,21 +16,22 @@ async function putVideo({ id, presets, duration }) {
       preset,
       link: null,
       status: 'segmenting',
-      segmentsCompleted: 0,
+      audioProcessed: false,
+      videoSegmentsCompleted: 0,
     };
     return acc;
   }, {});
 
   await db
     .put({
-      TableName: `tidal-${TIDAL_ENV}`,
+      TableName: 'tidal',
       Item: {
         id,
         duration,
         versions,
-        audio: {},
-        segmentCount: 0,
+        framerate,
         status: 'segmenting',
+        videoSegmentCount: 0,
         thumbnail: 'https://cdn.bken.io/static/default-thumbnail-sm.jpg',
       },
     })

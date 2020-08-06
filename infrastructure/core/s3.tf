@@ -43,40 +43,8 @@ resource "aws_s3_bucket" "tidal" {
   }
 }
 
-resource "aws_lambda_permission" "allow_s3_events" {
-  principal     = "s3.amazonaws.com"
-  statement_id  = "AllowExecutionFromS3"
-  action        = "lambda:InvokeFunction"
-  source_arn    = aws_s3_bucket.tidal.arn
-  function_name = var.s3_event_handler_function_arn
-}
-
-resource "aws_lambda_permission" "allow_uploading_events" {
-  principal     = "s3.amazonaws.com"
-  statement_id  = "AllowExecutionFromS3"
-  action        = "lambda:InvokeFunction"
-  source_arn    = aws_s3_bucket.tidal.arn
-  function_name = var.uploading_function_arn
-}
-
 resource "aws_s3_bucket_notification" "tidal_s3_event_mapping" {
   bucket = aws_s3_bucket.tidal.id
 
-  lambda_function {
-    filter_prefix       = "uploads/"
-    events              = ["s3:ObjectCreated:*"]
-    lambda_function_arn = var.uploading_function_arn
-  }
-
-  lambda_function {
-    filter_prefix       = "segments/"
-    events              = ["s3:ObjectCreated:*"]
-    lambda_function_arn = var.s3_event_handler_function_arn
-  }
-
-  lambda_function {
-    filter_prefix       = "audio/"
-    events              = ["s3:ObjectCreated:*"]
-    lambda_function_arn = var.s3_event_handler_function_arn
-  }
+  // TODO :: Add the tidal lambda notifier here
 }

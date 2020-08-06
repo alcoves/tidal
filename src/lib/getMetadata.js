@@ -33,7 +33,6 @@ module.exports = function getMetadata(url) {
     });
 
     ffmpeg.ffprobe(signedUrl, function (err, metadata) {
-      console.log('ffprobe', metadata);
       if (err) return reject(err);
       let duration = 0;
 
