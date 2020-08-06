@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "tidal" {
   acl    = "private"
-  bucket = var.bucket_name
+  bucket = local.bucket_name
 
   cors_rule {
     max_age_seconds = 3000

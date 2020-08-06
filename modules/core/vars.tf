@@ -30,7 +30,6 @@ variable "s3_event_handler_function_arn" {
   type = string
 }
 
-variable "tidal_bucket_name" {
-  type    = string
-  default = "tidal-${var.namespace}-${var.env}"
+locals {
+  bucket_name = "tidal-${var.namespace}-${var.env}"
 }
