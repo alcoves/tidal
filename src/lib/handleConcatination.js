@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const dispatchJob = require('./dispatchJob');
+const dispatchJob = require('../../modules/db_event_handler/src/lib/dispatchJob');
 
 const { CDN_BUCKET, TIDAL_BUCKET, TIDAL_TABLE } = process.env;
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
