@@ -1,14 +1,12 @@
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 
-async function putVideo({ id, presets, duration, framerate }) {
-  await db
-    .delete({
-      Key: { id },
-      TableName: 'tidal',
-    })
-    .promise();
-
+module.exports = function createTidalVideo({
+  id,
+  presets,
+  duration,
+  framerate,
+}) {
   const versions = presets.reduce((acc, { preset, cmd, ext }) => {
     acc[preset] = {
       ext,
@@ -22,7 +20,7 @@ async function putVideo({ id, presets, duration, framerate }) {
     return acc;
   }, {});
 
-  await db
+  return db
     .put({
       TableName: 'tidal',
       Item: {
@@ -31,11 +29,9 @@ async function putVideo({ id, presets, duration, framerate }) {
         versions,
         framerate,
         status: 'segmenting',
-        videoSegmentCount: 0,
+        videoSegmentsCount: 0,
         thumbnail: 'https://cdn.bken.io/static/default-thumbnail-sm.jpg',
       },
     })
     .promise();
-}
-
-module.exports = putVideo;
+};

@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     region = "us-east-2"
-    bucket = "bken-tf-state"
+    bucket = "bken-terraform-state"
     key    = "services/tidal/tidal.tfstate"
   }
 }
