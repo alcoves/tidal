@@ -7,9 +7,6 @@ CMD=$3
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-TIDAL_ENV="$(echo $BUCKET | cut -d'-' -f3)"
-echo "TIDAL_ENV: ${TIDAL_ENV}"
-
 VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
@@ -47,7 +44,7 @@ echo "link to image: $LINK"
 
 echo "updating tidal database with thumbnail"
 aws dynamodb update-item \
-  --table-name "tidal-${TIDAL_ENV}" \
+  --table-name "tidal" \
   --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
   --update-expression 'SET #thumbnail = :thumbnail' \
   --expression-attribute-names '{"#thumbnail":'\"thumbnail\"'}' \

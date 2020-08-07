@@ -25,3 +25,10 @@ FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
 ```
 
 nomad job dispatch -detach -meta s3_in="s3://tidal-bken-dev/uploads/test/source.mp4" -meta s3_out="s3://tidal-bken-dev/transcoded/test/libx264-720p.mp4" -meta cmd="-c:v libx264 -an -crf 40 -vf scale=720:-2" transcoding
+
+## Dispatching
+
+nomad job dispatch \
+  -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
+  -meta script_path=/home/brendan/code/bken/tidal/src/uploading.js \
+  uploading

@@ -14,34 +14,37 @@
  *       - When all expected parts are completed (audio + video), dispatch concat
  */
 
-const shortid = require('shortid');
-
 const getPresets = require('./lib/getPresets');
 const getMetadata = require('./lib/getMetadata');
 const dispatchJob = require('./lib/dispatchJob');
 const createTidalVideo = require('./lib/createTidalVideo');
+const deleteTidalVideo = require('./lib/deleteTidalVideo');
 
 async function main(inPath) {
   try {
-    const videoId = shortid();
+    const [, , , , videoId] = inPath.split('/');
+    console.log('videoId', videoId);
 
     console.info('getting metadata');
     const { width, duration, framerate } = await getMetadata(inPath);
+    console.info('metadata fetched', { width, duration, framerate });
 
     console.info('getting presets');
     const presets = getPresets(width, framerate);
+    console.log('presets fetched', presets);
 
+    console.log('writing entry to tidal db');
+    await deleteTidalVideo(videoId);
     await createTidalVideo({ id: videoId, presets, duration, framerate });
 
-    // console.info('writing video to tidal db');
-    // const { id } = await createTidalVideo(metadata);
-
-    // console.info('dispatching thumbnail job');
-    // await dispatchJob('thumbnailing', {
-    //   inPath,
-    //   cmd: 'do a thumbnail thing',
-    //   outPath: `s3://cdn.bken.io/i/${id}/thumbnail.webp`,
-    // });
+    console.info('dispatching thumbnail job');
+    await dispatchJob('thumbnail', {
+      s3_in: inPath,
+      s3_out: `s3://cdn.bken.io/i/${videoId}/thumbnail.webp`,
+      script_path: '/home/brendan/code/bken/tidal/scripts/thumbnail.sh',
+      cmd:
+        '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50 -threads 1',
+    });
 
     // console.info('dispatching segmenting job');
     // await dispatchJob('segmenting', {});
