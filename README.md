@@ -33,7 +33,6 @@ nomad job dispatch \
   -meta script_path=/home/brendan/code/bken/tidal/src/uploading.js \
   uploading
 
-
 nomad job dispatch \
   -meta script_path=/home/brendan/code/bken/tidal/src/segmenting.js \
   -meta s3_in=s3://tidal-bken/source/test/source.mp4 \

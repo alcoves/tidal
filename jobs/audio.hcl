@@ -9,6 +9,7 @@ job "audio" {
       "cmd",
       "s3_in",
       "s3_out",
+      "script_path"
     ]
   }
 
@@ -29,7 +30,7 @@ job "audio" {
       config {
         command = "/usr/bin/bash"
         args    = [
-          "/mnt/tidal/dev/scripts/audio.sh",
+          "${NOMAD_META_SCRIPT_PATH}",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
           "${NOMAD_META_CMD}",

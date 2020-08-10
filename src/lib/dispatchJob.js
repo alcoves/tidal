@@ -2,7 +2,8 @@ const axios = require('axios');
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
 
-const NOMAD_ADDRESS = 'http://localhost:4646' || 'http://10.0.3.87:4646';
+const getSafeEnv = require('./getSafeEnv');
+const { NOMAD_ADDRESS } = getSafeEnv(['NOMAD_ADDRESS']);
 
 module.exports = async function (job, Meta) {
   console.log('NOMAD_ADDRESS', NOMAD_ADDRESS);

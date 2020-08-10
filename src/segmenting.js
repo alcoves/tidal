@@ -1,12 +1,13 @@
+const getSafeEnv = require('./lib/getSafeEnv');
+const { SCRIPT_PREFIX } = getSafeEnv(['SCRIPT_PREFIX']);
+
 const path = require('path');
-const AWS = require('aws-sdk');
 const fs = require('fs-extra');
+const AWS = require('aws-sdk');
 const bash = require('./lib/bash');
 const dispatchJob = require('./lib/dispatchJob');
 
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
-
-const scriptPrefix = '/home/brendan/code/bken';
 
 async function main(s3In, s3Out, ffmpegCmd) {
   try {
@@ -54,11 +55,29 @@ async function main(s3In, s3Out, ffmpegCmd) {
     for (const version of Object.values(video.versions)) {
       console.log('version', version);
 
+      if (version.ext === 'webm') {
+        await dispatchJob('audio', {
+          s3_in: s3In,
+          cmd: '-vn -c:a libopus -f opus',
+          script_path: `${SCRIPT_PREFIX}/tidal/scripts/audio.sh`,
+          s3_out: `s3://${bucket}/audio/${videoId}/${version.preset}/audio.ogg`,
+        });
+      }
+
+      if (version.ext === 'mp4') {
+        await dispatchJob('audio', {
+          s3_in: s3In,
+          cmd: '-vn -c:a aac',
+          script_path: `${SCRIPT_PREFIX}/tidal/scripts/audio.sh`,
+          s3_out: `s3://${bucket}/audio/${videoId}/${version.preset}/audio.aac`,
+        });
+      }
+
       for (const segment of segments) {
         console.log('segment', segment);
         await dispatchJob('transcoding', {
           cmd: version.cmd,
-          script_path: `${scriptPrefix}/tidal/scripts/transcoding.sh`,
+          script_path: `${SCRIPT_PREFIX}/tidal/scripts/transcoding.sh`,
           s3_in: `s3://${bucket}/segments/${videoId}/source/${segment}`,
           s3_out: `s3://${bucket}/segments/${videoId}/${version.preset}/${segment}`,
         });
