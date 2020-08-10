@@ -9,6 +9,7 @@
   "dependencies": {
     "aws-sdk": "^2.727.1",
     "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^9.0.1",
     "shortid": "^2.2.15"

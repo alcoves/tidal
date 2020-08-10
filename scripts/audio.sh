@@ -9,8 +9,14 @@ echo "IN_PATH: $IN_PATH"
 echo "OUT_PATH: $OUT_PATH"
 echo "FFMPEG_CMD: $FFMPEG_CMD"
 
-VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
+echo "parsing variables"
+VIDEO_ID="$(echo $OUT_PATH | cut -d'/' -f5)"  
+PRESET_NAME="$(echo $OUT_PATH | cut -d'/' -f6)"
+AUDIO_FILE_NAME="$(echo $OUT_PATH | cut -d'/' -f7)"
+
 echo "VIDEO_ID: ${VIDEO_ID}"
+echo "PRESET_NAME: ${PRESET_NAME}"
+echo "AUDIO_FILE_NAME: ${AUDIO_FILE_NAME}"
 
 FILENAME=$(basename -- "$OUT_PATH")
 EXT="${FILENAME##*.}"
@@ -29,5 +35,13 @@ ffmpeg -y -i "$SOURCE_URL" $FFMPEG_CMD $TMP_FILE
 
 echo "uploading audio file to s3"
 aws s3 mv $TMP_FILE $OUT_PATH
+
+echo "updating tidal db"
+aws dynamodb update-item \
+  --table-name "tidal" \
+  --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
+  --update-expression 'set versions.#preset.videoSegmentsCompleted = versions.#preset.videoSegmentsCompleted + :val' \
+  --expression-attribute-names '{"#preset":'\"$PRESET_NAME\"'}' \
+  --expression-attribute-values '{":val":{"N":"1"}}'
 
 echo "audio extraction completed"

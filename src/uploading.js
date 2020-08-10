@@ -14,18 +14,19 @@
  *       - When all expected parts are completed (audio + video), dispatch concat
  */
 
+const getSafeEnv = require('./lib/getSafeEnv');
+const { SCRIPT_PREFIX } = getSafeEnv(['SCRIPT_PREFIX']);
+
 const getPresets = require('./lib/getPresets');
 const getMetadata = require('./lib/getMetadata');
 const dispatchJob = require('./lib/dispatchJob');
 const createTidalVideo = require('./lib/createTidalVideo');
 const deleteTidalVideo = require('./lib/deleteTidalVideo');
 
-const scriptPrefix = '/home/brendan/code/bken';
-
 async function main(inPath) {
   try {
-    const [, , bucketName, videoId] = inPath.split('/');
-    console.log('videoId', videoId);
+    const [, , bucketName, , videoId] = inPath.split('/');
+    console.log({ bucketName, videoId });
 
     console.info('getting metadata');
     const { width, duration, framerate } = await getMetadata(inPath);
@@ -43,7 +44,7 @@ async function main(inPath) {
     await dispatchJob('thumbnail', {
       s3_in: inPath,
       s3_out: `s3://cdn.bken.io/i/${videoId}/thumbnail.webp`,
-      script_path: `${scriptPrefix}/tidal/scripts/thumbnail.sh`,
+      script_path: `${SCRIPT_PREFIX}/tidal/scripts/thumbnail.sh`,
       cmd:
         '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50',
     });
@@ -52,8 +53,8 @@ async function main(inPath) {
     await dispatchJob('segmenting', {
       s3_in: inPath,
       cmd: '-an -c:v copy -f segment -segment_time 10',
-      s3_out: `s3://${bucketName}/segments${videoId}/source`,
-      script_path: `${scriptPrefix}/tidal/src/segmenting.js`,
+      s3_out: `s3://${bucketName}/segments/${videoId}/source`,
+      script_path: `${SCRIPT_PREFIX}/tidal/src/segmenting.js`,
     });
   } catch (error) {
     console.error(error);
