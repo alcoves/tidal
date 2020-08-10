@@ -20,9 +20,11 @@ const dispatchJob = require('./lib/dispatchJob');
 const createTidalVideo = require('./lib/createTidalVideo');
 const deleteTidalVideo = require('./lib/deleteTidalVideo');
 
+const scriptPrefix = '/home/brendan/code/bken';
+
 async function main(inPath) {
   try {
-    const [, , , , videoId] = inPath.split('/');
+    const [, , bucketName, videoId] = inPath.split('/');
     console.log('videoId', videoId);
 
     console.info('getting metadata');
@@ -41,13 +43,18 @@ async function main(inPath) {
     await dispatchJob('thumbnail', {
       s3_in: inPath,
       s3_out: `s3://cdn.bken.io/i/${videoId}/thumbnail.webp`,
-      script_path: '/home/brendan/code/bken/tidal/scripts/thumbnail.sh',
+      script_path: `${scriptPrefix}/tidal/scripts/thumbnail.sh`,
       cmd:
-        '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50 -threads 1',
+        '-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50',
     });
 
-    // console.info('dispatching segmenting job');
-    // await dispatchJob('segmenting', {});
+    console.info('dispatching segmenting job');
+    await dispatchJob('segmenting', {
+      s3_in: inPath,
+      cmd: '-an -c:v copy -f segment -segment_time 10',
+      s3_out: `s3://${bucketName}/segments${videoId}/source`,
+      script_path: `${scriptPrefix}/tidal/src/segmenting.js`,
+    });
   } catch (error) {
     console.error(error);
     throw error;

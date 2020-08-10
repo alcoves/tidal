@@ -32,3 +32,11 @@ nomad job dispatch \
   -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
   -meta script_path=/home/brendan/code/bken/tidal/src/uploading.js \
   uploading
+
+
+nomad job dispatch \
+  -meta script_path=/home/brendan/code/bken/tidal/src/segmenting.js \
+  -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
+  -meta s3_out=s3://tidal-bken/segments/test/source \
+  -meta cmd='-an -c:v copy -f segment -segment_time 10' \
+  segmenting
