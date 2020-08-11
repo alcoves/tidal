@@ -43,5 +43,13 @@ aws dynamodb update-item \
   --update-expression 'set versions.#preset.videoSegmentsCompleted = versions.#preset.videoSegmentsCompleted + :val' \
   --expression-attribute-names '{"#preset":'\"$PRESET_NAME\"'}' \
   --expression-attribute-values '{":val":{"N":"1"}}'
+  
+# Get the video record
+# if the current preset video segment count is equal to expected count
+# and if the current audio segment count is equal to expected count (which is 1 right now)
+# then dispatch concatination request
+
+# Need to do this for audio transcoding too
+
 
 echo "audio extraction completed"
