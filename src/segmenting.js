@@ -87,7 +87,7 @@ async function main(s3In, s3Out, ffmpegCmd) {
         console.log('segment', segment);
         await dispatchJob('transcoding', {
           cmd: version.cmd,
-          script_path: `${SCRIPT_PREFIX}/tidal/scripts/transcoding.sh`,
+          script_path: `${SCRIPT_PREFIX}/tidal/src/transcoding.js`,
           s3_in: `s3://${bucket}/segments/${videoId}/source/${segment}`,
           s3_out: `s3://${bucket}/segments/${videoId}/${version.preset}/${segment}`,
         });

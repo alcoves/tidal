@@ -1,11 +1,7 @@
-const getSafeEnv = require('./lib/getSafeEnv');
-const { SCRIPT_PREFIX } = getSafeEnv(['SCRIPT_PREFIX']);
-
-const path = require('path');
 const fs = require('fs-extra');
 const AWS = require('aws-sdk');
 const bash = require('./lib/bash');
-const dispatchJob = require('./lib/dispatchJob');
+const concatCheck = require('./lib/concatCheck');
 
 const s3 = new AWS.S3({ region: 'us-east-2' });
 const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
@@ -14,31 +10,42 @@ async function main(s3In, s3Out, ffmpegCmd) {
   console.log({ s3In, s3Out, ffmpegCmd });
 
   console.log('parsing variables');
-  // s3://tidal-bken/audio/test/preset/source.ogg
-  const [, , bucket, , videoId, presetName, audioFileName] = s3Out.split('/');
-  console.log({ bucket, videoId, presetName, audioFileName });
+  const [, , bucket, , videoId, presetName, videoFileName] = s3Out.split('/');
+  console.log({ bucket, videoId, presetName, videoFileName });
 
-  console.log('parsing extension name');
-  const audioExtension = path.extname(s3Out);
-
-  console.log('creating tmpfile');
-  const tmpFile = await fs.mkdtemp();
+  console.log('creating tmpDir');
+  const tmpDir = fs.mkdtempSync('/tmp/');
+  const tmpVideoPath = `${tmpDir}/${videoFileName}`;
+  console.log({ tmpDir, tmpVideoPath });
 
   console.log('creating signed source url');
   const signedSourceUrl = await s3.getSignedUrlPromise('getObject', {
     Bucket: bucket,
-    Key: s3In.replace(`s3://${bucket}`, ''),
+    Key: s3In.replace(`s3://${bucket}/`, ''),
   });
 
-  console.log('transcoding audio');
+  console.log('transcoding video');
+  await bash(`ffmpeg -y -i ${signedSourceUrl} ${ffmpegCmd} ${tmpVideoPath}`);
 
-  console.log('uploading audio file to s3');
+  console.log('uploading video file to s3');
+  await bash(`aws s3 mv ${tmpVideoPath} ${s3Out} --quiet`);
 
   console.log('updating tidal database');
+  await db
+    .update({
+      TableName: 'tidal',
+      Key: { id: videoId },
+      ExpressionAttributeValues: { ':val': 1 },
+      ExpressionAttributeNames: { '#preset': presetName },
+      UpdateExpression:
+        'set versions.#preset.videoSegmentsCompleted = versions.#preset.videoSegmentsCompleted + :val',
+    })
+    .promise();
 
   console.log('checking if concatination should occur');
+  await concatCheck(videoId);
 
-  console.log('audio transcoding complete');
+  console.log('video transcoding complete');
 }
 
 const inPath = process.argv[2];
