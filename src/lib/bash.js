@@ -10,21 +10,21 @@ module.exports = function bash(arg) {
     const cmd = spawn(command, args);
 
     cmd.stdout.on('data', (data) => {
-      console.log(data);
+      console.log(data.toString());
     });
 
     cmd.stderr.on('data', (data) => {
-      console.log(data);
+      console.log(data.toString());
     });
 
     cmd.on('error', (error) => {
       console.log(`error: ${error.message}`);
-      reject(error);
+      reject(error.toString());
     });
 
     cmd.on('close', (code) => {
       console.log(`child process exited with code ${code}`);
-      code === 0 ? resolve(code) : reject(code);
+      resolve(code);
     });
   });
 };
