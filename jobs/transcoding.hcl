@@ -28,7 +28,7 @@ job "transcoding" {
       driver = "raw_exec"
 
       config {
-        command = "/usr/bin/bash"
+        command = "node"
         args    = [
           "${NOMAD_META_SCRIPT_PATH}",
           "${NOMAD_META_S3_IN}",

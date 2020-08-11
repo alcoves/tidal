@@ -52,6 +52,16 @@ async function main(s3In, s3Out, ffmpegCmd) {
       .promise();
     console.log('fetched video from tidal db', video);
 
+    console.log('updating video segments count');
+    await db
+      .update({
+        TableName: 'tidal',
+        Key: { id: videoId },
+        UpdateExpression: 'set videoSegmentsCount = :val',
+        ExpressionAttributeValues: { ':val': segments.length },
+      })
+      .promise();
+
     for (const version of Object.values(video.versions)) {
       console.log('version', version);
 
@@ -59,7 +69,7 @@ async function main(s3In, s3Out, ffmpegCmd) {
         await dispatchJob('audio', {
           s3_in: s3In,
           cmd: '-vn -c:a libopus -f opus',
-          script_path: `${SCRIPT_PREFIX}/tidal/scripts/audio.sh`,
+          script_path: `${SCRIPT_PREFIX}/tidal/src/audio.js`,
           s3_out: `s3://${bucket}/audio/${videoId}/${version.preset}/audio.ogg`,
         });
       }
@@ -68,7 +78,7 @@ async function main(s3In, s3Out, ffmpegCmd) {
         await dispatchJob('audio', {
           s3_in: s3In,
           cmd: '-vn -c:a aac',
-          script_path: `${SCRIPT_PREFIX}/tidal/scripts/audio.sh`,
+          script_path: `${SCRIPT_PREFIX}/tidal/src/audio.js`,
           s3_out: `s3://${bucket}/audio/${videoId}/${version.preset}/audio.aac`,
         });
       }

@@ -39,3 +39,10 @@ nomad job dispatch \
   -meta s3_out=s3://tidal-bken/segments/test/source \
   -meta cmd='-an -c:v copy -f segment -segment_time 10' \
   segmenting
+
+nomad job dispatch \
+  -meta script_path=/home/brendan/code/bken/tidal/src/audio.js \
+  -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
+  -meta s3_out=s3://tidal-bken/audio/test/libx264-720p/source.aac \
+  -meta cmd='-vn -c:a aac' \
+  audio

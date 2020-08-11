@@ -8,6 +8,7 @@ job "concatinating" {
     meta_required = [
       "s3_in",
       "s3_out",
+      "script_path"
     ]
   }
 
@@ -26,9 +27,9 @@ job "concatinating" {
       driver = "raw_exec"
 
       config {
-        command = "/usr/bin/bash"
+        command = "node"
         args    = [
-          "/mnt/tidal/dev/scripts/concatinating.sh",
+          "${NOMAD_META_SCRIPT_PATH}",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
         ]
