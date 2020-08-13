@@ -46,3 +46,9 @@ nomad job dispatch \
   -meta s3_out=s3://tidal-bken/audio/test/libx264-720p/source.aac \
   -meta cmd='-vn -c:a aac' \
   audio
+
+nomad job dispatch \
+  -meta s3_in=s3://tidal-bken/segments/test/libx264-720p \
+  -meta s3_out=s3://cdn.bken.io/v/test/libx264-720p.mp4 \
+  -meta script_path=/home/brendan/code/bken/tidal/src/concatinating.js \
+  concatinating

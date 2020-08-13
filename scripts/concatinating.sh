@@ -7,9 +7,6 @@ OUT_PATH=$2
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-TIDAL_ENV="$(echo $BUCKET | cut -d'-' -f3)"
-echo "TIDAL_ENV: ${TIDAL_ENV}"
-
 VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
