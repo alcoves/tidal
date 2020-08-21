@@ -7,7 +7,7 @@
   "license": "MPL-2.0",
   "private": false,
   "dependencies": {
-    "aws-sdk": "^2.727.1",
+    "aws-sdk": "^2.738.0",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
@@ -15,6 +15,6 @@
     "shortid": "^2.2.15"
   },
   "devDependencies": {
-    "eslint": "^7.6.0"
+    "eslint": "^7.7.0"
   }
 }
