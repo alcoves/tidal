@@ -2,15 +2,23 @@ const AWS = require('aws-sdk');
 const getSafeEnv = require('./getSafeEnv');
 const dispatchJob = require('./dispatchJob');
 
-const db = new AWS.DynamoDB.DocumentClient({ region: 'us-east-2' });
+const db = new AWS.DynamoDB.DocumentClient({
+  region: 'us-east-2'
+});
 
 module.exports = async function checkConcat(videoId) {
-  const { SCRIPT_PREFIX } = getSafeEnv(['SCRIPT_PREFIX']);
+  const {
+    SCRIPT_PREFIX
+  } = getSafeEnv(['SCRIPT_PREFIX']);
 
-  const { Item: video } = await db
+  const {
+    Item: video
+  } = await db
     .get({
       TableName: 'tidal',
-      Key: { id: videoId },
+      Key: {
+        id: videoId
+      },
     })
     .promise();
 
@@ -30,8 +38,12 @@ module.exports = async function checkConcat(videoId) {
       await db
         .update({
           TableName: 'tidal',
-          Key: { id: videoId },
-          ExpressionAttributeValues: { ':val': 'concatinating' },
+          Key: {
+            id: videoId
+          },
+          ExpressionAttributeValues: {
+            ':val': 'concatinating'
+          },
           UpdateExpression: 'set versions.#preset.#status = :val',
           ExpressionAttributeNames: {
             '#status': 'status',
@@ -40,12 +52,11 @@ module.exports = async function checkConcat(videoId) {
         })
         .promise();
 
-      // await dispatchJob('concatinating', {
-      //   s3_in: '',
-      //   s3_out: '',
-      //   script_path: `${SCRIPT_PREFIX}/`,
-      //   // Add audio in
-      // });
+      await dispatchJob('concatinating', {
+        s3_in: `s3://tidal-bken/segments/${videoId}/${version.preset}`,
+        s3_out: `s3://cdn.bken.io/v/${videoId}/${version.preset}.mp4`,
+        script_path: `${SCRIPT_PREFIX}/tidal/scripts/concatinating.sh`,
+      });
     }
   }
 };
