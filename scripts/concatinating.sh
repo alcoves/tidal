@@ -45,13 +45,13 @@ else
   AUDIO_EXT="aac"
 fi
 
-AUDIO_PATH="${TMP_DIR}/audio/source.${AUDIO_EXT}"
+AUDIO_PATH="${TMP_DIR}/audio/audio.${AUDIO_EXT}"
 
 echo "AUDIO_EXT: $AUDIO_EXT"
 echo "AUDIO_PATH: $AUDIO_PATH"
 
 echo "downloading audio"
-aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/source.${AUDIO_EXT} $AUDIO_PATH
+aws s3 cp s3://${BUCKET}/audio/${VIDEO_ID}/${PRESET_NAME}/audio.${AUDIO_EXT} $AUDIO_PATH
 
 echo "concatinating started"
 # -hide_banner -loglevel panic
@@ -83,11 +83,13 @@ echo "LINK: $LINK"
 
 echo "updating tidal database with status"
 aws dynamodb update-item \
-  --table-name "tidal-${TIDAL_ENV}" \
+  --table-name "tidal" \
   --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
   --expression-attribute-values '{":status":{"S":"completed"},":link":{"S":'\"$LINK\"'}}' \
   --update-expression 'SET #versions.#preset.#status = :status, #versions.#preset.#link = :link' \
   --expression-attribute-names '{"#versions":"versions","#status":"status","#link":"link","#preset":'\"$PRESET_NAME\"'}'
+
+# echo "to rectify the global video status, we would need to read in all presets and set status in a conditional here"
 
 echo "removing tmp dir"
 rm -rf $TMP_DIR

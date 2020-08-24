@@ -27,7 +27,7 @@ job "concatinating" {
       driver = "raw_exec"
 
       config {
-        command = "node"
+        command = "/usr/bin/bash"
         args    = [
           "${NOMAD_META_SCRIPT_PATH}",
           "${NOMAD_META_S3_IN}",
