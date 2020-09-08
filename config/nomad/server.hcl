@@ -1,6 +1,12 @@
 data_dir  = "/var/lib/nomad"
 bind_addr = "{{ GetInterfaceIP \"eth1\" }}"
 
+addresses {
+  rpc  = "{{ GetInterfaceIP \"eth1\" }}"
+  http = "{{ GetInterfaceIP \"eth1\" }}"
+  serf = "{{ GetInterfaceIP \"eth1\" }}"
+}
+
 advertise {
   rpc  = "{{ GetInterfaceIP \"eth1\" }}"
   http = "{{ GetInterfaceIP \"eth1\" }}"
