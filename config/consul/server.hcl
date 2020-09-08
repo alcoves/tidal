@@ -1,13 +1,10 @@
-client_addr =  "0.0.0.0"
-data_dir    = "/var/lib/consul"
-
-server {
-  bootstrap_expect = 1
-  enabled          = true
-}
+bootstrap_expect = 1
+server           = true
+ui               = true
+client_addr      = "0.0.0.0"
+bind             = "127.0.0.1" 
+data_dir         = "/var/lib/consul"
 
 acl {
   enabled = true
 }
-
-client { enabled = false }
