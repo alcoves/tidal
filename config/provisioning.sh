@@ -24,10 +24,10 @@ unzip consul.zip
 sudo mv consul /usr/local/bin/
 rm -rf consul.zip
 
-# Install Rust
+echo "Installing Rust"
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-# Install nodejs
+echo "Installing node"
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt install -y nodejs
 
@@ -57,3 +57,7 @@ sudo systemctl start nomad-server.service
 sudo cp /root/tidal/config/nomad/client.service /etc/systemd/system/nomad-client.service
 sudo systemctl enable nomad-client.service
 sudo systemctl start nomad-client.service
+
+# Generating ACL tokens for new cluster
+nomad acl bootstrap
+consul acl bootstrap
