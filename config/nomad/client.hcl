@@ -1,6 +1,5 @@
-  
-bind_addr = "0.0.0.0"
 data_dir  = "/var/lib/nomad"
+bind_addr = "{{ GetInterfaceIP \"eth1\" }}"
 
 client {
   enabled = true
