@@ -4,7 +4,6 @@ data_dir  = "/var/lib/nomad"
 
 client {
   enabled = true
-  servers = ["10.0.3.87:4647"]
 
   reserved {
     cpu    = 500
