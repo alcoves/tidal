@@ -97,3 +97,10 @@ nomad job dispatch \
   -meta s3_out=s3://cdn.bken.io/v/test/libx264-720p.mp4 \
   -meta script_path=/home/brendan/code/bken/tidal/scripts/concatinating.sh \
   concatinating
+
+nomad job dispatch \
+  -meta s3_in=s3://tidal/sources/test/source.mp4 \
+  -meta script_path=/root/tidal/scripts/thumbnail.sh \
+  -meta s3_out=s3://cdn.bken.io/i/test/thumbnail.webp \
+  -meta cmd='-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50' \
+  thumbnail
