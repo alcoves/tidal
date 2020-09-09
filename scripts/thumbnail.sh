@@ -42,15 +42,14 @@ CDN_PROTOCAL="https"
 LINK="${OUT_PATH/s3/$CDN_PROTOCAL}"
 echo "link to image: $LINK"
 
-# echo "updating tidal database with thumbnail"
-# aws dynamodb update-item \
-#   --table-name "tidal" \
-#   --key '{"id": {"S": '\"$VIDEO_ID\"'}}' \
-#   --update-expression 'SET #thumbnail = :thumbnail' \
-#   --expression-attribute-names '{"#thumbnail":'\"thumbnail\"'}' \
-#   --expression-attribute-values '{":thumbnail":{"S":'\"$LINK\"'}}'
+echo "updating database"
+DB_CONNECTION_STRING=$(consul kv get DB_CONNECTION_STRING | jq -r '.')
 
-echo "emitting thumbnail complete event"
+OPERATOR='$set'
+QUERY="{\"_id\":\"$VIDEO_ID\"}"
+UPDATE="{\"$OPERATOR\":{\"thumbnail\":\"$LINK\"}}"
+
+mongo $DB_CONNECTION_STRING --eval "db.videos.updateOne($QUERY, $UPDATE)"
 
 echo "cleaning up tmp dir"
 rm -rf $TMP_DIR
