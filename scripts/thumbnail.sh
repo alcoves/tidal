@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eux
 
 IN_PATH=$1
 OUT_PATH=$2
