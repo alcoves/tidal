@@ -4,6 +4,10 @@ IN_PATH=$1
 OUT_PATH=$2
 CMD=$3
 
+echo "setting up digitalocean profile"
+aws configure set aws_access_key_id "$(consul kv get DO_ACCESS_KEY_ID | jq -r '.')" --profile digitalocean
+aws configure set aws_secret_access_key "$(consul kv get DO_SECRET | jq -r '.')" --profile wasabi
+
 echo "setting up wasabi profile"
 aws configure set aws_access_key_id "$(consul kv get WASABI_ACCESS_KEY_ID | jq -r '.')" --profile wasabi
 aws configure set aws_secret_access_key "$(consul kv get WASABI_SECRET_ACCESS_KEY | jq -r '.')" --profile wasabi
@@ -18,7 +22,7 @@ WASABI_BUCKET="$(echo $OUT_PATH | cut -d'/' -f3)"
 echo "WASABI_BUCKET: ${WASABI_BUCKET}"
 
 echo "creating signed url"
-SIGNED_URL=$(aws s3 presign $IN_PATH)
+SIGNED_URL=$(aws s3 presign $IN_PATH --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
@@ -47,7 +51,6 @@ echo "link to image: $LINK"
 #   --expression-attribute-values '{":thumbnail":{"S":'\"$LINK\"'}}'
 
 echo "emitting thumbnail complete event"
-
 
 echo "cleaning up tmp dir"
 rm -rf $TMP_DIR
