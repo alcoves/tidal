@@ -5,6 +5,9 @@ echo "starting video conversion process"
 
 S3_IN=$1
 
+BUCKET="$(echo $S3_IN | cut -d'/' -f3)"  
+echo "BUCKET: ${BUCKET}"
+
 VIDEO_ID="$(echo $S3_IN | cut -d'/' -f5)"  
 echo "VIDEO_ID: ${VIDEO_ID}"
 
@@ -28,7 +31,7 @@ ffmpeg -i "$URL" -an -c:v copy -f segment -segment_time 10 $SEGMENT_TMP_DIR/%08d
 echo "uploading segments"
 aws s3 cp \
   $SEGMENT_TMP_DIR \
-  s3://tidal/segments/${VIDEO_ID}/source/ \
+  s3://${BUCKET}/segments/${VIDEO_ID}/source/ \
   --recursive \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
@@ -42,8 +45,8 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
     nomad job dispatch \
       -detach \
       -meta cmd="$CMD" \
-      -meta s3_in="s3://tidal-bken/segments/${VIDEO_ID}/source/${SEGMENT}" \
-      -meta s3_out="s3://tidal-bken/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
+      -meta s3_in="s3://${BUCKET}/segments/${VIDEO_ID}/source/${SEGMENT}" \
+      -meta s3_out="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
       transcoding
   done
 done
