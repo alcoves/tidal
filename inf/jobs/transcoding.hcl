@@ -16,6 +16,16 @@ job "transcoding" {
     task "transcoding" {
       driver = "raw_exec"
 
+      template {
+        data = <<EOH
+          NOMAD_TOKEN  ="{{key "secrets/NOMAD_TOKEN"}}"
+          CONSUL_TOKEN ="{{key "secrets/CONSUL_TOKEN"}}"
+        EOH
+        
+        destination = ".env"
+        env         = true
+      }
+
       restart {
         attempts = 3
         delay    = "10s"
