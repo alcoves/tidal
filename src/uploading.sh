@@ -35,17 +35,17 @@ aws s3 cp \
 
 for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET=$(echo ${row} | base64 --decode | jq -r '.')
-
-  EXT=$(echo $PRESET | jq -r '.ext')
   CMD=$(echo $PRESET | jq -r '.cmd')
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
-  VIDEO_PATH=${TMP}/${PRESET_NAME}.${EXT}
 
-  # nomad job dispatch \
-  #   -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
-  #   -meta cmd='-an -c:v copy -f segment -segment_time 10' \
-  #   transcoding
-
+  for seg in $(ls $SEGMENT_TMP_DIR); do
+    echo "seg: $seg"
+    # nomad job dispatch \
+    #   -meta cmd="$CMD" \
+    #   -meta s3_in="s3://tidal-bken/segments/test/source/${SEGMENT_NAME}" \
+    #   -meta s3_out="s3://tidal-bken/segments/test/${PRESET_NAME}/${SEGMENT_NAME}" \
+    #   transcoding
+  done
 done
 
 echo "removing tmp dir"
