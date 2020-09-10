@@ -43,12 +43,12 @@ if ["$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT"]; then
     EXISTS=$(consul kv get tidal/${VIDEO_ID}/${PRESET_NAME})
     if [ -z "$EXISTS" ]; then
       echo "dispatching concatination job"
-      nomad job dispatch \
-        -detach \
-        -meta cmd="$CMD" \
-        -meta s3_in="s3://${BUCKET}/segments/${VIDEO_ID}/source/${SEGMENT}" \
-        -meta s3_out="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
-        concatinating
+      # nomad job dispatch \
+      #   -detach \
+      #   -meta cmd="$CMD" \
+      #   -meta s3_in="s3://${BUCKET}/segments/${VIDEO_ID}/source/${SEGMENT}" \
+      #   -meta s3_out="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
+      #   concatinating
       consul kv delete "tidal/${VIDEO_ID}/${PRESET_NAME}"
     else
       echo "aquired concatiantion lock, but had already been handled"
