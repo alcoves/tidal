@@ -57,7 +57,7 @@ if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
 
   consul lock "tidal/${VIDEO_ID}" concat
 else
-  echo "segment count failed to match expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
+  echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
 fi
 
 echo "done!"
