@@ -12,8 +12,11 @@ job "uploading" {
     task "uploading" {
       driver = "raw_exec"
 
-      env {
-        NOMAD_TOKEN = {{ key "NOMAD_TOKEN" }}
+      template {
+        env  = true
+        data = <<EOH
+          NOMAD_TOKEN="{{key "NOMAD_TOKEN"}}"
+        EOH
       }
 
       restart {
