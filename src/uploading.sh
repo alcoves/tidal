@@ -38,13 +38,12 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   CMD=$(echo $PRESET | jq -r '.cmd')
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
 
-  for seg in $(ls $SEGMENT_TMP_DIR); do
-    echo "seg: $seg"
-    # nomad job dispatch \
-    #   -meta cmd="$CMD" \
-    #   -meta s3_in="s3://tidal-bken/segments/test/source/${SEGMENT_NAME}" \
-    #   -meta s3_out="s3://tidal-bken/segments/test/${PRESET_NAME}/${SEGMENT_NAME}" \
-    #   transcoding
+  for SEGMENT in $(ls $SEGMENT_TMP_DIR); do
+    nomad job dispatch \
+      -meta cmd="$CMD" \
+      -meta s3_in="s3://tidal-bken/segments/${VIDEO_ID}/source/${SEGMENT}" \
+      -meta s3_out="s3://tidal-bken/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
+      transcoding
   done
 done
 
