@@ -9,8 +9,8 @@ if [ -z "$LOCK_KEY_EXISTS" ]; then
   echo "dispatching concatination job"
   nomad job dispatch \
     -detach \
-    -meta s3_in="$S3_IN" \
-    -meta s3_out="$CDN_PATH" \
+    -meta s3_in="$CONCAT_S3_IN" \
+    -meta s3_out="$CONCAT_S3_OUT" \
     concatinating
   consul kv delete $LOCK_KEY
 else
