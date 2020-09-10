@@ -17,6 +17,7 @@ BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"  
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
+LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
 
 echo "BUCKET: ${BUCKET}"
 echo "VIDEO_ID: ${VIDEO_ID}"
@@ -38,24 +39,26 @@ SOURCE_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/source/ --
 echo "counting transcoded segments"
 TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 
-if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
-  function concat {
-    EXISTS=$(consul kv get tidal/${VIDEO_ID}/${PRESET_NAME})
-    if [ -z "$EXISTS" ]; then
-      echo "dispatching concatination job"
-      # nomad job dispatch \
-      #   -detach \
-      #   -meta cmd="$CMD" \
-      #   -meta s3_in="s3://${BUCKET}/segments/${VIDEO_ID}/source/${SEGMENT}" \
-      #   -meta s3_out="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
-      #   concatinating
-      consul kv delete "tidal/${VIDEO_ID}/${PRESET_NAME}"
-    else
-      echo "aquired concatiantion lock, but had already been handled"
-    fi
-  }
+function concat {
+  echo "running concat function"
+  EXISTS=$(consul kv get $LOCK_KEY)
+  echo "EXISTS: $EXISTS"
+  if [ -z "$EXISTS" ]; then
+    echo "dispatching concatination job"
+    # nomad job dispatch \
+    #   -detach \
+    #   -meta cmd="$CMD" \
+    #   -meta s3_in="s3://${BUCKET}/segments/${VIDEO_ID}/source/${SEGMENT}" \
+    #   -meta s3_out="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
+    #   concatinating
+    consul kv delete $LOCK_KEY
+  else
+    echo "aquired concatiantion lock, but had already been handled"
+  fi
+}
 
-  consul lock "tidal/${VIDEO_ID}" concat
+if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
+  consul lock $LOCK_KEY concat
 else
   echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
 fi
