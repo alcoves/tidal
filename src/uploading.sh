@@ -14,6 +14,13 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 VIDEO_EXTENSION="${S3_IN##*.}"
 echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
+echo "cleaing up s3"
+aws s3 rm \
+  s3://${BUCKET}/segments/${VIDEO_ID}/ \
+  --recursive \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+
 URL=$(aws s3 presign "$S3_IN" --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 echo "URL: $URL"
 
