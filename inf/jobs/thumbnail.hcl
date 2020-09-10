@@ -14,9 +14,9 @@ job "thumbnail" {
   }
 
   group "thumbnail" {
-    driver = "raw_exec"
-
     task "thumbnail" {
+      driver = "raw_exec"
+
       restart {
         attempts = 3
         delay    = "10s"
