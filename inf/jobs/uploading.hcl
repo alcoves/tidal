@@ -9,9 +9,9 @@ job "uploading" {
   }
 
   group "uploading" {
-    driver = "raw_exec"
-
     task "uploading" {
+      driver = "raw_exec"
+
       restart {
         attempts = 5
         delay    = "10s"

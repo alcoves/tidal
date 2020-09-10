@@ -14,6 +14,8 @@ job "concatinating" {
 
   group "concatinating" {
     task "concatinating" {
+      driver = "raw_exec"
+
       restart {
         attempts = 2
         delay    = "10s"
@@ -23,9 +25,7 @@ job "concatinating" {
         cpu    = 2000
         memory = 1000
       }
-      
-      driver = "raw_exec"
-
+    
       config {
         command = "/usr/bin/bash"
         args    = [
