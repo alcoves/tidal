@@ -30,7 +30,7 @@ MANIFEST=${TMP_DIR}/manifest.txt
 touch $MANIFEST
 
 echo "download segments"
-aws s3 sync $IN_PATH $TMP_DIR/segments
+aws s3 sync $IN_PATH $TMP_DIR/segments --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com
 
 for SEGMENT in $(ls $TMP_DIR/segments); do
   echo "file '${TMP_DIR}/segments/${SEGMENT}'" >> $MANIFEST
