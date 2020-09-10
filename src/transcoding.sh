@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-S3_IN=$1
+# Variables are exported because consul lock produces a child script
+
+export S3_IN=$1
 S3_OUT=$2
 FFMPEG_COMMAND=$3
 
@@ -17,7 +19,8 @@ BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"  
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
-LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
+export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
+export CDN_PATH="s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4" 
 
 echo "BUCKET: ${BUCKET}"
 echo "VIDEO_ID: ${VIDEO_ID}"
@@ -41,7 +44,7 @@ TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/${PRES
 
 if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
   echo "ready for concat, aquiring lock"
-  consul lock $LOCK_KEY /root/tidal/src/lockConcat.sh "$LOCK_KEY" "$S3_IN" "s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4"
+  consul lock $LOCK_KEY /root/tidal/src/services/lockConcat.sh
 else
   echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
 fi

@@ -1,13 +1,5 @@
 #!/bin/bash
-set -e
-
-LOCK_KEY=$1
-S3_IN=$2
-S3_OUT=$3
-
-echo "S3_IN: $S3_IN"
-echo "S3_OUT: $S3_OUT"
-echo "LOCK_KEY: $LOCK_KEY"
+set -eux
 
 echo "checking status"
 LOCK_KEY_EXISTS=$(consul kv get $LOCK_KEY)
@@ -17,8 +9,9 @@ if [ -z "$LOCK_KEY_EXISTS" ]; then
   echo "dispatching concatination job"
   nomad job dispatch \
     -detach \
+    -token 
     -meta s3_in="$S3_IN" \
-    -meta s3_out="$S3_OUT" \
+    -meta s3_out="$CDN_PATH" \
     concatinating
   consul kv delete $LOCK_KEY
 else
