@@ -7,7 +7,7 @@ job "concatinating" {
     payload       = "optional"
     meta_required = [
       "s3_in",
-      "s3_out"
+      "s3_out",
     ]
   }
 
@@ -35,11 +35,12 @@ job "concatinating" {
       }
     }
 
-  reschedule {
-    attempts       = 5
-    delay          = "10s"
-    max_delay      = "5m"
-    unlimited      = false
-    delay_function = "exponential"
+    reschedule {
+      attempts       = 5
+      delay          = "10s"
+      max_delay      = "5m"
+      unlimited      = false
+      delay_function = "exponential"
+    }
   }
 }
