@@ -55,7 +55,7 @@ if ["$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT"]; then
     fi
   }
 
-  consul lock "tidal/${VIDEO_ID}" concat()
+  consul lock "tidal/${VIDEO_ID}" concat
 fi
 
 echo "done!"
