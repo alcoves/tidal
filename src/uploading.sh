@@ -41,13 +41,10 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
   VIDEO_PATH=${TMP}/${PRESET_NAME}.${EXT}
 
-  nomad job dispatch \
-    -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
-    -meta cmd='-an -c:v copy -f segment -segment_time 10' \
-    transcoding
-
-  # ffmpeg -i "$URL" $CMD $VIDEO_PATH
-  # aws s3 cp $VIDEO_PATH s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.${EXT} --profile wasabi --endpoint=https://us-east-2.wasabisys.com
+  # nomad job dispatch \
+  #   -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
+  #   -meta cmd='-an -c:v copy -f segment -segment_time 10' \
+  #   transcoding
 
 done
 

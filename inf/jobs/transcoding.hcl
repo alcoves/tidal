@@ -1,36 +1,35 @@
 job "transcoding" {
+  priority    = 100
   type        = "batch"
   datacenters = ["dc1"]
-  priority    = 1
 
   parameterized {
     payload       = "optional"
     meta_required = [
       "cmd",
       "s3_in",
-      "s3_out",
-      "script_path"
+      "s3_out"
     ]
   }
 
   group "transcoding" {
     task "transcoding" {
+      driver = "raw_exec"
+
       restart {
         attempts = 3
         delay    = "10s"
       }
 
       resources {
-        cpu    = 4000
+        cpu    = 2000
         memory = 1000
       }
 
-      driver = "raw_exec"
-
       config {
-        command = "node"
+        command = "/usr/bin/bash"
         args    = [
-          "${NOMAD_META_SCRIPT_PATH}",
+          "/root/src/transcoding.sh",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
           "${NOMAD_META_CMD}",
@@ -41,7 +40,7 @@ job "transcoding" {
     reschedule {
       attempts       = 3
       delay          = "10s"
-      max_delay      = "30m"
+      max_delay      = "120s"
       unlimited      = false
       delay_function = "exponential"
     }

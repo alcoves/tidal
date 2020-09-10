@@ -1,17 +1,16 @@
 job "uploading" {
+  priority    = 100
   type        = "batch"
   datacenters = ["dc1"]
-  priority    = 100
 
   parameterized {
     payload       = "optional"
-    meta_required = [
-      "s3_in",
-      "script_path"
-    ]
+    meta_required = [ "s3_in" ]
   }
 
   group "uploading" {
+    driver = "raw_exec"
+
     task "uploading" {
       restart {
         attempts = 5
@@ -19,24 +18,22 @@ job "uploading" {
       }
 
       resources {
-        cpu    = 2000
+        cpu    = 1000
         memory = 1000
       }
 
-      driver = "raw_exec"
-
       config {
-        command = "node"
+        command = "/usr/bin/bash"
         args    = [
-          "${NOMAD_META_SCRIPT_PATH}",
-          "${NOMAD_META_S3_IN}",
+          "../../src/uploading.sh",
+          "${NOMAD_META_S3_IN}"
         ]
       }
     }
 
     reschedule {
       attempts       = 5
-      delay          = "10s"
+      delay          = "30s"
       max_delay      = "30m"
       unlimited      = false
       delay_function = "exponential"

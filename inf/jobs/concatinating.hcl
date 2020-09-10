@@ -1,7 +1,7 @@
 job "concatinating" {
+  priority    = 90
   type        = "batch"
   datacenters = ["dc1"]
-  priority    = 90
 
   parameterized {
     payload       = "optional"
@@ -29,19 +29,18 @@ job "concatinating" {
       config {
         command = "/usr/bin/bash"
         args    = [
-          "${NOMAD_META_SCRIPT_PATH}",
+          "../../src/concatinating.sh",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
         ]
       }
     }
 
-    reschedule {
-      attempts       = 3
-      delay          = "10s"
-      max_delay      = "30m"
-      unlimited      = false
-      delay_function = "exponential"
-    }
+  reschedule {
+    attempts       = 5
+    delay          = "10s"
+    max_delay      = "5m"
+    unlimited      = false
+    delay_function = "exponential"
   }
 }
