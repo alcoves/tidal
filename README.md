@@ -74,8 +74,7 @@ nomad job dispatch -detach -meta s3_in="s3://tidal-bken-dev/uploads/test/source.
 ## Dispatching
 
 nomad job dispatch \
-  -meta s3_in=s3://tidal-bken/source/test/source.mp4 \
-  -meta script_path=/home/brendan/code/bken/tidal/src/uploading.js \
+  -meta s3_in=s3://tidal/source/test/source.mp4 \
   uploading
 
 nomad job dispatch \

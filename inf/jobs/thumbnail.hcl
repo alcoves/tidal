@@ -30,6 +30,7 @@ job "thumbnail" {
       config {
         command = "/usr/bin/bash"
         args    = [
+          "/root/tidal/src/thumbnail.sh",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
           "${NOMAD_META_CMD}"
