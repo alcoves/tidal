@@ -25,7 +25,7 @@ job "uploading" {
       config {
         command = "/usr/bin/bash"
         args    = [
-          "../../src/uploading.sh",
+          "/root/tidal/src/uploading.sh",
           "${NOMAD_META_S3_IN}"
         ]
       }
