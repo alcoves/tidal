@@ -5,14 +5,6 @@ IN_PATH=$1
 OUT_PATH=$2
 CMD=$3
 
-echo "setting up digitalocean profile"
-aws configure set aws_access_key_id "$(consul kv get DO_ACCESS_KEY_ID | jq -r '.')" --profile digitalocean
-aws configure set aws_secret_access_key "$(consul kv get DO_SECRET | jq -r '.')" --profile wasabi
-
-echo "setting up wasabi profile"
-aws configure set aws_access_key_id "$(consul kv get WASABI_ACCESS_KEY_ID | jq -r '.')" --profile wasabi
-aws configure set aws_secret_access_key "$(consul kv get WASABI_SECRET_ACCESS_KEY | jq -r '.')" --profile wasabi
-
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 

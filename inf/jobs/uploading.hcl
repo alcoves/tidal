@@ -12,6 +12,10 @@ job "uploading" {
     task "uploading" {
       driver = "raw_exec"
 
+      env {
+        NOMAD_TOKEN = {{ key "NOMAD_TOKEN" }}
+      }
+
       restart {
         attempts = 5
         delay    = "10s"

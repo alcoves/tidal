@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "NOMAD_TOKEN: $NOMAD_TOKEN"
+
 echo "starting video conversion process"
 
 S3_IN=$1
