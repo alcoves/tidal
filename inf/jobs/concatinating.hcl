@@ -7,8 +7,7 @@ job "concatinating" {
     payload       = "optional"
     meta_required = [
       "s3_in",
-      "s3_out",
-      "script_path"
+      "s3_out"
     ]
   }
 
