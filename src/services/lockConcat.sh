@@ -9,7 +9,6 @@ if [ -z "$LOCK_KEY_EXISTS" ]; then
   echo "dispatching concatination job"
   nomad job dispatch \
     -detach \
-    -token 
     -meta s3_in="$S3_IN" \
     -meta s3_out="$CDN_PATH" \
     concatinating
