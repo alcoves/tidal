@@ -1,32 +1,32 @@
-const ffmpeg = require('fluent-ffmpeg');
+const ffmpeg = require("fluent-ffmpeg");
 
 function x264(framerate, width) {
   if (!framerate || !width) {
-    throw new Error('framerate and width must be defined');
+    throw new Error("framerate and width must be defined");
   }
 
   const commands = [
-    '-bf 2',
-    '-g 30',
-    '-crf 24',
-    '-coder 1',
-    '-c:v libx264',
-    '-preset faster',
-    '-keyint_min 30',
-    '-profile:v high',
-    '-pix_fmt yuv420p',
+    "-bf 2",
+    "-g 30",
+    "-crf 24",
+    "-coder 1",
+    "-c:v libx264",
+    "-preset faster",
+    "-keyint_min 30",
+    "-profile:v high",
+    "-pix_fmt yuv420p",
     `-vf fps=fps=${framerate},scale=${width}:-2`,
   ];
 
-  return commands.join(' ');
+  return commands.join(" ");
 }
 
 async function main(url) {
-  if (!url) throw new Error('bad url');
+  if (!url) throw new Error("bad url");
 
   const metadata = await new Promise((resolve, reject) => {
     ffmpeg(url).ffprobe(function (err, data) {
-      if (!data.streams.length) reject('no streams');
+      if (!data || !data.streams || !data.streams.length) reject("no streams");
       resolve(data);
     });
   });
@@ -34,7 +34,7 @@ async function main(url) {
   const { framerate, width } = metadata.streams.reduce(
     (acc, cv) => {
       if (cv.r_frame_rate) {
-        const fr = parseFloat(cv.r_frame_rate.split('/')[0]);
+        const fr = parseFloat(cv.r_frame_rate.split("/")[0]);
         fr > acc.framerate ? (acc.framerate = fr) : null;
       }
 
@@ -44,44 +44,44 @@ async function main(url) {
     { framerate: null, width: null }
   );
 
-  if (!width) throw new Error('width is null');
-  if (!framerate) throw new Error('framerate is null');
+  if (!width) throw new Error("width is null");
+  if (!framerate) throw new Error("framerate is null");
 
   const presets = [];
   presets.push({
-    ext: 'mp4',
-    preset: 'libx264-480p',
+    ext: "mp4",
+    preset: "libx264-480p",
     cmd: x264(framerate, 854),
   });
 
   if (width >= 1280) {
     presets.push({
-      ext: 'mp4',
-      preset: 'libx264-720p',
+      ext: "mp4",
+      preset: "libx264-720p",
       cmd: x264(framerate, 1280),
     });
   }
 
   if (width >= 1920) {
     presets.push({
-      ext: 'mp4',
-      preset: 'libx264-1080p',
+      ext: "mp4",
+      preset: "libx264-1080p",
       cmd: x264(framerate, 1920),
     });
   }
 
   if (width >= 2560) {
     presets.push({
-      ext: 'mp4',
-      preset: 'libx264-1440p',
+      ext: "mp4",
+      preset: "libx264-1440p",
       cmd: x264(framerate, 2360),
     });
   }
 
   if (width >= 3840) {
     presets.push({
-      ext: 'mp4',
-      preset: 'libx264-2160p',
+      ext: "mp4",
+      preset: "libx264-2160p",
       cmd: x264(framerate, 3840),
     });
   }
