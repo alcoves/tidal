@@ -38,7 +38,7 @@ SOURCE_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/source/ --
 echo "counting transcoded segments"
 TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 
-if ["$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT"]; then
+if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
   function concat {
     EXISTS=$(consul kv get tidal/${VIDEO_ID}/${PRESET_NAME})
     if [ -z "$EXISTS" ]; then
