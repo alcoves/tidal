@@ -41,6 +41,9 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   CMD=$(echo $PRESET | jq -r '.cmd')
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
 
+  echo "putting consul kv"
+  consul kv put tidal/${VIDEO_ID}/${PRESET_NAME}
+
   for SEGMENT in $(ls $SEGMENT_TMP_DIR); do
     nomad job dispatch \
       -detach \
