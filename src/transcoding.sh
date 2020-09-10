@@ -41,7 +41,7 @@ TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/segments/${VIDEO_ID}/${PRES
 
 if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
   echo "ready for concat, aquiring lock"
-  consul lock $LOCK_KEY /root/tidal/src/lockConcat.sh $LOCK_KEY $S3_IN "https://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}"
+  consul lock $LOCK_KEY "LOCK_KEY_EXISTS=$(consul kv get $LOCK_KEY); if [ -z "$LOCK_KEY_EXISTS" ]; then nomad job dispatch -detach -meta s3_in="$S3_IN" -meta s3_out="$S3_OUT" concatinating; consul kv delete $LOCK_KEY; fi"
 else
   echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
 fi
