@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "NOMAD_TOKEN: $NOMAD_TOKEN"
-
 echo "starting video conversion process"
 
 S3_IN=$1
@@ -42,6 +40,7 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
 
   for SEGMENT in $(ls $SEGMENT_TMP_DIR); do
     nomad job dispatch \
+      -detach \
       -meta cmd="$CMD" \
       -meta s3_in="s3://tidal-bken/segments/${VIDEO_ID}/source/${SEGMENT}" \
       -meta s3_out="s3://tidal-bken/segments/${VIDEO_ID}/${PRESET_NAME}/${SEGMENT}" \
