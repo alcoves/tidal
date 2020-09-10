@@ -13,10 +13,12 @@ job "uploading" {
       driver = "raw_exec"
 
       template {
-        env  = true
         data = <<EOH
           NOMAD_TOKEN="{{key "NOMAD_TOKEN"}}"
         EOH
+        
+        destination = ".env"
+        env         = true
       }
 
       restart {
