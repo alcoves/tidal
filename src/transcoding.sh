@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-# Variables are exported because consul lock produces a child script
-
-export S3_IN=$1
+S3_IN=$1
 S3_OUT=$2
 FFMPEG_COMMAND=$3
 
@@ -19,8 +17,11 @@ BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f5)"  
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
+
+# Variables are exported because consul lock produces a child script
 export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
-export CDN_PATH="s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4" 
+export CONCAT_S3_IN="s3://${BUCKET}/segments/${VIDEO_ID}/${PRESET_NAME}" 
+export CONCAT_S3_OUT="s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4"
 
 echo "BUCKET: ${BUCKET}"
 echo "VIDEO_ID: ${VIDEO_ID}"
