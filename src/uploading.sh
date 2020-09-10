@@ -18,7 +18,7 @@ echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 
 echo "getting presets"
-PRESETS=$(node services/getPresets.js "$URL" | jq -r '.presets')
+PRESETS=$(node /root/tidal/src/services/getPresets.js "$URL" | jq -r '.presets')
 
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
