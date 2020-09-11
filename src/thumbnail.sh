@@ -14,6 +14,12 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 WASABI_BUCKET="$(echo $OUT_PATH | cut -d'/' -f3)"
 echo "WASABI_BUCKET: ${WASABI_BUCKET}"
 
+FILENAME=$(basename -- "$OUT_PATH")
+EXTENSION="${FILENAME##*.}"
+FILENAME="${FILENAME%.*}"
+echo "FILENAME: $FILENAME"
+echo "EXTENSION: $EXTENSION"
+
 echo "creating signed url"
 SIGNED_URL=$(aws s3 presign $IN_PATH --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 
@@ -21,7 +27,7 @@ echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 
 echo "picture path"
-THUMB_PATH="${TMP_DIR}/${VIDEO_ID}.webp"
+THUMB_PATH="${TMP_DIR}/${VIDEO_ID}.${EXTENSION}"
 
 echo "calling ffmpeg"
 ffmpeg -y -i "$SIGNED_URL" $CMD $THUMB_PATH
