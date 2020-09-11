@@ -30,6 +30,15 @@ TMP_DIR=$(mktemp -d)
 echo "getting presets"
 PRESETS=$(node /root/tidal/src/services/getPresets.js "$URL" | jq -r '.presets')
 
+echo "splitting source audio"
+ffmpeg -i "$URL" -vn ${TMP_DIR}/source.wav
+aws s3 mv \
+  ${TMP_DIR}/source.wav \
+  s3://${BUCKET}/audio/source.wav \
+  --recursive \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
 mkdir -p $SEGMENT_TMP_DIR
@@ -49,7 +58,7 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
 
   echo "putting consul kv"
-  consul kv put tidal/${VIDEO_ID}/${PRESET_NAME}
+  consul kv put tidal/${VIDEO_ID}/${PRESET_NAME} $VIDEO_ID/$PRESET_NAME
 
   for SEGMENT in $(ls $SEGMENT_TMP_DIR); do
     nomad job dispatch \
