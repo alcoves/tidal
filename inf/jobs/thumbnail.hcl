@@ -33,8 +33,8 @@ job "thumbnail" {
       }
       
       resources {
-        cpu    = 500
-        memory = 500
+        cpu    = 2000
+        memory = 1500
       }
 
       config {
