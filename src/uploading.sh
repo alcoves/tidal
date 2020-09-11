@@ -21,6 +21,12 @@ aws s3 rm \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
+aws s3 rm \
+  s3://${BUCKET}/audio/${VIDEO_ID}/ \
+  --recursive \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+
 URL=$(aws s3 presign "$S3_IN" --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 echo "URL: $URL"
 
@@ -36,11 +42,15 @@ AUDIO_STREAM_LENGTH=$(echo $HAS_AUDIO | jq -r '.streams | length')
 
 if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
   echo "has audio"
-  ffmpeg -i "$URL" -vn ${TMP_DIR}/source.wav
+  AUDIO_PATH="${TMP_DIR}/source.wav"
+
+  echo "exporting source.wav"
+  ffmpeg -i "$URL" -vn $AUDIO_PATH
+  
+  echo "uploading"
   aws s3 mv \
-    ${TMP_DIR}/source.wav \
-    s3://${BUCKET}/audio/source.wav \
-    --recursive \
+    $AUDIO_PATH \
+    s3://${BUCKET}/audio/${VIDEO_ID}/source.wav \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 else
