@@ -64,12 +64,12 @@ sudo systemctl enable nomad-client.service
 sudo systemctl start nomad-client.service
 
 echo "setting up digitalocean profile"
-aws configure set aws_access_key_id "$(consul kv get secrets/DO_ACCESS_KEY_ID | jq -r '.')" --profile digitalocean
-aws configure set aws_secret_access_key "$(consul kv get secrets/DO_SECRET | jq -r '.')" --profile wasabi
+aws configure set aws_access_key_id "$(consul kv get secrets/DO_ACCESS_KEY_ID)" --profile digitalocean
+aws configure set aws_secret_access_key "$(consul kv get secrets/DO_SECRET_ACCESS_KEY)" --profile digitalocean
 
 echo "setting up wasabi profile"
-aws configure set aws_access_key_id "$(consul kv get secrets/WASABI_ACCESS_KEY_ID | jq -r '.')" --profile wasabi
-aws configure set aws_secret_access_key "$(consul kv get secrets/WASABI_SECRET_ACCESS_KEY | jq -r '.')" --profile wasabi
+aws configure set aws_access_key_id "$(consul kv get secrets/WASABI_ACCESS_KEY_ID)" --profile wasabi
+aws configure set aws_secret_access_key "$(consul kv get secrets/WASABI_SECRET_ACCESS_KEY)" --profile wasabi
 
 # Generating ACL tokens for new cluster
 nomad acl bootstrap
