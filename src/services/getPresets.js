@@ -51,7 +51,7 @@ async function main(url) {
   presets.push({
     ext: "mp4",
     preset: "libx264-480p",
-    cmd: x264(framerate, 854),
+    cmd: x264(framerate > 30 ? 30 : framerate, 854),
   });
 
   if (width >= 1280) {
