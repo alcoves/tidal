@@ -48,11 +48,13 @@ if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
   ffmpeg -i "$URL" -vn $AUDIO_PATH
   
   echo "uploading"
-  aws s3 mv \
+  aws s3 cp \
     $AUDIO_PATH \
     s3://${BUCKET}/audio/${VIDEO_ID}/source.wav \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
+
+  rm $AUDIO_PATH
 else
   echo "video does not contain audio"
 fi
