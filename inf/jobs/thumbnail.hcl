@@ -1,5 +1,5 @@
 job "thumbnail" {
-  priority    = 90
+  priority    = 100
   type        = "batch"
   datacenters = ["dc1"]
 

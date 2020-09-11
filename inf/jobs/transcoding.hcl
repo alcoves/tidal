@@ -1,5 +1,5 @@
 job "transcoding" {
-  priority    = 100
+  priority    = 95
   type        = "batch"
   datacenters = ["dc1"]
 

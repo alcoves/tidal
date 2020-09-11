@@ -1,5 +1,5 @@
 job "uploading" {
-  priority    = 100
+  priority    = 90
   type        = "batch"
   datacenters = ["dc1"]
 
