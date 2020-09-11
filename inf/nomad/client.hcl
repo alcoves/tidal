@@ -13,8 +13,8 @@ client {
   enabled = true
 
   reserved {
-    cpu    = 500
-    memory = 500
+    cpu    = 400
+    memory = 400
   }
 }
 
