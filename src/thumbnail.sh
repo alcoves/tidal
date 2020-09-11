@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -e
 
 IN_PATH=$1
 OUT_PATH=$2
@@ -26,25 +26,15 @@ THUMB_PATH="${TMP_DIR}/${VIDEO_ID}.webp"
 echo "calling ffmpeg"
 ffmpeg -y -i "$SIGNED_URL" $CMD $THUMB_PATH
 
+echo "get thumbnail mime type"
+MIME_TYPE=$(file --mime-type $THUMB_PATH)
+
 echo "copying to wasabi"
 aws s3 mv $THUMB_PATH $OUT_PATH \
-  --profile wasabi --content-type "image/webp" \
+  --profile wasabi --content-type $MIME_TYPE \
   --endpoint=https://us-east-2.wasabisys.com
-
-CDN_PROTOCAL="https"
-LINK="${OUT_PATH/s3/$CDN_PROTOCAL}"
-echo "link to image: $LINK"
-
-echo "updating database"
-DB_CONNECTION_STRING=$(consul kv get DB_CONNECTION_STRING | jq -r '.')
-
-OPERATOR='$set'
-QUERY="{\"_id\":\"$VIDEO_ID\"}"
-UPDATE="{\"$OPERATOR\":{\"thumbnail\":\"$LINK\"}}"
-
-mongo $DB_CONNECTION_STRING --eval "db.videos.updateOne($QUERY, $UPDATE)"
 
 echo "cleaning up tmp dir"
 rm -rf $TMP_DIR
 
-echo "thumbnail creation success"
+echo "done!"
