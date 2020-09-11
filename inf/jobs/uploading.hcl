@@ -28,8 +28,8 @@ job "uploading" {
       }
 
       resources {
-        cpu    = 1000
-        memory = 1000
+        cpu    = 2000
+        memory = 1500
       }
 
       config {
