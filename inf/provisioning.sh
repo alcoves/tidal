@@ -36,14 +36,6 @@ echo "Installing node"
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt install -y nodejs
 
-echo "setting up digitalocean profile"
-aws configure set aws_access_key_id "$(consul kv get DO_ACCESS_KEY_ID | jq -r '.')" --profile digitalocean
-aws configure set aws_secret_access_key "$(consul kv get DO_SECRET | jq -r '.')" --profile wasabi
-
-echo "setting up wasabi profile"
-aws configure set aws_access_key_id "$(consul kv get WASABI_ACCESS_KEY_ID | jq -r '.')" --profile wasabi
-aws configure set aws_secret_access_key "$(consul kv get WASABI_SECRET_ACCESS_KEY | jq -r '.')" --profile wasabi
-
 # Clone tidal repo
 git clone https://github.com/bken-io/tidal/
 
@@ -57,19 +49,27 @@ sudo systemctl enable consul-server.service
 sudo systemctl start consul-server.service
 
 # Configure Consul Client
-sudo cp /root/tidal/config/consul/client.service /etc/systemd/system/consul-client.service
+sudo cp /root/tidal/inf/consul/client.service /etc/systemd/system/consul-client.service
 sudo systemctl enable consul-client.service
 sudo systemctl start consul-client.service
 
 # Configure Nomad Server
-sudo cp /root/tidal/config/nomad/server.service /etc/systemd/system/nomad-server.service
+sudo cp /root/tidal/inf/nomad/server.service /etc/systemd/system/nomad-server.service
 sudo systemctl enable nomad-server.service
 sudo systemctl start nomad-server.service
 
 # Configure Nomad Client
-sudo cp /root/tidal/config/nomad/client.service /etc/systemd/system/nomad-client.service
+sudo cp /root/tidal/inf/nomad/client.service /etc/systemd/system/nomad-client.service
 sudo systemctl enable nomad-client.service
 sudo systemctl start nomad-client.service
+
+echo "setting up digitalocean profile"
+aws configure set aws_access_key_id "$(consul kv get secrets/DO_ACCESS_KEY_ID | jq -r '.')" --profile digitalocean
+aws configure set aws_secret_access_key "$(consul kv get secrets/DO_SECRET | jq -r '.')" --profile wasabi
+
+echo "setting up wasabi profile"
+aws configure set aws_access_key_id "$(consul kv get secrets/WASABI_ACCESS_KEY_ID | jq -r '.')" --profile wasabi
+aws configure set aws_secret_access_key "$(consul kv get secrets/WASABI_SECRET_ACCESS_KEY | jq -r '.')" --profile wasabi
 
 # Generating ACL tokens for new cluster
 nomad acl bootstrap

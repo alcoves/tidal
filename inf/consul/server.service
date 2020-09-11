@@ -3,7 +3,7 @@ Description=Consul server
 Wants=network-online.target
 After=network-online.target
 [Service]
-ExecStart= /bin/sh -c "/usr/local/bin/consul agent -config-file /root/tidal/config/consul/server.hcl"
+ExecStart= /bin/sh -c "/usr/local/bin/consul agent -config-file /root/tidal/inf/consul/server.hcl"
 Restart=always
 RestartSec=10
 [Install]
