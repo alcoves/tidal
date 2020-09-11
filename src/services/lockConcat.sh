@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-if [ -z "$(consul kv get $LOCK_KEY)" ]; then
+echo "checking status"
+LOCK_KEY_EXISTS=$(consul kv get $LOCK_KEY)
+echo "LOCK_KEY_EXISTS: $LOCK_KEY_EXISTS"
+
+if [ -z "$LOCK_KEY_EXISTS" ]; then
   echo "dispatching concatination job"
   nomad job dispatch \
     -detach \
