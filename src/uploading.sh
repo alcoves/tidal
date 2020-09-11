@@ -31,13 +31,21 @@ echo "getting presets"
 PRESETS=$(node /root/tidal/src/services/getPresets.js "$URL" | jq -r '.presets')
 
 echo "splitting source audio"
-ffmpeg -i "$URL" -vn -map "0:a?" ${TMP_DIR}/source.wav
-aws s3 mv \
-  ${TMP_DIR}/source.wav \
-  s3://${BUCKET}/audio/source.wav \
-  --recursive \
-  --profile digitalocean \
-  --endpoint=https://nyc3.digitaloceanspaces.com
+HAS_AUDIO=$(ffprobe -i "$URL" -show_streams -select_streams a -of json -loglevel error)
+AUDIO_STREAM_LENGTH=$(echo $HAS_AUDIO | jq -r '.streams | length')
+
+if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
+  echo "has audio"
+  ffmpeg -i "$URL" -vn ${TMP_DIR}/source.wav
+  aws s3 mv \
+    ${TMP_DIR}/source.wav \
+    s3://${BUCKET}/audio/source.wav \
+    --recursive \
+    --profile digitalocean \
+    --endpoint=https://nyc3.digitaloceanspaces.com
+else
+  echo "video does not contain audio"
+fi
 
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
