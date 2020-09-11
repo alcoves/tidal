@@ -31,7 +31,7 @@ echo "getting presets"
 PRESETS=$(node /root/tidal/src/services/getPresets.js "$URL" | jq -r '.presets')
 
 echo "splitting source audio"
-ffmpeg -i "$URL" -vn ${TMP_DIR}/source.wav || touch ${TMP_DIR}/source.wav
+ffmpeg -i "$URL" -vn -map "0:a?" ${TMP_DIR}/source.wav
 aws s3 mv \
   ${TMP_DIR}/source.wav \
   s3://${BUCKET}/audio/source.wav \
