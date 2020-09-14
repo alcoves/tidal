@@ -32,7 +32,7 @@ job "concatinating" {
 
       resources {
         cpu    = 1000
-        memory = 1500
+        memory = 1000
       }
     
       config {
