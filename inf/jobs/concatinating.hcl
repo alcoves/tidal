@@ -31,7 +31,7 @@ job "concatinating" {
       }
 
       resources {
-        cpu    = 2000
+        cpu    = 1000
         memory = 1500
       }
     
