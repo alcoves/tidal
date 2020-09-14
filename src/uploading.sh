@@ -22,6 +22,12 @@ aws s3 rm \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
 aws s3 rm \
+  s3://${BUCKET}/${VIDEO_ID}/segments \
+  --recursive \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+
+aws s3 rm \
   s3://${BUCKET}/${VIDEO_ID}/source.wav \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
