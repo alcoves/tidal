@@ -7,7 +7,7 @@ OUT_PATH=$2
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
+VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f4)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
@@ -40,8 +40,8 @@ for SEGMENT in $(ls $TMP_DIR/segments); do
   echo "file '${TMP_DIR}/segments/${SEGMENT}'" >> $MANIFEST
 done
 
-echo "listing audio files"
-AUDIO_PATH_COUNT=$(aws s3 ls s3://${BUCKET}/audio/${VIDEO_ID}/source.wav --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
+echo "downloading audio"
+AUDIO_PATH_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/source.wav --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 
 if [ "$AUDIO_PATH_COUNT" -gt 0 ]; then
   echo "has audio"
@@ -50,7 +50,7 @@ if [ "$AUDIO_PATH_COUNT" -gt 0 ]; then
 
   echo "downloading audio"
   aws s3 cp \
-    s3://${BUCKET}/audio/${VIDEO_ID}/source.wav \
+    s3://${BUCKET}/${VIDEO_ID}/source.wav \
     $AUDIO_PATH \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
