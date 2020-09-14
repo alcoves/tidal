@@ -84,8 +84,8 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
 
   aws s3api put-object \
     --bucket ${BUCKET} \
-    --key {id}/versions/${PRESET_NAME}/ \
     --profile digitalocean \
+    --key ${VIDEO_ID}/versions/${PRESET_NAME}/ \
     --endpoint=https://nyc3.digitaloceanspaces.com
 done
 
