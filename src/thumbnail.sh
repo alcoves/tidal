@@ -8,7 +8,7 @@ CMD=$3
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f5)"
+VIDEO_ID="$(echo $IN_PATH | cut -d'/' -f4)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
 WASABI_BUCKET="$(echo $OUT_PATH | cut -d'/' -f3)"
