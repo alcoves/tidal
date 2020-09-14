@@ -16,8 +16,13 @@ echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
 echo "cleaing up s3"
 aws s3 rm \
-  s3://${BUCKET}/${VIDEO_ID} \
+  s3://${BUCKET}/${VIDEO_ID}/versions \
   --recursive \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+
+aws s3 rm \
+  s3://${BUCKET}/${VIDEO_ID}/source.wav \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
