@@ -3,6 +3,12 @@ job "uploading" {
   type        = "batch"
   datacenters = ["dc1"]
 
+  constraint {
+    operator  = "regexp"
+    value     = "[/tidal/]"
+    attribute = "${attr.unique.hostname}"
+  }
+
   parameterized {
     payload       = "optional"
     meta_required = [ "s3_in" ]
