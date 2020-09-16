@@ -38,11 +38,12 @@ async function main(url) {
     throw new Error("videos must only contain one video stream");
   }
 
-  const { framerate, width } = metadata.streams.reduce(
+  const { framerate, parsedFramerate, width } = metadata.streams.reduce(
     (acc, cv) => {
       if (cv.r_frame_rate && cv.codec_type === "video") {
-        const parsedFramerate =
-          cv.r_frame_rate.split("/")[0] / cv.r_frame_rate.split("/")[1];
+        const parsedFramerate = parseFloat(
+          cv.r_frame_rate.split("/")[0] / cv.r_frame_rate.split("/")[1]
+        );
 
         if (parsedFramerate > 60) {
           acc.framerate = 60;
