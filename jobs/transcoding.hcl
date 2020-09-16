@@ -33,7 +33,7 @@ job "transcoding" {
 
       resources {
         cpu    = 1000
-        memory = 1000
+        memory = 1500
       }
 
       config {
