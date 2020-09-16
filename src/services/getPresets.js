@@ -31,11 +31,17 @@ async function main(url) {
     });
   });
 
+  if (
+    metadata.streams.filter(({ codec_type }) => codec_type === "video").length >
+    1
+  ) {
+    throw new Error("videos must only contain one video stream");
+  }
+
   const { framerate, width } = metadata.streams.reduce(
     (acc, cv) => {
-      if (cv.r_frame_rate) {
-        const fr = parseFloat(cv.r_frame_rate.split("/")[0]);
-        fr > acc.framerate ? (acc.framerate = fr) : null;
+      if (cv.r_frame_rate && cv.codec_type === "video") {
+        acc.framerate = cv.r_frame_rate;
       }
 
       if (cv.width) cv.width > acc.width ? (acc.width = cv.width) : null;
@@ -44,14 +50,16 @@ async function main(url) {
     { framerate: null, width: null }
   );
 
-  if (!width) throw new Error("width is null");
-  if (!framerate) throw new Error("framerate is null");
+  if (!width) throw new Error(`width: ${width}`);
+  if (!framerate) throw new Error(`framerate: ${framerate}`);
+
+  const parsedFramerate = framerate.split("/")[0] / framerate.split("/")[1];
 
   const presets = [];
   presets.push({
     ext: "mp4",
     preset: "libx264-480p",
-    cmd: x264(framerate > 30 ? 30 : framerate, 854),
+    cmd: x264(parsedFramerate > 30 ? 30 : framerate, 854),
   });
 
   if (width >= 1280) {
