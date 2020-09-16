@@ -41,19 +41,27 @@ async function main(url) {
   const { framerate, width } = metadata.streams.reduce(
     (acc, cv) => {
       if (cv.r_frame_rate && cv.codec_type === "video") {
-        acc.framerate = cv.r_frame_rate;
+        const parsedFramerate =
+          cv.r_frame_rate.split("/")[0] / cv.r_frame_rate.split("/")[1];
+
+        if (parsedFramerate > 60) {
+          acc.framerate = 60;
+          acc.parsedFramerate = 60;
+        } else {
+          acc.framerate = cv.r_frame_rate;
+          acc.parsedFramerate = parsedFramerate;
+        }
       }
 
       if (cv.width) cv.width > acc.width ? (acc.width = cv.width) : null;
       return acc;
     },
-    { framerate: null, width: null }
+    { framerate: null, parsedFramerate: null, width: null }
   );
 
   if (!width) throw new Error(`width: ${width}`);
   if (!framerate) throw new Error(`framerate: ${framerate}`);
-
-  const parsedFramerate = framerate.split("/")[0] / framerate.split("/")[1];
+  if (!parsedFramerate) throw new Error(`parsedFramerate: ${parsedFramerate}`);
 
   const presets = [];
   presets.push({
