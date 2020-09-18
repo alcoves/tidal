@@ -77,17 +77,18 @@ aws s3 cp \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
-echo "placing initial preset directories"
-for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
-  PRESET=$(echo ${row} | base64 --decode | jq -r '.')
-  PRESET_NAME=$(echo $PRESET | jq -r '.preset')
+# Causes off by one error
+# echo "placing initial preset directories"
+# for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
+#   PRESET=$(echo ${row} | base64 --decode | jq -r '.')
+#   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
 
-  aws s3api put-object \
-    --bucket ${BUCKET} \
-    --profile digitalocean \
-    --key ${VIDEO_ID}/versions/${PRESET_NAME}/ \
-    --endpoint=https://nyc3.digitaloceanspaces.com
-done
+#   aws s3api put-object \
+#     --bucket ${BUCKET} \
+#     --profile digitalocean \
+#     --key ${VIDEO_ID}/versions/${PRESET_NAME}/ \
+#     --endpoint=https://nyc3.digitaloceanspaces.com
+# done
 
 echo "dispatching transcoding jobs"
 for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
