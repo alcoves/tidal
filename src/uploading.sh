@@ -75,8 +75,8 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   aws s3api put-object \
     --bucket ${BUCKET} \
     --profile digitalocean \
-    --endpoint=https://nyc3.digitaloceanspaces.com
-    --key ${VIDEO_ID}/versions/${PRESET_NAME}/marker.json \
+    --endpoint=https://nyc3.digitaloceanspaces.com \
+    --key ${VIDEO_ID}/versions/${PRESET_NAME}/marker.json
 done
 
 echo "dispatching transcoding jobs"
