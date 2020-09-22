@@ -41,16 +41,16 @@ for SEGMENT in $(ls $TMP_DIR/segments); do
 done
 
 echo "downloading audio"
-AUDIO_PATH_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/source.wav --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
+AUDIO_PATH_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/audio.wav --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 
 if [ "$AUDIO_PATH_COUNT" -gt 0 ]; then
   echo "has audio"
-  AUDIO_PATH="${TMP_DIR}/audio/source.wav"
+  AUDIO_PATH="${TMP_DIR}/audio/audio.wav"
   echo "AUDIO_PATH: $AUDIO_PATH"
 
   echo "downloading audio"
   aws s3 cp \
-    s3://${BUCKET}/${VIDEO_ID}/source.wav \
+    s3://${BUCKET}/${VIDEO_ID}/audio.wav \
     $AUDIO_PATH \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com

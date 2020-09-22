@@ -16,19 +16,9 @@ echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
 echo "cleaing up s3"
 aws s3 rm \
-  s3://${BUCKET}/${VIDEO_ID}/versions \
+  s3://${BUCKET}/${VIDEO_ID} \
   --recursive \
-  --profile digitalocean \
-  --endpoint=https://nyc3.digitaloceanspaces.com
-
-aws s3 rm \
-  s3://${BUCKET}/${VIDEO_ID}/segments \
-  --recursive \
-  --profile digitalocean \
-  --endpoint=https://nyc3.digitaloceanspaces.com
-
-aws s3 rm \
-  s3://${BUCKET}/${VIDEO_ID}/source.wav \
+  --exclude "source.*" \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
@@ -47,15 +37,15 @@ AUDIO_STREAM_LENGTH=$(echo $HAS_AUDIO | jq -r '.streams | length')
 
 if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
   echo "has audio"
-  AUDIO_PATH="${TMP_DIR}/source.wav"
+  AUDIO_PATH="${TMP_DIR}/audio.wav"
 
-  echo "exporting source.wav"
+  echo "exporting audio.wav"
   ffmpeg -i "$URL" -vn $AUDIO_PATH
   
   echo "uploading"
   aws s3 cp \
     $AUDIO_PATH \
-    s3://${BUCKET}/${VIDEO_ID}/source.wav \
+    s3://${BUCKET}/${VIDEO_ID}/audio.wav \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 
