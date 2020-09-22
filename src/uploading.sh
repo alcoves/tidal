@@ -67,18 +67,17 @@ aws s3 cp \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
-# Causes off by one error
-# echo "placing initial preset directories"
-# for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
-#   PRESET=$(echo ${row} | base64 --decode | jq -r '.')
-#   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
+echo "placing marker"
+for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
+  PRESET=$(echo ${row} | base64 --decode | jq -r '.')
+  PRESET_NAME=$(echo $PRESET | jq -r '.preset')
 
-#   aws s3api put-object \
-#     --bucket ${BUCKET} \
-#     --profile digitalocean \
-#     --key ${VIDEO_ID}/versions/${PRESET_NAME}/ \
-#     --endpoint=https://nyc3.digitaloceanspaces.com
-# done
+  aws s3api put-object \
+    --bucket ${BUCKET} \
+    --profile digitalocean \
+    --endpoint=https://nyc3.digitaloceanspaces.com
+    --key ${VIDEO_ID}/versions/${PRESET_NAME}/marker.json \
+done
 
 echo "dispatching transcoding jobs"
 for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
@@ -94,7 +93,7 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
       -detach \
       -meta cmd="$CMD" \
       -meta s3_in="s3://${BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
-      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/${SEGMENT}" \
+      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}" \
       transcoding
   done
 done
