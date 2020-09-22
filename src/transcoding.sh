@@ -16,7 +16,7 @@ echo "parsing variables"
 BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"  
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f4)"  
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
-SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
+SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f8)"
 
 # Variables are exported because consul lock produces a child script
 export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
