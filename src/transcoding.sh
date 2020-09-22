@@ -20,7 +20,7 @@ SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f7)"
 
 # Variables are exported because consul lock produces a child script
 export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
-export CONCAT_S3_IN="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}" 
+export CONCAT_S3_IN="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments" 
 export CONCAT_S3_OUT="s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4"
 
 echo "BUCKET: ${BUCKET}"
@@ -41,7 +41,7 @@ echo "counting source segments"
 SOURCE_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/segments/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 
 echo "counting transcoded segments"
-TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
+TRANSCODED_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
 echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS_COUNT}"
 
 if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
