@@ -1,8 +1,13 @@
 const ffmpeg = require("fluent-ffmpeg");
 
-function x264(framerate, width) {
-  if (!framerate || !width) {
-    throw new Error("framerate and width must be defined");
+function getFr(r_frame_rate) {
+  const [rate, time] = r_frame_rate.split('/');
+  return parseFloat(rate / time).toFixed(3) || parseFloat(r_frame_rate).toFixed(3);
+}
+
+function x264({r_frame_rate, width }) {
+  if (!r_frame_rate || !width) {
+    throw new Error("r_frame_rate and width must be defined");
   }
 
   const commands = [
@@ -13,8 +18,8 @@ function x264(framerate, width) {
     "-preset faster",
     "-profile:v high",
     "-pix_fmt yuv420p",
-    `-g ${parseInt(framerate * 2)}`,
-    `-vf fps=fps=${framerate},scale=${width}:-2`,
+    `-g ${parseInt(getFr(r_frame_rate) * 2)}`,
+    `-vf fps=fps=${r_frame_rate},scale=${width}:-2`,
   ];
 
   return commands.join(" ");
@@ -37,44 +42,33 @@ async function main(url) {
     throw new Error("videos must only contain one video stream");
   }
 
-  const { framerate, parsedFramerate, width } = metadata.streams.reduce(
+  const { r_frame_rate, width } = metadata.streams.reduce(
     (acc, cv) => {
       if (cv.r_frame_rate && cv.codec_type === "video") {
-        const parsedFramerate = parseFloat(
-          cv.r_frame_rate.split("/")[0] / cv.r_frame_rate.split("/")[1]
-        );
-
-        if (parsedFramerate > 60) {
-          acc.framerate = 60;
-          acc.parsedFramerate = 60;
-        } else {
-          acc.framerate = cv.r_frame_rate;
-          acc.parsedFramerate = parsedFramerate;
-        }
+        getFr(r_frame_rate) > 60 ? acc.r_frame_rate = "60/1" : acc.r_frame_rate = cv.r_frame_rate;
       }
 
       if (cv.width) cv.width > acc.width ? (acc.width = cv.width) : null;
       return acc;
     },
-    { framerate: null, parsedFramerate: null, width: null }
+    { r_frame_rate: null, width: null }
   );
 
   if (!width) throw new Error(`width: ${width}`);
-  if (!framerate) throw new Error(`framerate: ${framerate}`);
-  if (!parsedFramerate) throw new Error(`parsedFramerate: ${parsedFramerate}`);
+  if (!r_frame_rate) throw new Error(`r_frame_rate: ${r_frame_rate}`);
 
   const presets = [];
   presets.push({
     ext: "mp4",
     preset: "libx264-480p",
-    cmd: x264(parsedFramerate > 30 ? 30 : framerate, 854),
+    cmd: x264({r_frame_rate, width: 854}),
   });
 
   if (width >= 1280) {
     presets.push({
       ext: "mp4",
       preset: "libx264-720p",
-      cmd: x264(framerate, 1280),
+      cmd: x264({r_frame_rate, width: 1280}),
     });
   }
 
@@ -82,7 +76,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-1080p",
-      cmd: x264(framerate, 1920),
+      cmd: x264({r_frame_rate, width: 1920}),
     });
   }
 
@@ -90,7 +84,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-1440p",
-      cmd: x264(framerate, 2360),
+      cmd: x264({r_frame_rate, width: 2360}),
     });
   }
 
@@ -98,7 +92,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-2160p",
-      cmd: x264(framerate, 3840),
+      cmd: x264({r_frame_rate, width: 3840}),
     });
   }
 
