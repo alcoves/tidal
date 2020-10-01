@@ -7,14 +7,13 @@ function x264(framerate, width) {
 
   const commands = [
     "-bf 2",
-    "-g 150",
     "-crf 21",
     "-coder 1",
     "-c:v libx264",
     "-preset faster",
-    "-keyint_min 30",
     "-profile:v high",
     "-pix_fmt yuv420p",
+    `-g ${parseInt(framerate * 2)}`,
     `-vf fps=fps=${framerate},scale=${width}:-2`,
   ];
 
