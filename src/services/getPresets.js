@@ -45,7 +45,7 @@ async function main(url) {
   const { r_frame_rate, width } = metadata.streams.reduce(
     (acc, cv) => {
       if (cv.r_frame_rate && cv.codec_type === "video") {
-        getFr(r_frame_rate) > 60 ? acc.r_frame_rate = "60/1" : acc.r_frame_rate = cv.r_frame_rate;
+        getFr(cv.r_frame_rate) > 60 ? acc.r_frame_rate = "60/1" : acc.r_frame_rate = cv.r_frame_rate;
       }
 
       if (cv.width) cv.width > acc.width ? (acc.width = cv.width) : null;
