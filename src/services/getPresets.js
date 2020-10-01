@@ -7,8 +7,8 @@ function x264(framerate, width) {
 
   const commands = [
     "-bf 2",
-    "-g 30",
-    "-crf 24",
+    "-g 150",
+    "-crf 21",
     "-coder 1",
     "-c:v libx264",
     "-preset faster",
