@@ -5,22 +5,34 @@ function getFr(r_frame_rate) {
   return parseFloat(rate / time).toFixed(3) || parseFloat(r_frame_rate).toFixed(3);
 }
 
-function x264({r_frame_rate, width }) {
-  if (!r_frame_rate || !width) {
+function calcMaxBitrate(originalWidth, desiredWidth, originalBitrate) {
+  return `${parseInt((desiredWidth / originalWidth) * originalBitrate)}`;
+}
+
+function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
+  if (!r_frame_rate || !width ||!desiredWidth) {
     throw new Error("r_frame_rate and width must be defined");
   }
+
+  // https://trac.ffmpeg.org/wiki/Encode/H.264
+  // YouTube like filter eq=brightness=-0.04:saturation=1.04
 
   const commands = [
     "-bf 2",
     "-crf 21",
     "-coder 1",
     "-c:v libx264",
-    "-preset faster",
+    "-preset medium",
     "-profile:v high",
     "-pix_fmt yuv420p",
     `-g ${parseInt(getFr(r_frame_rate) * 2)}`,
-    `-vf fps=fps=${r_frame_rate},scale=${width}:-2`,
+    `-vf fps=fps=${r_frame_rate},scale=${desiredWidth}:-2`,
   ];
+
+  if (bitrate) {
+    const maxrate = calcMaxBitrate(width, desiredWidth, bitrate);
+    commands.push(`-maxrate ${parseInt(maxrate / 1000)}K -bufsize ${parseInt(maxrate * 2 / 1000)}K`)
+  }
 
   return commands.join(" ");
 }
@@ -42,16 +54,20 @@ async function main(url) {
     throw new Error("videos must only contain one video stream");
   }
 
-  const { r_frame_rate, width } = metadata.streams.reduce(
+  const { r_frame_rate, width, bitrate } = metadata.streams.reduce(
     (acc, cv) => {
-      if (cv.r_frame_rate && cv.codec_type === "video") {
-        getFr(cv.r_frame_rate) > 60 ? acc.r_frame_rate = "60/1" : acc.r_frame_rate = cv.r_frame_rate;
+      if (cv.codec_type === "video") {
+        if (cv.bit_rate) acc.bitrate = cv.bit_rate;
+
+        if (cv.r_frame_rate) {
+          getFr(cv.r_frame_rate) > 60 ? acc.r_frame_rate = "60/1" : acc.r_frame_rate = cv.r_frame_rate;
+        }
       }
 
       if (cv.width) cv.width > acc.width ? (acc.width = cv.width) : null;
       return acc;
     },
-    { r_frame_rate: null, width: null }
+    { r_frame_rate: null, width: null, bitrate: null }
   );
 
   if (!width) throw new Error(`width: ${width}`);
@@ -61,14 +77,14 @@ async function main(url) {
   presets.push({
     ext: "mp4",
     preset: "libx264-480p",
-    cmd: x264({r_frame_rate, width: 854}),
+    cmd: x264({r_frame_rate, width, desiredWidth: 854, bitrate}),
   });
 
   if (width >= 1280) {
     presets.push({
       ext: "mp4",
       preset: "libx264-720p",
-      cmd: x264({r_frame_rate, width: 1280}),
+      cmd: x264({r_frame_rate, width, desiredWidth: 1280, bitrate}),
     });
   }
 
@@ -76,7 +92,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-1080p",
-      cmd: x264({r_frame_rate, width: 1920}),
+      cmd: x264({r_frame_rate, width, desiredWidth: 1920, bitrate}),
     });
   }
 
@@ -84,7 +100,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-1440p",
-      cmd: x264({r_frame_rate, width: 2360}),
+      cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
     });
   }
 
@@ -92,7 +108,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "libx264-2160p",
-      cmd: x264({r_frame_rate, width: 3840}),
+      cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
     });
   }
 
