@@ -19,7 +19,7 @@ function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
 
   const commands = [
     "-bf 2",
-    "-crf 21",
+    "-crf 22",
     "-coder 1",
     "-c:v libx264",
     "-preset medium",
