@@ -71,12 +71,16 @@ echo "placing marker"
 for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET=$(echo ${row} | base64 --decode | jq -r '.')
   PRESET_NAME=$(echo $PRESET | jq -r '.preset')
+  S3_KEY="${VIDEO_ID}/versions/${PRESET_NAME}/marker.json"
+
+  echo "marker preset: $PRESET"
+  echo "marker preset_name: $PRESET_NAME"
 
   aws s3api put-object \
+    --key $S3_KEY \
     --bucket ${BUCKET} \
     --profile digitalocean \
-    --endpoint=https://nyc3.digitaloceanspaces.com \
-    --key ${VIDEO_ID}/versions/${PRESET_NAME}/marker.json
+    --endpoint=https://nyc3.digitaloceanspaces.com
 done
 
 echo "dispatching transcoding jobs"
