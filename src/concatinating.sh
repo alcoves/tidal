@@ -20,7 +20,12 @@ echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 mkdir $TMP_DIR/audio
 mkdir $TMP_DIR/segments
+mkdir $TMP_DIR/hls
 echo "TMP_DIR: $TMP_DIR"
+
+TMP_HLS_PATH="$TMP_DIR/hls"
+mkdir $TMP_HLS_PATH/$PRESET_NAME
+echo "TMP_HLS_PATH: $TMP_HLS_PATH"
 
 TMP_VIDEO_PATH="${TMP_DIR}/${PRESET_NAME}.${VIDEO_EXTENSION}"
 echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
@@ -63,7 +68,7 @@ fi
 
 echo "concatinating started"
 # -hide_banner -loglevel panic
-ffmpeg -y -f concat -safe 0 \
+ffmpeg -hide_banner -y -f concat -safe 0 \
   -i $MANIFEST \
   -c copy \
   -f matroska - | \
@@ -73,6 +78,30 @@ ffmpeg -y -f concat -safe 0 \
   -c:v copy \
   -movflags faststart \
   $TMP_VIDEO_PATH
+
+echo "packaging for hls"
+ffmpeg -y -i $TMP_VIDEO_PATH \
+  -c copy \
+  -hls_time 2 \
+  -hls_playlist_type vod \
+  -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
+  ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
+
+# ffmpeg -hide_banner -y -safe 0 \
+#   -i $MANIFEST \
+#   -i $AUDIO_CMD \
+#   -f mpegts - | \
+#   ffmpeg -y -i - \
+#   -c copy \
+#   -hls_time 2 \
+#   -hls_playlist_type vod \
+#   -hls_segment_filename ${TMP_HLS_PATH}/%d.ts \
+#   ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
+
+echo "copying hls data to wasabi"
+aws s3 sync $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
 
 echo "copying to wasabi"
 aws s3 mv $TMP_VIDEO_PATH $OUT_PATH \
