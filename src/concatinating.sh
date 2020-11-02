@@ -85,7 +85,7 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_time 2 \
   -hls_playlist_type vod \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
-  ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
+  ${TMP_HLS_PATH}/${PRESET_NAME}/${PRESET_NAME}.m3u8
 
 # ffmpeg -hide_banner -y -safe 0 \
 #   -i $MANIFEST \
