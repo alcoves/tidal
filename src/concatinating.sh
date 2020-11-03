@@ -91,21 +91,18 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_time 2 \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
-  -hls_base_url "./${PRESET_NAME}" \
+  -hls_base_url "./${PRESET_NAME}/" \
   -master_pl_name $HLS_PRESET_MASTER_NAME \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
 
-echo "moving version master"
-mv ${TMP_HLS_PATH}/${PRESET_NAME}/$HLS_PRESET_MASTER_NAME ${TMP_HLS_PATH}/$HLS_PRESET_MASTER_NAME
+# HLS_MASTER=$(mktemp)
+# echo "#EXTM3U" >> $HLS_MASTER
+# echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
-HLS_MASTER=$(mktemp)
-echo "#EXTM3U" >> $HLS_MASTER
-echo "#EXT-X-VERSION:3" >> $HLS_MASTER
-
-echo "getting preset master metadata"
-HLS_PRESET_MASTER_ADDITION=$(tail -n 3 "${TMP_HLS_PATH}/$HLS_PRESET_MASTER_NAME" | grep -v -e '^$')
-echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
+# echo "getting preset master metadata"
+# HLS_PRESET_MASTER_ADDITION=$(tail -n 3 "${TMP_HLS_PATH}/$HLS_PRESET_MASTER_NAME" | grep -v -e '^$')
+# echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
 
 # echo "getting all preset master playlists"
 # PRESET_MASTERS=$(aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
