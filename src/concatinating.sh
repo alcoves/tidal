@@ -87,6 +87,24 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}/${PRESET_NAME}.m3u8
 
+echo "gettings segments"
+aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
+  --recursive \
+  --exclude='*' \
+  --profile wasabi \
+  --include='*.m3u8' \
+  --endpoint=https://us-east-2.wasabisys.com
+
+aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
+  --recursive \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
+
+aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
+  --recursive \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
+
 # ffmpeg -hide_banner -y -safe 0 \
 #   -i $MANIFEST \
 #   -i $AUDIO_CMD \
