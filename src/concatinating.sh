@@ -84,14 +84,12 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   $TMP_VIDEO_PATH
 
 echo "packaging for hls"
-HLS_PRESET_MASTER_NAME="${PRESET_NAME}-master.m3u8"
-
 ffmpeg -y -i $TMP_VIDEO_PATH \
   -c copy \
   -hls_time 2 \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
-  -hls_base_url "./${PRESET_NAME}/" \
+  -hls_base_url ${PRESET_NAME}-master.m3u8 \
   -master_pl_name $HLS_PRESET_MASTER_NAME \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
@@ -121,11 +119,6 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
 
 echo "copying hls data to wasabi"
 aws s3 sync $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
-
-echo "uploading hls master playlist"
-aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
