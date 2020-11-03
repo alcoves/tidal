@@ -92,7 +92,7 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
   -hls_base_url "./${PRESET_NAME}" \
-  -master_pl_name $HLS_PRESET_MASTER_PATH \
+  -master_pl_name "$HLS_PRESET_MASTER_PATH" \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
 
