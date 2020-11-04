@@ -88,30 +88,35 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_segment_filename ${TMP_HLS_PATH}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}-playlist.m3u8
 
+echo "copy current playlist master"
+cp ${TMP_HLS_PATH}/${PRESET_NAME}-master.m3u8 $TMP_DIR/playlists/$PRESET_NAME/
+
 echo "creating master playlist"
 HLS_MASTER=$(mktemp)
-touch $HLS_MASTER
-PRESET_ADDITION=$(tail -n 3 $TMP_HLS_PATH/$PRESET_NAME-master.m3u8 | grep -v -e '^$')
-echo "PRESET_ADDITION: $PRESET_ADDITION"
-
 echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
-echo "$PRESET_ADDITION" >> $HLS_MASTER
 
-echo "getting all m3u8 files"
-aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists \
+echo "fetching other playlists"
+aws s3 cp s3://cdn.bken.io/v/qMp7r5uCn31K86CDg3WGR . \
   --recursive \
   --profile wasabi \
-  --include "*.m3u8" \
   --exclude "*.ts" \
+  --include "*.m3u8" \
   --endpoint=https://us-east-2.wasabisys.com
 
-echo "adding additional playlists if any"
-PRESET_MASTERS=$(find $TMP_DIR/playlists/ -name '*-master.m3u8')
-for PLAYLIST in $PRESET_MASTERS; do
-  echo "appending master playlist from $PLAYLIST"
-  HLS_PRESET_MASTER_ADDITION=$(tail -n 3 $PLAYLIST | grep -v -e '^$')
-  echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
+for PLAYLIST in $(find $TMP_DIR/playlists/ -name '*-master.m3u8'); do
+  echo "PLAYLIST: $PLAYLIST"
+
+  PLAYLIST_PRESET_NAME=$(echo "$PLAYLIST" | cut -d'/' -f3)
+  echo "PLAYLIST_PRESET_NAME: $PLAYLIST_PRESET_NAME"
+
+  PLAYLIST_NAME="$PLAYLIST_PRESET_NAME-playlist.m3u8"
+  PLAYLIST_ADDITION=$(head -n 3 $PLAYLIST | tail -n 1)
+
+  echo "$PLAYLIST_ADDITION" >> $HLS_MASTER
+  echo "./$PLAYLIST_PRESET_NAME/$PLAYLIST_NAME" >> $HLS_MASTER
+
+  echo $(cat "$HLS_MASTER")
 done;
 
 echo "uploading master playlist"
