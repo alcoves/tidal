@@ -108,7 +108,7 @@ aws s3 cp s3://cdn.bken.io/v/qMp7r5uCn31K86CDg3WGR . \
 for PLAYLIST in $(find $TMP_DIR/playlists/ -name '*-master.m3u8'); do
   echo "PLAYLIST: $PLAYLIST"
 
-  PLAYLIST_PRESET_NAME=$(echo "$PLAYLIST" | cut -d'/' -f3)
+  PLAYLIST_PRESET_NAME=$(echo "$PLAYLIST" | cut -d'/' -f5)
   echo "PLAYLIST_PRESET_NAME: $PLAYLIST_PRESET_NAME"
 
   PLAYLIST_NAME="$PLAYLIST_PRESET_NAME-playlist.m3u8"
