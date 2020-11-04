@@ -5,10 +5,10 @@ echo "starting video conversion process"
 
 S3_IN=$1
 
-BUCKET="$(echo $S3_IN | cut -d'/' -f3)"  
+BUCKET="$(echo $S3_IN | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-VIDEO_ID="$(echo $S3_IN | cut -d'/' -f4)"  
+VIDEO_ID="$(echo $S3_IN | cut -d'/' -f4)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
 VIDEO_EXTENSION="${S3_IN##*.}"
@@ -41,7 +41,7 @@ if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
 
   echo "exporting audio.wav"
   ffmpeg -i "$URL" -vn $AUDIO_PATH
-  
+
   echo "uploading"
   aws s3 cp \
     $AUDIO_PATH \
@@ -97,7 +97,7 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
       -detach \
       -meta cmd="$CMD" \
       -meta s3_in="s3://${BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
-      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}" \
+      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}.ts" \
       transcoding
   done
 done
