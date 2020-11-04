@@ -80,7 +80,7 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   $TMP_VIDEO_PATH
 
 echo "getting all preset master playlists"
-aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID}/hls/ $TMP_HLS_PATH/ \
+aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_HLS_PATH/ \
   --recursive \
   --profile wasabi \
   --include "*.m3u8" \
