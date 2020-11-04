@@ -10,7 +10,7 @@ function calcMaxBitrate(originalWidth, desiredWidth, originalBitrate) {
 }
 
 function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
-  if (!r_frame_rate || !width ||!desiredWidth) {
+  if (!r_frame_rate || !width || !desiredWidth) {
     throw new Error("r_frame_rate and width must be defined");
   }
 
@@ -22,10 +22,11 @@ function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
     "-crf 22",
     "-coder 1",
     "-c:v libx264",
-    "-preset medium",
+    "-preset faster",
     "-profile:v high",
     "-pix_fmt yuv420p",
-    `-g ${parseInt(getFr(r_frame_rate) * 2)}`,
+    `-g ${parseInt(getFr(r_frame_rate))}`,
+    `-keyint_min ${parseInt(getFr(r_frame_rate))}`,
     `-vf fps=fps=${r_frame_rate},scale=${desiredWidth}:-2`,
   ];
 
