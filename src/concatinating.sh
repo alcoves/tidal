@@ -72,7 +72,7 @@ echo "removing master playlist if exists"
 rm -f ${TMP_HLS_PATH}/master.m3u8
 
 echo "creating concatinated video file"
-CONCAT_VIDEO_PATH=$(mktemp --suffix=.ts)
+CONCAT_VIDEO_PATH=$(mktemp --suffix=.mkv)
 ffmpeg -hide_banner -y -f concat -safe 0 \
   -i $MANIFEST \
   -c copy \
@@ -80,7 +80,7 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
 rm -rf $TMP_DIR/segments
 
 echo "muxing audio and video"
-CONCAT_VIDEO_WITH_AUDIO=$(mktemp --suffix=.ts)
+CONCAT_VIDEO_WITH_AUDIO=$(mktemp --suffix=.mkv)
 ffmpeg -hide_banner -y \
   -i $CONCAT_VIDEO_PATH \
   $AUDIO_CMD \
