@@ -96,7 +96,7 @@ rm -f ${TMP_HLS_PATH}/master.m3u8
 echo "packaging for hls"
 ffmpeg -y -i $TMP_VIDEO_PATH \
   -c copy \
-  -f mpegts - \
+  -f mpegts - | \
   ffmpeg -y -i - \
   -c copy \
   -hls_time 2 \
