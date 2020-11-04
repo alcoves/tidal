@@ -13,14 +13,14 @@ echo "creating signed source url"
 SIGNED_SOURCE_URL=$(aws s3 presign $S3_IN --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 
 echo "parsing variables"
-BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"  
-VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f4)"  
+BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"
+VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f4)"
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f8)"
 
 # Variables are exported because consul lock produces a child script
 export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
-export CONCAT_S3_IN="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments" 
+export CONCAT_S3_IN="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments"
 export CONCAT_S3_OUT="s3://cdn.bken.io/v/${VIDEO_ID}/${PRESET_NAME}.mp4"
 
 echo "BUCKET: ${BUCKET}"
@@ -29,7 +29,7 @@ echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
 echo "creating tmp file"
-TMP_VIDEO_PATH=$(mktemp --suffix=.${SEGMENT_NAME})
+TMP_VIDEO_PATH=$(mktemp --suffix=.${SEGMENT_NAME}.ts)
 
 echo "transcoding started"
 ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_VIDEO_PATH
