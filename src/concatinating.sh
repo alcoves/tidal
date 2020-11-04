@@ -89,7 +89,8 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   ${TMP_HLS_PATH}/${PRESET_NAME}-playlist.m3u8
 
 echo "copy current playlist master"
-cp ${TMP_HLS_PATH}/${PRESET_NAME}-master.m3u8 $TMP_DIR/playlists/$PRESET_NAME/
+mkdir -p $TMP_DIR/playlists/$PRESET_NAME
+cp ${TMP_HLS_PATH}/${PRESET_NAME}-master.m3u8 $TMP_DIR/playlists/$PRESET_NAME
 
 echo "creating master playlist"
 HLS_MASTER=$(mktemp)
