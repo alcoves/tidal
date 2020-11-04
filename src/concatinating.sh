@@ -86,7 +86,7 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_playlist_type vod \
   -master_pl_name ${PRESET_NAME}-master.m3u8 \
   -hls_segment_filename ${TMP_HLS_PATH}/%d.ts \
-  ${TMP_HLS_PATH}/${PRESET_NAME}-version.m3u8
+  ${TMP_HLS_PATH}/${PRESET_NAME}-playlist.m3u8
 
 echo "creating master playlist"
 HLS_MASTER=$(mktemp)
