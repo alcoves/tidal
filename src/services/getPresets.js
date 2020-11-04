@@ -76,14 +76,14 @@ async function main(url) {
   const presets = [];
   presets.push({
     ext: "mp4",
-    preset: "libx264-480p",
+    preset: "480p",
     cmd: x264({r_frame_rate, width, desiredWidth: 854, bitrate}),
   });
 
   if (width >= 1280) {
     presets.push({
       ext: "mp4",
-      preset: "libx264-720p",
+      preset: "720p",
       cmd: x264({r_frame_rate, width, desiredWidth: 1280, bitrate}),
     });
   }
@@ -91,7 +91,7 @@ async function main(url) {
   if (width >= 1920) {
     presets.push({
       ext: "mp4",
-      preset: "libx264-1080p",
+      preset: "1080p",
       cmd: x264({r_frame_rate, width, desiredWidth: 1920, bitrate}),
     });
   }
@@ -99,7 +99,7 @@ async function main(url) {
   if (width >= 2560) {
     presets.push({
       ext: "mp4",
-      preset: "libx264-1440p",
+      preset: "1440p",
       cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
     });
   }
@@ -107,7 +107,7 @@ async function main(url) {
   if (width >= 3840) {
     presets.push({
       ext: "mp4",
-      preset: "libx264-2160p",
+      preset: "2160p",
       cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
     });
   }
