@@ -24,10 +24,6 @@ TMP_HLS_PATH="$TMP_DIR/hls"
 mkdir $TMP_HLS_PATH/$PRESET_NAME
 echo "TMP_HLS_PATH: $TMP_HLS_PATH"
 
-TMP_HLS_PLAYLISTS="$TMP_DIR/playlists"
-mkdir $TMP_HLS_PLAYLISTS
-echo "TMP_HLS_PLAYLISTS: $TMP_HLS_PLAYLISTS"
-
 echo "creating manifest"
 MANIFEST=${TMP_DIR}/manifest.txt
 touch $MANIFEST
