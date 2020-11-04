@@ -75,17 +75,27 @@ aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID}/hls/ $TMP_HLS_PATH/ \
 echo "removing master playlist if exists"
 rm -f ${TMP_HLS_PATH}/master.m3u8
 
-echo "packaging for hls"
-ffmpeg -hide_banner -y -f concat -safe 0 \
-  -i $MANIFEST \
+echo "creating concatinated video file"
+CONCAT_VIDEO_PATH=$(mktemp --suffix=.ts)
+ffmpeg -hide_banner -y \
+  -f concat \
+  -safe 0 \
   -c copy \
-  -f mpegts - | \
-  ffmpeg \
-  -y -i - \
+  $CONCAT_VIDEO_PATH
+rm -rf $TMP_DIR/segments
+
+echo "muxing audio and video"
+CONCAT_VIDEO_WITH_AUDIO=$(mktemp --suffix=.ts)
+ffmpeg -hide_banner -y \
+  -i $CONCAT_VIDEO_PATH \
   $AUDIO_CMD \
   -c:v copy \
-  -f mpegts - | \
-  ffmpeg -y -i - \
+  $CONCAT_VIDEO_WITH_AUDIO
+rm -f $CONCAT_VIDEO_PATH
+
+echo "packaging for hls"
+ffmpeg -hide_banner ffmpeg -y \
+  -i $CONCAT_VIDEO_WITH_AUDIO
   -c copy \
   -hls_time 2 \
   -hls_allow_cache 1 \
