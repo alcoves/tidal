@@ -120,14 +120,6 @@ for PLAYLIST in $PRESET_MASTERS; do
   echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
 done;
 
-# PRESET_MASTERS=$(aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
-#   --recursive \
-#   --profile wasabi \
-#   --endpoint=https://us-east-2.wasabisys.com \
-#   | awk '{print $4}' \
-#   | grep '\.m3u8$' \
-#   | grep -v '\master.m3u8$')
-
 echo "copying hls data to wasabi"
 aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
   --recursive \
