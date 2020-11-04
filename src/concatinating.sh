@@ -79,7 +79,7 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   $TMP_VIDEO_PATH
 
 echo "getting all m3u8 files"
-aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists/ \
+aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists \
   --recursive \
   --profile wasabi \
   --include "*.m3u8" \
@@ -102,7 +102,8 @@ touch $HLS_MASTER
 echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
-PRESET_MASTERS=$(ls $TMP_DIR/playlists/**/*-master.m3u8)
+ls $TMP_DIR/playlists
+PRESET_MASTERS=$(ls $TMP_DIR/playlists/*-master.m3u8)
 for PLAYLIST in $PRESET_MASTERS; do
   echo "appending master playlist from $PLAYLIST"
   HLS_PRESET_MASTER_ADDITION=$(tail -n 3 $PLAYLIST | grep -v -e '^$')
