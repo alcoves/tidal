@@ -94,7 +94,7 @@ rm -f $CONCAT_VIDEO_PATH
 
 echo "packaging for hls"
 ffmpeg -hide_banner -y \
-  -i $CONCAT_VIDEO_WITH_AUDIO
+  -i $CONCAT_VIDEO_WITH_AUDIO \
   -c copy \
   -hls_time 2 \
   -hls_allow_cache 1 \
