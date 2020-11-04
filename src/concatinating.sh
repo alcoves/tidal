@@ -98,7 +98,7 @@ echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
 echo "fetching other playlists"
-aws s3 cp s3://cdn.bken.io/v/qMp7r5uCn31K86CDg3WGR . \
+aws s3 cp s3://cdn.bken.io/v/$VIDEO_ID . \
   --recursive \
   --profile wasabi \
   --exclude "*.ts" \
