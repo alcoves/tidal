@@ -125,7 +125,8 @@ done;
 #   | grep -v '\master.m3u8$')
 
 echo "copying hls data to wasabi"
-aws s3 sync $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
+aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
+  --recursive \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
