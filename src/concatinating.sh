@@ -78,6 +78,7 @@ rm -f ${TMP_HLS_PATH}/master.m3u8
 echo "creating concatinated video file"
 CONCAT_VIDEO_PATH=$(mktemp --suffix=.ts)
 ffmpeg -hide_banner -y \
+  -i $MANIFEST \
   -f concat \
   -safe 0 \
   -c copy \
