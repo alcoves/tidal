@@ -110,7 +110,7 @@ touch $HLS_MASTER
 echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
-PRESET_MASTERS=$(ls $TMP_HLS_PATH/*.m3u8)
+PRESET_MASTERS=$(ls $TMP_HLS_PATH/*-master.m3u8)
 for PLAYLIST in $PRESET_MASTERS; do
   echo "appending master playlist from $PLAYLIST"
   HLS_PRESET_MASTER_ADDITION=$(tail -n 3 $PLAYLIST | grep -v -e '^$')
