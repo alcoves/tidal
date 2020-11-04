@@ -13,9 +13,6 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
-VIDEO_EXTENSION="${OUT_PATH##*.}"
-echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
-
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 mkdir $TMP_DIR/audio
@@ -30,9 +27,6 @@ echo "TMP_HLS_PATH: $TMP_HLS_PATH"
 TMP_HLS_PLAYLISTS="$TMP_DIR/playlists"
 mkdir $TMP_HLS_PLAYLISTS
 echo "TMP_HLS_PLAYLISTS: $TMP_HLS_PLAYLISTS"
-
-TMP_VIDEO_PATH="${TMP_DIR}/${PRESET_NAME}.${VIDEO_EXTENSION}"
-echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
 echo "creating manifest"
 MANIFEST=${TMP_DIR}/manifest.txt
@@ -70,19 +64,6 @@ else
   AUDIO_CMD=""
 fi
 
-echo "concatinating started"
-# -hide_banner -loglevel panic
-ffmpeg -hide_banner -y -f concat -safe 0 \
-  -i $MANIFEST \
-  -c copy \
-  -f matroska - | \
-  ffmpeg \
-  -y -i - \
-  $AUDIO_CMD \
-  -c:v copy \
-  -movflags faststart \
-  $TMP_VIDEO_PATH
-
 echo "getting all preset master playlists"
 aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID}/hls/ $TMP_HLS_PATH/ \
   --recursive \
@@ -94,8 +75,14 @@ echo "removing master playlist if exists"
 rm -f ${TMP_HLS_PATH}/master.m3u8
 
 echo "packaging for hls"
-ffmpeg -y -i $TMP_VIDEO_PATH \
+ffmpeg -hide_banner -y -f concat -safe 0 \
+  -i $MANIFEST \
   -c copy \
+  -f mpegts - | \
+  ffmpeg \
+  -y -i - \
+  $AUDIO_CMD \
+  -c:v copy \
   -f mpegts - | \
   ffmpeg -y -i - \
   -c copy \
@@ -124,12 +111,6 @@ echo "copying hls data to wasabi"
 aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
   --recursive \
   --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
-
-echo "copying to wasabi"
-aws s3 mv $TMP_VIDEO_PATH $OUT_PATH \
-  --profile wasabi \
-  --content-type "video/$VIDEO_EXTENSION" \
   --endpoint=https://us-east-2.wasabisys.com
 
 echo "removing tmp dir"
