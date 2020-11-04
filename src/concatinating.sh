@@ -83,6 +83,16 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   -movflags faststart \
   $TMP_VIDEO_PATH
 
+echo "getting all preset master playlists"
+aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID}/hls/ $TMP_HLS_PATH/ \
+  --recursive \
+  --profile wasabi \
+  --include "*.m3u8" \
+  --endpoint=https://us-east-2.wasabisys.com
+
+echo "removing master playlist if exists"
+rm -f ${TMP_HLS_PATH}/master.m3u8
+
 echo "packaging for hls"
 ffmpeg -y -i $TMP_VIDEO_PATH \
   -c copy \
@@ -94,15 +104,18 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
   ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
 
-# HLS_MASTER=$(mktemp)
-# echo "#EXTM3U" >> $HLS_MASTER
-# echo "#EXT-X-VERSION:3" >> $HLS_MASTER
+echo "creating master playlist"
+HLS_MASTER="${TMP_HLS_PATH}/master.m3u8"
+touch $HLS_MASTER
+echo "#EXTM3U" >> $HLS_MASTER
+echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
-# echo "getting preset master metadata"
-# HLS_PRESET_MASTER_ADDITION=$(tail -n 3 "${TMP_HLS_PATH}/$HLS_PRESET_MASTER_NAME" | grep -v -e '^$')
-# echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
+for PLAYLIST in $(ls "$TMP_HLS_PATH/*.m3u8") do;
+  echo "appending master playlist from $PLAYLIST"
+  HLS_PRESET_MASTER_ADDITION=$(tail -n 3 "$TMP_HLS_PATH/$PLAYLIST" | grep -v -e '^$')
+  echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
+done;
 
-# echo "getting all preset master playlists"
 # PRESET_MASTERS=$(aws s3 ls s3://cdn.bken.io/v/xM1RdZNOZNAtvs_1G-hSL/hls \
 #   --recursive \
 #   --profile wasabi \
@@ -111,19 +124,8 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
 #   | grep '\.m3u8$' \
 #   | grep -v '\master.m3u8$')
 
-# for PRESET_MASTER in $PRESET_MASTERS do;
-#   aws s3 cp $PRESET_MASTER $TMP_HLS_PLAYLISTS
-# done;
-
-# echo "creating new master"
-
 echo "copying hls data to wasabi"
 aws s3 sync $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
-
-echo "uploading hls master playlist"
-aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/ \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
