@@ -18,21 +18,20 @@ echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
-mkdir $TMP_DIR/audio
-mkdir $TMP_DIR/segments
-mkdir $TMP_DIR/hls
+mkdir -p $TMP_DIR/audio
+mkdir -p $TMP_DIR/segments
+mkdir -p $TMP_DIR/playlists
+mkdir -p $TMP_DIR/$PRESET_NAME
 echo "TMP_DIR: $TMP_DIR"
 
-TMP_HLS_PATH="$TMP_DIR/hls"
-mkdir $TMP_HLS_PATH/$PRESET_NAME
+TMP_HLS_PATH="$TMP_DIR/$PRESET_NAME"
 echo "TMP_HLS_PATH: $TMP_HLS_PATH"
 
-TMP_VIDEO_PATH="${TMP_DIR}/${PRESET_NAME}.${VIDEO_EXTENSION}"
+TMP_VIDEO_PATH=$(mktemp --suffix=.${VIDEO_EXTENSION})
 echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
 echo "creating manifest"
-MANIFEST=${TMP_DIR}/manifest.txt
-touch $MANIFEST
+MANIFEST=$(mktemp)
 
 echo "download segments"
 aws s3 sync \
@@ -79,16 +78,13 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   -movflags faststart \
   $TMP_VIDEO_PATH
 
-echo "getting all preset master playlists"
-aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_HLS_PATH/ \
+echo "getting all m3u8 files"
+aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists/ \
   --recursive \
   --profile wasabi \
   --include "*.m3u8" \
   --exclude "*.ts" \
   --endpoint=https://us-east-2.wasabisys.com
-
-echo "removing master playlist if exists"
-rm -f ${TMP_HLS_PATH}/master.m3u8
 
 echo "packaging for hls"
 ffmpeg -y -i $TMP_VIDEO_PATH \
@@ -96,23 +92,28 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
   -hls_time 2 \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
-  -hls_base_url "./${PRESET_NAME}/" \
   -master_pl_name ${PRESET_NAME}-master.m3u8 \
-  -hls_segment_filename ${TMP_HLS_PATH}/${PRESET_NAME}/%d.ts \
-  ${TMP_HLS_PATH}/${PRESET_NAME}.m3u8
+  -hls_segment_filename ${TMP_HLS_PATH}/%d.ts \
+  ${TMP_HLS_PATH}/${PRESET_NAME}-version.m3u8
 
 echo "creating master playlist"
-HLS_MASTER="${TMP_HLS_PATH}/master.m3u8"
+HLS_MASTER=$(mktemp)
 touch $HLS_MASTER
 echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
-PRESET_MASTERS=$(ls $TMP_HLS_PATH/*-master.m3u8)
+PRESET_MASTERS=$(ls $TMP_DIR/playlists/**/*-master.m3u8)
 for PLAYLIST in $PRESET_MASTERS; do
   echo "appending master playlist from $PLAYLIST"
   HLS_PRESET_MASTER_ADDITION=$(tail -n 3 $PLAYLIST | grep -v -e '^$')
   echo "$HLS_PRESET_MASTER_ADDITION" >> $HLS_MASTER
 done;
+
+echo "uploading master playlist"
+aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com \
+  --content-type="application/vnd.apple.mpegurl"
 
 echo "copying hls data to wasabi"
 aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID} \
