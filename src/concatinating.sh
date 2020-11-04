@@ -121,7 +121,7 @@ aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
   --content-type="application/vnd.apple.mpegurl"
 
 echo "copying hls data to wasabi"
-aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID} \
+aws s3 cp $TMP_HLS_PATH/ s3://cdn.bken.io/v/${VIDEO_ID}/ \
   --recursive \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
