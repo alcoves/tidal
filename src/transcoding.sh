@@ -29,7 +29,7 @@ echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
 echo "creating tmp file"
-TMP_VIDEO_PATH=$(mktemp --suffix=.${SEGMENT_NAME}.ts)
+TMP_VIDEO_PATH=$(mktemp --suffix=.${SEGMENT_NAME})
 
 echo "transcoding started"
 ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_VIDEO_PATH
