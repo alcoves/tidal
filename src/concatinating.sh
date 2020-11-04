@@ -78,14 +78,6 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   -movflags faststart \
   $TMP_VIDEO_PATH
 
-echo "getting all m3u8 files"
-aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists \
-  --recursive \
-  --profile wasabi \
-  --include "*.m3u8" \
-  --exclude "*.ts" \
-  --endpoint=https://us-east-2.wasabisys.com
-
 echo "packaging for hls"
 ffmpeg -y -i $TMP_VIDEO_PATH \
   -c copy \
@@ -99,11 +91,23 @@ ffmpeg -y -i $TMP_VIDEO_PATH \
 echo "creating master playlist"
 HLS_MASTER=$(mktemp)
 touch $HLS_MASTER
+PRESET_ADDITION=$(tail -n 3 $TMP_HLS_PATH/$PRESET_NAME-master.m3u8 | grep -v -e '^$')
+echo "PRESET_ADDITION: $PRESET_ADDITION"
+
 echo "#EXTM3U" >> $HLS_MASTER
 echo "#EXT-X-VERSION:3" >> $HLS_MASTER
+echo "$PRESET_ADDITION" >> $HLS_MASTER
 
-ls $TMP_DIR/playlists
-PRESET_MASTERS=$(ls $TMP_DIR/playlists/*-master.m3u8)
+echo "getting all m3u8 files"
+aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID} $TMP_DIR/playlists \
+  --recursive \
+  --profile wasabi \
+  --include "*.m3u8" \
+  --exclude "*.ts" \
+  --endpoint=https://us-east-2.wasabisys.com
+
+echo "adding additional playlists if any"
+PRESET_MASTERS=$(find $TMP_DIR/playlists/ -name '*-master.m3u8')
 for PLAYLIST in $PRESET_MASTERS; do
   echo "appending master playlist from $PLAYLIST"
   HLS_PRESET_MASTER_ADDITION=$(tail -n 3 $PLAYLIST | grep -v -e '^$')
