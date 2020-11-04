@@ -67,8 +67,9 @@ fi
 echo "getting all preset master playlists"
 aws s3 cp s3://cdn.bken.io/v/${VIDEO_ID}/hls/ $TMP_HLS_PATH/ \
   --recursive \
-  --profile wasabi \
+  --exclude "*.ts" \
   --include "*.m3u8" \
+  --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
 echo "removing master playlist if exists"
