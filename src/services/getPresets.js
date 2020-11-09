@@ -25,6 +25,7 @@ function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
     "-preset faster",
     "-profile:v high",
     "-pix_fmt yuv420p",
+    "-x264opts no-scenecut",
     `-g ${parseInt(getFr(r_frame_rate))}`,
     `-keyint_min ${parseInt(getFr(r_frame_rate))}`,
     `-vf fps=fps=${r_frame_rate},scale=${desiredWidth}:-2`,
