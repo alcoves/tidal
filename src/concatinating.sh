@@ -13,6 +13,9 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
+VIDEO_EXTENSION="${OUT_PATH##*.}"
+echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
+
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 mkdir -p $TMP_DIR/audio
@@ -23,6 +26,9 @@ echo "TMP_DIR: $TMP_DIR"
 
 TMP_HLS_PATH="$TMP_DIR/$PRESET_NAME"
 echo "TMP_HLS_PATH: $TMP_HLS_PATH"
+
+TMP_VIDEO_PATH=$(mktemp --suffix=.${VIDEO_EXTENSION})
+echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
 echo "creating manifest"
 MANIFEST=$(mktemp)
@@ -60,13 +66,21 @@ else
 fi
 
 echo "concatinating started"
+# -hide_banner -loglevel panic
 ffmpeg -hide_banner -y -f concat -safe 0 \
   -i $MANIFEST \
   -c copy \
-  -f mpegts - | \
-  ffmpeg -y -i - \
+  -f matroska - | \
+  ffmpeg \
+  -y -i - \
   $AUDIO_CMD \
   -c:v copy \
+  -movflags faststart \
+  $TMP_VIDEO_PATH
+
+echo "packaging for hls"
+ffmpeg -y -i $TMP_VIDEO_PATH \
+  -c copy \
   -hls_time 6 \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
@@ -106,17 +120,17 @@ for PLAYLIST in $(find $TMP_DIR/playlists/ -name '*-master.m3u8'); do
   echo $(cat "$HLS_MASTER")
 done;
 
-echo "copying hls data to wasabi"
-aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/$PRESET_NAME \
-  --recursive \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
-
 echo "uploading master playlist"
 aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com \
   --content-type="application/vnd.apple.mpegurl"
+
+echo "copying hls data to wasabi"
+aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/$PRESET_NAME \
+  --recursive \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
 
 echo "removing tmp dir"
 rm -rf $TMP_DIR
