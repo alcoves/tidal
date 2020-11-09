@@ -67,7 +67,7 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   ffmpeg -y -i - \
   $AUDIO_CMD \
   -c:v copy \
-  -hls_time 2 \
+  -hls_time 6 \
   -hls_allow_cache 1 \
   -hls_playlist_type vod \
   -master_pl_name ${PRESET_NAME}-master.m3u8 \
