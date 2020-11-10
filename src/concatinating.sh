@@ -111,7 +111,7 @@ aws s3 cp s3://cdn.bken.io/v/$VIDEO_ID $HLS_PRESETS \
   --endpoint=https://us-east-2.wasabisys.com
 
 mkdir -p $HLS_PRESETS/$PRESET_NAME
-cp $VIDEO_ID/$PRESET_NAME/preset_master.m3u8 $HLS_PRESETS/$PRESET_NAME/master.m3u8
+cp $VIDEO_ID/$PRESET_NAME/preset_master.m3u8 $HLS_PRESETS/$PRESET_NAME/preset_master.m3u8
 
 echo "create master playlist"
 HLS_MASTER=$(mktemp)
