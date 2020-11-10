@@ -14,7 +14,7 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 VIDEO_EXTENSION="${S3_IN##*.}"
 echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
-echo "cleaing up s3"
+echo "cleaing up digitalocean"
 aws s3 rm \
   s3://${BUCKET}/${VIDEO_ID} \
   --quiet \
@@ -22,6 +22,14 @@ aws s3 rm \
   --exclude "source.*" \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
+
+echo "cleaing up wasabi"
+aws s3 rm \
+  s3://cdn.bken.io/${VIDEO_ID} \
+  --quiet \
+  --recursive \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
 
 URL=$(aws s3 presign "$S3_IN" --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 echo "URL: $URL"
