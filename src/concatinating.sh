@@ -38,6 +38,7 @@ echo "download segments"
 aws s3 sync \
   $IN_PATH \
   $TMP_DIR/segments \
+  --quiet \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 
@@ -57,6 +58,7 @@ if [ "$AUDIO_PATH_COUNT" -gt 0 ]; then
   aws s3 cp \
     s3://${BUCKET}/${VIDEO_ID}/audio.wav \
     $AUDIO_PATH \
+    --quiet \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 
@@ -101,6 +103,7 @@ mv $VIDEO_ID/preset_master.m3u8 $VIDEO_ID/$PRESET_NAME/preset_master.m3u8
 
 echo "fetching other standalone masters"
 aws s3 cp s3://cdn.bken.io/v/$VIDEO_ID $HLS_PRESETS \
+  --quiet \
   --recursive \
   --profile wasabi \
   --exclude "*.ts" \
@@ -125,12 +128,14 @@ echo $(cat "$HLS_MASTER")
 
 echo "copying hls preset to wasabi"
 aws s3 cp $PACKAGING_PATH/$VIDEO_ID s3://cdn.bken.io/v/${VIDEO_ID} \
+  --quiet \
   --recursive \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
 echo "copying master to wasabi"
 aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
+  --quiet \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 

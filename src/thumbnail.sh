@@ -37,6 +37,7 @@ MIME_TYPE=$(file --mime-type $THUMB_PATH)
 
 echo "copying to wasabi"
 aws s3 mv $THUMB_PATH $OUT_PATH \
+  --quiet \
   --profile wasabi --content-type "$MIME_TYPE" \
   --endpoint=https://us-east-2.wasabisys.com
 
