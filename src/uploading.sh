@@ -25,7 +25,7 @@ aws s3 rm \
 
 echo "cleaing up wasabi"
 aws s3 rm \
-  s3://cdn.bken.io/${VIDEO_ID} \
+  s3://cdn.bken.io/v/${VIDEO_ID} \
   --quiet \
   --recursive \
   --profile wasabi \
