@@ -13,10 +13,6 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
-# This doesn't work
-VIDEO_EXTENSION="${OUT_PATH##*.}"
-echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
-
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 mkdir -p $TMP_DIR/audio
@@ -28,7 +24,7 @@ echo "TMP_DIR: $TMP_DIR"
 HLS_PRESETS="$TMP_DIR/playlists"
 echo "HLS_PRESETS: $HLS_PRESETS"
 
-TMP_VIDEO_PATH=$(mktemp --suffix=.${VIDEO_EXTENSION})
+TMP_VIDEO_PATH=$(mktemp --suffix=.mp4)
 echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
 echo "creating manifest"
@@ -78,7 +74,6 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   -y -i - \
   $AUDIO_CMD \
   -c:v copy \
-  -movflags faststart \
   $TMP_VIDEO_PATH
 
 echo "removing segments to save space"
