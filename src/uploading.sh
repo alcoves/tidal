@@ -17,6 +17,7 @@ echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 echo "cleaing up s3"
 aws s3 rm \
   s3://${BUCKET}/${VIDEO_ID} \
+  --quiet \
   --recursive \
   --exclude "source.*" \
   --profile digitalocean \
@@ -46,6 +47,7 @@ if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
   aws s3 cp \
     $AUDIO_PATH \
     s3://${BUCKET}/${VIDEO_ID}/audio.wav \
+    --quiet \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 
@@ -63,6 +65,7 @@ echo "uploading segments"
 aws s3 cp \
   $SEGMENT_TMP_DIR \
   s3://${BUCKET}/${VIDEO_ID}/segments \
+  --quiet \
   --recursive \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com

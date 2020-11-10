@@ -35,7 +35,7 @@ echo "transcoding started"
 ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_VIDEO_PATH
 
 echo "moving transcode to s3"
-aws s3 mv $TMP_VIDEO_PATH $S3_OUT --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com
+aws s3 mv $TMP_VIDEO_PATH $S3_OUT --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com --quiet
 
 echo "counting source segments"
 SOURCE_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/segments/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
