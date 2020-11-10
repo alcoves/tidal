@@ -54,5 +54,11 @@ job "uploading" {
       unlimited      = false
       delay_function = "exponential"
     }
+
+    ephemeral_disk {
+      migrate = false
+      sticky  = false
+      size    = "10000"
+    }
   }
 }
