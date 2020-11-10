@@ -13,6 +13,7 @@ echo "VIDEO_ID: ${VIDEO_ID}"
 PRESET_NAME="$(echo $IN_PATH | cut -d'/' -f6)"
 echo "PRESET_NAME: ${PRESET_NAME}"
 
+# This doesn't work
 VIDEO_EXTENSION="${OUT_PATH##*.}"
 echo "VIDEO_EXTENSION: ${VIDEO_EXTENSION}"
 
@@ -24,8 +25,8 @@ mkdir -p $TMP_DIR/playlists
 mkdir -p $TMP_DIR/$PRESET_NAME
 echo "TMP_DIR: $TMP_DIR"
 
-TMP_HLS_PATH="$TMP_DIR/$PRESET_NAME"
-echo "TMP_HLS_PATH: $TMP_HLS_PATH"
+HLS_PRESETS="$TMP_DIR/playlists"
+echo "HLS_PRESETS: $HLS_PRESETS"
 
 TMP_VIDEO_PATH=$(mktemp --suffix=.${VIDEO_EXTENSION})
 echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
@@ -78,57 +79,58 @@ ffmpeg -hide_banner -y -f concat -safe 0 \
   -movflags faststart \
   $TMP_VIDEO_PATH
 
+echo "removing segments to save space"
+rm -rf $TMP_DIR/segments
+
+################### HLS Packaging ###################
+BENTO="/usr/local/bin/bento/bin"
+PACKAGING_PATH=$(mktemp -d)
+mkdir -p $PACKAGING_PATH
+cd $PACKAGING_PATH
+
 echo "packaging for hls"
-ffmpeg -y -i $TMP_VIDEO_PATH \
-  -c copy \
-  -hls_time 6 \
-  -hls_allow_cache 1 \
-  -hls_playlist_type vod \
-  -master_pl_name ${PRESET_NAME}-master.m3u8 \
-  -hls_segment_filename ${TMP_HLS_PATH}/%d.ts \
-  ${TMP_HLS_PATH}/${PRESET_NAME}-playlist.m3u8
+$BENTO/mp4hls --master-playlist-name preset_master.m3u8 $TMP_VIDEO_PATH
 
-echo "copy current playlist master"
-mkdir -p $TMP_DIR/playlists/$PRESET_NAME
-cp ${TMP_HLS_PATH}/${PRESET_NAME}-master.m3u8 $TMP_DIR/playlists/$PRESET_NAME
+echo "fixing playlists"
+mv output $VIDEO_ID
+mv $VIDEO_ID/media-1 $VIDEO_ID/$PRESET_NAME
 
-echo "creating master playlist"
-HLS_MASTER=$(mktemp)
-echo "#EXTM3U" >> $HLS_MASTER
-echo "#EXT-X-VERSION:3" >> $HLS_MASTER
+echo "fix paths in version master"
+sed -i "s+media-1+${PRESET_NAME}+g" $VIDEO_ID/preset_master.m3u8
+mv $VIDEO_ID/preset_master.m3u8 $VIDEO_ID/$PRESET_NAME/preset_master.m3u8
 
-echo "fetching other playlists"
-aws s3 cp s3://cdn.bken.io/v/$VIDEO_ID $TMP_DIR/playlists \
+echo "fetching other standalone masters"
+aws s3 cp s3://cdn.bken.io/v/$VIDEO_ID $HLS_PRESETS \
   --recursive \
   --profile wasabi \
   --exclude "*.ts" \
   --include "*.m3u8" \
   --endpoint=https://us-east-2.wasabisys.com
 
-for PLAYLIST in $(find $TMP_DIR/playlists/ -name '*-master.m3u8'); do
+mkdir -p $HLS_PRESETS/$PRESET_NAME
+cp $VIDEO_ID/$PRESET_NAME/preset_master.m3u8 $HLS_PRESETS/$PRESET_NAME/master.m3u8
+
+echo "create master playlist"
+HLS_MASTER=$(mktemp)
+echo "#EXTM3U" >> $HLS_MASTER
+echo "#EXT-X-VERSION:4" >> $HLS_MASTER
+
+for PLAYLIST in $(find $HLS_PRESETS -name 'preset_master.m3u8'); do
   echo "PLAYLIST: $PLAYLIST"
-
-  PLAYLIST_PRESET_NAME=$(echo "$PLAYLIST" | cut -d'/' -f5)
-  echo "PLAYLIST_PRESET_NAME: $PLAYLIST_PRESET_NAME"
-
-  PLAYLIST_NAME="$PLAYLIST_PRESET_NAME-playlist.m3u8"
-  PLAYLIST_ADDITION=$(head -n 3 $PLAYLIST | tail -n 1)
-
+  PLAYLIST_ADDITION=$(tail -n 6 $PLAYLIST)
   echo "$PLAYLIST_ADDITION" >> $HLS_MASTER
-  echo "./$PLAYLIST_PRESET_NAME/$PLAYLIST_NAME" >> $HLS_MASTER
-
-  echo $(cat "$HLS_MASTER")
 done;
 
-echo "uploading master playlist"
-aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com \
-  --content-type="application/vnd.apple.mpegurl"
+echo $(cat "$HLS_MASTER")
 
-echo "copying hls data to wasabi"
-aws s3 cp $TMP_HLS_PATH s3://cdn.bken.io/v/${VIDEO_ID}/$PRESET_NAME \
+echo "copying hls preset to wasabi"
+aws s3 cp $PACKAGING_PATH/$VIDEO_ID s3://cdn.bken.io/v/${VIDEO_ID} \
   --recursive \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
+
+echo "copying master to wasabi"
+aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
