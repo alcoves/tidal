@@ -24,7 +24,7 @@ job "converting" {
       }
 
       resources {
-        cpu    = 2000
+        cpu    = 4000
         memory = 3000
       }
 
@@ -43,6 +43,12 @@ job "converting" {
       max_delay      = "120s"
       unlimited      = false
       delay_function = "exponential"
+    }
+
+    ephemeral_disk {
+      migrate = false
+      sticky  = false
+      size    = "10000"
     }
   }
 }
