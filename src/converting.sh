@@ -4,7 +4,7 @@ set -e
 echo "starting video conversion process"
 
 S3_IN=$1
-TIDAL_PATH=${2:="/root/tidal"}
+TIDAL_PATH=${2:-"/root/tidal"}
 BENTO="/usr/local/bin/bento/bin"
 
 echo "TIDAL_PATH: $TIDAL_PATH"
