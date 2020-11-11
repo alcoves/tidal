@@ -26,8 +26,8 @@ function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
     "-profile:v high",
     "-pix_fmt yuv420p",
     "-x264opts no-scenecut",
-    `-g ${parseInt(getFr(r_frame_rate))}`,
-    `-keyint_min ${parseInt(getFr(r_frame_rate))}`,
+    `-g ${parseInt(getFr(r_frame_rate) * 2)}`,
+    `-keyint_min ${parseInt(getFr(r_frame_rate) * 2)}`,
     `-vf fps=fps=${r_frame_rate},scale=${desiredWidth}:-2`,
   ];
 
@@ -78,8 +78,8 @@ async function main(url) {
   const presets = [];
   presets.push({
     ext: "mp4",
-    preset: "480p",
-    cmd: x264({r_frame_rate, width, desiredWidth: 854, bitrate}),
+    preset: "360p",
+    cmd: x264({r_frame_rate, width, desiredWidth: 640, bitrate}),
   });
 
   if (width >= 1280) {
@@ -98,21 +98,21 @@ async function main(url) {
     });
   }
 
-  if (width >= 2560) {
-    presets.push({
-      ext: "mp4",
-      preset: "1440p",
-      cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
-    });
-  }
+  // if (width >= 2560) {
+  //   presets.push({
+  //     ext: "mp4",
+  //     preset: "1440p",
+  //     cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
+  //   });
+  // }
 
-  if (width >= 3840) {
-    presets.push({
-      ext: "mp4",
-      preset: "2160p",
-      cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
-    });
-  }
+  // if (width >= 3840) {
+  //   presets.push({
+  //     ext: "mp4",
+  //     preset: "2160p",
+  //     cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
+  //   });
+  // }
 
   console.log(JSON.stringify({ presets, metadata }));
 }
