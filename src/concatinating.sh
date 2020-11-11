@@ -111,11 +111,11 @@ cp $VIDEO_ID/$PRESET_NAME/preset_master.m3u8 $HLS_PRESETS/$PRESET_NAME/preset_ma
 echo "create master playlist"
 HLS_MASTER=$(mktemp)
 echo "#EXTM3U" >> $HLS_MASTER
-echo "#EXT-X-VERSION:4" >> $HLS_MASTER
+echo "#EXT-X-VERSION:3" >> $HLS_MASTER
 
 for PLAYLIST in $(find $HLS_PRESETS -name 'preset_master.m3u8'); do
   echo "PLAYLIST: $PLAYLIST"
-  PLAYLIST_ADDITION=$(tail -n 6 $PLAYLIST)
+  PLAYLIST_ADDITION=$(tail -n 2 $PLAYLIST)
   echo "$PLAYLIST_ADDITION" >> $HLS_MASTER
 done;
 
