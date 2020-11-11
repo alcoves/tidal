@@ -86,7 +86,7 @@ mkdir -p $PACKAGING_PATH
 cd $PACKAGING_PATH
 
 echo "packaging for hls"
-$BENTO/mp4hls --master-playlist-name preset_master.m3u8 $TMP_VIDEO_PATH
+$BENTO/mp4hls --hls-version 3 --master-playlist-name preset_master.m3u8 $TMP_VIDEO_PATH
 
 echo "fixing playlists"
 mv output $VIDEO_ID
