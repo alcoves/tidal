@@ -27,6 +27,9 @@ echo "HLS_PRESETS: $HLS_PRESETS"
 TMP_VIDEO_PATH=$(mktemp --suffix=.mp4)
 echo "TMP_VIDEO_PATH: $TMP_VIDEO_PATH"
 
+TMP_VIDEO_PATH_MUXED=$(mktemp --suffix=.mp4)
+echo "TMP_VIDEO_PATH_MUXED: $TMP_VIDEO_PATH_MUXED"
+
 echo "creating manifest"
 MANIFEST=$(mktemp)
 
@@ -64,20 +67,24 @@ else
   AUDIO_CMD=""
 fi
 
-echo "concatinating started"
-# -hide_banner -loglevel panic
+echo "concatinating video"
 ffmpeg -hide_banner -y -f concat -safe 0 \
   -i $MANIFEST \
   -c copy \
-  -f matroska - | \
-  ffmpeg \
-  -y -i - \
-  $AUDIO_CMD \
-  -c:v copy \
   $TMP_VIDEO_PATH
 
 echo "removing segments to save space"
 rm -rf $TMP_DIR/segments
+
+echo "muxing audio"
+ffmpeg -hide_banner -y -i $TMP_VIDEO_PATH \
+  -c:v copy \
+  $AUDIO_CMD \
+  -movflags faststart \
+  $TMP_VIDEO_PATH_MUXED
+
+echo "removing tmp video without audio"
+rm -f $TMP_VIDEO_PATH
 
 ################### HLS Packaging ###################
 BENTO="/usr/local/bin/bento/bin"
@@ -86,7 +93,7 @@ mkdir -p $PACKAGING_PATH
 cd $PACKAGING_PATH
 
 echo "packaging for hls"
-$BENTO/mp4hls --hls-version 3 --master-playlist-name preset_master.m3u8 $TMP_VIDEO_PATH
+$BENTO/mp4hls --hls-version 3 --master-playlist-name preset_master.m3u8 $TMP_VIDEO_PATH_MUXED
 
 echo "fixing playlists"
 mv output $VIDEO_ID
