@@ -39,7 +39,7 @@ job "transcoding" {
 
       resources {
         cpu    = 2000
-        memory = 2500
+        memory = 3500
       }
 
       config {
