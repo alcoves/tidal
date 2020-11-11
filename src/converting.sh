@@ -39,6 +39,7 @@ aws s3 rm \
 echo "downloading source video"
 SOURCE_VIDEO_DIR=$(mktemp -d)
 aws s3 cp $S3_IN $SOURCE_VIDEO_DIR/ \
+  --quiet \
   --profile digitalocean \
   --endpoint=https://nyc3.digitaloceanspaces.com
 SOURCE_VIDEO=$(ls $SOURCE_VIDEO_DIR)
