@@ -78,8 +78,8 @@ rm -rf $TMP_DIR/segments
 
 echo "muxing audio"
 ffmpeg -hide_banner -y -i $TMP_VIDEO_PATH \
-  -c:v copy \
   $AUDIO_CMD \
+  -c:v copy \
   -movflags faststart \
   $TMP_VIDEO_PATH_MUXED
 
