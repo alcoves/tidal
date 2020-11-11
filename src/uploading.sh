@@ -67,7 +67,7 @@ fi
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
 mkdir -p $SEGMENT_TMP_DIR
-ffmpeg -i "$URL" -an -c:v copy -f segment -segment_time 10 $SEGMENT_TMP_DIR/%08d.${VIDEO_EXTENSION}
+ffmpeg -i "$URL" -an -c:v copy -f segment -segment_time 10 $SEGMENT_TMP_DIR/%d.${VIDEO_EXTENSION}
 
 echo "uploading segments"
 aws s3 cp \
@@ -108,7 +108,7 @@ for row in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
       -detach \
       -meta cmd="$CMD" \
       -meta s3_in="s3://${BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
-      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}" \
+      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}.mp4" \
       transcoding
   done
 done
