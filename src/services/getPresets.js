@@ -98,21 +98,21 @@ async function main(url) {
     });
   }
 
-  if (width >= 2560) {
-    presets.push({
-      ext: "mp4",
-      preset: "1440p",
-      cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
-    });
-  }
+  // if (width >= 2560) {
+  //   presets.push({
+  //     ext: "mp4",
+  //     preset: "1440p",
+  //     cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
+  //   });
+  // }
 
-  if (width >= 3840) {
-    presets.push({
-      ext: "mp4",
-      preset: "2160p",
-      cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
-    });
-  }
+  // if (width >= 3840) {
+  //   presets.push({
+  //     ext: "mp4",
+  //     preset: "2160p",
+  //     cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
+  //   });
+  // }
 
   console.log(JSON.stringify({ presets, metadata }));
 }
