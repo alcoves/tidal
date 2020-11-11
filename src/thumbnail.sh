@@ -33,8 +33,7 @@ echo "calling ffmpeg"
 ffmpeg -y -i "$SIGNED_URL" $CMD $THUMB_PATH
 
 echo "get thumbnail mime type"
-# MIME_TYPE=$(file --mime-type $THUMB_PATH)
-MIME_TYPE="image/webp"
+MIME_TYPE=$(file -b --mime-type $THUMB_PATH)
 
 echo "copying to wasabi"
 aws s3 mv $THUMB_PATH $OUT_PATH \
