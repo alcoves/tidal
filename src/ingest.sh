@@ -115,7 +115,7 @@ for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
       -meta cmd="$CMD" \
       -meta s3_in="s3://${BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
       -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}.mkv" \
-      transcoding
+      transcode
   done
 done
 
