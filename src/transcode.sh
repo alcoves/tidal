@@ -38,7 +38,7 @@ echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
 echo "creating tmp file"
-TRANSCODED_SEGMENT= "$TMP_DIR/transcoded-$SEGMENT_NAME"
+TRANSCODED_SEGMENT="$TMP_DIR/transcoded-$SEGMENT_NAME"
 
 echo "transcoding started"
 ffmpeg -y -i $SOURCE_SEGMENT $FFMPEG_COMMAND $TRANSCODED_SEGMENT
