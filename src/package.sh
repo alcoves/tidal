@@ -75,31 +75,40 @@ rm -rf $CONCATINATED_VIDEO_PATH
 echo "creating hls assets"
 HLS_DIR="$TMP_DIR/hls" 
 mkdir -p $HLS_DIR
-mkdir -p $HLS_DIR/$PRESET_NAME
 ffmpeg -y \
   -i $MUXED_VIDEO_PATH \
   -hls_time 6 \
   -hls_playlist_type vod \
   -hls_segment_type fmp4 \
-  -hls_segment_filename "$HLS_DIR/$PRESET_NAME/%09d.m4s" \
-  $HLS_DIR/master.m3u8
-
-echo "moving muxed video to cdn"
-aws s3 cp $MUXED_VIDEO_PATH s3://cdn.bken.io/v/${VIDEO_ID}/progressive/ \
-  --quiet \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
+  -hls_segment_filename "$HLS_DIR/%09d.m4s" \
+  $HLS_DIR/stream.m3u8
 
 echo "publishing hls assets to cdn"
-aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID} \
+aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID}/hls/$PRESET_NAME \
   --quiet \
   --recursive \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
-# echo "publishing progressive assets to cdn"
-
+echo "creating master"
 # TODO :: Need to merge master.m3u8 to support all variations
+HLS_MASTER="$TMP_DIR/master.m3u8"
+echo "# preset:$PRESET_NAME" >> $HLS_MASTER
+# TODO :: Calculate these values
+echo "#EXT-X-STREAM-INF:BANDWIDTH=5215621,RESOLUTION=640x360" >> $HLS_MASTER
+echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
+
+echo "uploading $HLS_MASTER"
+aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
+  --quiet \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
+
+echo "moving $MUXED_VIDEO_PATH to cdn"
+aws s3 cp $MUXED_VIDEO_PATH s3://cdn.bken.io/v/${VIDEO_ID}/progressive/ \
+  --quiet \
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
 
 echo "removing $TMP_DIR"
 rm -rf $TMP_DIR
