@@ -75,6 +75,7 @@ rm -rf $CONCATINATED_VIDEO_PATH
 echo "creating hls assets"
 HLS_DIR="$TMP_DIR/hls" 
 mkdir -p $HLS_DIR
+mkdir -p $HLS_DIR/$PRESET_NAME
 ffmpeg -y \
   -i $MUXED_VIDEO_PATH \
   -hls_time 6 \
