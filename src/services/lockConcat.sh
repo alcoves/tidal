@@ -7,7 +7,7 @@ if [ ! -z "$(consul kv get $LOCK_KEY)" ]; then
     -detach \
     -meta s3_in="$CONCAT_S3_IN" \
     -meta s3_out="$CONCAT_S3_OUT" \
-    concatinating
+    package
   consul kv delete $LOCK_KEY
 else
   echo "aquired concatiantion lock, but had already been handled"
