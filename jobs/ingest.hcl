@@ -1,5 +1,5 @@
-job "transcoding" {
-  priority    = 95
+job "ingest" {
+  priority    = 90
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -11,15 +11,11 @@ job "transcoding" {
 
   parameterized {
     payload       = "optional"
-    meta_required = [
-      "cmd",
-      "s3_in",
-      "s3_out"
-    ]
+    meta_required = [ "s3_in" ]
   }
 
-  group "transcoding" {
-    task "transcoding" {
+  group "ingest" {
+    task "ingest" {
       driver = "raw_exec"
 
       template {
@@ -33,32 +29,36 @@ job "transcoding" {
       }
 
       restart {
-        attempts = 3
+        attempts = 5
         delay    = "10s"
       }
 
       resources {
-        cpu    = 2000
-        memory = 3500
+        cpu    = 1000
+        memory = 1000
       }
 
       config {
         command = "/usr/bin/bash"
         args    = [
-          "/root/tidal/src/transcoding.sh",
-          "${NOMAD_META_S3_IN}",
-          "${NOMAD_META_S3_OUT}",
-          "${NOMAD_META_CMD}",
+          "/root/tidal/src/ingest.sh",
+          "${NOMAD_META_S3_IN}"
         ]
       }
     }
 
     reschedule {
-      attempts       = 3
-      delay          = "10s"
-      max_delay      = "120s"
+      attempts       = 5
+      delay          = "30s"
+      max_delay      = "30m"
       unlimited      = false
       delay_function = "exponential"
+    }
+
+    ephemeral_disk {
+      migrate = false
+      sticky  = false
+      size    = "10000"
     }
   }
 }

@@ -10,6 +10,7 @@ function calcMaxBitrate(originalWidth, desiredWidth, originalBitrate) {
 }
 
 function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
+  // TODO :: if rotation exists, swap the scale parameters because we've detected a vertical video
   if (!r_frame_rate || !width || !desiredWidth) {
     throw new Error("r_frame_rate and width must be defined");
   }
@@ -23,11 +24,10 @@ function x264({ r_frame_rate, width, desiredWidth, bitrate }) {
     "-coder 1",
     "-c:v libx264",
     "-preset faster",
+    "-sc_threshold 0",
     "-profile:v high",
     "-pix_fmt yuv420p",
-    "-x264opts no-scenecut",
-    `-g ${parseInt(getFr(r_frame_rate) * 2)}`,
-    `-keyint_min ${parseInt(getFr(r_frame_rate) * 2)}`,
+    "-force_key_frames expr:gte(t,n_forced*2)",
     `-vf fps=fps=${r_frame_rate},scale=${desiredWidth}:-2`,
   ];
 
@@ -98,21 +98,21 @@ async function main(url) {
     });
   }
 
-  // if (width >= 2560) {
-  //   presets.push({
-  //     ext: "mp4",
-  //     preset: "1440p",
-  //     cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
-  //   });
-  // }
+  if (width >= 2560) {
+    presets.push({
+      ext: "mp4",
+      preset: "1440p",
+      cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
+    });
+  }
 
-  // if (width >= 3840) {
-  //   presets.push({
-  //     ext: "mp4",
-  //     preset: "2160p",
-  //     cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
-  //   });
-  // }
+  if (width >= 3840) {
+    presets.push({
+      ext: "mp4",
+      preset: "2160p",
+      cmd: x264({r_frame_rate, width, desiredWidth: 3840, bitrate}),
+    });
+  }
 
   console.log(JSON.stringify({ presets, metadata }));
 }
