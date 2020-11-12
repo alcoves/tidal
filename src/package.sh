@@ -93,9 +93,11 @@ aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID}/hls/$PRESET_NAME \
 echo "creating master"
 # TODO :: Need to merge master.m3u8 to support all variations
 HLS_MASTER="$TMP_DIR/master.m3u8"
+echo "#EXTM3U" >> $HLS_MASTER
 echo "# preset:$PRESET_NAME" >> $HLS_MASTER
-# TODO :: Calculate these values
-echo "#EXT-X-STREAM-INF:BANDWIDTH=5215621,RESOLUTION=640x360" >> $HLS_MASTER
+RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
+BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
+echo "#EXT-X-STREAM-INF:BANDWIDTH=$BITRATE,RESOLUTION=$RESOLUTION,NAME=$PRESET_NAME" >> $HLS_MASTER
 echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
 
 echo "uploading $HLS_MASTER"
