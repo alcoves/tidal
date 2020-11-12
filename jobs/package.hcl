@@ -1,5 +1,5 @@
-job "uploading" {
-  priority    = 90
+job "package" {
+  priority    = 100
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -11,11 +11,14 @@ job "uploading" {
 
   parameterized {
     payload       = "optional"
-    meta_required = [ "s3_in" ]
+    meta_required = [
+      "s3_in",
+      "s3_out",
+    ]
   }
 
-  group "uploading" {
-    task "uploading" {
+  group "package" {
+    task "package" {
       driver = "raw_exec"
 
       template {
@@ -29,7 +32,7 @@ job "uploading" {
       }
 
       restart {
-        attempts = 5
+        attempts = 2
         delay    = "10s"
       }
 
@@ -37,28 +40,23 @@ job "uploading" {
         cpu    = 1000
         memory = 1000
       }
-
+    
       config {
         command = "/usr/bin/bash"
         args    = [
-          "/root/tidal/src/uploading.sh",
-          "${NOMAD_META_S3_IN}"
+          "/root/tidal/src/package.sh",
+          "${NOMAD_META_S3_IN}",
+          "${NOMAD_META_S3_OUT}",
         ]
       }
     }
 
     reschedule {
       attempts       = 5
-      delay          = "30s"
-      max_delay      = "30m"
+      delay          = "10s"
+      max_delay      = "5m"
       unlimited      = false
       delay_function = "exponential"
-    }
-
-    ephemeral_disk {
-      migrate = false
-      sticky  = false
-      size    = "10000"
     }
   }
 }

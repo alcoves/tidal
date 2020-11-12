@@ -1,5 +1,5 @@
-job "concatinating" {
-  priority    = 100
+job "transcode" {
+  priority    = 95
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -12,13 +12,14 @@ job "concatinating" {
   parameterized {
     payload       = "optional"
     meta_required = [
+      "cmd",
       "s3_in",
-      "s3_out",
+      "s3_out"
     ]
   }
 
-  group "concatinating" {
-    task "concatinating" {
+  group "transcode" {
+    task "transcode" {
       driver = "raw_exec"
 
       template {
@@ -32,29 +33,30 @@ job "concatinating" {
       }
 
       restart {
-        attempts = 2
+        attempts = 3
         delay    = "10s"
       }
 
       resources {
-        cpu    = 1000
-        memory = 1000
+        cpu    = 2000
+        memory = 3500
       }
-    
+
       config {
         command = "/usr/bin/bash"
         args    = [
-          "/root/tidal/src/concatinating.sh",
+          "/root/tidal/src/transcode.sh",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
+          "${NOMAD_META_CMD}",
         ]
       }
     }
 
     reschedule {
-      attempts       = 5
+      attempts       = 3
       delay          = "10s"
-      max_delay      = "5m"
+      max_delay      = "120s"
       unlimited      = false
       delay_function = "exponential"
     }

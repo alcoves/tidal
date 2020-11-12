@@ -4,19 +4,28 @@ set -e
 S3_IN=$1
 S3_OUT=$2
 FFMPEG_COMMAND=$3
+TIDAL_PATH=${4:-"/root/tidal"}
 
 echo "S3_IN: ${S3_IN}"
 echo "S3_OUT: ${S3_OUT}"
 echo "FFMPEG_COMMAND: ${FFMPEG_COMMAND}"
-
-echo "creating signed source url"
-SIGNED_SOURCE_URL=$(aws s3 presign $S3_IN --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
 
 echo "parsing variables"
 BUCKET="$(echo $S3_OUT | cut -d'/' -f3)"
 VIDEO_ID="$(echo $S3_OUT | cut -d'/' -f4)"
 PRESET_NAME="$(echo $S3_OUT | cut -d'/' -f6)"
 SEGMENT_NAME="$(echo $S3_OUT | cut -d'/' -f8)"
+
+echo "creating tmp dir"
+TMP_DIR=$(mktemp -d)
+echo "TMP_DIR: $TMP_DIR"
+
+echo "downloading source segment"
+aws s3 cp $S3_IN $TMP_DIR \
+  --quiet \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+SOURCE_SEGMENT=$(ls $TMP_DIR/*)
 
 # Variables are exported because consul lock produces a child script
 export LOCK_KEY="tidal/${VIDEO_ID}/${PRESET_NAME}"
@@ -29,13 +38,16 @@ echo "PRESET_NAME: ${PRESET_NAME}"
 echo "SEGMENT_NAME: ${SEGMENT_NAME}"
 
 echo "creating tmp file"
-TMP_VIDEO_PATH=$(mktemp --suffix=.${SEGMENT_NAME})
+TRANSCODED_SEGMENT= "$TMP_DIR/transcoded-$SEGMENT_NAME"
 
 echo "transcoding started"
-ffmpeg -y -i "$SIGNED_SOURCE_URL" $FFMPEG_COMMAND $TMP_VIDEO_PATH
+ffmpeg -y -i $SOURCE_SEGMENT $FFMPEG_COMMAND $TRANSCODED_SEGMENT
 
 echo "moving transcode to s3"
-aws s3 mv $TMP_VIDEO_PATH $S3_OUT --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com --quiet
+aws s3 cp $TRANSCODED_SEGMENT $S3_OUT \
+  --quiet \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
 
 echo "counting source segments"
 SOURCE_SEGMENTS_COUNT=$(aws s3 ls s3://${BUCKET}/${VIDEO_ID}/segments/ --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com | wc -l)
@@ -46,7 +58,10 @@ echo "segment count: expected ${SOURCE_SEGMENTS_COUNT} got ${TRANSCODED_SEGMENTS
 
 if [ "$SOURCE_SEGMENTS_COUNT" -eq "$TRANSCODED_SEGMENTS_COUNT" ]; then
   echo "ready for concat, aquiring lock"
-  consul lock $LOCK_KEY /root/tidal/src/services/lockConcat.sh
+  consul lock $LOCK_KEY $TIDAL_PATH/src/services/lockConcat.sh
 fi
+
+echo "removing $TMP_DIR"
+rm -rf $TMP_DIR
 
 echo "done!"
