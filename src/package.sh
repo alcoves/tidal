@@ -92,7 +92,7 @@ aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID}/hls/$PRESET_NAME \
 
 RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
 BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
-REMOTE_MASTER_PATH="s3://${BUCKET}/v/${VIDEO_ID}/hls/master.m3u8"
+REMOTE_MASTER_PATH="s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8"
 MASTER_PATH_COUNT=$(aws s3 ls $REMOTE_MASTER_PATH --profile wasabi --endpoint=https://us-east-2.wasabisys.com | wc -l)
 
 if [ "$MASTER_PATH_COUNT" -gt 0 ]; then
