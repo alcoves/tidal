@@ -92,6 +92,7 @@ aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID}/hls/$PRESET_NAME \
 
 RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
 BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
+
 REMOTE_MASTER_PATH="s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8"
 MASTER_PATH_COUNT=$(aws s3 ls $REMOTE_MASTER_PATH --profile wasabi --endpoint=https://us-east-2.wasabisys.com | wc -l)
 
@@ -108,13 +109,6 @@ if [ "$MASTER_PATH_COUNT" -gt 0 ]; then
   else
     echo "current preset was not found in remote master, adding"
 
-    if grep -q "#EXTM3U" "$HLS_MASTER"; then
-      echo "master header looks ok"
-    else
-      echo "master was missing header, inserting"
-      sed -i '1s/^/#EXTM3U\n/' $HLS_MASTER
-    fi
-
     echo "#EXT-X-STREAM-INF:BANDWIDTH=$BITRATE,RESOLUTION=$RESOLUTION,NAME=$PRESET_NAME" >> $HLS_MASTER
     echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
 
@@ -124,6 +118,18 @@ if [ "$MASTER_PATH_COUNT" -gt 0 ]; then
       --profile wasabi \
       --endpoint=https://us-east-2.wasabisys.com
   fi
+else
+  echo "remote master not found, creating"
+
+  echo "#EXTM3U" >> $HLS_MASTER
+  echo "#EXT-X-STREAM-INF:BANDWIDTH=$BITRATE,RESOLUTION=$RESOLUTION,NAME=$PRESET_NAME" >> $HLS_MASTER
+  echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
+
+  echo "uploading $HLS_MASTER"
+  aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8 \
+    --quiet \
+    --profile wasabi \
+    --endpoint=https://us-east-2.wasabisys.com
 fi
 
 echo "moving $MUXED_VIDEO_PATH to cdn"
