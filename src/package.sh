@@ -75,9 +75,11 @@ rm -rf $CONCATINATED_VIDEO_PATH
 echo "creating hls assets"
 HLS_DIR="$TMP_DIR/hls" 
 mkdir -p $HLS_DIR
-ffmpeg -y \
+ffmpeg -hide_banner -y \
   -i $MUXED_VIDEO_PATH \
+  -c copy \
   -hls_time 6 \
+  -hls_flags single_file \
   -hls_playlist_type vod \
   -hls_segment_type fmp4 \
   -hls_segment_filename "$HLS_DIR/%09d.m4s" \
