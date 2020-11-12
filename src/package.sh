@@ -99,7 +99,7 @@ echo "#EXT-X-STREAM-INF:BANDWIDTH=5215621,RESOLUTION=640x360" >> $HLS_MASTER
 echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
 
 echo "uploading $HLS_MASTER"
-aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/master.m3u8 \
+aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8 \
   --quiet \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
