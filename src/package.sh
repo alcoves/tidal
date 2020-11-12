@@ -90,21 +90,41 @@ aws s3 cp $HLS_DIR s3://cdn.bken.io/v/${VIDEO_ID}/hls/$PRESET_NAME \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
-echo "creating master"
-# TODO :: Need to merge master.m3u8 to support all variations
-HLS_MASTER="$TMP_DIR/master.m3u8"
-echo "#EXTM3U" >> $HLS_MASTER
-echo "# preset:$PRESET_NAME" >> $HLS_MASTER
 RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
 BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
-echo "#EXT-X-STREAM-INF:BANDWIDTH=$BITRATE,RESOLUTION=$RESOLUTION,NAME=$PRESET_NAME" >> $HLS_MASTER
-echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
+REMOTE_MASTER_PATH="s3://${BUCKET}/v/${VIDEO_ID}/hls/master.m3u8"
+MASTER_PATH_COUNT=$(aws s3 ls $REMOTE_MASTER_PATH --profile wasabi --endpoint=https://us-east-2.wasabisys.com | wc -l)
 
-echo "uploading $HLS_MASTER"
-aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8 \
-  --quiet \
-  --profile wasabi \
-  --endpoint=https://us-east-2.wasabisys.com
+if [ "$MASTER_PATH_COUNT" -gt 0 ]; then
+  echo "remote master preset exists, downloading"
+  HLS_MASTER="$TMP_DIR/master.m3u8"
+  aws s3 cp $REMOTE_MASTER_PATH $HLS_MASTER \
+    --quiet \
+    --profile wasabi \
+    --endpoint=https://us-east-2.wasabisys.com
+
+  if grep -q "NAME=$PRESET_NAME" "$HLS_MASTER"; then
+    echo "current preset was alredy found in the remote master"
+  else
+    echo "current preset was not found in remote master, adding"
+
+    if grep -q "#EXTM3U" "$HLS_MASTER"; then
+      echo "master header looks ok"
+    else
+      echo "master was missing header, inserting"
+      sed -i '1s/^/#EXTM3U\n/' $HLS_MASTER
+    fi
+
+    echo "#EXT-X-STREAM-INF:BANDWIDTH=$BITRATE,RESOLUTION=$RESOLUTION,NAME=$PRESET_NAME" >> $HLS_MASTER
+    echo "$PRESET_NAME/stream.m3u8" >> $HLS_MASTER
+
+    echo "uploading $HLS_MASTER"
+    aws s3 cp $HLS_MASTER s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8 \
+      --quiet \
+      --profile wasabi \
+      --endpoint=https://us-east-2.wasabisys.com
+  fi
+fi
 
 echo "moving $MUXED_VIDEO_PATH to cdn"
 aws s3 cp $MUXED_VIDEO_PATH s3://cdn.bken.io/v/${VIDEO_ID}/progressive/ \
