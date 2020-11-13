@@ -102,7 +102,7 @@ async function main(url) {
     presets.push({
       ext: "mp4",
       preset: "1440p",
-      cmd: x264({r_frame_rate, width, desiredWidth: 2360, bitrate}),
+      cmd: x264({r_frame_rate, width, desiredWidth: 2560, bitrate}),
     });
   }
 
