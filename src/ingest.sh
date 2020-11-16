@@ -12,9 +12,6 @@ echo "BUCKET: ${BUCKET}"
 VIDEO_ID="$(echo $S3_IN | cut -d'/' -f4)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
-SOURCE_EXTENSION="${S3_IN##*.}"
-echo "SOURCE_EXTENSION: ${SOURCE_EXTENSION}"
-
 echo "creating tmp dir"
 TMP_DIR=$(mktemp -d)
 echo "TMP_DIR: $TMP_DIR"
@@ -65,7 +62,7 @@ done
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
 mkdir -p $SEGMENT_TMP_DIR
-ffmpeg -i $SOURCE_VIDEO_PATH -an -c:v copy -f segment -segment_time 10 $SEGMENT_TMP_DIR/%09d.${SOURCE_EXTENSION}
+ffmpeg -i $SOURCE_VIDEO_PATH -an -c:v copy -f segment -segment_time 10 $SEGMENT_TMP_DIR/%09d.mp4
 
 echo "uploading segments"
 aws s3 cp \
