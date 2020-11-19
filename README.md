@@ -1,135 +1,49 @@
-# Setup
+# Tidal
 
-### Nomad
+Tidal is a distributed chunk based video transcoder that can run on any mix of hardware.
 
-Tidal is designed to run within a nomad cluster. You can use some of our patterns from the `infrastucture/` directory, or run the jobs in your own cluster. bken.io hosts the terraform that manages our own infrastructure in a separate repository.
+### Requirements
 
-1. Setup a nomad cluster with at least 1 server and 1 client
-2. On each server, make sure nomad is installed
-3. On the server, run `provisioning.sh server`
-4. On the client, run `provisioning.sh client $SERVER_PRIVATE_IP`
-
-Provishioning should install the dependencies needed to run the jobs. Right now Tidal runs with the `raw_exec` driver, as such, the nomad client itself needs these dependencies. While we may move to docker in the future, this is how it currently works.
-
-### Consul
-
-The consul key/value store is used to store and retreive credentials needed to access tidal resources (database and object storage buckets).
-
-You must enter the following keys into your k/v store
-
-tidal/ (directory)
-tidal/pg_connection_string
-tidal/do_access_key_id
-tidal/do_secret_access_key
-tidal/wasabi_access_key_id
-tidal/wasabi_secret_access_key_id
+- A Nomad cluster with about 3gb of memory per worker node
+- Consul and Nomad clients must be installed side by side, consul is used for secrets management
+- Linux servers with [these dependencies](https://github.com/bken-io/keel)
+- An s3 object store (more to come on how to configure this)
 
 ### Database
 
-Tidal is designed to write data to a postgresql database. Enter the connection string in consul and tidal will handle writing information to that database. To provision the table, check out `db/schema.sql`
+Early on, I realzied having a seperate database to manage tidal state was a bit of a pain. I might add a database in the future but right now s3 is the database. You can query the state of a video and look for metadata by using simple s3 queries. More to come on how to make these queries.
 
-# Modules
+### Architecture
+##### Ingest
 
-## Uploader
+This stage splits a video into segments. The video file must contain a valid x264 stream. Right now only .mp4 and .mov files that contain x264 streams are supported right now. I understand that greater codec fleability is a huge want, but at this time it's just easier to support a single codec.
 
-This module
+During ingest, presets are created. An example of a preset would be 360p or 1080p. When presets are generated, they contain an ffmpeg command that should be used to create the desired preset.
 
-- accepts 
+Individual source segments and source audio are uploaded to tidals internal s3 object store. At the end of ingest, we invoke the preset in a nested for loop that logically says for each segment and for each preset, enqueue a transcoding job.
 
-## Segmenter
+If you have 30 source segments and 5 presets, 150 transcoding jobs will be enqueued.
 
-This module
+##### Transcode
 
-- downloads a source file (s3_in)
-- splits the video into 10 second chunks
-- uploads the chunks (s3_out)
-- updates the database
+Transcoding jobs take a source segment uri, a destination uri, and an ffmpeg command. The transcoder runs the ffmpeg command on the source segments and uploads it to the destination.
 
-contraints:
+The transcode jobs also have the responsability of enqueuing the packaging job. When the total number of encoded segments is equal to the total number of source segments, the transcoder invocation will aquire a dsitributed lock on the video preset id. This lock prevents other transcode jobs from equeuing duplicate packaging jobs. Because s3 is eventually consistent, we need this lock to ensure that we only enqueue one packaging job.
 
-- the video must have moov atoms, otherwise it cannot be segmented
-- must be in a format that can be contained by matroska
+When the packaging job is enqueued, the lock is removed and other jobs would technically be able to enqueue another packaging job.
 
-```bash
-tidal segment \
-  --s3_in="s3://tidal/uploads/test/source.mp4" \
-  --s3_out="s3://tidal/uploads/test/source.mp4" \
-  --ffmpeg_command="-an -c:v copy -f segment -segment_time 10"
-```
+##### Packaging
 
-## Transcoder
+Packaging jobs enqueued by the transcoding jobs.
 
-This module transcodes segments with the given ffmpeg command, completed segments are uploaded to s3. When segments land in s3, a separate lambda is fired which updates the database.
+The packager downloads all transcoded segments and performs a lot of muxing in order to get to the HLS format.
 
-```bash
-S3_IN="s3://tidal-bken-dev/uploads/test/source.mp4"
-S3_OUT="s3://tidal-bken-dev/segments/test/source"
-FFMPEG_COMMAND="-an -c:v copy -f segment -segment_time 10"
+The packaging pipeline is in flux as I find more ways to safetly mux everything. I wish I could just create HLS manifests directly from the transcoded segments without having to mux them together, but this has proven very difficult to do without video stuttering and side effects.
 
-./segmenting.sh $S3_IN $S3_OUT "$FFMPEG_COMMAND"
-```
+When the HLS packaging is done, all segments and manifest files are uploaded to the Wasabi CDN.
 
-nomad job dispatch -detach -meta s3_in="s3://tidal-bken-dev/uploads/test/source.mp4" -meta s3_out="s3://tidal-bken-dev/transcoded/test/libx264-720p.mp4" -meta cmd="-c:v libx264 -an -crf 40 -vf scale=720:-2" transcoding
+The packaging job also creates the master.m3u8 playlist file by downloading all .m3u8 playlist files and combining them together. This process could be suseptable to weird async eventually consistent errors, but I have not experienced any so far.
 
-## Dispatching
+### MVP
 
-nomad job dispatch \
-  -meta s3_in=s3://tidal/sources/test/source.mp4 \
-  uploading
-
-nomad job dispatch \
-  -meta s3_in=s3://tidal/sources/test/source.mp4 \
-  -meta script_path=/root/tidal/scripts/thumbnail.sh \
-  -meta s3_out=s3://cdn.bken.io/i/test/thumbnail.webp \
-  -meta cmd='-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50' \
-  thumbnail
-
-## POC
-
-```sh
-#!/bin/bash
-set -e
-
-echo "Cleaning up workspace"
-rm -rf ./tmp/segments && rm -rf ./tmp/transcoded && rm -f ./tmp/concat-manifest.txt
-mkdir ./tmp/segments && mkdir ./tmp/transcoded
-
-echo "Create test video"
-# ffmpeg -y -f lavfi -i sine=frequency=1000:sample_rate=48000:duration=60 -f lavfi -i testsrc=duration=60:size=1280x720:rate=60 test.mp4
-
-echo "Segmenting video"
-ffmpeg -y -i ./tmp/test.mp4 -c:v copy -f segment -segment_time 1 -an ./tmp/segments/%06d.mkv
-
-echo "Transcoding segments"
-for PART in $(ls ./tmp/segments); do
-  ffmpeg -y -i ./tmp/segments/$PART -c:v libvpx-vp9 -speed 5 -deadline realtime -b:v 0 -crf 30 -vf scale=832:-2 ./tmp/transcoded/$PART;
-  echo "file './transcoded/$PART'" >> ./tmp/concat-manifest.txt;
-done
-
-echo "Concatinating transcoded segments"
-# Create concated video
-ffmpeg -y -f concat -safe 0 -i ./tmp/concat-manifest.txt -c:v copy ./tmp/converted.mkv;
-
-# Pull audio from source
-# Dont assume the audio is aac
-ffmpeg -y -i ./tmp/test.mp4 ./tmp/test.wav
-
-# Combine converted video with original audio track
-ffmpeg -y -i ./tmp/converted.mkv -i ./tmp/test.wav -c:v copy -f webm - | ffmpeg -y -i - -c copy ./tmp/converted-with-audio.webm
-
-echo "Exporting audio for spectro analysis"
-ffmpeg -y -i ./tmp/test.mp4 ./tmp/test.wav
-ffmpeg -y -i ./tmp/converted-with-audio.webm ./tmp/converted.wav
-
-echo "Creating spectrograms"
-sox ./tmp/test.wav -n spectrogram -Y 400 -c "Input file" -o ./tmp/test.png
-sox ./tmp/converted.wav -n spectrogram -Y 400 -c "Concat file" -o ./tmp/converted.png
-
-SOURCE_VIDEO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ./tmp/test.mp4)
-CONVERTED_VIDEO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ./tmp/converted.mkv)
-CONVERTED_VIDEO_WITH_AUDIO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ./tmp/converted-with-audio.webm)
-
-echo "Source Duration: $SOURCE_VIDEO_DURATION"
-echo "Converted Duration: $CONVERTED_VIDEO_DURATION"
-echo "Converted Video With Audio Duration: $CONVERTED_VIDEO_DURATION"
-```
+check out docs/mvp.sh for the lite version of what tidal does.
