@@ -41,12 +41,12 @@ aws s3 cp $S3_IN $TMP_DIR \
 SOURCE_VIDEO_PATH=$(ls $TMP_DIR/*)
 
 echo "getting presets"
-PRESETS=$(node $TIDAL_PATH/src/services/getPresets.js $SOURCE_VIDEO_PATH | jq -r '.presets')
+PRESETS=$(./main --input=$SOURCE_VIDEO_PATH | jq -r '.presets')
 
 echo "placing marker which display presets to the user"
 for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET=$(echo ${ROW} | base64 --decode | jq -r '.')
-  PRESET_NAME=$(echo $PRESET | jq -r '.preset')
+  PRESET_NAME=$(echo $PRESET | jq -r '.name')
   S3_KEY="${VIDEO_ID}/versions/${PRESET_NAME}/marker.json"
 
   echo "marker preset: $PRESET"
@@ -102,7 +102,7 @@ echo "dispatching transcoding jobs"
 for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
   PRESET=$(echo ${ROW} | base64 --decode | jq -r '.')
   CMD=$(echo $PRESET | jq -r '.cmd')
-  PRESET_NAME=$(echo $PRESET | jq -r '.preset')
+  PRESET_NAME=$(echo $PRESET | jq -r '.name')
 
   echo "putting consul kv value used for preset locking"
   consul kv put tidal/${VIDEO_ID}/${PRESET_NAME} $VIDEO_ID/$PRESET_NAME
