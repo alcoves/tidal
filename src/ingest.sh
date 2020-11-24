@@ -33,15 +33,9 @@ aws s3 rm \
   --profile wasabi \
   --endpoint=https://us-east-2.wasabisys.com
 
-echo "downloading source video"
-aws s3 cp $S3_IN $TMP_DIR \
-  --quiet \
-  --profile digitalocean \
-  --endpoint=https://nyc3.digitaloceanspaces.com
-SOURCE_VIDEO_PATH=$(ls $TMP_DIR/*)
-
 echo "getting presets"
-PRESETS=$($TIDAL_PATH/main --input=$SOURCE_VIDEO_PATH | jq -r '.presets')
+SIGNED_VIDEO_URL=$(aws s3 presign $S3_IN --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
+PRESETS=$($TIDAL_PATH/main --input=$SIGNED_VIDEO_URL | jq -r '.presets')
 
 echo "placing marker which display presets to the user"
 for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
@@ -58,6 +52,13 @@ for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 done
+
+echo "downloading source video"
+aws s3 cp $S3_IN $TMP_DIR \
+  --quiet \
+  --profile digitalocean \
+  --endpoint=https://nyc3.digitaloceanspaces.com
+SOURCE_VIDEO_PATH=$(ls $TMP_DIR/*)
 
 echo "segmenting video"
 SEGMENT_TMP_DIR=$TMP_DIR/segments
