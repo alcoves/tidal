@@ -41,7 +41,7 @@ aws s3 cp $S3_IN $TMP_DIR \
 SOURCE_VIDEO_PATH=$(ls $TMP_DIR/*)
 
 echo "getting presets"
-PRESETS=$(./main --input=$SOURCE_VIDEO_PATH | jq -r '.presets')
+PRESETS=$($TIDAL_PATH/main --input=$SOURCE_VIDEO_PATH | jq -r '.presets')
 
 echo "placing marker which display presets to the user"
 for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
