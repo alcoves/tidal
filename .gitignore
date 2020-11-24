@@ -1,11 +1,2 @@
-tmp
-node_modules
-.env
-.terraform
-dist
-local
-
-#Added by cargo
-/target
-
-data
+# golang
+main
