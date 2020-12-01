@@ -10,15 +10,8 @@ import (
 )
 
 // CalcScale returns an ffmpeg video filter
-func CalcScale(w int, h int, dw int, rot int) string {
-	var videoRatio float32
-
-	if rot == 90 || rot == 270 {
-		videoRatio = float32(w) / float32(h)
-	} else {
-		videoRatio = float32(h) / float32(w)
-	}
-
+func CalcScale(w int, h int, dw int) string {
+	videoRatio := float32(h) / float32(w)
 	desiredHeight := int(videoRatio * float32(dw))
 	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
 }
@@ -81,7 +74,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 }
 
 func x264(v Video, desiredWidth int) string {
-	scale := CalcScale(v.width, v.height, desiredWidth, v.rotate)
+	scale := CalcScale(v.width, v.height, desiredWidth)
 	vf := fmt.Sprintf("-vf fps=fps=%s,%s", v.framerate, scale)
 
 	commands := []string{
