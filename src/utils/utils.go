@@ -10,18 +10,17 @@ import (
 )
 
 // CalcScale returns an ffmpeg video filter
-func CalcScale(w int, h int, dw int, dh int, rotation int) string {
-	if rotation == 90 || rotation == 180 {
-		if h < dh {
-			return fmt.Sprintf("scale=-2:%d", h)
-		}
-		return fmt.Sprintf("scale=-2:%d", dh)
+func CalcScale(w int, h int, dw int, rot int) string {
+	var videoRatio float32
+
+	if rot == 90 || rot == 270 {
+		videoRatio = float32(w) / float32(h)
+	} else {
+		videoRatio = float32(h) / float32(w)
 	}
 
-	if w < dw {
-		return fmt.Sprintf("scale=%d:-2", w)
-	}
-	return fmt.Sprintf("scale=%d:-2", dw)
+	desiredHeight := int(videoRatio * float32(dw))
+	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
 }
 
 // ClampPreset checks if the video fits the specified dimensions
@@ -37,14 +36,14 @@ func GetPresets(v Video) Presets {
 	presets := Presets{
 		Preset{
 			Name: "360p",
-			Cmd:  x264(v, 640, 480),
+			Cmd:  x264(v, 640),
 		},
 	}
 
 	if ClampPreset(v.width, v.height, 1280, 720) {
 		addition := Preset{
 			Name: "720p",
-			Cmd:  x264(v, 1280, 720),
+			Cmd:  x264(v, 1280),
 		}
 		presets = append(presets, addition)
 	}
@@ -52,7 +51,7 @@ func GetPresets(v Video) Presets {
 	if ClampPreset(v.width, v.height, 1920, 1080) {
 		addition := Preset{
 			Name: "1080p",
-			Cmd:  x264(v, 1920, 1080),
+			Cmd:  x264(v, 1920),
 		}
 		presets = append(presets, addition)
 	}
@@ -60,7 +59,7 @@ func GetPresets(v Video) Presets {
 	if ClampPreset(v.width, v.height, 2560, 1440) {
 		addition := Preset{
 			Name: "1440p",
-			Cmd:  x264(v, 2560, 1440),
+			Cmd:  x264(v, 2560),
 		}
 		presets = append(presets, addition)
 	}
@@ -68,7 +67,7 @@ func GetPresets(v Video) Presets {
 	if ClampPreset(v.width, v.height, 3840, 2160) {
 		addition := Preset{
 			Name: "2160p",
-			Cmd:  x264(v, 3840, 2160),
+			Cmd:  x264(v, 3840),
 		}
 		presets = append(presets, addition)
 	}
@@ -76,13 +75,13 @@ func GetPresets(v Video) Presets {
 	return presets
 }
 
-func calcMaxBitrate(originalWidth int, desiredWidth int, desiredHeight int, bitrate int) int {
+func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 	vidRatio := float32(desiredWidth) / float32(originalWidth)
 	return int(vidRatio * float32(bitrate) / 1000)
 }
 
-func x264(v Video, desiredWidth int, desiredHeight int) string {
-	scale := CalcScale(v.width, v.height, desiredWidth, desiredHeight, v.rotate)
+func x264(v Video, desiredWidth int) string {
+	scale := CalcScale(v.width, v.height, desiredWidth, v.rotate)
 	vf := fmt.Sprintf("-vf fps=fps=%s,%s", v.framerate, scale)
 
 	commands := []string{
@@ -99,7 +98,7 @@ func x264(v Video, desiredWidth int, desiredHeight int) string {
 	}
 
 	if v.bitrate > 0 {
-		maxrateKb := calcMaxBitrate(v.width, desiredWidth, desiredHeight, v.bitrate)
+		maxrateKb := calcMaxBitrate(v.width, desiredWidth, v.bitrate)
 		bufsize := int(float32(maxrateKb) * 1.5)
 		maxrateCommand := fmt.Sprintf("-maxrate %dK -bufsize %dK", maxrateKb, bufsize)
 		commands = append(commands, maxrateCommand)
