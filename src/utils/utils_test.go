@@ -7,20 +7,19 @@ import (
 
 func TestCalcScale(t *testing.T) {
 	tests := []struct {
-		w, h, dw, dh, rotation int
-		expected               string
+		w, h, dw, r int
+		expected    string
 	}{
-		{1920, 1080, 1920, 1080, 0, "scale=1920:-2"},
-		{1080, 1920, 1920, 1080, 0, "scale=1080:-2"},
-		{1080, 1920, 1920, 1080, 90, "scale=-2:1080"},
+		{1920, 1080, 1920, 0, "scale=1920:1080"},
+		{1080, 1920, 1920, 90, "scale=1920:1080"},
 	}
 
 	for _, test := range tests {
-		testname := fmt.Sprintf("%dx%d video with %d rotation has %s", test.w, test.h, test.rotation, test.expected)
+		testname := fmt.Sprintf("%dx%d video has scale filter %s", test.w, test.h, test.expected)
 		t.Run(testname, func(t *testing.T) {
-			recieved := CalcScale(test.w, test.h, test.dw, test.dh, test.rotation)
+			recieved := CalcScale(test.w, test.h, test.dw, test.r)
 			if recieved != test.expected {
-				t.Errorf("expected %s, recieved %s", recieved, test.expected)
+				t.Errorf("expected %s, recieved %s", test.expected, recieved)
 			}
 		})
 	}
@@ -39,15 +38,15 @@ func TestGetPresetsHorizontalVideo(t *testing.T) {
 	expectedPresets := Presets{
 		Preset{
 			Name: "360p",
-			Cmd:  "-vf fps=fps=60/1,scale=640:-2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "720p",
-			Cmd:  "-vf fps=fps=60/1,scale=1280:-2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "1080p",
-			Cmd:  "-vf fps=fps=60/1,scale=1920:-2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
@@ -77,15 +76,15 @@ func TestGetPresetsVerticalVideo(t *testing.T) {
 	expectedPresets := Presets{
 		Preset{
 			Name: "360p",
-			Cmd:  "-vf fps=fps=60/1,scale=-2:480 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "720p",
-			Cmd:  "-vf fps=fps=60/1,scale=-2:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "1080p",
-			Cmd:  "-vf fps=fps=60/1,scale=-2:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60/1,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
