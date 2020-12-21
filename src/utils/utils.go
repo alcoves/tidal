@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -13,6 +14,12 @@ import (
 func CalcScale(w int, h int, dw int) string {
 	videoRatio := float32(h) / float32(w)
 	desiredHeight := int(videoRatio * float32(dw))
+
+	// Video heights must be divisible by 2
+	if desiredHeight%2 != 0 {
+		desiredHeight++
+	}
+
 	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
 }
 
@@ -75,7 +82,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 
 func x264(v Video, desiredWidth int) string {
 	scale := CalcScale(v.width, v.height, desiredWidth)
-	vf := fmt.Sprintf("-vf fps=fps=%s,%s", v.framerate, scale)
+	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.framerate, scale)
 
 	commands := []string{
 		vf,
@@ -98,6 +105,46 @@ func x264(v Video, desiredWidth int) string {
 	}
 
 	return strings.Join(commands, " ")
+}
+
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
+}
+
+// ParseFramerate converts an ffmpeg framerate string to a float32
+func ParseFramerate(fr string) float64 {
+	var parsedFramerate float64 = 0
+
+	if strings.Contains(fr, "/") {
+		slice := strings.Split(fr, "/")
+
+		frameFrequency, err := strconv.ParseFloat(slice[0], 64)
+		if err != nil {
+			panic(err)
+		}
+		timeInterval, err := strconv.ParseFloat(slice[1], 64)
+		if err != nil {
+			panic(err)
+		}
+
+		parsedFramerate = toFixed(frameFrequency/timeInterval, 3)
+	} else {
+		fr, err := strconv.ParseFloat(fr, 64)
+		if err != nil {
+			panic(err)
+		}
+		parsedFramerate = fr
+	}
+
+	if parsedFramerate > 60 {
+		return 60
+	}
+	return parsedFramerate
 }
 
 // GetMetadata uses ffprobe to return video metadata
@@ -168,7 +215,7 @@ func GetMetadata(url string) Video {
 			}
 			metadata.rotate = rotate
 		} else if key == "r_frame_rate" {
-			metadata.framerate = value
+			metadata.framerate = ParseFramerate(value)
 		}
 	}
 
