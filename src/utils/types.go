@@ -6,7 +6,7 @@ type Video struct {
 	height    int
 	bitrate   int
 	rotate    int
-	framerate string
+	framerate float64
 	duration  float32
 }
 
