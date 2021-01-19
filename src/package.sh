@@ -3,6 +3,7 @@ set -e
 
 IN_PATH=$1
 OUT_PATH=$2
+TIDAL_PATH=${3:-"/root/tidal"}
 
 BUCKET="$(echo $IN_PATH | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
