@@ -111,6 +111,7 @@ echo "ready for master manifest creation, aquiring lock"
 export LOCK_KEY="tidal/${VIDEO_ID}/hls/master.m3u8"
 
 # Make these variables availible to the child process
+export HLS_DIR=$HLS_DIR
 export BITRATE=$BITRATE
 export VIDEO_ID=$VIDEO_ID
 export RESOLUTION=$RESOLUTION
