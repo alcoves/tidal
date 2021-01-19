@@ -2,7 +2,10 @@
 set -e
 
 while true; do
-  if [ ! -z "$(consul kv get $LOCK_KEY)" ]; then
+  if consul kv get $LOCK_KEY; then
+    echo "lock found...looping..."
+    sleep 3;
+  else
     PLAYLIST_DIR=$(mktemp -d)
     REMOTE_MASTER_PATH="s3://cdn.bken.io/v/${VIDEO_ID}/hls/master.m3u8"
 
@@ -56,8 +59,5 @@ while true; do
 
     echo "breaking out of loop"
     break
-  else
-    echo "process is locked by another job, waiting..."
-    sleep 3;
   fi
 done
