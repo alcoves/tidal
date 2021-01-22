@@ -47,3 +47,42 @@ The packaging job also creates the master.m3u8 playlist file by downloading all 
 ### MVP
 
 check out docs/mvp.sh for the lite version of what tidal does.
+
+### CLI
+
+#### Create a thumbnail
+
+```
+# Create a default thumbnail from the start of the video
+tidal thumbnail \
+  s3://cdn.bken.io/source.mp4 \
+  s3://cdn.bken.io/i/id/thumb.webp \
+  --profile wasabi
+
+# Create a thumbnail at 31.5 seconds
+tidal thumbnail \
+  s3://cdn.bken.io/source.mp4 \
+  s3://cdn.bken.io/i/id/thumb.webp \
+  --profile wasabi \
+  --duration 31.5
+
+# Create a jpeg thumbnail
+tidal thumbnail \
+  s3://cdn.bken.io/source.mp4 \
+  s3://cdn.bken.io/i/id/thumb.jpg \
+  --profile wasabi
+
+# Override the ffmpeg command
+tidal thumbnail \
+  s3://cdn.bken.io/source.mp4 \
+  s3://cdn.bken.io/i/id/thumb.webp \
+  --profile wasabi \
+  --cmd "-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 80"
+```
+
+Default thumbnail transformation
+`-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50`
+
+#### Ingest video
+
+tidal ingest s3://cdn.bken.io/v/id/source.mp4

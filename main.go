@@ -1,28 +1,39 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"log"
+	"strings"
 
-	"github.com/bken-io/tidal/src/utils"
+	"github.com/bken-io/tidal/src/services"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	inputFlag := flag.String("input", "", "the path to the video")
-	flag.Parse()
-
-	metadata := utils.GetMetadata(*inputFlag)
-	presets := utils.GetPresets(metadata)
-
-	response := utils.Response{
-		Presets: presets,
+	var presetsCmd = &cobra.Command{
+		Use:   "presets [path to file]",
+		Short: "Generate video presets",
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			inputPath := strings.Join(args, " ")
+			services.CalculatePresets(inputPath)
+		},
 	}
 
-	prettyResponse, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
+	var thumbnailCmd = &cobra.Command{
+		Use:   "thumbnail [path to file]",
+		Short: "Generate video thumbnail",
+		Args:  cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			inputPath := strings.Join(args, " ")
+			ffmpegCmd, _ := cmd.Flags().GetString("cmd")
+			awsProfile, _ := cmd.Flags().GetString("profile")
+			services.GenerateThumbnail(services.ThumbnailInput)
+		},
 	}
-	fmt.Println(string(prettyResponse))
+
+	var rootCmd = &cobra.Command{Use: "tidal"}
+	rootCmd.AddCommand(presetsCmd)
+	rootCmd.AddCommand(thumbnailCmd)
+
+	thumbnailCmd.Flags().String("cmd", "", "ffmpeg thumbnail command")
+	rootCmd.Execute()
 }
