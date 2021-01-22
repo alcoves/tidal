@@ -35,7 +35,7 @@ aws s3 rm \
 
 echo "getting presets"
 SIGNED_VIDEO_URL=$(aws s3 presign $S3_IN --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
-PRESETS=$($TIDAL_PATH/main --input=$SIGNED_VIDEO_URL | jq -r '.presets')
+PRESETS=$($TIDAL_PATH/main presets "$SIGNED_VIDEO_URL" | jq -r '.presets')
 
 echo "placing marker which display presets to the user"
 for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
