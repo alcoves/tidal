@@ -23,3 +23,18 @@ type Presets []Preset
 type Response struct {
 	Presets []Preset `json:"presets"`
 }
+
+// S3Config is used for dynamic s3 profile switching
+type S3Config struct {
+	Endpoint        string
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
+// ThumbnailInput is for GenerateThumbnail
+type ThumbnailInput struct {
+	S3In     string
+	Cmd      string
+	S3Out    string
+	S3Config S3Config
+}
