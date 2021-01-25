@@ -12,7 +12,6 @@ job "thumbnail" {
   parameterized {
     payload       = "optional"
     meta_required = [
-      "cmd",
       "s3_in",
       "s3_out"
     ]
@@ -43,12 +42,18 @@ job "thumbnail" {
       }
 
       config {
-        command = "/usr/bin/bash"
+        command = "/root/tidal/main"
         args    = [
           "/root/tidal/src/thumbnail.sh",
+          "thumbnail",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
-          "${NOMAD_META_CMD}"
+          "--endpoint",
+          "{{key "secrets/WASABI_ENDPOINT"}}",
+          "---accessKeyId",
+          "{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
+          "--secretAccessKey",
+          "{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
         ]
       }
     }
