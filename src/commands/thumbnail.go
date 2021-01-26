@@ -1,4 +1,4 @@
-package services
+package commands
 
 import (
 	"context"
@@ -30,8 +30,7 @@ func decontructS3Uri(s3URI string) SourceObject {
 
 // GenerateThumbnail creates a video thumbnail
 func GenerateThumbnail(e utils.ThumbnailInput) {
-	s3Client := utils.CreateClient(e.S3Config)
-	signedURL := getSignedURL(e, s3Client)
+	signedURL := getSignedURL(e.S3InClient, e.S3In)
 
 	tmpFile, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
 	if err != nil {
@@ -59,7 +58,7 @@ func GenerateThumbnail(e utils.ThumbnailInput) {
 	}
 
 	deconstructed := decontructS3Uri(e.S3Out)
-	uploadInfo, err := s3Client.PutObject(
+	uploadInfo, err := e.S3OutClient.PutObject(
 		context.Background(),
 		deconstructed.Bucket,
 		deconstructed.Key,
@@ -76,8 +75,8 @@ func GenerateThumbnail(e utils.ThumbnailInput) {
 	defer os.Remove(file.Name())
 }
 
-func getSignedURL(e utils.ThumbnailInput, s3Client *minio.Client) string {
-	deconstructed := decontructS3Uri(e.S3In)
+func getSignedURL(s3Client *minio.Client, s3In string) string {
+	deconstructed := decontructS3Uri(s3In)
 	presignedURL, err := s3Client.PresignedGetObject(
 		context.Background(),
 		deconstructed.Bucket,
