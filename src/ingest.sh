@@ -9,7 +9,7 @@ TIDAL_PATH=${2:-"/root/tidal"}
 BUCKET="$(echo $S3_IN | cut -d'/' -f3)"
 echo "BUCKET: ${BUCKET}"
 
-VIDEO_ID="$(echo $S3_IN | cut -d'/' -f4)"
+VIDEO_ID="$(echo $S3_IN | cut -d'/' -f5)"
 echo "VIDEO_ID: ${VIDEO_ID}"
 
 echo "creating tmp dir"
