@@ -6,8 +6,10 @@ echo "setting variables"
 S3_IN=$1
 TIDAL_PATH=${2:-"/root/tidal"}
 
-BUCKET="$(echo $S3_IN | cut -d'/' -f3)"
-echo "BUCKET: ${BUCKET}"
+CDN_BUCKET="$(echo $S3_IN | cut -d'/' -f3)"
+echo "CDN_BUCKET: ${CDN_BUCKET}"
+
+TIDAL_BUCKET="tidal"
 
 VIDEO_ID="$(echo $S3_IN | cut -d'/' -f5)"
 echo "VIDEO_ID: ${VIDEO_ID}"
@@ -18,7 +20,7 @@ echo "TMP_DIR: $TMP_DIR"
 
 echo "cleaing up digitalocean"
 aws s3 rm \
-  s3://${BUCKET}/${VIDEO_ID} \
+  s3://${TIDAL_BUCKET}/${VIDEO_ID} \
   --quiet \
   --recursive \
   --exclude "source.*" \
@@ -49,7 +51,7 @@ for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
 
   aws s3api put-object \
     --key $S3_KEY \
-    --bucket ${BUCKET} \
+    --bucket $TIDAL_BUCKET \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
 done
@@ -69,7 +71,7 @@ ffmpeg -i $SOURCE_VIDEO_PATH -an -c:v copy -f segment -segment_time 10 $SEGMENT_
 echo "uploading segments"
 aws s3 cp \
   $SEGMENT_TMP_DIR \
-  s3://${BUCKET}/${VIDEO_ID}/segments \
+  s3://${TIDAL_BUCKET}/${VIDEO_ID}/segments \
   --quiet \
   --recursive \
   --profile digitalocean \
@@ -90,7 +92,7 @@ if [ "$AUDIO_STREAM_LENGTH" -gt 0 ]; then
   echo "uploading"
   aws s3 cp \
     $AUDIO_PATH \
-    s3://${BUCKET}/${VIDEO_ID}/audio.aac \
+    s3://${TIDAL_BUCKET}/${VIDEO_ID}/audio.aac \
     --quiet \
     --profile digitalocean \
     --endpoint=https://nyc3.digitaloceanspaces.com
@@ -113,8 +115,8 @@ for ROW in $(echo "$PRESETS" | jq -r '.[] | @base64'); do
     nomad job dispatch \
       -detach \
       -meta cmd="$CMD" \
-      -meta s3_in="s3://${BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
-      -meta s3_out="s3://${BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}.mkv" \
+      -meta s3_in="s3://${TIDAL_BUCKET}/${VIDEO_ID}/segments/${SEGMENT}" \
+      -meta s3_out="s3://${TIDAL_BUCKET}/${VIDEO_ID}/versions/${PRESET_NAME}/segments/${SEGMENT}.mkv" \
       transcode
   done
 done
