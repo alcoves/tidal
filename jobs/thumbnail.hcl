@@ -44,7 +44,6 @@ job "thumbnail" {
       config {
         command = "/root/tidal/main"
         args    = [
-          "/root/tidal/src/thumbnail.sh",
           "thumbnail",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
