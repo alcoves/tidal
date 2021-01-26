@@ -13,7 +13,7 @@ job "thumbnail" {
     payload       = "optional"
     meta_required = [
       "s3_in",
-      "s3_out"
+      "s3_out",
     ]
   }
 
@@ -53,7 +53,7 @@ job "thumbnail" {
           "---accessKeyId",
           "{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
           "--secretAccessKey",
-          "{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
+          "{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}",
         ]
       }
     }
