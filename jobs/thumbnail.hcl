@@ -49,7 +49,7 @@ job "thumbnail" {
           "${NOMAD_META_S3_OUT}",
           "--endpoint",
           "{{key \"secrets/WASABI_ENDPOINT\"}}",
-          "---accessKeyId",
+          "--accessKeyId",
           "{{key \"secrets/WASABI_ACCESS_KEY_ID\"}}",
           "--secretAccessKey",
           "{{key \"secrets/WASABI_SECRET_ACCESS_KEY\"}}",
