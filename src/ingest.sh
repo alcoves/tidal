@@ -31,10 +31,11 @@ aws s3 rm \
   --quiet \
   --recursive \
   --profile wasabi \
+  --exclude "source.*" \
   --endpoint=https://us-east-2.wasabisys.com
 
 echo "getting presets"
-SIGNED_VIDEO_URL=$(aws s3 presign $S3_IN --profile digitalocean --endpoint=https://nyc3.digitaloceanspaces.com)
+SIGNED_VIDEO_URL=$(aws s3 presign $S3_IN --profile wasabi --endpoint=https://us-east-2.wasabisys.com)
 PRESETS=$($TIDAL_PATH/main presets "$SIGNED_VIDEO_URL" | jq -r '.presets')
 
 echo "placing marker which display presets to the user"
@@ -56,8 +57,8 @@ done
 echo "downloading source video"
 aws s3 cp $S3_IN $TMP_DIR \
   --quiet \
-  --profile digitalocean \
-  --endpoint=https://nyc3.digitaloceanspaces.com
+  --profile wasabi \
+  --endpoint=https://us-east-2.wasabisys.com
 SOURCE_VIDEO_PATH=$(ls $TMP_DIR/*)
 
 echo "segmenting video"
