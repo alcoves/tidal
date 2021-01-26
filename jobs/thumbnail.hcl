@@ -51,7 +51,7 @@ job "thumbnail" {
           "--endpoint",
           "{{key \"secrets/WASABI_ENDPOINT\"}}",
           "---accessKeyId",
-          "{{key \"secrets/WASABI_ACCESS_KEY_ID\"}}"
+          "{{key \"secrets/WASABI_ACCESS_KEY_ID\"}}",
           "--secretAccessKey",
           "{{key \"secrets/WASABI_SECRET_ACCESS_KEY\"}}",
         ]
