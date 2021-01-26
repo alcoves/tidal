@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/minio/minio-go/v7"
+
 // Video is a slim ffprobe struct
 type Video struct {
 	width     int
@@ -33,8 +35,9 @@ type S3Config struct {
 
 // ThumbnailInput is for GenerateThumbnail
 type ThumbnailInput struct {
-	S3In     string
-	Cmd      string
-	S3Out    string
-	S3Config S3Config
+	Cmd         string
+	S3In        string
+	S3Out       string
+	S3InClient  *minio.Client
+	S3OutClient *minio.Client
 }

@@ -25,6 +25,14 @@ job "thumbnail" {
         data = <<EOH
           NOMAD_TOKEN  ="{{key "secrets/NOMAD_TOKEN"}}"
           CONSUL_TOKEN ="{{key "secrets/CONSUL_TOKEN"}}"
+
+          S3_IN_ENDPOINT ="{{key "secrets/WASABI_ENDPOINT"}}"
+          S3_IN_ACCESS_KEY_ID ="{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
+          S3_IN_SECRET_ACCESS_KEY ="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
+
+          S3_OUT_ENDPOINT ="{{key "secrets/WASABI_ENDPOINT"}}"
+          S3_OUT_ACCESS_KEY_ID ="{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
+          S3_OUT_SECRET_ACCESS_KEY ="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
         EOH
         
         destination = ".env"
@@ -47,12 +55,6 @@ job "thumbnail" {
           "thumbnail",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
-          "--endpoint",
-          "{{key \"secrets/WASABI_ENDPOINT\"}}",
-          "--accessKeyId",
-          "{{key \"secrets/WASABI_ACCESS_KEY_ID\"}}",
-          "--secretAccessKey",
-          "{{key \"secrets/WASABI_SECRET_ACCESS_KEY\"}}",
         ]
       }
     }

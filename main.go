@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
 	"strings"
 
-	"github.com/bken-io/tidal/src/services"
+	"github.com/bken-io/tidal/src/commands"
 	"github.com/bken-io/tidal/src/utils"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,7 @@ func main() {
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			inputPath := strings.Join(args, " ")
-			services.CalculatePresets(inputPath)
+			commands.CalculatePresets(inputPath)
 		},
 	}
 
@@ -25,9 +26,6 @@ func main() {
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ffmpegCmd, _ := cmd.Flags().GetString("cmd")
-			endpoint, _ := cmd.Flags().GetString("endpoint")
-			accessKeyID, _ := cmd.Flags().GetString("accessKeyId")
-			secretAccessKey, _ := cmd.Flags().GetString("secretAccessKey")
 
 			if ffmpegCmd == "" {
 				ffmpegCmd = "-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 50"
@@ -37,13 +35,18 @@ func main() {
 				S3In:  args[0],
 				S3Out: args[1],
 				Cmd:   ffmpegCmd,
-				S3Config: utils.S3Config{
-					Endpoint:        endpoint,
-					AccessKeyID:     accessKeyID,
-					SecretAccessKey: secretAccessKey,
-				},
+				S3InClient: utils.CreateClient(utils.S3Config{
+					Endpoint:        os.Getenv("S3_IN_ENDPOINT"),
+					AccessKeyID:     os.Getenv("S3_IN_ACCESS_KEY_ID"),
+					SecretAccessKey: os.Getenv("S3_IN_SECRET_ACCESS_KEY"),
+				}),
+				S3OutClient: utils.CreateClient(utils.S3Config{
+					Endpoint:        os.Getenv("S3_OUT_ENDPOINT"),
+					AccessKeyID:     os.Getenv("S3_OUT_ACCESS_KEY_ID"),
+					SecretAccessKey: os.Getenv("S3_OUT_SECRET_ACCESS_KEY"),
+				}),
 			}
-			services.GenerateThumbnail(event)
+			commands.GenerateThumbnail(event)
 		},
 	}
 
@@ -52,8 +55,5 @@ func main() {
 	rootCmd.AddCommand(thumbnailCmd)
 
 	thumbnailCmd.Flags().String("cmd", "", "ffmpeg thumbnail command")
-	thumbnailCmd.Flags().String("endpoint", "", "the aws endpoint to use")
-	thumbnailCmd.Flags().String("accessKeyId", "", "the accessKeyId to use")
-	thumbnailCmd.Flags().String("secretAccessKey", "", "the secretAccessKey to use")
 	rootCmd.Execute()
 }
