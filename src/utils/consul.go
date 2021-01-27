@@ -2,10 +2,12 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 )
 
-func PutKV(key string, value string) string {
+// PutKV stores a value in the consul kv db
+func PutKV(key string, value string) {
 	args := []string{}
 	args = append(args, "kv")
 	args = append(args, "put")
@@ -13,11 +15,11 @@ func PutKV(key string, value string) string {
 	args = append(args, value)
 
 	cmd := exec.Command("consul", args...)
-	out, err := cmd.Output()
-	if err != nil {
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
 		fmt.Println("Error:", err)
 		panic(err)
 	}
-
-	return string(out)
 }
