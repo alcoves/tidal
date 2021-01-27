@@ -16,12 +16,13 @@ func DispatchNomadJob(jobName string, meta []string) {
 	for i := 0; i < len(meta); i++ {
 		m := meta[i]
 		args = append(args, "-meta")
-		args = append(args, fmt.Sprintf("\"%s\"", m))
+		args = append(args, m)
 	}
 
 	args = append(args, jobName)
 
 	cmd := exec.Command("nomad", args...)
+	fmt.Println("Nomad Args", cmd.Args)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

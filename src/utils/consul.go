@@ -15,6 +15,7 @@ func PutKV(key string, value string) {
 	args = append(args, value)
 
 	cmd := exec.Command("consul", args...)
+	fmt.Println("Consul Args", cmd.Args)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
