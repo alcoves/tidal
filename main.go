@@ -21,7 +21,7 @@ func main() {
 	}
 
 	var thumbnailCmd = &cobra.Command{
-		Use:   "thumbnail [s3:// path to source] [s3:// path to destination]",
+		Use:   "thumbnail [s3://path-to-source] [s3://-path-to-destination]",
 		Short: "Generate video thumbnail",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -51,7 +51,7 @@ func main() {
 	}
 
 	var ingestCmd = &cobra.Command{
-		Use:   "ingest [s3:// path to source]",
+		Use:   "ingest [s3://path-to-source]",
 		Short: "Ingest a video file into Tidal",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -75,9 +75,39 @@ func main() {
 		},
 	}
 
+	var trasnscodeCmd = &cobra.Command{
+		Use:   "transcode [s3://path-to-source s3://path-to-destination --cmd=\"-c:v libx264\"]",
+		Short: "Transcode a video segment given the specified command",
+		Args:  cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			ffmpegCommand, _ := cmd.Flags().GetString("cmd")
+
+			event := commands.TranscodeInputEvent{
+				S3In:  args[0],
+				S3Out: args[1],
+				Cmd:   ffmpegCommand,
+				S3InClient: utils.CreateClient(utils.S3Config{
+					Endpoint:        os.Getenv("S3_IN_ENDPOINT"),
+					AccessKeyID:     os.Getenv("S3_IN_ACCESS_KEY_ID"),
+					SecretAccessKey: os.Getenv("S3_IN_SECRET_ACCESS_KEY"),
+				}),
+				S3OutClient: utils.CreateClient(utils.S3Config{
+					Endpoint:        os.Getenv("S3_OUT_ENDPOINT"),
+					AccessKeyID:     os.Getenv("S3_OUT_ACCESS_KEY_ID"),
+					SecretAccessKey: os.Getenv("S3_OUT_SECRET_ACCESS_KEY"),
+				}),
+			}
+			commands.Transcode(event)
+		},
+	}
+
 	var rootCmd = &cobra.Command{Use: "tidal"}
 	rootCmd.AddCommand(ingestCmd)
 	ingestCmd.Flags().String("videoId", "", "videoId used to store assets in tidal")
+	rootCmd.AddCommand(trasnscodeCmd)
+	trasnscodeCmd.Flags().String("cmd", "", "the ffmpeg command to run")
+	trasnscodeCmd.Flags().String("videoId", "", "videoId used to store assets in tidal")
+	trasnscodeCmd.Flags().String("presetName", "", "presetName that is being transcoded")
 	rootCmd.AddCommand(presetsCmd)
 	rootCmd.AddCommand(thumbnailCmd)
 	thumbnailCmd.Flags().String("cmd", "", "ffmpeg thumbnail command")
