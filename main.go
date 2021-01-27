@@ -76,7 +76,7 @@ func main() {
 	}
 
 	var trasnscodeCmd = &cobra.Command{
-		Use:   "transcode [s3://path-to-source s3://path-to-destination --cmd=\"-c:v libx264\"]",
+		Use:   "transcode [s3://path-to-source s3://path-to-destination]",
 		Short: "Transcode a video segment given the specified command",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {

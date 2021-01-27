@@ -81,13 +81,19 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 
 		fileUploadKey := fmt.Sprintf("%s/%s", key, f.Name())
 
+		contentType, err := GetFileContentType(file)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		uploadInfo, err := s3Client.PutObject(
 			context.Background(),
 			bucket,
 			fileUploadKey,
 			file,
 			fileStat.Size(),
-			minio.PutObjectOptions{}) // TODO :: Should we set content type?
+			minio.PutObjectOptions{ContentType: contentType})
 		if err != nil {
 			fmt.Println(err)
 			return
