@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+## TODO :: Make this it's own job
+## Call it from ingest if the video duration is greater than 30s
+
 IN_PATH=$1
 OUT_PATH=$2
 CMD=$3

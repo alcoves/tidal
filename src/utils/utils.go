@@ -2,12 +2,18 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"math"
+	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/minio/minio-go/v7"
 )
 
 // CalcScale returns an ffmpeg video filter
@@ -21,6 +27,43 @@ func CalcScale(w int, h int, dw int) string {
 	}
 
 	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
+}
+
+// DecontructS3Uri turns s3://bucket/key into Bucket and Key
+func DecontructS3Uri(s3URI string) SourceObject {
+	s := strings.Split(s3URI, "/")
+	Bucket := s[2]
+	Key := strings.Join(s[3:], "/")
+	return SourceObject{Bucket: Bucket, Key: Key}
+}
+
+// GetSignedURL returns a signed s3 url
+func GetSignedURL(s3Client *minio.Client, s3In string) string {
+	deconstructed := DecontructS3Uri(s3In)
+	presignedURL, err := s3Client.PresignedGetObject(
+		context.Background(),
+		deconstructed.Bucket,
+		deconstructed.Key,
+		time.Second*24*60*60,
+		nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return presignedURL.String()
+}
+
+// GetFileContentType returns the mime type of a file
+func GetFileContentType(out *os.File) (string, error) {
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+	_, err := out.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	// Use the net/http package's handy DectectContentType function. Always returns a valid
+	// content-type by returning "application/octet-stream" if no others seemed to match.
+	contentType := http.DetectContentType(buffer)
+	return contentType, nil
 }
 
 // ClampPreset checks if the video fits the specified dimensions
