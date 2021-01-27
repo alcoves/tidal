@@ -14,7 +14,9 @@ job "transcode" {
     meta_required = [
       "cmd",
       "s3_in",
-      "s3_out"
+      "s3_out",
+      "video_id",
+      "preset_name"
     ]
   }
 
@@ -26,6 +28,14 @@ job "transcode" {
         data = <<EOH
           NOMAD_TOKEN  ="{{key "secrets/NOMAD_TOKEN"}}"
           CONSUL_TOKEN ="{{key "secrets/CONSUL_TOKEN"}}"
+
+          S3_IN_ENDPOINT ="{{key "secrets/DO_ENDPOINT"}}"
+          S3_IN_ACCESS_KEY_ID ="{{key "secrets/DO_ACCESS_KEY_ID"}}"
+          S3_IN_SECRET_ACCESS_KEY ="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
+        
+          S3_OUT_ENDPOINT ="{{key "secrets/DO_ENDPOINT"}}"
+          S3_OUT_ACCESS_KEY_ID ="{{key "secrets/DO_ACCESS_KEY_ID"}}"
+          S3_OUT_SECRET_ACCESS_KEY ="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
         EOH
         
         destination = ".env"

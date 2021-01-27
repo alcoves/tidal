@@ -122,6 +122,7 @@ func IngestVideo(e IngestVideoEvent) {
 		log.Fatal(err)
 	}
 
+	// TODO :: Implement
 	fmt.Println("Cleaning up source")
 	fmt.Println("Cleaning up destination")
 
