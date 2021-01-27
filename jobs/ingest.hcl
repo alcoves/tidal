@@ -45,7 +45,7 @@ job "ingest" {
       config {
         command = "/root/tidal/main"
         args    = [
-          "ingest"
+          "ingest",
           "${NOMAD_META_S3_IN}"
           "--videoId",
           "${NOMAD_META_VIDEO_ID}"
