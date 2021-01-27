@@ -26,6 +26,10 @@ job "ingest" {
           S3_IN_ENDPOINT ="{{key "secrets/WASABI_ENDPOINT"}}"
           S3_IN_ACCESS_KEY_ID ="{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
           S3_IN_SECRET_ACCESS_KEY ="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
+        
+          S3_OUT_ENDPOINT ="{{key "secrets/WASABI_ENDPOINT"}}"
+          S3_OUT_ACCESS_KEY_ID ="{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
+          S3_OUT_SECRET_ACCESS_KEY ="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
         EOH
         
         destination = ".env"
