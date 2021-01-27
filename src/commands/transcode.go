@@ -51,6 +51,10 @@ func runTranscode(inPath string, flags string, tmpDir string) string {
 	return outputPath
 }
 
+func lockConcat() {
+	// consul lock $LOCK_KEY $TIDAL_PATH/src/services/lockConcat.sh
+}
+
 // Transcode runs ffmpeg with given inputs and outputs
 func Transcode(e TranscodeInputEvent) {
 	fmt.Println("Setting up transcode function variables")
@@ -83,8 +87,22 @@ func Transcode(e TranscodeInputEvent) {
 		S3OutDeconstructed.Key,
 		transcodedSegmentPath)
 
-	fmt.Println("Counting transcoded segments")
-	fmt.Println("If ready for concat, lockConcat.sh")
+	fmt.Println("Gathering segment counts")
+	sourceSegPrefix := fmt.Sprintf("%s/segments/", e.VideoID)
+	transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/", e.VideoID, e.PresetName)
+	sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
+	transcodedObjects := utils.ListObjects(e.S3OutClient, "tidal", transcodedSegPrefix) // TODO :: Interpolate bucket
+
+	if len(sourceObjects) == len(transcodedObjects) {
+		fmt.Println("Video is ready for packaging")
+		// TODO :: This needs a distributed lock mechanism to prevent
+		// multiple jobs from enqueueing a packaging job
+		jobMeta := []string{
+			fmt.Sprintf(`s3_in="s3://tidal/%s/versions/%s/segments"`, e.VideoID, e.PresetName), // TODO :: Interpolate bucket
+			fmt.Sprintf(`s3_out="s3://cdn.bken.io/v/%s/%s.mp4"`, e.VideoID, e.PresetName),      // TODO :: Interpolate bucket
+		}
+		utils.DispatchNomadJob("package", jobMeta)
+	}
 
 	fmt.Println("Removing temporary directory")
 	err = os.RemoveAll(tmpDir)
