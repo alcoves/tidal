@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -66,7 +67,8 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 	}
 	for _, f := range files {
 		fmt.Println(f.Name())
-		file, err := os.Open(fmt.Sprintf("%s/%s", inDir, f.Name()))
+		filePath := fmt.Sprintf("%s/%s", inDir, f.Name())
+		file, err := os.Open(filePath)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -81,9 +83,9 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 
 		fileUploadKey := fmt.Sprintf("%s/%s", key, f.Name())
 
-		contentType, err := GetFileContentType(file)
+		mime, err := mimetype.DetectFile(filePath)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error:", err)
 			return
 		}
 
@@ -93,7 +95,7 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 			fileUploadKey,
 			file,
 			fileStat.Size(),
-			minio.PutObjectOptions{ContentType: contentType})
+			minio.PutObjectOptions{ContentType: mime.String()})
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -111,20 +113,17 @@ func PutObject(s3Client *minio.Client, bucket string, key string, path string) {
 	}
 	defer file.Close()
 
-	contentType, err := GetFileContentType(file)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
 	fileStat, err := file.Stat()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	// TODO remove
-	fmt.Println(fileStat.Size())
+	mime, err := mimetype.DetectFile(path)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 
 	uploadInfo, err := s3Client.PutObject(
 		context.Background(),
@@ -132,7 +131,7 @@ func PutObject(s3Client *minio.Client, bucket string, key string, path string) {
 		key,
 		file,
 		fileStat.Size(),
-		minio.PutObjectOptions{ContentType: contentType})
+		minio.PutObjectOptions{ContentType: mime.String()})
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
