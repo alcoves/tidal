@@ -95,8 +95,17 @@ func Transcode(e TranscodeInputEvent) {
 
 	if len(sourceObjects) == len(transcodedObjects) {
 		fmt.Println("Video is ready for packaging")
-		// TODO :: This needs a distributed lock mechanism to prevent
-		// multiple jobs from enqueueing a packaging job
+		lockKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, e.PresetName)
+		lock, err := utils.NewLock(lockKey)
+		if err != nil {
+			fmt.Println("Unable to create consul lock:", err.Error())
+			log.Fatal(err)
+		}
+		if err := lock.Lock(); err != nil {
+			fmt.Println("Error while trying to acquire lock:", err.Error())
+			log.Fatal(err)
+		}
+		defer lock.Unlock()
 		jobMeta := []string{
 			fmt.Sprintf(`s3_in="s3://tidal/%s/versions/%s/segments"`, e.VideoID, e.PresetName), // TODO :: Interpolate bucket
 			fmt.Sprintf(`s3_out="s3://cdn.bken.io/v/%s/%s.mp4"`, e.VideoID, e.PresetName),      // TODO :: Interpolate bucket
