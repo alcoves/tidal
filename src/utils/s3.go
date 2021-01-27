@@ -139,3 +139,24 @@ func PutObject(s3Client *minio.Client, bucket string, key string, path string) {
 
 	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 }
+
+// ListObjects returns an exhasutive list of objects
+func ListObjects(s3Client *minio.Client, bucket string, prefix string) []minio.ObjectInfo {
+	objects := []minio.ObjectInfo{}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	objectCh := s3Client.ListObjects(ctx, bucket, minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: true,
+	})
+	for object := range objectCh {
+		if object.Err != nil {
+			fmt.Println(object.Err)
+			panic(object.Err)
+		}
+		// TODO :: Use channels instead
+		objects = append(objects, object)
+	}
+
+	return objects
+}
