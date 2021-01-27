@@ -58,6 +58,7 @@ func GetObject(
 
 // Sync copies local files into an s3 bucket
 // It's not very fast right now
+// FIXME :: Only works one directory deep
 func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 	files, err := ioutil.ReadDir(inDir)
 	if err != nil {
@@ -78,10 +79,12 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 			return
 		}
 
+		fileUploadKey := fmt.Sprintf("%s/%s", key, f.Name())
+
 		uploadInfo, err := s3Client.PutObject(
 			context.Background(),
 			bucket,
-			key,
+			fileUploadKey,
 			file,
 			fileStat.Size(),
 			minio.PutObjectOptions{}) // TODO :: Should we set content type?
