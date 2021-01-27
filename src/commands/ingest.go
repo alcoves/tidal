@@ -182,7 +182,7 @@ func IngestVideo(e IngestVideoEvent) {
 					preset.Name,
 					segment.Name()),
 			}
-			utils.DispatchNomadJob("jobName", jobMeta)
+			utils.DispatchNomadJob("transcode", jobMeta)
 		}
 	}
 
