@@ -41,3 +41,9 @@ type ThumbnailInput struct {
 	S3InClient  *minio.Client
 	S3OutClient *minio.Client
 }
+
+// SourceObject is an s3 construct
+type SourceObject struct {
+	Bucket string
+	Key    string
+}

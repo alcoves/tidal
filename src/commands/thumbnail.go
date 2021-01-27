@@ -8,29 +8,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/bken-io/tidal/src/utils"
 	"github.com/minio/minio-go/v7"
 )
 
-// SourceObject is an s3 construct
-type SourceObject struct {
-	Bucket string
-	Key    string
-}
-
-func decontructS3Uri(s3URI string) SourceObject {
-	s := strings.Split(s3URI, "/")
-	Bucket := s[2]
-	Key := strings.Join(s[3:], "/")
-	sourceObject := SourceObject{Bucket: Bucket, Key: Key}
-	return sourceObject
-}
-
 // GenerateThumbnail creates a video thumbnail
 func GenerateThumbnail(e utils.ThumbnailInput) {
-	signedURL := getSignedURL(e.S3InClient, e.S3In)
+	signedURL := utils.GetSignedURL(e.S3InClient, e.S3In)
 
 	tmpFile, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
 	if err != nil {
@@ -38,7 +23,6 @@ func GenerateThumbnail(e utils.ThumbnailInput) {
 	}
 
 	cmd := getThumbnailCommand(e, signedURL, tmpFile.Name())
-
 	if err := cmd.Run(); err != nil {
 		fmt.Println("Error:", err)
 		panic(err)
@@ -57,7 +41,7 @@ func GenerateThumbnail(e utils.ThumbnailInput) {
 		return
 	}
 
-	deconstructed := decontructS3Uri(e.S3Out)
+	deconstructed := utils.DecontructS3Uri(e.S3Out)
 	uploadInfo, err := e.S3OutClient.PutObject(
 		context.Background(),
 		deconstructed.Bucket,
@@ -73,20 +57,6 @@ func GenerateThumbnail(e utils.ThumbnailInput) {
 
 	fmt.Println("Removing tmp files")
 	defer os.Remove(file.Name())
-}
-
-func getSignedURL(s3Client *minio.Client, s3In string) string {
-	deconstructed := decontructS3Uri(s3In)
-	presignedURL, err := s3Client.PresignedGetObject(
-		context.Background(),
-		deconstructed.Bucket,
-		deconstructed.Key,
-		time.Second*24*60*60,
-		nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return presignedURL.String()
 }
 
 func getThumbnailCommand(e utils.ThumbnailInput, signedURL string, outputPath string) *exec.Cmd {

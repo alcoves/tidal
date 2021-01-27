@@ -9,7 +9,7 @@ import (
 )
 
 // CalculatePresets returns a json list of availible presets
-func CalculatePresets(inputPath string) {
+func CalculatePresets(inputPath string) utils.Presets {
 	metadata := utils.GetMetadata(inputPath)
 	presets := utils.GetPresets(metadata)
 
@@ -22,4 +22,5 @@ func CalculatePresets(inputPath string) {
 		log.Println(err)
 	}
 	fmt.Println(string(prettyResponse))
+	return presets
 }
