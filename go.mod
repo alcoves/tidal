@@ -5,6 +5,8 @@ go 1.14
 require (
 	github.com/gabriel-vasile/mimetype v1.1.2
 	github.com/google/uuid v1.2.0 // indirect
+	github.com/hashicorp/consul/api v1.8.1 // indirect
+	github.com/hashicorp/nomad/api v0.0.0-20210126192348-491bb3bde171 // indirect
 	github.com/minio/md5-simd v1.1.1 // indirect
 	github.com/minio/minio-go/v7 v7.0.7
 	github.com/spf13/cobra v1.1.1

@@ -166,9 +166,10 @@ func IngestVideo(e IngestVideoEvent) {
 	files, _ := ioutil.ReadDir(segmentsDir)
 	for i := 0; i < len(presets); i++ {
 		preset := presets[i]
-		consulKVKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, preset.Name)
-		consulKVValue := fmt.Sprintf("%s/%s", e.VideoID, preset.Name)
-		utils.PutKV(consulKVKey, consulKVValue)
+		// TODO :: Figure out if this should get removed, it's related to the transcoder lock
+		// consulKVKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, preset.Name)
+		// consulKVValue := fmt.Sprintf("%s/%s", e.VideoID, preset.Name)
+		// utils.PutKV(consulKVKey, consulKVValue)
 		for i := 0; i < len(files); i++ {
 			segment := files[i]
 			fmt.Println("segments", preset.Name, segment.Name())
