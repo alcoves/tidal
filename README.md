@@ -2,6 +2,19 @@
 
 Tidal is a distributed chunk based video transcoder that can run on any mix of hardware.
 
+## Simple explination
+
+- The `ingest` command splits a video into 10 second segments, the audio is set aside for now. ffmpeg presets are generated based on the resolution and framerate of the input file.
+  - IE. 480p, 720p, 1080p 
+- The `transcode` command is called for each preset and for each segment. The transcode command simply applies a given ffmpeg command onto a source segment, the result is stored.
+- The `package` command is invoked when all transcoded segments for a given preset are accounted for. It concatinates the video segments, creates HLS streaming assets, and also syncronously creates a `master.m3u8` playlist file.
+
+Whew! So that's a lot. But the gist is that by splitting a video into lots of smaller chunks, we can make some assurances about encoder performance as well as scale the system much more dynamically. For example, if a 5 hour video is going to take 10 hours to transcode, we could boot more servers thus horizontally scaling the transcoding jobs with ease. The downsides are higher complexity and brittle coupling. I'm hoping that golang can help solve some of these challenges, while bash was used initially, it made it difficult to implement error handling and fault tolerence behaviours.
+
+Elasticity: There is a version of tidal that was written to run on AWS Lambda. While this was no doubht the fastest iteration of Tidal, it was crazy expensive. But you could observe a 2 hour 4k feature file getting transcoded in less than 5 minutes. The bottleneck was actually networking and not CPU. A pretty surprising observation for me while building a video transcoder.
+
+I've decided to attempt to make tidal hardware agnostic, that's why I run it on DigitalOcean VMs and Rasberry Pis. You can still run it on lambda if you need speed,but the cost is almost 20x higher than running on ec2 or other compute platforms. EC2 Spot is by far the best bang for your buck setup.
+
 ### Requirements
 
 - A Nomad cluster with about 3gb of memory per worker node
@@ -52,7 +65,7 @@ check out docs/mvp.sh for the lite version of what tidal does.
 
 #### Create a thumbnail
 
-```
+```bash
 # Create a default thumbnail from the start of the video
 tidal thumbnail \
   s3://cdn.bken.io/source.mp4 \
@@ -78,6 +91,19 @@ tidal thumbnail \
   s3://cdn.bken.io/i/id/thumb.webp \
   --profile wasabi \
   --cmd "-vf scale=854:480:force_original_aspect_ratio=increase,crop=854:480 -vframes 1 -q:v 80"
+```
+
+#### Package video segments
+
+This command concatinates video segments, creates hls assets, and serially creates a master.m3u8 playlist. Syncronous master.m3u8 playlist creation in backed by Consuls distributed locks. We can guarentee that only one process is updating the master.m3u8 playlist file at a time. This prevents multiple processes from overwriting the master.m3u8 file with partial information.
+
+```bash
+
+# Package a video version
+  go build main.go && . .env && ./main package \
+    s3://tidal/5vD-GkYGR/versions/1080p/segments \
+    s3://cdn.bken.io/5vD-GkYGR/hls/1080p
+
 ```
 
 Default thumbnail transformation

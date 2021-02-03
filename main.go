@@ -75,7 +75,7 @@ func main() {
 		},
 	}
 
-	var trasnscodeCmd = &cobra.Command{
+	var transcodeCmd = &cobra.Command{
 		Use:   "transcode [s3://path-to-source s3://path-to-destination]",
 		Short: "Transcode a video segment given the specified command",
 		Args:  cobra.MinimumNArgs(2),
@@ -101,15 +101,35 @@ func main() {
 		},
 	}
 
+	var packageCmd = &cobra.Command{
+		Use:   "package [s3://tidal/$id/versions/$preset/segments/ s3://cdn.bken.io/$id/hls/$preset]",
+		Short: "Package a single video preset",
+		Args:  cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			packageEvent := commands.GenPackageEvent(
+				commands.PackageInputEvent{
+					S3In:  args[0],
+					S3Out: args[1],
+				})
+			commands.Package(packageEvent)
+		},
+	}
+
 	var rootCmd = &cobra.Command{Use: "tidal"}
 	rootCmd.AddCommand(ingestCmd)
 	ingestCmd.Flags().String("videoId", "", "videoId used to store assets in tidal")
-	rootCmd.AddCommand(trasnscodeCmd)
-	trasnscodeCmd.Flags().String("cmd", "", "the ffmpeg command to run")
-	trasnscodeCmd.Flags().String("videoId", "", "videoId used to store assets in tidal")
-	trasnscodeCmd.Flags().String("presetName", "", "presetName that is being transcoded")
+
+	rootCmd.AddCommand(transcodeCmd)
+	transcodeCmd.Flags().String("cmd", "", "the ffmpeg command to run")
+	transcodeCmd.Flags().String("videoId", "", "videoId used to store assets in tidal")
+	transcodeCmd.Flags().String("presetName", "", "presetName that is being transcoded")
+
 	rootCmd.AddCommand(presetsCmd)
+
+	rootCmd.AddCommand(packageCmd)
+
 	rootCmd.AddCommand(thumbnailCmd)
 	thumbnailCmd.Flags().String("cmd", "", "ffmpeg thumbnail command")
+
 	rootCmd.Execute()
 }

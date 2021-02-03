@@ -59,7 +59,7 @@ func GetObject(
 
 // Sync copies local files into an s3 bucket
 // It's not very fast right now
-// FIXME :: Only works one directory deep
+// FIXME :: Only works one directory deep and only syncs to remote
 func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 	files, err := ioutil.ReadDir(inDir)
 	if err != nil {
@@ -101,6 +101,15 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 			return
 		}
 		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+	}
+}
+
+// SyncDown lists objects and then downloads them
+func SyncDown(S3Client *minio.Client, outDir string, bucket string, key string) {
+	objects := ListObjects(S3Client, bucket, key)
+	for i := 0; i < len(objects); i++ {
+		object := objects[i]
+		GetObject(S3Client, bucket, object.Key, outDir)
 	}
 }
 

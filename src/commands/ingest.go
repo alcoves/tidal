@@ -117,7 +117,7 @@ func checkForAudio(inPath string) bool {
 // IngestVideo returns a json list of availible presets
 func IngestVideo(e IngestVideoEvent) {
 	fmt.Println("Creating temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "")
+	tmpDir, err := ioutil.TempDir("/tmp", "tidal-ingest-")
 	if err != nil {
 		log.Fatal(err)
 	}

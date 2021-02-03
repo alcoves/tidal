@@ -5,11 +5,20 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 
+	"github.com/bken-io/tidal/src/utils"
 	"github.com/minio/minio-go/v7"
 )
 
-// PackageEvent is used for a packaging event
+// PackageInputEvent is gathered from the cli
+type PackageInputEvent struct {
+	S3In  string
+	S3Out string
+}
+
+// PackageEvent adds additional metadata
 type PackageEvent struct {
 	VideoID     string
 	PresetName  string
@@ -19,38 +28,219 @@ type PackageEvent struct {
 	S3OutClient *minio.Client
 }
 
+// GenPackageEvent takes cli input and adds additional metadata
+func GenPackageEvent(e PackageInputEvent) PackageEvent {
+	s3InSplit := strings.Split(e.S3In, "/")
+	// s3://tidal/123/versions/1080p/segments
+	videoID := s3InSplit[3]
+	presetName := s3InSplit[5]
+
+	event := PackageEvent{
+		VideoID:    videoID,
+		PresetName: presetName,
+		S3In:       e.S3In,
+		S3Out:      e.S3Out,
+		S3InClient: utils.CreateClient(utils.S3Config{
+			Endpoint:        os.Getenv("S3_IN_ENDPOINT"),
+			AccessKeyID:     os.Getenv("S3_IN_ACCESS_KEY_ID"),
+			SecretAccessKey: os.Getenv("S3_IN_SECRET_ACCESS_KEY"),
+		}),
+		S3OutClient: utils.CreateClient(utils.S3Config{
+			Endpoint:        os.Getenv("S3_OUT_ENDPOINT"),
+			AccessKeyID:     os.Getenv("S3_OUT_ACCESS_KEY_ID"),
+			SecretAccessKey: os.Getenv("S3_OUT_SECRET_ACCESS_KEY"),
+		}),
+	}
+
+	return event
+}
+
+// CreateConcatinationManifest creates an ffmpeg concatination file
+func CreateConcatinationManifest(tmpDir string) string {
+	manifestPath := fmt.Sprintf("%s/manifest.txt", tmpDir)
+	entries, err := ioutil.ReadDir(tmpDir + "/segments")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(entries); i++ {
+		seg := entries[i]
+		concatAppend := fmt.Sprintf("file './segments/%s'\n", seg.Name())
+
+		// If the file doesn't exist, create it, or append to the file
+		f, err := os.OpenFile(manifestPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := f.Write([]byte(concatAppend)); err != nil {
+			log.Fatal(err)
+		}
+		if err := f.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return manifestPath
+}
+
+func ConcatinateSegments(manifestPath string, tmpDir string) string {
+	videoPath := fmt.Sprintf("%s/concatinated.mkv", tmpDir)
+
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-f")
+	args = append(args, "concat")
+	args = append(args, "-safe")
+	args = append(args, "0")
+	args = append(args, "-y")
+	args = append(args, "-i")
+	args = append(args, manifestPath)
+	args = append(args, "-c:v")
+	args = append(args, "copy")
+	args = append(args, videoPath)
+
+	cmd := exec.Command("ffmpeg", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		log.Fatal(err)
+	}
+
+	return videoPath
+}
+
+func Remux(presetName string, videoPath string, audioPath string, tmpDir string) string {
+	muxPath := fmt.Sprintf("%s/%s.mp4", tmpDir, presetName)
+
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-y")
+	args = append(args, "-i")
+	args = append(args, videoPath)
+
+	// If audio exists, mux it in here
+	if audioPath != "" {
+		args = append(args, "-i")
+		args = append(args, audioPath)
+	}
+
+	args = append(args, "-c")
+	args = append(args, "copy")
+	args = append(args, "-movflags")
+	args = append(args, "faststart")
+	args = append(args, muxPath)
+
+	cmd := exec.Command("ffmpeg", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		log.Fatal(err)
+	}
+
+	return muxPath
+}
+
+func CreateHLSAssets(muxPath string, tmpDir string) string {
+	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
+	os.MkdirAll(hlsDir, os.ModePerm)
+
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-y")
+	args = append(args, "-i")
+	args = append(args, muxPath)
+	args = append(args, "-c")
+	args = append(args, "copy")
+	args = append(args, "-hls_time")
+	args = append(args, "6")
+	args = append(args, "-hls_playlist_type")
+	args = append(args, "vod")
+	args = append(args, "-hls_segment_type")
+	args = append(args, "fmp4")
+	args = append(args, "-hls_segment_filename")
+	args = append(args, hlsDir+`/%09d.m4s`)
+	args = append(args, hlsDir+"/stream.m3u8")
+
+	cmd := exec.Command("ffmpeg", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		log.Fatal(err)
+	}
+
+	return hlsDir
+}
+
 // Package download all video segments for a given preset.
 // Those presets are concatinated and stiched to source audio.
 // HLS assets are generated and sent to the destination.
 func Package(e PackageEvent) {
 	fmt.Println("Setting up")
+	fmt.Printf("%+v\n", e)
 
-	fmt.Println("Creating temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "")
+	fmt.Println("Create temporary directory")
+	tmpDir, err := ioutil.TempDir("/tmp", "tidal-package-")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Downloading transcoded segments")
+	fmt.Println("Download transcoded segments")
+	d := utils.DecontructS3Uri(e.S3In)
+	transcodedSegmentsDir := fmt.Sprintf("%s/segments", tmpDir)
+	os.MkdirAll(transcodedSegmentsDir, os.ModePerm)
+	utils.SyncDown(e.S3InClient, transcodedSegmentsDir, d.Bucket, d.Key)
 
-	fmt.Println("Creating concatination manifest")
+	fmt.Println("Create concatination manifest")
+	manifestPath := CreateConcatinationManifest(tmpDir)
 
-	fmt.Println("Concatinating segments")
+	fmt.Println("Concatinate segments")
+	concatinatedVideoPath := ConcatinateSegments(manifestPath, tmpDir)
 
-	fmt.Println("Removing segments")
+	fmt.Println("Remove segments directory")
+	err = os.RemoveAll(transcodedSegmentsDir)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("Check for audio")
-	fmt.Println("Download audio")
-	fmt.Println("Stitch audio to video")
-	fmt.Println("Remove video without audio")
+	remoteAudioPath := fmt.Sprintf("%s/audio.aac", e.VideoID)
+	audioObjects := utils.ListObjects(e.S3InClient, d.Bucket, remoteAudioPath)
+	audioPath := ""
 
-	fmt.Println("Creating HLS assets")
-	fmt.Println("Upload assets to the destination")
-	fmt.Println("Aquire consul lock and begin packaging")
+	if len(audioObjects) == 1 {
+		fmt.Println("Download audio")
+		audioPath = utils.GetObject(e.S3InClient, d.Bucket, remoteAudioPath, tmpDir)
+	}
 
-	fmt.Println("Removing temporary directory")
-	err = os.RemoveAll(tmpDir)
+	fmt.Println("Remux final video")
+	muxPath := Remux(e.PresetName, concatinatedVideoPath, audioPath, tmpDir)
+	fmt.Println("muxPath", muxPath)
+
+	fmt.Println("Remove concatinated video", concatinatedVideoPath)
+	err = os.Remove(concatinatedVideoPath)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("Create HLS assets")
+	hlsDir := CreateHLSAssets(muxPath, tmpDir)
+
+	fmt.Println("Upload assets to the destination")
+	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
+	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, s3OutDeconstructed.Key)
+
+	// This should be a different command
+	fmt.Println("Begin master.m3u8 creation process")
+
+	fmt.Println("Remove temporary directory")
+	// err = os.RemoveAll(tmpDir)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }
