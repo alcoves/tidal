@@ -65,7 +65,7 @@ func Transcode(e TranscodeInputEvent) {
 	e.PresetName = strings.Split(S3OutDeconstructed.Key, "/")[2]
 
 	fmt.Println("Creating temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "")
+	tmpDir, err := ioutil.TempDir("/tmp", "tidal-transcode-")
 	if err != nil {
 		log.Fatal(err)
 	}
