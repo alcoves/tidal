@@ -262,16 +262,16 @@ func Package(e PackageEvent) {
 
 	fmt.Println("Upload HLS assets to the destination")
 	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
-	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, s3OutDeconstructed.Key)
+	hlsRemoteDir := fmt.Sprintf("v/%s/hls", e.VideoID)
+	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, hlsRemoteDir)
 
 	fmt.Println("Creater master.m3u8")
 	GenerateHLSMasterPlaylist(GenerateHLSMasterPlaylistEvent{
-		VideoID:    e.VideoID,
-		PresetName: e.PresetName,
-		S3Client:   e.S3OutClient,
-		S3Key:      s3OutDeconstructed.Key,
-		S3Bucket:   s3OutDeconstructed.Bucket,
-		RemotePath: fmt.Sprintf("v/%s/hls/master.m3u8", e.VideoID), // TODO :: this makes too many assumptions
+		VideoID:                  e.VideoID,
+		PresetName:               e.PresetName,
+		S3Client:                 e.S3OutClient,
+		S3Bucket:                 s3OutDeconstructed.Bucket,
+		RemoteMasterPlaylistPath: fmt.Sprintf("v/%s/hls/master.m3u8", e.VideoID), // TODO :: this makes too many assumptions
 	})
 
 	fmt.Println("Remove temporary directory")
