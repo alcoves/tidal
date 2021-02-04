@@ -35,7 +35,7 @@ func GetObject(
 
 	filename := filepath.Base(key)
 	outPath := fmt.Sprintf("%s/%s", outDir, filename)
-	fmt.Printf("Downloading s3://%s/%s -> %s", bucket, key, outDir)
+	fmt.Printf("Downloading s3://%s/%s -> %s\n", bucket, key, outPath)
 
 	object, err := s3Client.GetObject(
 		context.Background(),
@@ -43,15 +43,13 @@ func GetObject(
 		key, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println(err)
-		return ""
 	}
 	localFile, err := os.Create(outPath)
 	if err != nil {
-		fmt.Println(err)
-		return ""
+		log.Fatal(err)
 	}
 	if _, err = io.Copy(localFile, object); err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	return outPath
