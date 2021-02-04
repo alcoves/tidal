@@ -35,7 +35,7 @@ func GetObject(
 
 	filename := filepath.Base(key)
 	outPath := fmt.Sprintf("%s/%s", outDir, filename)
-	fmt.Println("Downloading", key, "to", outPath)
+	fmt.Printf("Downloading s3://%s/%s -> %s", bucket, key, outDir)
 
 	object, err := s3Client.GetObject(
 		context.Background(),
