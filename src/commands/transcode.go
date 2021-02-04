@@ -108,7 +108,7 @@ func Transcode(e TranscodeInputEvent) {
 		defer lock.Unlock()
 		jobMeta := []string{
 			fmt.Sprintf(`s3_in="s3://tidal/%s/versions/%s/segments"`, e.VideoID, e.PresetName), // TODO :: Interpolate bucket
-			fmt.Sprintf(`s3_out="s3://cdn.bken.io/v/%s/%s.mp4"`, e.VideoID, e.PresetName),      // TODO :: Interpolate bucket
+			fmt.Sprintf(`s3_out="s3://cdn.bken.io/v/%s"`, e.VideoID),                           // TODO :: Interpolate bucket
 		}
 		utils.DispatchNomadJob("package", jobMeta)
 	}

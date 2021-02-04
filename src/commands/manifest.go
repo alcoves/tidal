@@ -14,12 +14,11 @@ import (
 )
 
 type GenerateHLSMasterPlaylistEvent struct {
-	PresetName string
-	VideoID    string
-	S3Key      string // $id/hls/$preset
-	S3Bucket   string
-	RemotePath string
-	S3Client   *minio.Client
+	PresetName               string
+	VideoID                  string
+	S3Bucket                 string
+	S3Client                 *minio.Client
+	RemoteMasterPlaylistPath string
 }
 
 // GenerateHLSMasterPlaylist creates an HLS master playlist.
@@ -125,7 +124,7 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 	}
 
 	fmt.Println("Upload manifest")
-	utils.PutObject(e.S3Client, e.S3Bucket, e.RemotePath, masterPlaylistPath)
+	utils.PutObject(e.S3Client, e.S3Bucket, e.RemoteMasterPlaylistPath, masterPlaylistPath)
 
 	fmt.Println("Remove temporary directory")
 	err = os.RemoveAll(tmpDir)
