@@ -25,8 +25,20 @@ type GenerateHLSMasterPlaylistEvent struct {
 // All video version playlists are downloaded and used to create
 // a master.m3u8 playlist.
 func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
-	// TODO :: Process should utilize a consul lock
 	fmt.Println("Creating the master playlist")
+
+	fmt.Println("Creating consul lock")
+	lockKey := fmt.Sprintf("tidal/%s-master.m3u8", e.VideoID)
+	lock, err := utils.NewLock(lockKey)
+	if err != nil {
+		fmt.Println("Unable to create consul lock:", err.Error())
+		log.Fatal(err)
+	}
+	if err := lock.Lock(); err != nil {
+		fmt.Println("Error while trying to acquire lock:", err.Error())
+		log.Fatal(err)
+	}
+	defer lock.Unlock()
 
 	fmt.Println("Create temporary directory")
 	tmpDir, err := ioutil.TempDir("/tmp", "tidal-manifest-")
