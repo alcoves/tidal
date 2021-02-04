@@ -15,8 +15,6 @@ job "transcode" {
       "cmd",
       "s3_in",
       "s3_out",
-      "video_id",
-      "preset_name"
     ]
   }
 
@@ -53,11 +51,12 @@ job "transcode" {
       }
 
       config {
-        command = "/usr/bin/bash"
+        command = "/root/tidal/main"
         args    = [
-          "/root/tidal/src/transcode.sh",
+          "transcode",
           "${NOMAD_META_S3_IN}",
           "${NOMAD_META_S3_OUT}",
+          "--cmd",
           "${NOMAD_META_CMD}",
         ]
       }
