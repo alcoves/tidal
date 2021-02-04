@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -144,6 +145,62 @@ func Remux(presetName string, videoPath string, audioPath string, tmpDir string)
 	return muxPath
 }
 
+func getResolution(path string) string {
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-v")
+	args = append(args, "error")
+	args = append(args, "-select_streams")
+	args = append(args, "v:0")
+	args = append(args, "-show_entries")
+	args = append(args, "stream=width,height")
+	args = append(args, "-of")
+	args = append(args, "csv=s=x:p=0")
+	args = append(args, path)
+
+	cmd := exec.Command("ffprobe", args...)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		log.Fatal(err)
+	}
+
+	output := out.String()
+	return strings.Replace(output, "\n", "", -1)
+}
+
+func getBitrate(path string) string {
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-v")
+	args = append(args, "error")
+	args = append(args, "-select_streams")
+	args = append(args, "v:0")
+	args = append(args, "-show_entries")
+	args = append(args, "stream=bit_rate")
+	args = append(args, "-of")
+	args = append(args, "default=noprint_wrappers=1:nokey=1")
+	args = append(args, path)
+
+	cmd := exec.Command("ffprobe", args...)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		log.Fatal(err)
+	}
+
+	output := out.String()
+	return strings.Replace(output, "\n", "", -1)
+}
+
 func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
 	playlistPath := fmt.Sprintf("%s/stream.m3u8", hlsDir)
@@ -175,17 +232,12 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 		log.Fatal(err)
 	}
 
-	// Add comments to the stream.m3u8 playlist file
-	// This is required for the creation of a master playlist
-
-	// RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
-	// BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
-	resolution := "1280x720"
-	bitrate := 21345.0
+	resolution := getResolution(muxPath)
+	bitrate := getBitrate(muxPath)
 
 	addition := "# Created By: https://github.com/bkenio/tidal\n"
 	addition = addition + fmt.Sprintf(
-		"# STREAM-INF:BANDWIDTH=%f,RESOLUTION=%s,NAME=%s",
+		"# STREAM-INF:BANDWIDTH=%s,RESOLUTION=%s,NAME=%sp",
 		bitrate, resolution, presetName)
 
 	// If the file doesn't exist, create it, or append to the file
