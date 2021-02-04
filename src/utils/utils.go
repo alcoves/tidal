@@ -62,14 +62,14 @@ func ClampPreset(w int, h int, dw int, dh int) bool {
 func GetPresets(v Video) Presets {
 	presets := Presets{
 		Preset{
-			Name: "360p",
+			Name: "360",
 			Cmd:  x264(v, 640),
 		},
 	}
 
 	if ClampPreset(v.width, v.height, 1280, 720) {
 		addition := Preset{
-			Name: "720p",
+			Name: "720",
 			Cmd:  x264(v, 1280),
 		}
 		presets = append(presets, addition)
@@ -77,7 +77,7 @@ func GetPresets(v Video) Presets {
 
 	if ClampPreset(v.width, v.height, 1920, 1080) {
 		addition := Preset{
-			Name: "1080p",
+			Name: "1080",
 			Cmd:  x264(v, 1920),
 		}
 		presets = append(presets, addition)
@@ -85,7 +85,7 @@ func GetPresets(v Video) Presets {
 
 	if ClampPreset(v.width, v.height, 2560, 1440) {
 		addition := Preset{
-			Name: "1440p",
+			Name: "1440",
 			Cmd:  x264(v, 2560),
 		}
 		presets = append(presets, addition)
@@ -93,7 +93,7 @@ func GetPresets(v Video) Presets {
 
 	if ClampPreset(v.width, v.height, 3840, 2160) {
 		addition := Preset{
-			Name: "2160p",
+			Name: "2160",
 			Cmd:  x264(v, 3840),
 		}
 		presets = append(presets, addition)
