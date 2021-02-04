@@ -51,10 +51,6 @@ func runTranscode(inPath string, flags string, tmpDir string) string {
 	return outputPath
 }
 
-func lockConcat() {
-	// consul lock $LOCK_KEY $TIDAL_PATH/src/services/lockConcat.sh
-}
-
 // Transcode runs ffmpeg with given inputs and outputs
 func Transcode(e TranscodeInputEvent) {
 	fmt.Println("Setting up transcode function variables")
