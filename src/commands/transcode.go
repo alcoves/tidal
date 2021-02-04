@@ -70,7 +70,7 @@ func Transcode(e TranscodeInputEvent) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Download source segments")
+	fmt.Println("Download source segment")
 	sourceSegmentPath := utils.GetObject(
 		e.S3InClient,
 		S3InDeconstructed.Bucket,
