@@ -91,6 +91,11 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 		if err != nil {
 			log.Fatal("Failed to cast string to int")
 		}
+
+		if playList1 == 720 {
+			return true
+		}
+
 		return playList1 < playList2
 	})
 
