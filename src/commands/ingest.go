@@ -174,7 +174,7 @@ func IngestVideo(e IngestVideoEvent) {
 			segment := files[i]
 			fmt.Println("segments", preset.Name, segment.Name())
 			jobMeta := []string{
-				fmt.Sprintf(`cmd="%s"`, preset.Cmd),
+				fmt.Sprintf(`cmd=%s`, preset.Cmd),
 				fmt.Sprintf(`s3_in=s3://tidal/%s/segments/%s`,
 					e.VideoID,
 					segment.Name()),
