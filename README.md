@@ -63,9 +63,12 @@ check out docs/mvp.sh for the lite version of what tidal does.
 
 ### CLI
 
-#### Create a thumbnail
+#### Example commands
 
 ```bash
+# Ingest a video
+./main ingest s3://cdn.bken.io/AAjSFULGR/source.mp4 --video_id=AAjSFULGR
+
 # Create a default thumbnail from the start of the video
 tidal thumbnail \
   s3://cdn.bken.io/source.mp4 \

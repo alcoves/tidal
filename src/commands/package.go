@@ -262,7 +262,7 @@ func Package(e PackageEvent) {
 
 	fmt.Println("Upload HLS assets to the destination")
 	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
-	hlsRemoteDir := fmt.Sprintf("v/%s/hls", e.VideoID)
+	hlsRemoteDir := fmt.Sprintf("v/%s/hls/%s", e.VideoID, e.PresetName)
 	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, hlsRemoteDir)
 
 	fmt.Println("Creater master.m3u8")
