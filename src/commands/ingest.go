@@ -183,8 +183,6 @@ func IngestVideo(e IngestVideoEvent) {
 					e.VideoID,
 					preset.Name,
 					segment.Name()),
-				fmt.Sprintf("video_id=%s", e.VideoID),
-				fmt.Sprintf("preset_name=%s", preset.Name),
 			}
 			utils.DispatchNomadJob("transcode", jobMeta)
 		}
