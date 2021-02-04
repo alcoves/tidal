@@ -24,8 +24,8 @@ job "preview" {
 
       template {
         data = <<EOH
-NOMAD_TOKEN  ="{{key "secrets/NOMAD_TOKEN"}}"
-CONSUL_TOKEN ="{{key "secrets/CONSUL_TOKEN"}}"
+NOMAD_TOKEN="{{key "secrets/NOMAD_TOKEN"}}"
+CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
         EOH
         
         destination = ".env"
