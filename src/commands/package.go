@@ -144,8 +144,9 @@ func Remux(presetName string, videoPath string, audioPath string, tmpDir string)
 	return muxPath
 }
 
-func CreateHLSAssets(muxPath string, tmpDir string) string {
+func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
+	playlistPath := fmt.Sprintf("%s/stream.m3u8", hlsDir)
 	os.MkdirAll(hlsDir, os.ModePerm)
 
 	args := []string{}
@@ -163,7 +164,7 @@ func CreateHLSAssets(muxPath string, tmpDir string) string {
 	args = append(args, "fmp4")
 	args = append(args, "-hls_segment_filename")
 	args = append(args, hlsDir+`/%09d.m4s`)
-	args = append(args, hlsDir+"/stream.m3u8")
+	args = append(args, playlistPath)
 
 	cmd := exec.Command("ffmpeg", args...)
 	cmd.Stdout = os.Stdout
@@ -174,10 +175,35 @@ func CreateHLSAssets(muxPath string, tmpDir string) string {
 		log.Fatal(err)
 	}
 
+	// Add comments to the stream.m3u8 playlist file
+	// This is required for the creation of a master playlist
+
+	// RESOLUTION=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 $MUXED_VIDEO_PATH)
+	// BITRATE=$(ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 $MUXED_VIDEO_PATH)
+	resolution := "1280x720"
+	bitrate := 21345.0
+
+	addition := "# Created By: https://github.com/bkenio/tidal\n"
+	addition = addition + fmt.Sprintf(
+		"# STREAM-INF:BANDWIDTH=%f,RESOLUTION=%s,NAME=%s",
+		bitrate, resolution, presetName)
+
+	// If the file doesn't exist, create it, or append to the file
+	f, err := os.OpenFile(playlistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := f.Write([]byte(addition)); err != nil {
+		log.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
+
 	return hlsDir
 }
 
-// Package download all video segments for a given preset.
+// Package downloads all video segments for a given preset.
 // Those presets are concatinated and stiched to source audio.
 // HLS assets are generated and sent to the destination.
 func Package(e PackageEvent) {
@@ -228,19 +254,29 @@ func Package(e PackageEvent) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Create HLS assets")
-	hlsDir := CreateHLSAssets(muxPath, tmpDir)
+	// TODO :: progressive videos are not getting uploaded
+	// It may be useful to store these non-hls variants
 
-	fmt.Println("Upload assets to the destination")
+	fmt.Println("Create HLS assets")
+	hlsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName)
+
+	fmt.Println("Upload HLS assets to the destination")
 	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
 	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, s3OutDeconstructed.Key)
 
-	// This should be a different command
-	fmt.Println("Begin master.m3u8 creation process")
+	fmt.Println("Creater master.m3u8")
+	GenerateHLSMasterPlaylist(GenerateHLSMasterPlaylistEvent{
+		VideoID:    e.VideoID,
+		PresetName: e.PresetName,
+		S3Client:   e.S3OutClient,
+		S3Key:      s3OutDeconstructed.Key,
+		S3Bucket:   s3OutDeconstructed.Bucket,
+		RemotePath: fmt.Sprintf("v/%s/hls/master.m3u8", e.VideoID), // TODO :: this makes too many assumptions
+	})
 
 	fmt.Println("Remove temporary directory")
-	// err = os.RemoveAll(tmpDir)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = os.RemoveAll(tmpDir)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
