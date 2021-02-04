@@ -104,8 +104,8 @@ This command concatinates video segments, creates hls assets, and serially creat
 
 # Package a video version
   go build main.go && . .env && ./main package \
-    s3://tidal/5vD-GkYGR/versions/1080p/segments \
-    s3://cdn.bken.io/5vD-GkYGR/hls/1080p
+    s3://tidal/AAjSFULGR/versions/1080/segments \
+    s3://cdn.bken.io/AAjSFULGR
 
 ```
 

@@ -95,7 +95,6 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 	})
 
 	for i := 0; i < len(playlists); i++ {
-		steamInf := ""
 		playlist := playlists[i]
 		presetName := strings.Split(playlist.Name(), ".m3u8")[0]
 
@@ -111,29 +110,28 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			if strings.Contains(scanner.Text(), "STREAM-INF:") {
-				steamInf = strings.Split(scanner.Text(), ":")[1]
 				fmt.Println("Adding a stream to master.m3u8")
+				steamInf := strings.Split(scanner.Text(), ":")[1]
+				playlistAddition := fmt.Sprintf("#EXT-X-STREAM-INF:%s\n%s/stream.m3u8\n", steamInf, presetName)
+
+				// If the file doesn't exist, create it, or append to the file
+				f, err := os.OpenFile(masterPlaylistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if i == 0 {
+					f.Write([]byte("#EXTM3U\n"))
+				}
+				if _, err := f.Write([]byte(playlistAddition)); err != nil {
+					log.Fatal(err)
+				}
+				if err := f.Close(); err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
 
 		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-
-		playlistAddition := fmt.Sprintf("#EXT-X-STREAM-INF:%s\n%s/stream.m3u8\n", steamInf, presetName)
-
-		// If the file doesn't exist, create it, or append to the file
-		f, err := os.OpenFile(masterPlaylistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if i == 0 {
-			f.Write([]byte("#EXTM3U\n"))
-		}
-		if _, err := f.Write([]byte(playlistAddition)); err != nil {
-			log.Fatal(err)
-		}
-		if err := f.Close(); err != nil {
 			log.Fatal(err)
 		}
 	}
