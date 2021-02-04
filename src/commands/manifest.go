@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/bken-io/tidal/src/utils"
@@ -85,11 +86,13 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 	}
 
 	sort.Slice(playlists, func(i, j int) bool {
-		return playlists[i].Name() < playlists[j].Name()
+		playList1, err := strconv.Atoi(strings.Split(playlists[i].Name(), ".")[0])
+		playList2, err := strconv.Atoi(strings.Split(playlists[j].Name(), ".")[0])
+		if err != nil {
+			log.Fatal("Failed to cast string to int")
+		}
+		return playList1 < playList2
 	})
-
-	// TODO :: playlists array needs to be sorted!
-	// Make sure they are sorted numerically "ls -rv -I"
 
 	for i := 0; i < len(playlists); i++ {
 		steamInf := ""
