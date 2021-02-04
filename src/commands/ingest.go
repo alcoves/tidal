@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -133,6 +134,25 @@ func IngestVideo(e IngestVideoEvent) {
 	for i := 0; i < len(presets); i++ {
 		p := presets[i]
 		fmt.Println("Placing Marker ::", p.Name)
+		// Markers show early progress to the UI
+		file, err := ioutil.TempFile("/tmp", "tidal-preset-marker-")
+		if err != nil {
+			log.Fatal("failed to create marker file")
+		}
+
+		uploadInfo, err := e.S3OutClient.PutObject(
+			context.Background(),
+			"tidal", // TODO :: interpolate
+			fmt.Sprintf("%s/versions/%s/", e.VideoID, p.Name),
+			file,
+			0,
+			minio.PutObjectOptions{})
+
+		fmt.Println("uploadInfo", uploadInfo)
+		defer os.Remove(file.Name())
+		if err != nil {
+			log.Fatal("failed to upload marker to s3 remote")
+		}
 	}
 
 	fmt.Println("Downloading video file")
@@ -166,10 +186,6 @@ func IngestVideo(e IngestVideoEvent) {
 	files, _ := ioutil.ReadDir(segmentsDir)
 	for i := 0; i < len(presets); i++ {
 		preset := presets[i]
-		// TODO :: Figure out if this should get removed, it's related to the transcoder lock
-		// consulKVKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, preset.Name)
-		// consulKVValue := fmt.Sprintf("%s/%s", e.VideoID, preset.Name)
-		// utils.PutKV(consulKVKey, consulKVValue)
 		for i := 0; i < len(files); i++ {
 			segment := files[i]
 			fmt.Println("segments", preset.Name, segment.Name())
