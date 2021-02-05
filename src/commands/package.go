@@ -218,8 +218,10 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	args = append(args, "6")
 	args = append(args, "-hls_playlist_type")
 	args = append(args, "vod")
+	args = append(args, "-hls_segment_type")
+	args = append(args, "fmp4")
 	args = append(args, "-hls_segment_filename")
-	args = append(args, hlsDir+`/%09d.ts`)
+	args = append(args, hlsDir+`/%09d.m4s`)
 	args = append(args, playlistPath)
 
 	cmd := exec.Command("ffmpeg", args...)
