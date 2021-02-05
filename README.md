@@ -66,7 +66,12 @@ check out docs/mvp.sh for the lite version of what tidal does.
 #### Example commands
 
 ```bash
-# Ingest a video
+# Ingest a video via nomad
+nomad job dispatch ingest -detach \
+  -meta s3_in=s3://cdn.bken.io/oLQdWuLMR/source.mp4 \
+  -meta video_id=oLQdWuLMR
+
+# Ingest a video via the cli
 ./main ingest s3://cdn.bken.io/AAjSFULGR/source.mp4 --video_id=AAjSFULGR
 
 # Create a default thumbnail from the start of the video
@@ -104,8 +109,8 @@ This command concatinates video segments, creates hls assets, and serially creat
 
 # Package a video version
   go build main.go && . .env && ./main package \
-    s3://tidal/AAjSFULGR/versions/1080/segments \
-    s3://cdn.bken.io/AAjSFULGR
+    s3://tidal/oLQdWuLMR/versions/1080/segments \
+    s3://cdn.bken.io/oLQdWuLMR
 
 ```
 
