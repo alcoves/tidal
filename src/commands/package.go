@@ -90,14 +90,14 @@ func ConcatinateSegments(manifestPath string, tmpDir string) string {
 
 	args := []string{}
 	args = append(args, "-hide_banner")
+	args = append(args, "-y")
 	args = append(args, "-f")
 	args = append(args, "concat")
 	args = append(args, "-safe")
 	args = append(args, "0")
-	args = append(args, "-y")
 	args = append(args, "-i")
 	args = append(args, manifestPath)
-	args = append(args, "-c:v")
+	args = append(args, "-c")
 	args = append(args, "copy")
 	args = append(args, videoPath)
 
@@ -205,7 +205,6 @@ func getBitrate(path string) string {
 func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
 	playlistPath := fmt.Sprintf("%s/stream.m3u8", hlsDir)
-	hlsFilepath := fmt.Sprintf("%s/%s.mp4", hlsDir, presetName)
 	os.MkdirAll(hlsDir, os.ModePerm)
 
 	args := []string{}
@@ -219,10 +218,8 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	args = append(args, "6")
 	args = append(args, "-hls_playlist_type")
 	args = append(args, "vod")
-	args = append(args, "-hls_flags")
-	args = append(args, "single_file")
 	args = append(args, "-hls_segment_filename")
-	args = append(args, hlsFilepath)
+	args = append(args, hlsDir+`/%09d.ts`)
 	args = append(args, playlistPath)
 
 	cmd := exec.Command("ffmpeg", args...)
