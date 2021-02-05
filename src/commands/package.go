@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/bken-io/tidal/src/utils"
@@ -204,6 +205,7 @@ func getBitrate(path string) string {
 func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
 	playlistPath := fmt.Sprintf("%s/stream.m3u8", hlsDir)
+	hlsFilepath := fmt.Sprintf("%s/%s.mp4", hlsDir, presetName)
 	os.MkdirAll(hlsDir, os.ModePerm)
 
 	args := []string{}
@@ -217,10 +219,10 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	args = append(args, "6")
 	args = append(args, "-hls_playlist_type")
 	args = append(args, "vod")
-	args = append(args, "-hls_segment_type")
-	args = append(args, "fmp4")
+	args = append(args, "-hls_flags")
+	args = append(args, "single_file")
 	args = append(args, "-hls_segment_filename")
-	args = append(args, hlsDir+`/%09d.m4s`)
+	args = append(args, hlsFilepath)
 	args = append(args, playlistPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -261,6 +263,7 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 func Package(e PackageEvent) {
 	fmt.Println("Setting up")
 	fmt.Printf("%+v\n", e)
+	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
 
 	fmt.Println("Create temporary directory")
 	tmpDir, err := ioutil.TempDir("/tmp", "tidal-package-")
@@ -306,14 +309,15 @@ func Package(e PackageEvent) {
 		log.Fatal(err)
 	}
 
-	// TODO :: progressive videos are not getting uploaded
-	// It may be useful to store these non-hls variants
+	fmt.Println("Upload muxed video")
+	muxedFilename := filepath.Base(muxPath)
+	remoteProgressivePath := fmt.Sprintf("v/%s/progressive/%s", s3OutDeconstructed.Key, muxedFilename)
+	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, remoteProgressivePath, muxPath)
 
 	fmt.Println("Create HLS assets")
 	hlsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName)
 
 	fmt.Println("Upload HLS assets to the destination")
-	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
 	hlsRemoteDir := fmt.Sprintf("v/%s/hls/%s", e.VideoID, e.PresetName)
 	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, hlsRemoteDir)
 
