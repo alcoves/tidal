@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -146,85 +145,14 @@ func Remux(presetName string, videoPath string, audioPath string, tmpDir string)
 	return muxPath
 }
 
-func getResolution(path string) string {
-	args := []string{}
-	args = append(args, "-hide_banner")
-	args = append(args, "-v")
-	args = append(args, "error")
-	args = append(args, "-select_streams")
-	args = append(args, "v:0")
-	args = append(args, "-show_entries")
-	args = append(args, "stream=width,height")
-	args = append(args, "-of")
-	args = append(args, "csv=s=x:p=0")
-	args = append(args, path)
-
-	cmd := exec.Command("ffprobe", args...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		log.Fatal(err)
-	}
-
-	output := out.String()
-	return strings.Replace(output, "\n", "", -1)
-}
-
-func getBitrate(path string) string {
-	args := []string{}
-	args = append(args, "-hide_banner")
-	args = append(args, "-v")
-	args = append(args, "error")
-	args = append(args, "-select_streams")
-	args = append(args, "v:0")
-	args = append(args, "-show_entries")
-	args = append(args, "stream=bit_rate")
-	args = append(args, "-of")
-	args = append(args, "default=noprint_wrappers=1:nokey=1")
-	args = append(args, path)
-
-	cmd := exec.Command("ffprobe", args...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		log.Fatal(err)
-	}
-
-	output := out.String()
-	return strings.Replace(output, "\n", "", -1)
-}
-
 func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
-	hlsDir := fmt.Sprintf("%s/hls", tmpDir)
-	playlistPath := fmt.Sprintf("%s/stream.m3u8", hlsDir)
-	os.MkdirAll(hlsDir, os.ModePerm)
-
 	args := []string{}
-	args = append(args, "-hide_banner")
-	args = append(args, "-y")
-	args = append(args, "-i")
 	args = append(args, muxPath)
-	args = append(args, "-c")
-	args = append(args, "copy")
-	args = append(args, "-hls_time")
-	args = append(args, "6")
-	args = append(args, "-hls_playlist_type")
-	args = append(args, "vod")
-	args = append(args, "-hls_segment_type")
-	args = append(args, "fmp4")
-	args = append(args, "-hls_segment_filename")
-	args = append(args, hlsDir+`/%09d.m4s`)
-	args = append(args, playlistPath)
+	args = append(args, "-f")
+	args = append(args, "-o")
+	args = append(args, tmpDir+"/output")
 
-	cmd := exec.Command("ffmpeg", args...)
+	cmd := exec.Command("mp4hls", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -233,27 +161,7 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 		log.Fatal(err)
 	}
 
-	resolution := getResolution(muxPath)
-	bitrate := getBitrate(muxPath)
-
-	addition := "# Created By: https://github.com/bkenio/tidal\n"
-	addition = addition + fmt.Sprintf(
-		"# STREAM-INF:BANDWIDTH=%s,RESOLUTION=%s,NAME=%sp",
-		bitrate, resolution, presetName)
-
-	// If the file doesn't exist, create it, or append to the file
-	f, err := os.OpenFile(playlistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if _, err := f.Write([]byte(addition)); err != nil {
-		log.Fatal(err)
-	}
-	if err := f.Close(); err != nil {
-		log.Fatal(err)
-	}
-
-	return hlsDir
+	return tmpDir + "/output"
 }
 
 // Package downloads all video segments for a given preset.
@@ -314,14 +222,15 @@ func Package(e PackageEvent) {
 	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, remoteProgressivePath, muxPath)
 
 	fmt.Println("Create HLS assets")
-	hlsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName)
+	hlsAssetsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName)
 
 	fmt.Println("Upload HLS assets to the destination")
 	hlsRemoteDir := fmt.Sprintf("v/%s/hls/%s", e.VideoID, e.PresetName)
-	utils.Sync(e.S3OutClient, hlsDir, s3OutDeconstructed.Bucket, hlsRemoteDir)
+	utils.Sync(e.S3OutClient, hlsAssetsDir+"/media-1", s3OutDeconstructed.Bucket, hlsRemoteDir+"/media-1")
+	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, hlsRemoteDir+"/master.m3u8", hlsAssetsDir+"/master.m3u8")
 
-	fmt.Println("Creater master.m3u8")
-	GenerateHLSMasterPlaylist(GenerateHLSMasterPlaylistEvent{
+	fmt.Println("Create master.m3u8")
+	GenerateHLSMasterBento4(CreateMasterPlaylist{
 		VideoID:                  e.VideoID,
 		PresetName:               e.PresetName,
 		S3Client:                 e.S3OutClient,

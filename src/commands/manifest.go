@@ -14,7 +14,7 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-type GenerateHLSMasterPlaylistEvent struct {
+type CreateMasterPlaylist struct {
 	PresetName               string
 	VideoID                  string
 	S3Bucket                 string
@@ -22,10 +22,7 @@ type GenerateHLSMasterPlaylistEvent struct {
 	RemoteMasterPlaylistPath string
 }
 
-// GenerateHLSMasterPlaylist creates an HLS master playlist.
-// All video version playlists are downloaded and used to create
-// a master.m3u8 playlist.
-func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
+func GenerateHLSMasterBento4(e CreateMasterPlaylist) {
 	fmt.Println("Creating the master playlist")
 
 	fmt.Println("Creating consul lock")
@@ -42,7 +39,7 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 	defer lock.Unlock()
 
 	fmt.Println("Create temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "tidal-manifest-")
+	tmpDir, err := ioutil.TempDir("/tmp", "tidal-master-")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,7 +50,14 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 
 	for i := 0; i < len(objects); i++ {
 		object := objects[i]
-		if strings.Contains(object.Key, "/stream.m3u8") {
+		if strings.Contains(object.Key, "/master.m3u8") {
+			if strings.Contains(object.Key, "/hls/master.m3u8") {
+				// We want to ignore the actual master.m3u8
+				// Consiquence of having multiple masters
+				fmt.Println("Ignoring hls/master.m3u8")
+				break
+			}
+
 			fmt.Println("Download remote preset", object.Key)
 			presetTmpDir, err := ioutil.TempDir("/tmp", "tidal-preset-")
 			if err != nil {
@@ -112,22 +116,42 @@ func GenerateHLSMasterPlaylist(e GenerateHLSMasterPlaylistEvent) {
 		}
 		defer file.Close()
 
+		if i == 0 {
+			// If the file doesn't exist, create it, or append to the file
+			f, err := os.OpenFile(masterPlaylistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+			f.Write([]byte("#EXTM3U\n#EXT-X-VERSION:4\n"))
+			if err := f.Close(); err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			if strings.Contains(scanner.Text(), "STREAM-INF:") {
-				fmt.Println("Adding a stream to master.m3u8")
-				steamInf := strings.Split(scanner.Text(), ":")[1]
-				playlistAddition := fmt.Sprintf("#EXT-X-STREAM-INF:%s\n%s/stream.m3u8\n", steamInf, presetName)
+			line := scanner.Text()
+			playlistAppend := ""
 
+			if strings.Contains(line, "#EXT-X-STREAM-INF:") {
+				fmt.Println("Adding a #EXT-X-STREAM-INF stream to master.m3u8")
+				playlistAppend = fmt.Sprintf("%s\n%s/media-1/stream.m3u8\n", line, presetName)
+			}
+
+			if strings.Contains(line, "#EXT-X-I-FRAME-STREAM-INF:") {
+				fmt.Println("Adding a #EXT-X-I-FRAME-STREAM-INF stream to master.m3u8")
+				uriReplacement := fmt.Sprintf(`URI="%s/media-1/iframes.m3u8"`, presetName)
+				replacedIFrameStream := strings.Replace(line, `URI="media-1/iframes.m3u8"`, uriReplacement, 1)
+				playlistAppend = replacedIFrameStream + "\n"
+			}
+
+			if playlistAppend != "" {
 				// If the file doesn't exist, create it, or append to the file
 				f, err := os.OpenFile(masterPlaylistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 				if err != nil {
 					log.Fatal(err)
 				}
-				if i == 0 {
-					f.Write([]byte("#EXTM3U\n"))
-				}
-				if _, err := f.Write([]byte(playlistAddition)); err != nil {
+				if _, err := f.Write([]byte(playlistAppend)); err != nil {
 					log.Fatal(err)
 				}
 				if err := f.Close(); err != nil {
