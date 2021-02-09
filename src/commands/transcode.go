@@ -89,6 +89,9 @@ func Transcode(e TranscodeInputEvent) {
 	sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
 	transcodedObjects := utils.ListObjects(e.S3OutClient, "tidal", transcodedSegPrefix) // TODO :: Interpolate bucket
 
+	fmt.Println("Source Segment Count: ", len(sourceObjects))
+	fmt.Println("Transcoded Segment Count: ", len(transcodedObjects))
+
 	if len(sourceObjects) == len(transcodedObjects) {
 		fmt.Println("Video is ready for packaging")
 		lockKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, e.PresetName)
