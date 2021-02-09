@@ -39,7 +39,7 @@ func segmentVideo(inPath string, tmpDir string) string {
 	args = append(args, "-f")
 	args = append(args, "segment")
 	args = append(args, "-segment_time")
-	args = append(args, "6")
+	args = append(args, "10")
 
 	args = append(args, outputPathPattern)
 	cmd := exec.Command("ffmpeg", args...)
