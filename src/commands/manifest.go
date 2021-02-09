@@ -50,9 +50,16 @@ func GenerateHLSMasterBento4(e CreateMasterPlaylist) {
 
 	for i := 0; i < len(objects); i++ {
 		object := objects[i]
-		if strings.Contains(object.Key, "/preset-master.m3u8") {
+		if strings.Contains(object.Key, "/master.m3u8") {
+			if strings.Contains(object.Key, "/hls/master.m3u8") {
+				// We want to ignore the actual master.m3u8
+				// Consiquence of having multiple masters
+				fmt.Println("Ignoring hls/master.m3u8")
+				break
+			}
+
 			fmt.Println("Download remote preset", object.Key)
-			presetTmpDir, err := ioutil.TempDir("/tmp", "tidal-preset-master")
+			presetTmpDir, err := ioutil.TempDir("/tmp", "tidal-preset-")
 			if err != nil {
 				log.Fatal(err)
 			}
