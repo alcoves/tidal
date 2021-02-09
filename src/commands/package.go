@@ -145,14 +145,16 @@ func Remux(presetName string, videoPath string, audioPath string, tmpDir string)
 	return muxPath
 }
 
-func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
+func CreateHLSAssets(muxPath string, tmpDir string, presetName string, presetMasterName string) string {
+	presetMasterPath := tmpDir + "/output/" + presetMasterName
+
 	args := []string{}
 	args = append(args, muxPath)
 	args = append(args, "-f")
 	args = append(args, "-d")
 	args = append(args, "-v")
 	args = append(args, "--master-playlist-name")
-	args = append(args, tmpDir+"/output/preset-master.m3u8")
+	args = append(args, presetMasterPath)
 	args = append(args, "--output-single-file")
 
 	args = append(args, "-o")
@@ -176,6 +178,7 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 func Package(e PackageEvent) {
 	fmt.Println("Setting up")
 	fmt.Printf("%+v\n", e)
+	presetMasterName := "preset-master.m3u8"
 	s3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
 
 	fmt.Println("Create temporary directory")
@@ -228,12 +231,12 @@ func Package(e PackageEvent) {
 	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, remoteProgressivePath, muxPath)
 
 	fmt.Println("Create HLS assets")
-	hlsAssetsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName)
+	hlsAssetsDir := CreateHLSAssets(muxPath, tmpDir, e.PresetName, presetMasterName)
 
 	fmt.Println("Upload HLS assets to the destination")
 	hlsRemoteDir := fmt.Sprintf("v/%s/hls/%s", e.VideoID, e.PresetName)
 	utils.Sync(e.S3OutClient, hlsAssetsDir+"/media-1", s3OutDeconstructed.Bucket, hlsRemoteDir+"/media-1")
-	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, hlsRemoteDir+"/master.m3u8", hlsAssetsDir+"/master.m3u8")
+	utils.PutObject(e.S3OutClient, s3OutDeconstructed.Bucket, hlsRemoteDir+"/"+presetMasterName, hlsAssetsDir+"/"+presetMasterName)
 
 	fmt.Println("Create master.m3u8")
 	GenerateHLSMasterBento4(CreateMasterPlaylist{
