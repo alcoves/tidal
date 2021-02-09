@@ -152,8 +152,6 @@ func CreateHLSAssets(muxPath string, tmpDir string, presetName string) string {
 	args = append(args, "-d")
 	args = append(args, "-v")
 	args = append(args, "-o")
-	args = append(args, "--master-playlist-name")
-	args = append(args, tmpDir+"/output/preset-master.m3u8")
 	args = append(args, "--output-single-file")
 
 	args = append(args, tmpDir+"/output")
