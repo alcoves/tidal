@@ -83,7 +83,6 @@ func Transcode(e TranscodeInputEvent) {
 		S3OutDeconstructed.Key,
 		transcodedSegmentPath)
 
-	fmt.Printf("Gathering segment counts loop (%d/%d)\n", i, 5)
 	sourceSegPrefix := fmt.Sprintf("%s/segments/", e.VideoID)
 	transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/segments/", e.VideoID, e.PresetName)
 	sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
