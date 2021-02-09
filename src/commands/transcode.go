@@ -87,14 +87,14 @@ func Transcode(e TranscodeInputEvent) {
 	for i := 0; i < 5; i++ {
 		fmt.Printf("Gathering segment counts loop (%d/%d)\n", i, 5)
 		sourceSegPrefix := fmt.Sprintf("%s/segments/", e.VideoID)
-		transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/", e.VideoID, e.PresetName)
+		transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/segments/", e.VideoID, e.PresetName)
 		sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
 		transcodedObjects := utils.ListObjects(e.S3OutClient, "tidal", transcodedSegPrefix) // TODO :: Interpolate bucket
 
 		fmt.Println("Source Segment Count: ", len(sourceObjects))
 		fmt.Println("Transcoded Segment Count: ", len(transcodedObjects))
 
-		if len(sourceObjects) == len(transcodedObjects) {
+		if len(transcodedObjects) == len(sourceObjects) {
 			fmt.Println("Video is ready for packaging")
 			lockKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, e.PresetName)
 			lock, err := utils.NewLock(lockKey)
@@ -113,6 +113,8 @@ func Transcode(e TranscodeInputEvent) {
 			}
 			utils.DispatchNomadJob("package", jobMeta)
 			break
+		} else if len(transcodedObjects) > len(sourceObjects) {
+			log.Fatal("The transcoded segments counted are grater than the source segments")
 		}
 
 		time.Sleep(3 * time.Second)
