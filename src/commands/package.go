@@ -85,7 +85,7 @@ func CreateConcatinationManifest(tmpDir string) string {
 }
 
 func ConcatinateSegments(manifestPath string, tmpDir string) string {
-	videoPath := fmt.Sprintf("%s/concatinated.mkv", tmpDir)
+	videoPath := fmt.Sprintf("%s/concatinated.mp4", tmpDir)
 
 	args := []string{}
 	args = append(args, "-hide_banner")

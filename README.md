@@ -68,8 +68,13 @@ check out docs/mvp.sh for the lite version of what tidal does.
 ```bash
 # Ingest a video via nomad
 nomad job dispatch ingest -detach \
-  -meta s3_in=s3://cdn.bken.io/oLQdWuLMR/source.mp4 \
+  -meta s3_in=s3://cdn.bken.io/v/oLQdWuLMR/source.mp4 \
   -meta video_id=oLQdWuLMR
+
+# Package a video via nomad
+nomad job dispatch package -detach \
+  -meta s3_in=s3://tidal/oLQdWuLMR/versions/360/segments \
+  -meta s3_out=s3://cdn.bken.io/v/oLQdWuLMR \
 
 # Ingest a video via the cli
 ./main ingest s3://cdn.bken.io/AAjSFULGR/source.mp4 --video_id=AAjSFULGR
