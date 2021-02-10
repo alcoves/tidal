@@ -5,7 +5,7 @@ job "ingest" {
 
   constraint {
     operator  = "regexp"
-    value     = "[/tidal/]"
+    value     = "tidal-"
     attribute = "${attr.unique.hostname}"
   }
 
