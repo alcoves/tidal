@@ -123,9 +123,13 @@ func IngestVideo(e IngestVideoEvent) {
 		log.Fatal(err)
 	}
 
-	// TODO :: Implement
-	fmt.Println("Cleaning up source")
-	fmt.Println("Cleaning up destination")
+	inParams := utils.DecontructS3Uri(e.S3In)
+
+	fmt.Println("Cleaning up source bucket")
+	utils.DeleteObjects(e.S3InClient, "cdn.bken.io", fmt.Sprintf("/v/%s/", e.VideoID))
+
+	fmt.Println("Cleaning up destination bucket")
+	utils.DeleteObjects(e.S3OutClient, "tidal", e.VideoID+"/")
 
 	fmt.Println("Getting video presets")
 	signedURL := utils.GetSignedURL(e.S3InClient, e.S3In)
@@ -156,8 +160,7 @@ func IngestVideo(e IngestVideoEvent) {
 	}
 
 	fmt.Println("Downloading video file")
-	d := utils.DecontructS3Uri(e.S3In)
-	videoPath := utils.GetObject(e.S3InClient, d.Bucket, d.Key, tmpDir)
+	videoPath := utils.GetObject(e.S3InClient, inParams.Bucket, inParams.Key, tmpDir)
 
 	fmt.Println("Segmenting video")
 	segmentsDir := segmentVideo(videoPath, tmpDir)
