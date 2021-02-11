@@ -26,6 +26,38 @@ func CreateClient(c S3Config) *minio.Client {
 	return client
 }
 
+// DeleteObjects removes all objects under the specified path
+func DeleteObjects(s3Client *minio.Client,
+	bucket string,
+	prefix string) {
+	objectsCh := make(chan minio.ObjectInfo)
+
+	deleteOps := minio.ListObjectsOptions{
+		Recursive: true,
+		Prefix:    prefix,
+	}
+
+	// Send object names that are needed to be removed to objectsCh
+	go func() {
+		defer close(objectsCh)
+		// List all objects from a bucket-name with a matching prefix.
+		for object := range s3Client.ListObjects(context.Background(), bucket, deleteOps) {
+			if object.Err != nil {
+				log.Fatalln(object.Err)
+			}
+			objectsCh <- object
+		}
+	}()
+
+	opts := minio.RemoveObjectsOptions{
+		GovernanceBypass: true,
+	}
+
+	for rErr := range s3Client.RemoveObjects(context.Background(), bucket, objectsCh, opts) {
+		log.Fatal(rErr)
+	}
+}
+
 // GetObject fetches an object from s3 and writes it to disk
 func GetObject(
 	s3Client *minio.Client,
