@@ -37,6 +37,8 @@ func DeleteObjects(s3Client *minio.Client,
 		Prefix:    prefix,
 	}
 
+	fmt.Printf("Deleting %b objects from s3://%s/%s\n", len(objectsCh), bucket, prefix)
+
 	// Send object names that are needed to be removed to objectsCh
 	go func() {
 		defer close(objectsCh)
@@ -49,10 +51,7 @@ func DeleteObjects(s3Client *minio.Client,
 		}
 	}()
 
-	opts := minio.RemoveObjectsOptions{
-		GovernanceBypass: true,
-	}
-
+	opts := minio.RemoveObjectsOptions{}
 	for rErr := range s3Client.RemoveObjects(context.Background(), bucket, objectsCh, opts) {
 		log.Fatal(rErr)
 	}

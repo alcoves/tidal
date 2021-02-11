@@ -125,8 +125,8 @@ func IngestVideo(e IngestVideoEvent) {
 
 	inParams := utils.DecontructS3Uri(e.S3In)
 
-	fmt.Println("Cleaning up source bucket")
-	utils.DeleteObjects(e.S3InClient, "cdn.bken.io", fmt.Sprintf("/v/%s/", e.VideoID))
+	// fmt.Println("Cleaning up source bucket")
+	// utils.DeleteObjects(e.S3InClient, "cdn.bken.io", fmt.Sprintf("v/%s/", e.VideoID))
 
 	fmt.Println("Cleaning up destination bucket")
 	utils.DeleteObjects(e.S3OutClient, "tidal", e.VideoID+"/")

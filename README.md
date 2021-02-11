@@ -71,13 +71,13 @@ nomad job dispatch ingest -detach \
   -meta s3_in=s3://cdn.bken.io/v/oLQdWuLMR/source.mp4 \
   -meta video_id=oLQdWuLMR
 
+# Ingest a video via the cli
+. .env && ./main ingest s3://cdn.bken.io/v/$ID/source.mp4 --videoId=$ID
+
 # Package a video via nomad
 nomad job dispatch package -detach \
   -meta s3_in=s3://tidal/oLQdWuLMR/versions/360/segments \
   -meta s3_out=s3://cdn.bken.io/v/oLQdWuLMR \
-
-# Ingest a video via the cli
-./main ingest s3://cdn.bken.io/AAjSFULGR/source.mp4 --video_id=AAjSFULGR
 
 # Create a default thumbnail from the start of the video
 tidal thumbnail \
