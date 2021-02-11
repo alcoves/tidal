@@ -69,23 +69,20 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 		filePath := fmt.Sprintf("%s/%s", inDir, f.Name())
 		file, err := os.Open(filePath)
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
 		defer file.Close()
 
 		fileStat, err := file.Stat()
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
 
 		fileUploadKey := fmt.Sprintf("%s/%s", key, f.Name())
 
 		mime, err := mimetype.DetectFile(filePath)
 		if err != nil {
-			fmt.Println("Error:", err)
-			return
+			log.Fatal(err)
 		}
 
 		uploadInfo, err := s3Client.PutObject(
@@ -96,8 +93,7 @@ func Sync(s3Client *minio.Client, inDir string, bucket string, key string) {
 			fileStat.Size(),
 			minio.PutObjectOptions{ContentType: mime.String()})
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
 		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 	}
@@ -116,21 +112,18 @@ func SyncDown(S3Client *minio.Client, outDir string, bucket string, key string) 
 func PutObject(s3Client *minio.Client, bucket string, key string, path string) {
 	file, err := os.Open(path)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 	defer file.Close()
 
 	fileStat, err := file.Stat()
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 
 	mime, err := mimetype.DetectFile(path)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 
 	uploadInfo, err := s3Client.PutObject(
@@ -141,8 +134,7 @@ func PutObject(s3Client *minio.Client, bucket string, key string, path string) {
 		fileStat.Size(),
 		minio.PutObjectOptions{ContentType: mime.String()})
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 
 	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
