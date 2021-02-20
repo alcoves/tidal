@@ -5,7 +5,7 @@ job "package" {
 
   constraint {
     operator  = "regexp"
-    value     = "tidal-"
+    value     = "app-"
     attribute = "${attr.unique.hostname}"
   }
 
@@ -50,7 +50,7 @@ S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
       }
     
       config {
-        command = "/root/tidal/main"
+        command = "/home/ubuntu/tidal/main"
         args    = [
           "package",
           "${NOMAD_META_S3_IN}",

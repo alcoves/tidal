@@ -5,7 +5,7 @@ job "transcode" {
 
   constraint {
     operator  = "regexp"
-    value     = "tidal-"
+    value     = "app-"
     attribute = "${attr.unique.hostname}"
   }
 
@@ -51,7 +51,7 @@ S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
       }
 
       config {
-        command = "/root/tidal/main"
+        command = "/home/ubuntu/tidal/main"
         args    = [
           "transcode",
           "${NOMAD_META_S3_IN}",
