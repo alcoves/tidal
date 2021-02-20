@@ -5,7 +5,7 @@ job "preview" {
 
   constraint {
     operator  = "regexp"
-    value     = "tidal-"
+    value     = "app-"
     attribute = "${attr.unique.hostname}"
   }
 
