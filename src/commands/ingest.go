@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"context"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,15 +15,14 @@ import (
 
 // IngestVideoEvent is for ingesting a video into Tidal
 type IngestVideoEvent struct {
-	S3In        string
-	VideoID     string
-	S3InClient  *minio.Client
+	InURI       string
+	OutURI      string
 	S3OutClient *minio.Client
 }
 
-func segmentVideo(inPath string, tmpDir string) string {
-	outputPath := fmt.Sprintf("%s/segments", tmpDir)
-	outputPathPattern := outputPath + "/%09d.mp4"
+func segmentVideo(inPath string, tidalDir string) string {
+	outputPath := fmt.Sprintf("%s/segments", tidalDir)
+	outputPathPattern := outputPath + "/%09d.mp4" // TODO :: this should be whatever extension the source video has
 	cDirErr := os.Mkdir(outputPath, 0755)
 	if cDirErr != nil {
 		panic(cDirErr)
@@ -54,8 +53,8 @@ func segmentVideo(inPath string, tmpDir string) string {
 	return outputPath
 }
 
-func splitSourceAudio(inPath string, tmpDir string) string {
-	outputPath := fmt.Sprintf("%s/audio.aac", tmpDir)
+func splitSourceAudio(inPath string, tidalDir string) string {
+	outputPath := fmt.Sprintf("%s/audio.aac", tidalDir)
 
 	args := []string{}
 	args = append(args, "-y")
@@ -117,72 +116,36 @@ func checkForAudio(inPath string) bool {
 
 // IngestVideo returns a json list of availible presets
 func IngestVideo(e IngestVideoEvent) {
-	fmt.Println("Creating temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "tidal-ingest-")
+	fmt.Println("Beginning ingest")
+	s3Inb64 := b64.StdEncoding.EncodeToString([]byte(e.InURI))
+
+	// Directory is the b64 of the input URI
+	tidalDir := fmt.Sprintf("/nfs/tidal/%s", s3Inb64)
+
+	fmt.Println("Cleaning up NFS before starting")
+	err := os.RemoveAll(tidalDir)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	inParams := utils.DecontructS3Uri(e.S3In)
-
-	// fmt.Println("Cleaning up source bucket")
-	// utils.DeleteObjects(e.S3InClient, "cdn.bken.io", fmt.Sprintf("v/%s/", e.VideoID))
-
-	fmt.Println("Cleaning up destination bucket")
-	utils.DeleteObjects(e.S3OutClient, "tidal", e.VideoID+"/")
-
-	fmt.Println("Getting video presets")
-	signedURL := utils.GetSignedURL(e.S3InClient, e.S3In)
-	presets := CalculatePresets(signedURL)
-
-	for i := 0; i < len(presets); i++ {
-		p := presets[i]
-		fmt.Println("Placing Marker ::", p.Name)
-		// Markers show early progress to the UI
-		file, err := ioutil.TempFile("/tmp", "tidal-preset-marker-")
-		if err != nil {
-			log.Fatal("failed to create marker file")
-		}
-
-		uploadInfo, err := e.S3OutClient.PutObject(
-			context.Background(),
-			"tidal", // TODO :: interpolate
-			fmt.Sprintf("%s/versions/%s/", e.VideoID, p.Name),
-			file,
-			0,
-			minio.PutObjectOptions{})
-
-		fmt.Println("uploadInfo", uploadInfo)
-		defer os.Remove(file.Name())
-		if err != nil {
-			log.Fatal("failed to upload marker to s3 remote")
-		}
+	fmt.Println("Creating working dir on NFS share")
+	err = os.Mkdir(tidalDir, 0755)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Println("Downloading video file")
-	videoPath := utils.GetObject(e.S3InClient, inParams.Bucket, inParams.Key, tmpDir)
+	fmt.Println("Getting video presets")
+	presets := CalculatePresets(e.InURI)
+
+	// TODO :: Update tidal db here, gives fast feedback to UI
 
 	fmt.Println("Segmenting video")
-	segmentsDir := segmentVideo(videoPath, tmpDir)
-
-	fmt.Println("Uploading segments")
-	// TODO :: tidal bucket should be a global env var
-	utils.Sync(
-		e.S3OutClient,
-		segmentsDir,
-		"tidal",
-		fmt.Sprintf("%s/segments", e.VideoID))
+	segmentsDir := segmentVideo(e.InURI, tidalDir)
 
 	fmt.Println("Checking for audio")
-	if checkForAudio(videoPath) {
+	if checkForAudio(e.InURI) {
 		fmt.Println("Splitting source audio")
-		sourceAudioPath := splitSourceAudio(videoPath, tmpDir)
-		fmt.Println("Uploading source audio")
-		utils.PutObject(
-			e.S3OutClient,
-			"tidal",                                // TODO :: Interpolate
-			fmt.Sprintf("%s/audio.aac", e.VideoID), // TODO :: get filename from path
-			sourceAudioPath)
+		splitSourceAudio(e.InURI, tidalDir)
 	}
 
 	fmt.Println("Dispatching transcoding jobs")
@@ -194,22 +157,16 @@ func IngestVideo(e IngestVideoEvent) {
 			fmt.Println("segments", preset.Name, segment.Name())
 			jobMeta := []string{
 				fmt.Sprintf(`cmd=%s`, preset.Cmd),
-				fmt.Sprintf(`s3_in=s3://tidal/%s/segments/%s`,
-					e.VideoID,
+				fmt.Sprintf(`in_path=%s/segments/%s`,
+					tidalDir,
 					segment.Name()),
 				fmt.Sprintf(
-					`s3_out=s3://tidal/%s/versions/%s/segments/%s`,
-					e.VideoID,
+					`out_path=%s/versions/%s/segments/%s`,
+					tidalDir,
 					preset.Name,
 					segment.Name()),
 			}
 			utils.DispatchNomadJob("transcode", jobMeta)
 		}
-	}
-
-	fmt.Println("Removing temporary directory", tmpDir)
-	delErr := os.RemoveAll(tmpDir)
-	if delErr != nil {
-		log.Fatal(delErr)
 	}
 }
