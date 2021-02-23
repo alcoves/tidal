@@ -20,9 +20,8 @@ func DispatchNomadJob(jobName string, meta []string) {
 	}
 
 	args = append(args, jobName)
-
 	cmd := exec.Command("nomad", args...)
-	fmt.Println("Nomad Args", cmd.Args)
+	fmt.Println("Nomad args", cmd.Args)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

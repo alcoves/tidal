@@ -1,13 +1,63 @@
 package main
 
 import (
+	"log"
 	"os"
 	"strings"
 
 	"github.com/bken-io/tidal/src/commands"
 	"github.com/bken-io/tidal/src/utils"
+	"github.com/minio/minio-go/v7"
 	"github.com/spf13/cobra"
 )
+
+func collectS3Args(cmd *cobra.Command, option string) *minio.Client {
+	if option == "in" {
+		inEndpoint, err := cmd.Flags().GetString("inEndpoint")
+		if err != nil {
+			log.Fatal("failed to collect inEndpoint")
+		}
+
+		inAccessKeyID, err := cmd.Flags().GetString("inAccessKeyId")
+		if err != nil {
+			log.Fatal("failed to collect inAccessKeyId")
+		}
+
+		inSecretAccessKey, err := cmd.Flags().GetString("inSecretAccessKey")
+		if err != nil {
+			log.Fatal("failed to collect inSecretAccessKey")
+		}
+
+		return utils.CreateClient(utils.S3Config{
+			Endpoint:        inEndpoint,
+			AccessKeyID:     inAccessKeyID,
+			SecretAccessKey: inSecretAccessKey,
+		})
+	} else if option == "out" {
+		outEndpoint, err := cmd.Flags().GetString("outEndpoint")
+		if err != nil {
+			log.Fatal("failed to collect outEndpoint")
+		}
+
+		outAccessKeyID, err := cmd.Flags().GetString("outAccessKeyId")
+		if err != nil {
+			log.Fatal("failed to collect outAccessKeyId")
+		}
+
+		outSecretAccessKey, err := cmd.Flags().GetString("outSecretAccessKey")
+		if err != nil {
+			log.Fatal("failed to collect outSecretAccessKey")
+		}
+
+		return utils.CreateClient(utils.S3Config{
+			Endpoint:        outEndpoint,
+			AccessKeyID:     outAccessKeyID,
+			SecretAccessKey: outSecretAccessKey,
+		})
+	}
+
+	return nil
+}
 
 func main() {
 	var presetsCmd = &cobra.Command{
@@ -55,48 +105,44 @@ func main() {
 		Short: "Ingest a video file into Tidal",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			videoID, _ := cmd.Flags().GetString("videoId")
-
 			event := commands.IngestVideoEvent{
-				S3In:    args[0],
-				VideoID: videoID,
-				S3InClient: utils.CreateClient(utils.S3Config{
-					Endpoint:        os.Getenv("S3_IN_ENDPOINT"),
-					AccessKeyID:     os.Getenv("S3_IN_ACCESS_KEY_ID"),
-					SecretAccessKey: os.Getenv("S3_IN_SECRET_ACCESS_KEY"),
-				}),
-				S3OutClient: utils.CreateClient(utils.S3Config{
-					Endpoint:        os.Getenv("S3_OUT_ENDPOINT"),
-					AccessKeyID:     os.Getenv("S3_OUT_ACCESS_KEY_ID"),
-					SecretAccessKey: os.Getenv("S3_OUT_SECRET_ACCESS_KEY"),
-				}),
+				InURI:  args[0],
+				OutURI: args[1],
 			}
+
+			if strings.Contains(event.InURI, "s3://") {
+				event.InS3Client = collectS3Args(cmd, "in")
+			}
+
+			if strings.Contains(event.OutURI, "s3://") {
+				event.OutS3Client = collectS3Args(cmd, "out")
+			}
+
 			commands.IngestVideo(event)
 		},
 	}
 
 	var transcodeCmd = &cobra.Command{
-		Use:   "transcode [s3://path-to-source s3://path-to-destination]",
+		Use:   "transcode [source-segment destination-segment]",
 		Short: "Transcode a video segment given the specified command",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ffmpegCommand, _ := cmd.Flags().GetString("cmd")
 
 			event := commands.TranscodeInputEvent{
-				S3In:  args[0],
-				S3Out: args[1],
-				Cmd:   ffmpegCommand,
-				S3InClient: utils.CreateClient(utils.S3Config{
-					Endpoint:        os.Getenv("S3_IN_ENDPOINT"),
-					AccessKeyID:     os.Getenv("S3_IN_ACCESS_KEY_ID"),
-					SecretAccessKey: os.Getenv("S3_IN_SECRET_ACCESS_KEY"),
-				}),
-				S3OutClient: utils.CreateClient(utils.S3Config{
-					Endpoint:        os.Getenv("S3_OUT_ENDPOINT"),
-					AccessKeyID:     os.Getenv("S3_OUT_ACCESS_KEY_ID"),
-					SecretAccessKey: os.Getenv("S3_OUT_SECRET_ACCESS_KEY"),
-				}),
+				InURI:  args[0],
+				OutURI: args[1],
+				Cmd:    ffmpegCommand,
 			}
+
+			if strings.Contains(event.InURI, "s3://") {
+				event.InS3Client = collectS3Args(cmd, "in")
+			}
+
+			if strings.Contains(event.OutURI, "s3://") {
+				event.OutS3Client = collectS3Args(cmd, "out")
+			}
+
 			commands.Transcode(event)
 		},
 	}
