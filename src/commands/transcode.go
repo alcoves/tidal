@@ -2,14 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/bken-io/tidal/src/utils"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -18,18 +15,16 @@ type TranscodeInputEvent struct {
 	VideoID     string
 	PresetName  string
 	Cmd         string
-	S3In        string
-	S3Out       string
-	S3InClient  *minio.Client
-	S3OutClient *minio.Client
+	InURI       string
+	OutURI      string
+	InS3Client  *minio.Client
+	OutS3Client *minio.Client
 }
 
-func runTranscode(inPath string, flags string, tmpDir string) string {
+func runTranscode(inPath string, flags string, outPath string) string {
 	ffmpegCmdParts := strings.Split(flags, " ")
-	filename := filepath.Base(inPath)
-	outputPath := fmt.Sprintf("%s/%s", tmpDir, "transcoded-"+filename)
-
 	args := []string{}
+	args = append(args, "-hide_banner")
 	args = append(args, "-y")
 	args = append(args, "-i")
 	args = append(args, inPath)
@@ -38,7 +33,8 @@ func runTranscode(inPath string, flags string, tmpDir string) string {
 		args = append(args, ffmpegCmdParts[i])
 	}
 
-	args = append(args, outputPath)
+	args = append(args, outPath)
+	fmt.Println("ffmpeg command", args)
 	cmd := exec.Command("ffmpeg", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -48,74 +44,48 @@ func runTranscode(inPath string, flags string, tmpDir string) string {
 		panic(err)
 	}
 
-	return outputPath
+	return outPath
 }
 
 // Transcode runs ffmpeg with given inputs and outputs
 func Transcode(e TranscodeInputEvent) {
-	fmt.Println("Setting up transcode function variables")
-	S3InDeconstructed := utils.DecontructS3Uri(e.S3In)
-	S3OutDeconstructed := utils.DecontructS3Uri(e.S3Out)
+	// config := utils.GlobalConfig()
 
-	e.VideoID = strings.Split(S3InDeconstructed.Key, "/")[0]
-	e.PresetName = strings.Split(S3OutDeconstructed.Key, "/")[2]
-
-	fmt.Println("Creating temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "tidal-transcode-")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Download source segment")
-	sourceSegmentPath := utils.GetObject(
-		e.S3InClient,
-		S3InDeconstructed.Bucket,
-		S3InDeconstructed.Key,
-		tmpDir)
+	fmt.Println("Determining tmp directory")
+	directory := filepath.Dir(e.OutURI)
+	fmt.Println("Making directory", directory)
+	os.MkdirAll(directory, os.ModePerm)
 
 	fmt.Println("Transcoding segment")
-	transcodedSegmentPath := runTranscode(sourceSegmentPath, e.Cmd, tmpDir)
+	runTranscode(e.InURI, e.Cmd, e.OutURI)
 
-	fmt.Println("Uploading transcode to s3")
-	utils.PutObject(
-		e.S3OutClient,
-		S3OutDeconstructed.Bucket,
-		S3OutDeconstructed.Key,
-		transcodedSegmentPath)
+	// sourceSegPrefix := fmt.Sprintf("%s/segments/", e.VideoID)
+	// transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/segments/", e.VideoID, e.PresetName)
+	// sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
+	// transcodedObjects := utils.ListObjects(e.S3OutClient, "tidal", transcodedSegPrefix) // TODO :: Interpolate bucket
 
-	sourceSegPrefix := fmt.Sprintf("%s/segments/", e.VideoID)
-	transcodedSegPrefix := fmt.Sprintf("%s/versions/%s/segments/", e.VideoID, e.PresetName)
-	sourceObjects := utils.ListObjects(e.S3OutClient, "tidal", sourceSegPrefix)         // TODO :: Interpolate bucket
-	transcodedObjects := utils.ListObjects(e.S3OutClient, "tidal", transcodedSegPrefix) // TODO :: Interpolate bucket
+	// fmt.Println("Source Segment Count: ", len(sourceObjects))
+	// fmt.Println("Transcoded Segment Count: ", len(transcodedObjects))
 
-	fmt.Println("Source Segment Count: ", len(sourceObjects))
-	fmt.Println("Transcoded Segment Count: ", len(transcodedObjects))
-
-	if len(transcodedObjects) == len(sourceObjects) {
-		fmt.Println("Video is ready for packaging")
-		lockKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, e.PresetName)
-		lock, err := utils.NewLock(lockKey)
-		if err != nil {
-			fmt.Println("Unable to create consul lock:", err.Error())
-			log.Fatal(err)
-		}
-		if err := lock.Lock(); err != nil {
-			fmt.Println("Error while trying to acquire lock:", err.Error())
-			log.Fatal(err)
-		}
-		defer lock.Unlock()
-		jobMeta := []string{
-			fmt.Sprintf(`s3_in=s3://tidal/%s/versions/%s/segments`, e.VideoID, e.PresetName), // TODO :: Interpolate bucket
-			fmt.Sprintf(`s3_out=s3://cdn.bken.io/v/%s`, e.VideoID),                           // TODO :: Interpolate bucket
-		}
-		utils.DispatchNomadJob("package", jobMeta)
-	} else if len(transcodedObjects) > len(sourceObjects) {
-		log.Fatal("The transcoded segments counted are grater than the source segments")
-	}
-
-	fmt.Println("Removing temporary directory")
-	err = os.RemoveAll(tmpDir)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if len(transcodedObjects) == len(sourceObjects) {
+	// 	fmt.Println("Video is ready for packaging")
+	// 	lockKey := fmt.Sprintf("tidal/%s/%s", e.VideoID, e.PresetName)
+	// 	lock, err := utils.NewLock(lockKey)
+	// 	if err != nil {
+	// 		fmt.Println("Unable to create consul lock:", err.Error())
+	// 		log.Fatal(err)
+	// 	}
+	// 	if err := lock.Lock(); err != nil {
+	// 		fmt.Println("Error while trying to acquire lock:", err.Error())
+	// 		log.Fatal(err)
+	// 	}
+	// 	defer lock.Unlock()
+	// 	jobMeta := []string{
+	// 		fmt.Sprintf(`s3_in=s3://tidal/%s/versions/%s/segments`, e.VideoID, e.PresetName), // TODO :: Interpolate bucket
+	// 		fmt.Sprintf(`s3_out=s3://cdn.bken.io/v/%s`, e.VideoID),                           // TODO :: Interpolate bucket
+	// 	}
+	// 	utils.DispatchNomadJob("package", jobMeta)
+	// } else if len(transcodedObjects) > len(sourceObjects) {
+	// 	log.Fatal("The transcoded segments counted are grater than the source segments")
+	// }
 }

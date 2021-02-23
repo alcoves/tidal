@@ -17,18 +17,20 @@ import (
 type IngestVideoEvent struct {
 	InURI       string
 	OutURI      string
-	S3OutClient *minio.Client
+	InS3Client  *minio.Client
+	OutS3Client *minio.Client
 }
 
 func segmentVideo(inPath string, tidalDir string) string {
 	outputPath := fmt.Sprintf("%s/segments", tidalDir)
 	outputPathPattern := outputPath + "/%09d.mp4" // TODO :: this should be whatever extension the source video has
-	cDirErr := os.Mkdir(outputPath, 0755)
+	cDirErr := os.Mkdir(outputPath, os.ModePerm)
 	if cDirErr != nil {
 		panic(cDirErr)
 	}
 
 	args := []string{}
+	args = append(args, "-hide_banner")
 	args = append(args, "-y")
 	args = append(args, "-i")
 	args = append(args, inPath)
@@ -57,6 +59,7 @@ func splitSourceAudio(inPath string, tidalDir string) string {
 	outputPath := fmt.Sprintf("%s/audio.aac", tidalDir)
 
 	args := []string{}
+	args = append(args, "-hide_banner")
 	args = append(args, "-y")
 	args = append(args, "-i")
 	args = append(args, inPath)
@@ -85,6 +88,7 @@ type HasAudio struct {
 
 func checkForAudio(inPath string) bool {
 	args := []string{}
+	args = append(args, "-hide_banner")
 	args = append(args, "-i")
 	args = append(args, inPath)
 	args = append(args, "-show_streams")
@@ -117,6 +121,7 @@ func checkForAudio(inPath string) bool {
 // IngestVideo returns a json list of availible presets
 func IngestVideo(e IngestVideoEvent) {
 	fmt.Println("Beginning ingest")
+	debug := os.Getenv("DEBUG")
 	s3Inb64 := b64.StdEncoding.EncodeToString([]byte(e.InURI))
 
 	// Directory is the b64 of the input URI
@@ -129,7 +134,7 @@ func IngestVideo(e IngestVideoEvent) {
 	}
 
 	fmt.Println("Creating working dir on NFS share")
-	err = os.Mkdir(tidalDir, 0755)
+	err = os.MkdirAll(tidalDir, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -150,23 +155,38 @@ func IngestVideo(e IngestVideoEvent) {
 
 	fmt.Println("Dispatching transcoding jobs")
 	files, _ := ioutil.ReadDir(segmentsDir)
+
+	// Update tidal.config file
+
 	for i := 0; i < len(presets); i++ {
 		preset := presets[i]
 		for i := 0; i < len(files); i++ {
 			segment := files[i]
 			fmt.Println("segments", preset.Name, segment.Name())
+			inPath := fmt.Sprintf(`%s/segments/%s`,
+				tidalDir,
+				segment.Name())
+			outPath := fmt.Sprintf(
+				`%s/versions/%s/segments/%s`,
+				tidalDir,
+				preset.Name,
+				segment.Name())
+
 			jobMeta := []string{
 				fmt.Sprintf(`cmd=%s`, preset.Cmd),
-				fmt.Sprintf(`in_path=%s/segments/%s`,
-					tidalDir,
-					segment.Name()),
-				fmt.Sprintf(
-					`out_path=%s/versions/%s/segments/%s`,
-					tidalDir,
-					preset.Name,
-					segment.Name()),
+				fmt.Sprintf("in_path=%s", inPath),
+				fmt.Sprintf("out_path=%s", outPath),
 			}
-			utils.DispatchNomadJob("transcode", jobMeta)
+
+			if debug != "" {
+				Transcode(TranscodeInputEvent{
+					InURI:  inPath,
+					OutURI: outPath,
+					Cmd:    preset.Cmd,
+				})
+			} else {
+				utils.DispatchNomadJob("transcode", jobMeta)
+			}
 		}
 	}
 }

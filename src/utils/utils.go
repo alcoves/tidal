@@ -14,6 +14,19 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
+type globalVars struct {
+	TidalNFSPath string
+}
+
+// GlobalConfig returns useful defaults
+func GlobalConfig() globalVars {
+	config := globalVars{
+		TidalNFSPath: "/nfs/tidal",
+	}
+
+	return config
+}
+
 // CalcScale returns an ffmpeg video filter
 func CalcScale(w int, h int, dw int) string {
 	videoRatio := float32(h) / float32(w)
