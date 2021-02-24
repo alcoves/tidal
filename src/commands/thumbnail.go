@@ -1,79 +1,58 @@
 package commands
 
-import (
-	"context"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"os"
-	"os/exec"
-	"strings"
+// import (
+// 	"fmt"
+// 	"io/ioutil"
+// 	"log"
+// 	"os"
+// 	"os/exec"
+// 	"strings"
 
-	"github.com/bken-io/tidal/src/utils"
-	"github.com/minio/minio-go/v7"
-)
+// 	"github.com/bken-io/tidal/src/utils"
+// )
 
-// GenerateThumbnail creates a video thumbnail
-func GenerateThumbnail(e utils.ThumbnailInput) {
-	signedURL := utils.GetSignedURL(e.S3InClient, e.S3In)
+// // ThumbnailInput is for GenerateThumbnail
+// type ThumbnailInput struct {
+// 	Cmd          string
+// 	RcloneSource string
+// 	RcloneDest   string
+// }
 
-	tmpFile, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
-	if err != nil {
-		log.Fatal(err)
-	}
+// func generateThumbnail(thumbnailPath string, cmd string) {
+// 	ffmpegCmdParts := strings.Split(cmd, " ")
+// 	args := []string{}
+// 	args = append(args, "-y")
+// 	args = append(args, "-i")
+// 	args = append(args, thumbnailPath)
 
-	cmd := getThumbnailCommand(e, signedURL, tmpFile.Name())
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
-	}
+// 	for i := 0; i < len(ffmpegCmdParts); i++ {
+// 		args = append(args, ffmpegCmdParts[i])
+// 	}
 
-	file, err := os.Open(tmpFile.Name())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
+// 	args = append(args, outputPath)
+// 	cmd := exec.Command("ffmpeg", args...)
+// 	cmd.Stdout = os.Stdout
+// 	cmd.Stderr = os.Stderr
+// 	return cmd
+// }
 
-	fileStat, err := file.Stat()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+// func Thumbnail(e ThumbnailInput) {
+// 	fmt.Println("Starting thumbnail job")
+// 	thumbnailPath, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	deconstructed := utils.DecontructS3Uri(e.S3Out)
-	uploadInfo, err := e.S3OutClient.PutObject(
-		context.Background(),
-		deconstructed.Bucket,
-		deconstructed.Key,
-		file,
-		fileStat.Size(),
-		minio.PutObjectOptions{ContentType: "image/webp"})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+// 	thumbnailPath, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	fmt.Println("Removing tmp files")
-	defer os.Remove(file.Name())
-}
+// 	fmt.Println("Generating thumbnail")
+// 	// TODO :: Can this be replaced with a generic ffmpeg func?
+// 	generateThumbnail(thumbnailPath, e.Cmd)
 
-func getThumbnailCommand(e utils.ThumbnailInput, signedURL string, outputPath string) *exec.Cmd {
-	ffmpegCmdParts := strings.Split(e.Cmd, " ")
+// 	fmt.Println("Uploading thumbnail")
+// 	utils.Rclone("copy", []string{thumbnailPath, e.RcloneDest})
 
-	args := []string{}
-	args = append(args, "-y")
-	args = append(args, "-i")
-	args = append(args, signedURL)
-
-	for i := 0; i < len(ffmpegCmdParts); i++ {
-		args = append(args, ffmpegCmdParts[i])
-	}
-
-	args = append(args, outputPath)
-	cmd := exec.Command("ffmpeg", args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd
-}
+// }
