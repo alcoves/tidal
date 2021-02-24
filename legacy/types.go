@@ -12,20 +12,6 @@ type Video struct {
 	duration  float32
 }
 
-// Preset is a struct containing transcoder commands
-type Preset struct {
-	Name string `json:"name"`
-	Cmd  string `json:"cmd"`
-}
-
-// Presets is an array of presets
-type Presets []Preset
-
-// Response is what goes back to the caller
-type Response struct {
-	Presets []Preset `json:"presets"`
-}
-
 // S3Config is used for dynamic s3 profile switching
 type S3Config struct {
 	Endpoint        string

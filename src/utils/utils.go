@@ -2,20 +2,82 @@ package utils
 
 import (
 	"bytes"
-	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
 	"os/exec"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/minio/minio-go/v7"
 )
+
+// Preset is a struct containing transcoder commands
+type Preset struct {
+	Name string `json:"name"`
+	Cmd  string `json:"cmd"`
+}
+
+// Presets is an array of presets
+type Presets []Preset
+
+// Response is what goes back to the caller
+type Response struct {
+	Presets []Preset `json:"presets"`
+}
+
+// Video is a slim ffprobe struct
+type Video struct {
+	width     int
+	height    int
+	bitrate   int
+	rotate    int
+	framerate float64
+	duration  float32
+}
 
 type globalVars struct {
 	TidalNFSPath string
+}
+
+// CalculatePresets returns a json list of availible presets
+func CalculatePresets(inputPath string) Presets {
+	metadata := GetMetadata(inputPath)
+	presets := GetPresets(metadata)
+
+	response := Response{
+		Presets: presets,
+	}
+
+	prettyResponse, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(string(prettyResponse))
+	return presets
+}
+
+// Rclone executes an rclone subprocess given the inputs
+func Rclone(subCommand string, arguments []string) string {
+	args := []string{}
+	args = append(args, subCommand)
+
+	for i := 0; i < len(arguments); i++ {
+		args = append(args, arguments[i])
+	}
+
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+
+	fmt.Println("Running rclone command", args)
+	cmd := exec.Command("rclone", args...)
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	output := out.String()
+	return output
 }
 
 // GlobalConfig returns useful defaults
@@ -38,29 +100,6 @@ func CalcScale(w int, h int, dw int) string {
 	}
 
 	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
-}
-
-// DecontructS3Uri turns s3://bucket/key into Bucket and Key
-func DecontructS3Uri(s3URI string) SourceObject {
-	s := strings.Split(s3URI, "/")
-	Bucket := s[2]
-	Key := strings.Join(s[3:], "/")
-	return SourceObject{Bucket: Bucket, Key: Key}
-}
-
-// GetSignedURL returns a signed s3 url
-func GetSignedURL(s3Client *minio.Client, s3In string) string {
-	deconstructed := DecontructS3Uri(s3In)
-	presignedURL, err := s3Client.PresignedGetObject(
-		context.Background(),
-		deconstructed.Bucket,
-		deconstructed.Key,
-		time.Second*24*60*60,
-		nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return presignedURL.String()
 }
 
 // ClampPreset checks if the video fits the specified dimensions
