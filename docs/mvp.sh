@@ -9,24 +9,24 @@ echo "Create test video"
 # ffmpeg -y -f lavfi -i sine=frequency=1000:sample_rate=48000:duration=60 -f lavfi -i testsrc=duration=60:size=1280x720:rate=60 test.mp4
 
 echo "Segmenting video"
-ffmpeg -y -i ./tmp/test.mp4 -c:v copy -f segment -segment_time 1 -an ./tmp/segments/%06d.mkv
+ffmpeg -y -i ./tmp/test.mp4 -c:v copy -f segment -segment_time 1 -an ./tmp/segments/%06d.ts
 
 echo "Transcoding segments"
 for PART in $(ls ./tmp/segments); do
-  ffmpeg -y -i ./tmp/segments/$PART -c:v libvpx-vp9 -speed 5 -deadline realtime -b:v 0 -crf 30 -vf scale=832:-2 ./tmp/transcoded/$PART;
+  ffmpeg -y -i ./tmp/segments/$PART -c:v lix264 -speed 5 -preset medium -crf 23 -vf scale=1920:-2 ./tmp/transcoded/$PART;
   echo "file './transcoded/$PART'" >> ./tmp/concat-manifest.txt;
 done
 
 echo "Concatinating transcoded segments"
 # Create concated video
-ffmpeg -y -f concat -safe 0 -i ./tmp/concat-manifest.txt -c:v copy ./tmp/converted.mkv;
+ffmpeg -y -f concat -safe 0 -i ./tmp/concat-manifest.txt -c:v copy ./tmp/converted.ts;
 
 # Pull audio from source
 # Dont assume the audio is aac
 ffmpeg -y -i ./tmp/test.mp4 ./tmp/test.wav
 
 # Combine converted video with original audio track
-ffmpeg -y -i ./tmp/converted.mkv -i ./tmp/test.wav -c:v copy -f webm - | ffmpeg -y -i - -c copy ./tmp/converted-with-audio.webm
+ffmpeg -y -i ./tmp/converted.ts -i ./tmp/test.wav -c:v copy -f webm - | ffmpeg -y -i - -c copy ./tmp/converted-with-audio.webm
 
 echo "Exporting audio for spectro analysis"
 ffmpeg -y -i ./tmp/test.mp4 ./tmp/test.wav

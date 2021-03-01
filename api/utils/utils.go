@@ -65,6 +65,9 @@ func Rclone(subCommand string, arguments []string) string {
 		args = append(args, arguments[i])
 	}
 
+	args = append(args, "--config")
+	args = append(args, "/tmp/rclone.conf")
+
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 
