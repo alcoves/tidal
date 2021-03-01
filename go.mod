@@ -1,4 +1,4 @@
-module github.com/bken-io/tidal
+module github.com/bkenio/tidal
 
 go 1.14
 

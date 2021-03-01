@@ -8,7 +8,7 @@ package jobs
 // 	"os/exec"
 // 	"strings"
 
-// 	"github.com/bken-io/tidal/src/utils"
+// 	"github.com/bkenio/tidal/src/utils"
 // )
 
 // // ThumbnailInput is for GenerateThumbnail

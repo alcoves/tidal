@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bken-io/tidal/src/utils"
+	"github.com/bkenio/tidal/src/utils"
 	"github.com/minio/minio-go/v7"
 )
 

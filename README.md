@@ -19,7 +19,7 @@ I've decided to attempt to make tidal hardware agnostic, that's why I run it on 
 
 - A Nomad cluster with about 3gb of memory per worker node
 - Consul and Nomad clients must be installed side by side, consul is used for secrets management
-- Linux servers with [these dependencies](https://github.com/bken-io/keel)
+- Linux servers with [these dependencies](https://github.com/bkenio/keel)
 - An s3 object store (more to come on how to configure this)
 
 ### Database
