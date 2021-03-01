@@ -18,7 +18,7 @@ jobs:
           token: ${{ secrets.DO_API_KEY }}
 
       - name: Build container image
-        run: docker build -t registry.digitalocean.com/bken/tidal:latest .
+        run: docker build -t registry.digitalocean.com/bken/tidal:latest -f api/Dockerfile .
 
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
