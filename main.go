@@ -10,8 +10,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func healthCheck(c *fiber.Ctx) error {
+	return c.SendString("up")
+}
+
 func setupRoutes(app *fiber.App) {
-	app.Post("/", jobs.ProcessVideoRequest)
+	app.Get("/", healthCheck)
+	app.Post("/videos", jobs.ProcessVideoRequest)
 }
 
 func main() {
