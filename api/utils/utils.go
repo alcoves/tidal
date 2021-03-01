@@ -25,6 +25,13 @@ type Response struct {
 	Presets []Preset `json:"presets"`
 }
 
+// GlobalVars are used to set sane application defaults
+type GlobalVars struct {
+	TidalPath        string `json="tidalPath"`
+	TidalTmpPath     string `json="tidalTmpPath"`
+	RcloneConfigPath string `json="rcloneConfigPath"`
+}
+
 // Video is a slim ffprobe struct
 type Video struct {
 	width     int
@@ -33,10 +40,6 @@ type Video struct {
 	rotate    int
 	framerate float64
 	duration  float32
-}
-
-type globalVars struct {
-	TidalNFSPath string
 }
 
 // CalculatePresets returns a json list of availible presets
@@ -58,6 +61,7 @@ func CalculatePresets(inputPath string) Presets {
 
 // Rclone executes an rclone subprocess given the inputs
 func Rclone(subCommand string, arguments []string) string {
+	config := Config()
 	args := []string{}
 	args = append(args, subCommand)
 
@@ -66,7 +70,7 @@ func Rclone(subCommand string, arguments []string) string {
 	}
 
 	args = append(args, "--config")
-	args = append(args, "/tmp/rclone.conf")
+	args = append(args, config.RcloneConfigPath)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -83,13 +87,13 @@ func Rclone(subCommand string, arguments []string) string {
 	return output
 }
 
-// GlobalConfig returns useful defaults
-func GlobalConfig() globalVars {
-	config := globalVars{
-		TidalNFSPath: "/nfs/tidal",
+// Config contains the neccesary defaults for the application
+func Config() GlobalVars {
+	return GlobalVars{
+		TidalPath:        "/mnt/tidal",
+		TidalTmpPath:     "/mnt/tidal/tmp",
+		RcloneConfigPath: "/mnt/tidal/rclone.conf",
 	}
-
-	return config
 }
 
 // CalcScale returns an ffmpeg video filter
