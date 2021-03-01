@@ -121,9 +121,10 @@ func packageHls(tmpDir string, progressiveDir string) string {
 // Pipeline executes an end-to-end transcoding job
 func Pipeline(e PipelineEvent) {
 	fmt.Println("Setting up")
+	config := utils.Config()
 
 	fmt.Println("Create temporary directory")
-	tmpDir, err := ioutil.TempDir("/tmp", "tidal-pipeline-")
+	tmpDir, err := ioutil.TempDir(config.TidalTmpPath, "tidal-pipeline-")
 	if err != nil {
 		log.Fatal(err)
 	}
