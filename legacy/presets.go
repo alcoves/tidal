@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bken-io/tidal/src/utils"
+	"github.com/bkenio/tidal/src/utils"
 )
 
 // CalculatePresets returns a json list of availible presets

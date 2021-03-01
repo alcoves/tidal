@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bken-io/tidal/api/utils"
+	"github.com/bkenio/tidal/api/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
