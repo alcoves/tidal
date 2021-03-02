@@ -1,11 +1,11 @@
-package main
+package commands
 
 import (
 	"log"
 	"os"
 
 	"github.com/bkenio/tidal/api/jobs"
-	"github.com/bkenio/tidal/api/utils"
+	"github.com/bkenio/tidal/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -21,7 +21,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/videos", jobs.ProcessVideoRequest)
 }
 
-func main() {
+// API runs the tidal api server
+func API() {
 	godotenv.Load(".env")
 
 	config := utils.Config()
