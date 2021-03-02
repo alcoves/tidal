@@ -1,7 +1,15 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/bkenio/tidal/internal/commands"
+	"github.com/bkenio/tidal/internal/utils"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +19,19 @@ func main() {
 		Short: "Runs the tidal api server",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			commands.API()
+			godotenv.Load(".env")
+
+			config := utils.Config()
+			os.MkdirAll(config.TidalTmpPath, os.ModePerm)
+
+			// TODO :: Make sure config.Rclone path exists
+
+			app := fiber.New()
+			app.Use(cors.New())
+			app.Use(recover.New())
+
+			commands.SetupRoutes(app)
+			log.Panic(app.Listen(":4000"))
 		},
 	}
 

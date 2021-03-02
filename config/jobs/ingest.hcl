@@ -2,16 +2,13 @@ job "ingest" {
   priority    = 90
   type        = "batch"
   datacenters = ["dc1"]
-
-  constraint {
-    operator  = "regexp"
-    value     = "app-"
-    attribute = "${attr.unique.hostname}"
-  }
   
   parameterized {
     payload       = "optional"
-    meta_required = [ "s3_in", "video_id" ]
+    meta_required = [
+      "rclone_source_file",
+      "rclone_dest_dir",
+    ]
   }
 
   group "ingest" {
@@ -22,14 +19,6 @@ job "ingest" {
         data = <<EOH
 NOMAD_TOKEN="{{key "secrets/NOMAD_TOKEN"}}"
 CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
-
-S3_IN_ENDPOINT="{{key "secrets/WASABI_ENDPOINT"}}"
-S3_IN_ACCESS_KEY_ID="{{key "secrets/WASABI_ACCESS_KEY_ID"}}"
-S3_IN_SECRET_ACCESS_KEY="{{key "secrets/WASABI_SECRET_ACCESS_KEY"}}"
-
-S3_OUT_ENDPOINT="{{key "secrets/DO_ENDPOINT"}}"
-S3_OUT_ACCESS_KEY_ID="{{key "secrets/DO_ACCESS_KEY_ID"}}"
-S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
         EOH
         
         destination = ".env"
@@ -47,12 +36,11 @@ S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
       }
 
       config {
-        command = "/home/ubuntu/tidal/main"
+        command = "tidal"
         args    = [
           "ingest",
-          "${NOMAD_META_S3_IN}",
-          "--videoId",
-          "${NOMAD_META_VIDEO_ID}"
+          "${NOMAD_META_RCLONE_SOURCE_FILE}",
+          "${NOMAD_META_RCLONE_DEST_DIR}"
         ]
       }
     }
