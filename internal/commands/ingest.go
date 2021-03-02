@@ -1,4 +1,4 @@
-package jobs
+package commands
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bkenio/tidal/api/utils"
+	"github.com/bkenio/tidal/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 

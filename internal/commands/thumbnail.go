@@ -1,4 +1,4 @@
-package jobs
+package commands
 
 // import (
 // 	"fmt"
