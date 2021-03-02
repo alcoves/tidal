@@ -2,6 +2,12 @@ job "ingest" {
   priority    = 90
   type        = "batch"
   datacenters = ["dc1"]
+
+  constraint {
+    operator  = "regexp"
+    value     = "explorer-"
+    attribute = "${attr.unique.hostname}"
+  }
   
   parameterized {
     payload       = "optional"
@@ -31,8 +37,8 @@ CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
       }
 
       resources {
-        cpu    = 1000
-        memory = 1000
+        cpu    = 4000
+        memory = 4000
       }
 
       config {
