@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -89,11 +90,17 @@ func Rclone(subCommand string, arguments []string) string {
 
 // Config contains the neccesary defaults for the application
 func Config() GlobalVars {
-	return GlobalVars{
+	c := GlobalVars{
 		TidalPath:        "/mnt/tidal",
 		TidalTmpPath:     "/mnt/tidal/tmp",
 		RcloneConfigPath: "/mnt/tidal/rclone.conf",
 	}
+	_, err := os.Stat(c.RcloneConfigPath)
+	if os.IsNotExist(err) {
+		log.Fatal(err)
+	}
+	fmt.Printf("Using rclone config %s\n", c.RcloneConfigPath)
+	return c
 }
 
 // CalcScale returns an ffmpeg video filter

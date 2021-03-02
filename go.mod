@@ -3,8 +3,12 @@ module github.com/bkenio/tidal
 go 1.14
 
 require (
-	github.com/bkenio/tidal/api v0.0.0-20210301063048-c4ee7f1fe1ad
+	github.com/andybalholm/brotli v1.0.1 // indirect
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.5.0
 	github.com/joho/godotenv v1.3.0
-	github.com/spf13/cobra v1.1.1
+	github.com/klauspost/compress v1.11.9 // indirect
+	github.com/spf13/cobra v1.1.3
+	github.com/valyala/fasthttp v1.22.0 // indirect
+	golang.org/x/sys v0.0.0-20210301091718-77cc2087c03b // indirect
 )

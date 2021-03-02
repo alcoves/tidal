@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/bkenio/tidal/internal/utils"
-	"github.com/gofiber/fiber/v2"
 )
 
 type ProcessVideoInput struct {
@@ -157,18 +156,4 @@ func Pipeline(e PipelineEvent) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func ProcessVideoRequest(c *fiber.Ctx) error {
-	input := new(ProcessVideoInput)
-	if err := c.BodyParser(input); err != nil {
-		return c.Status(400).SendString("video input failed unmarshalling")
-	}
-
-	go Pipeline(PipelineEvent{
-		RcloneSource: input.RcloneSourceFile,
-		RcloneDest:   input.RcloneDestinationDir,
-	})
-
-	return c.SendString("video ingest running")
 }
