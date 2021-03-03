@@ -34,7 +34,7 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 		fmt.Sprintf(`rclone_source_file=%s`, i.RcloneSourceFile),
 		fmt.Sprintf(`rclone_dest_dir=%s`, i.RcloneDestinationDir),
 	}
-	nomad.Dispatch("ingest", jobMeta)
+	nomad.Dispatch("ingest", jobMeta, config.NomadToken)
 	return c.SendString("video ingest running")
 }
 
