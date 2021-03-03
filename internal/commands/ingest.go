@@ -74,6 +74,21 @@ func splitAudio(sourcePath string) string {
 	return sourceAudioPath
 }
 
+func countFiles(path string) []string {
+	fileList := []string{}
+	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() {
+			return nil
+		}
+		fileList = append(fileList, path)
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fileList
+}
+
 func transcodeSegment(wg *sync.WaitGroup, sourceSegmentPath string, transcodedSegmentPath string, ffmpegCmd string) string {
 	defer wg.Done()
 	ffmpegCmdParts := strings.Split(ffmpegCmd, " ")
@@ -317,11 +332,11 @@ func Pipeline(e PipelineEvent) {
 		if i > 4320 {
 			log.Fatal("Timeout waiting for transcoded segments has been reached")
 		}
-		transcodedSegments, _ := ioutil.ReadDir(transcodedSegmentsDir)
+		transcodedSegments := countFiles(transcodedSegmentsDir)
 		expectedSegments := len(sourceSegments) * len(presets)
 		fmt.Println("Transcoded segments count", len(transcodedSegments))
 		fmt.Println("Expected segments count", expectedSegments)
-		if expectedSegments == len(transcodedSegments) {
+		if len(transcodedSegments) >= expectedSegments {
 			fmt.Println("Transcoding complete!")
 			break
 		}
