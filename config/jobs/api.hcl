@@ -26,20 +26,9 @@ job "api" {
 
       driver = "raw_exec"
 
-      template {
-        data = <<EOH
-          DO_API_KEY = "{{key "secrets/DO_API_KEY"}}"
-          NOMAD_TOKEN = "{{key "secrets/NOMAD_TOKEN"}}"
-          CONSUL_TOKEN = "{{key "secrets/CONSUL_TOKEN"}}"
-        EOH
-        
-        env         = true
-        destination = ".env"
-      }
-
       config {
         command  = "tidal"
-        args     = [ "api" ]
+        args     = [ "api", "--port", "4000" ]
       }
 
       service {
