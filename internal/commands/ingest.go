@@ -50,41 +50,6 @@ func writeCmdLogs(cmd *exec.Cmd, logPrefix string, tmpDir string) {
 	cmd.Stderr = os.Stderr
 }
 
-func transcode(sourcePath string, presets utils.Presets, tmpDir string) string {
-	sourceDir := filepath.Dir(sourcePath)
-	progressiveDir := fmt.Sprintf("%s/progressive", sourceDir)
-	os.Mkdir(progressiveDir, os.ModePerm)
-
-	args := []string{}
-	args = append(args, "-hide_banner")
-	args = append(args, "-y")
-	args = append(args, "-i")
-	args = append(args, sourcePath)
-
-	for i := 0; i < len(presets); i++ {
-		preset := presets[i]
-		outPath := fmt.Sprintf("%s/%s.mp4", progressiveDir, preset.Name)
-		ffmpegCmdParts := strings.Split(preset.Cmd, " ")
-		for j := 0; j < len(ffmpegCmdParts); j++ {
-			args = append(args, ffmpegCmdParts[j])
-			if j+1 == len(ffmpegCmdParts) {
-				args = append(args, outPath)
-			}
-		}
-	}
-
-	fmt.Println("ffmpeg command", args)
-	cmd := exec.Command("ffmpeg", args...)
-	writeCmdLogs(cmd, "transcode", tmpDir)
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
-	}
-
-	return progressiveDir
-}
-
 func splitAudio(sourcePath string) string {
 	sourceDir := filepath.Dir(sourcePath)
 	sourceAudioPath := fmt.Sprintf("%s/audio.wav", sourceDir)
@@ -379,8 +344,8 @@ func Pipeline(e PipelineEvent) {
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, e.Config.RcloneConfig)
 
 	fmt.Println("Remove temporary directory")
-	// err = os.RemoveAll(tmpDir)
-	// err = os.Remove(tmpDir)
+	err = os.RemoveAll(tmpDir)
+	err = os.Remove(tmpDir)
 	if err != nil {
 		log.Fatal(err)
 	}
