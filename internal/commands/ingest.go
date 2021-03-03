@@ -345,7 +345,6 @@ func Pipeline(e PipelineEvent) {
 
 	fmt.Println("Remove temporary directory")
 	err = os.RemoveAll(tmpDir)
-	err = os.Remove(tmpDir)
 	if err != nil {
 		log.Fatal(err)
 	}
