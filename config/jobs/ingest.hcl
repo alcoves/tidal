@@ -3,33 +3,26 @@ job "ingest" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  constraint {
-    operator  = "regexp"
-    value     = "explorer-"
-    attribute = "${attr.unique.hostname}"
-  }
+  // constraint {
+  //   operator  = "regexp"
+  //   value     = "explorer-"
+  //   attribute = "${attr.unique.hostname}"
+  // }
   
   parameterized {
     payload       = "optional"
     meta_required = [
-      "rclone_source_file",
+      "tidal_dir",
+      "nomad_token",
+      "rclone_config",
       "rclone_dest_dir",
+      "rclone_source_file",
     ]
   }
 
   group "ingest" {
     task "ingest" {
       driver = "raw_exec"
-
-      template {
-        data = <<EOH
-NOMAD_TOKEN="{{key "secrets/NOMAD_TOKEN"}}"
-CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
-        EOH
-        
-        destination = ".env"
-        env         = true
-      }
 
       restart {
         attempts = 5
@@ -46,7 +39,13 @@ CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
         args    = [
           "ingest",
           "${NOMAD_META_RCLONE_SOURCE_FILE}",
-          "${NOMAD_META_RCLONE_DEST_DIR}"
+          "${NOMAD_META_RCLONE_DEST_DIR}",
+          "--nomadToken",
+          "${NOMAD_META_NOMAD_TOKEN}",
+          "--tidalDir",
+          "${NOMAD_META_TIDAL_DIR}",
+          "--rcloneConfig",
+          "${NOMAD_META_RCLONE_CONFIG}",
         ]
       }
     }

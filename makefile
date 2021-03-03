@@ -6,11 +6,10 @@ test:
 build_clean:
 	go build cmd/tidal.go
 
-nomad:
-	nomad agent -dev
+api: 
 
-dev:
-	cd api/ && go run main.go api
+run: build_clean install
+	tidal $(ARGS)
 
 install: build_clean
 	sudo cp ./tidal /usr/local/bin/tidal
