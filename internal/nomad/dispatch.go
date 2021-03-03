@@ -8,7 +8,7 @@ import (
 
 // Dispatch enqueues a batch job to Nomad
 // TODO :: This function should use the Nomad HTTP API
-func Dispatch(jobName string, meta []string) {
+func Dispatch(jobName string, meta []string, nomadToken string) {
 	args := []string{}
 	args = append(args, "job")
 	args = append(args, "dispatch")
@@ -22,6 +22,9 @@ func Dispatch(jobName string, meta []string) {
 
 	args = append(args, jobName)
 	cmd := exec.Command("nomad", args...)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, fmt.Sprintf("NOMAD_TOKEN=%s", nomadToken))
+
 	fmt.Println("Nomad args", cmd.Args)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
