@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"os"
 	"os/exec"
+	"os/user"
 	"strconv"
 	"strings"
 )
@@ -26,11 +26,12 @@ type Response struct {
 	Presets []Preset `json:"presets"`
 }
 
-// GlobalVars are used to set sane application defaults
-type GlobalVars struct {
-	TidalPath        string `json="tidalPath"`
-	TidalTmpPath     string `json="tidalTmpPath"`
-	RcloneConfigPath string `json="rcloneConfigPath"`
+// Config should only be used by NewConfig
+type Config struct {
+	TidalDir     string `json="tidalDir"`
+	NomadToken   string `json="nomadToken"`
+	TidalTmpDir  string `json="tidalTmpDir"`
+	RcloneConfig string `json="rcloneConfig"`
 }
 
 // Video is a slim ffprobe struct
@@ -41,6 +42,32 @@ type Video struct {
 	rotate    int
 	framerate float64
 	duration  float32
+}
+
+// NewConfig creates a config
+func NewConfig(tidalDir string, nomadToken string, rcloneConfig string) Config {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	c := Config{
+		NomadToken:   "",
+		TidalDir:     "/tmp/tidal",
+		TidalTmpDir:  "/tmp/tidal/tmp",
+		RcloneConfig: usr.HomeDir + "/.config/rclone/rclone.conf",
+	}
+
+	if tidalDir != "" {
+		c.TidalDir = tidalDir
+		c.TidalTmpDir = tidalDir + "/tmp"
+	}
+	if nomadToken != "" {
+		c.NomadToken = nomadToken
+	}
+	if rcloneConfig != "" {
+		c.RcloneConfig = rcloneConfig
+	}
+	return c
 }
 
 // CalculatePresets returns a json list of availible presets
@@ -61,8 +88,7 @@ func CalculatePresets(inputPath string) Presets {
 }
 
 // Rclone executes an rclone subprocess given the inputs
-func Rclone(subCommand string, arguments []string) string {
-	config := Config()
+func Rclone(subCommand string, arguments []string, configPath string) string {
 	args := []string{}
 	args = append(args, subCommand)
 
@@ -71,7 +97,7 @@ func Rclone(subCommand string, arguments []string) string {
 	}
 
 	args = append(args, "--config")
-	args = append(args, config.RcloneConfigPath)
+	args = append(args, configPath)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -86,21 +112,6 @@ func Rclone(subCommand string, arguments []string) string {
 
 	output := out.String()
 	return output
-}
-
-// Config contains the neccesary defaults for the application
-func Config() GlobalVars {
-	c := GlobalVars{
-		TidalPath:        "/mnt/tidal",
-		TidalTmpPath:     "/mnt/tidal/tmp",
-		RcloneConfigPath: "/mnt/tidal/rclone.conf",
-	}
-	_, err := os.Stat(c.RcloneConfigPath)
-	if os.IsNotExist(err) {
-		log.Fatal(err)
-	}
-	fmt.Printf("Using rclone config %s\n", c.RcloneConfigPath)
-	return c
 }
 
 // CalcScale returns an ffmpeg video filter
