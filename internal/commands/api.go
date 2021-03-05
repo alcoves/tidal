@@ -2,6 +2,9 @@ package commands
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/bkenio/tidal/internal/nomad"
 	"github.com/bkenio/tidal/internal/utils"
@@ -18,6 +21,20 @@ type processVideoInput struct {
 
 func healthCheck(c *fiber.Ctx) error {
 	return c.SendString("up")
+}
+
+func readDirRec(path string) {
+	err := filepath.Walk(path,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(info.Name())
+			return nil
+		})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // ProcessVideoRequest dispatches a video ingest job
@@ -38,8 +55,17 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 	return c.SendString("video ingest running")
 }
 
+func GetVideo(c *fiber.Ctx) error {
+	readDirRec(fmt.Sprintf("/tmp/tidal/"))
+	// Reads dir from disk
+	// Computes status
+	videoID := c.Params("id")
+	return c.SendString(videoID)
+}
+
 // SetupRoutes contrcuts consumable routes for fiber to use
 func SetupRoutes(app *fiber.App) {
 	app.Get("/", healthCheck)
 	app.Post("/ingest", ProcessVideoRequest)
+	app.Get("/videos/:id", GetVideo)
 }
