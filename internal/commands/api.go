@@ -47,8 +47,6 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 		return c.Status(400).SendString("video input failed unmarshalling")
 	}
 
-	videoID := c.Params("id")
-
 	srcFilename := filepath.Base(i.RcloneSourceFile)
 	srcExists := utils.Rclone("lsf", []string{i.RcloneSourceFile}, utils.Config.RcloneConfig)
 	srcExists = strings.Replace(srcExists, "\n", "", -1)
@@ -60,7 +58,6 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 	// TODO :: Check that remote exists
 
 	ingestPayload := []string{
-		fmt.Sprintf(`video_id=%s`, videoID),
 		fmt.Sprintf(`rclone_source_file=%s`, i.RcloneSourceFile),
 		fmt.Sprintf(`rclone_dest_dir=%s`, i.RcloneDestinationDir),
 	}
