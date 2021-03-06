@@ -9,8 +9,12 @@ build_clean:
 install: build_clean
 	sudo cp ./tidal /usr/local/bin/tidal
 
-api:
-	go run cmd/tidal.go api --tidalConfigDir /home/brendan/code/bkenio/tidal/
+api: install
+	tidal api
 
-run:
+run: jobs
 	go run cmd/tidal.go $(ARGS)
+
+# Nomad
+jobs:
+	nomad job run config/jobs/ingest.hcl

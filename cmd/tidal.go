@@ -28,7 +28,7 @@ func main() {
 		},
 	}
 
-	var ingest = &cobra.Command{
+	var ingestCommand = &cobra.Command{
 		Use:   "ingest [rclone_source rclone_dest]",
 		Short: "Runs full video encode pipeline",
 		Args:  cobra.MinimumNArgs(2),
@@ -45,11 +45,11 @@ func main() {
 	var tidalConfigDir string
 
 	var rootCmd = &cobra.Command{Use: "tidal"}
-	rootCmd.PersistentFlags().StringVar(&tidalConfigDir, "tidalConfigDir", "", "the path to the tidal env file dir")
+	rootCmd.PersistentFlags().StringVar(&tidalConfigDir, "tidalConfigDir", "/mnt/tidal", "the path to the tidal env file dir")
 
 	rootCmd.AddCommand(apiCommand)
 	apiCommand.Flags().String("port", "4000", "port the tidal api server should run on")
 
-	rootCmd.AddCommand(ingest)
+	rootCmd.AddCommand(ingestCommand)
 	rootCmd.Execute()
 }
