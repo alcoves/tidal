@@ -275,12 +275,13 @@ func concatinate(transcodedSegmentsDir string, progressiveDir string, sourceAudi
 
 // Pipeline executes an end-to-end transcoding job
 func Pipeline(e PipelineEvent) {
+	srcFilename := filepath.Base(e.RcloneSource)
+	videoID := strings.TrimSuffix(srcFilename, filepath.Ext(srcFilename))
+
 	fmt.Println("Create temporary directory")
 	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
-	tmpDir, err := ioutil.TempDir(utils.Config.TidalTmpDir, "tidal-pipeline-")
-	if err != nil {
-		log.Fatal(err)
-	}
+	tmpDir := fmt.Sprintf("%s/%s", utils.Config.TidalTmpDir, videoID)
+	os.Mkdir(tmpDir, os.ModePerm)
 	fmt.Println("Tmp Dir:", tmpDir)
 
 	fmt.Println("Setting up")
@@ -358,7 +359,7 @@ func Pipeline(e PipelineEvent) {
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Remove temporary directory")
-	err = os.RemoveAll(tmpDir)
+	err := os.RemoveAll(tmpDir)
 	if err != nil {
 		log.Fatal(err)
 	}
