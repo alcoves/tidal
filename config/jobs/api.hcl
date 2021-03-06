@@ -28,7 +28,7 @@ job "api" {
 
       config {
         command  = "tidal"
-        args     = [ "api", "--port", "4000" ]
+        args     = [ "api", "--port", "4000", "--tidalConfigDir", "/mnt/tidal/" ]
       }
 
       service {
