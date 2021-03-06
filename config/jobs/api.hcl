@@ -28,13 +28,13 @@ job "api" {
 
       config {
         command  = "tidal"
-        args     = [ "api", "--port", "4000", "--tidalConfigDir", "/mnt/tidal/" ]
+        args     = [ "api", "--port", "4000" ]
       }
 
       service {
         name = "tidal-api"
         port = "tidal_api_port"
-        tags = ["urlprefix-/"]
+        tags = ["urlprefix-/tidal/"]
 
         connect {
           sidecar_service {}
