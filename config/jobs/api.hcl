@@ -34,7 +34,7 @@ job "api" {
       service {
         name = "tidal-api"
         port = "tidal_api_port"
-        tags = ["urlprefix-/tidal/"]
+        tags = ["urlprefix-/tidal strip=/tidal"]
 
         connect {
           sidecar_service {}
@@ -44,7 +44,7 @@ job "api" {
           path     = "/"
           timeout  = "2s"
           interval = "10s"
-          type     = "tcp"
+          type     = "http"
           name     = "tidal_api_port alive"
         }
       }
