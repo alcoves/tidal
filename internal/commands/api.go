@@ -86,7 +86,6 @@ func GetVideo(c *fiber.Ctx) error {
 // SetupRoutes contrcuts consumable routes for fiber to use
 func SetupRoutes(app *fiber.App) {
 	app.Get("/", healthCheck)
-	app.Post("/videos", ProcessVideoRequest)
-	// app.Post("/videos/thumbnails", ProcessVideoRequest)
 	app.Get("/videos/:id", GetVideo)
+	app.Post("/videos", ProcessVideoRequest)
 }
