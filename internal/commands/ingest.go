@@ -280,7 +280,11 @@ func Pipeline(e PipelineEvent) {
 
 	fmt.Println("Create temporary directory")
 	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
-	tmpDir := fmt.Sprintf("%s/%s", utils.Config.TidalTmpDir, videoID)
+	tmpDir, err := ioutil.TempDir(utils.Config.TidalTmpDir, videoID+"-")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	os.Mkdir(tmpDir, os.ModePerm)
 	fmt.Println("Tmp Dir:", tmpDir)
 
@@ -359,7 +363,7 @@ func Pipeline(e PipelineEvent) {
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Remove temporary directory")
-	err := os.RemoveAll(tmpDir)
+	err = os.RemoveAll(tmpDir)
 	if err != nil {
 		log.Fatal(err)
 	}
