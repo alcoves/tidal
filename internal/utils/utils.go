@@ -7,7 +7,6 @@ import (
 	"log"
 	"math"
 	"os/exec"
-	"os/user"
 	"strconv"
 	"strings"
 )
@@ -26,14 +25,6 @@ type Response struct {
 	Presets []Preset `json:"presets"`
 }
 
-// Config should only be used by NewConfig
-type Config struct {
-	TidalDir     string `json="tidalDir"`
-	NomadToken   string `json="nomadToken"`
-	TidalTmpDir  string `json="tidalTmpDir"`
-	RcloneConfig string `json="rcloneConfig"`
-}
-
 // Video is a slim ffprobe struct
 type Video struct {
 	width     int
@@ -42,32 +33,6 @@ type Video struct {
 	rotate    int
 	framerate float64
 	duration  float32
-}
-
-// NewConfig creates a config
-func NewConfig(tidalDir string, nomadToken string, rcloneConfig string) Config {
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-	c := Config{
-		NomadToken:   "",
-		TidalDir:     "/tmp/tidal",
-		TidalTmpDir:  "/tmp/tidal/tmp",
-		RcloneConfig: usr.HomeDir + "/.config/rclone/rclone.conf",
-	}
-
-	if tidalDir != "" {
-		c.TidalDir = tidalDir
-		c.TidalTmpDir = tidalDir + "/tmp"
-	}
-	if nomadToken != "" {
-		c.NomadToken = nomadToken
-	}
-	if rcloneConfig != "" {
-		c.RcloneConfig = rcloneConfig
-	}
-	return c
 }
 
 // CalculatePresets returns a json list of availible presets

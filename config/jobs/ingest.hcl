@@ -12,11 +12,9 @@ job "ingest" {
   parameterized {
     payload       = "optional"
     meta_required = [
-      "tidal_dir",
-      "nomad_token",
-      "rclone_config",
-      "rclone_dest_dir",
       "rclone_source_file",
+      "rclone_dest_dir",
+      "tidal_config_dir",
     ]
   }
 
@@ -40,12 +38,8 @@ job "ingest" {
           "ingest",
           "${NOMAD_META_RCLONE_SOURCE_FILE}",
           "${NOMAD_META_RCLONE_DEST_DIR}",
-          "--nomadToken",
-          "${NOMAD_META_NOMAD_TOKEN}",
-          "--tidalDir",
-          "${NOMAD_META_TIDAL_DIR}",
-          "--rcloneConfig",
-          "${NOMAD_META_RCLONE_CONFIG}",
+          "--tidalConfigDir",
+          "${NOMAD_META_TIDAL_CONFIG_DIR}",
         ]
       }
     }
