@@ -3,18 +3,11 @@ job "ingest" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  // constraint {
-  //   operator  = "regexp"
-  //   value     = "explorer-"
-  //   attribute = "${attr.unique.hostname}"
-  // }
-  
   parameterized {
     payload       = "optional"
     meta_required = [
       "rclone_source_file",
       "rclone_dest_dir",
-      "tidal_config_dir",
     ]
   }
 
@@ -38,8 +31,6 @@ job "ingest" {
           "ingest",
           "${NOMAD_META_RCLONE_SOURCE_FILE}",
           "${NOMAD_META_RCLONE_DEST_DIR}",
-          "--tidalConfigDir",
-          "${NOMAD_META_TIDAL_CONFIG_DIR}",
         ]
       }
     }
@@ -50,12 +41,6 @@ job "ingest" {
       max_delay      = "30m"
       unlimited      = false
       delay_function = "exponential"
-    }
-
-    ephemeral_disk {
-      migrate = false
-      sticky  = false
-      size    = "10000"
     }
   }
 }
