@@ -25,7 +25,6 @@ type Presets []Preset
 
 // PipelineEvent is used to enqueue an end-to-end encoding job
 type PipelineEvent struct {
-	Config       utils.Config
 	RcloneSource string // remote:path
 	RcloneDest   string // remote:path
 }
@@ -277,8 +276,8 @@ func concatinate(transcodedSegmentsDir string, progressiveDir string, sourceAudi
 // Pipeline executes an end-to-end transcoding job
 func Pipeline(e PipelineEvent) {
 	fmt.Println("Create temporary directory")
-	os.MkdirAll(e.Config.TidalTmpDir, os.ModePerm)
-	tmpDir, err := ioutil.TempDir(e.Config.TidalTmpDir, "tidal-pipeline-")
+	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
+	tmpDir, err := ioutil.TempDir(utils.Config.TidalTmpDir, "tidal-pipeline-")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -294,7 +293,7 @@ func Pipeline(e PipelineEvent) {
 	sourcePath := fmt.Sprintf("%s/%s", tmpDir, filename)
 
 	fmt.Println("Downloading source file")
-	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, e.Config.RcloneConfig)
+	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
 
 	fmt.Println("Getting video presets")
 	presets := utils.CalculatePresets(sourcePath)
@@ -353,10 +352,10 @@ func Pipeline(e PipelineEvent) {
 	packagedDir := packageHls(tmpDir, progressiveDir)
 
 	fmt.Println("Syncing hls assets with remote")
-	utils.Rclone("copy", []string{packagedDir, e.RcloneDest}, e.Config.RcloneConfig)
+	utils.Rclone("copy", []string{packagedDir, e.RcloneDest}, utils.Config.RcloneConfig)
 
 	fmt.Println("Syncing logs with remote")
-	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, e.Config.RcloneConfig)
+	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Remove temporary directory")
 	err = os.RemoveAll(tmpDir)

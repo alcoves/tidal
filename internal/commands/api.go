@@ -12,11 +12,9 @@ import (
 )
 
 type processVideoInput struct {
-	TidalDir             string `json="tidalDir"`
-	NomadToken           string `json="nomadToken"`
-	RcloneConfig         string `json="rcloneConfig"`
-	RcloneSourceFile     string `json="rcloneSourceFile"`
-	RcloneDestinationDir string `json="rcloneDestinationDir"`
+	TidalConfigDir       string `json:"tidalConfigDir"`
+	RcloneSourceFile     string `json:"rcloneSourceFile"`
+	RcloneDestinationDir string `json:"rcloneDestinationDir"`
 }
 
 func healthCheck(c *fiber.Ctx) error {
@@ -43,15 +41,13 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 	if err := c.BodyParser(i); err != nil {
 		return c.Status(400).SendString("video input failed unmarshalling")
 	}
-	config := utils.NewConfig(i.TidalDir, i.NomadToken, i.RcloneConfig)
 	jobMeta := []string{
-		fmt.Sprintf(`tidal_dir=%s`, config.TidalDir),
-		fmt.Sprintf(`nomad_token=%s`, config.NomadToken),
-		fmt.Sprintf(`rclone_config=%s`, config.RcloneConfig),
+		fmt.Sprintf(`tidal_config_dir=%s`, i.TidalConfigDir),
 		fmt.Sprintf(`rclone_source_file=%s`, i.RcloneSourceFile),
 		fmt.Sprintf(`rclone_dest_dir=%s`, i.RcloneDestinationDir),
 	}
-	nomad.Dispatch("ingest", jobMeta, config.NomadToken)
+	fmt.Println("ingest", jobMeta)
+	nomad.Dispatch("ingest", jobMeta, utils.Config.NomadToken)
 	return c.SendString("video ingest running")
 }
 
