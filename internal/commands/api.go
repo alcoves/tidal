@@ -14,8 +14,8 @@ import (
 )
 
 type processVideoInput struct {
-	RcloneSourceFile     string `json:"rcloneSourceFile"`
-	RcloneDestinationDir string `json:"rcloneDestinationDir"`
+	RcloneSource string `json:"rcloneSource"`
+	RcloneDest   string `json:"rcloneDest"`
 }
 
 func healthCheck(c *fiber.Ctx) error {
@@ -40,6 +40,24 @@ func readDirRec(path string) []fs.FileInfo {
 	return files
 }
 
+// CreateThumbnailRequest proxies the thumbnail creation subcommand to the api
+func CreateThumbnailRequest(c *fiber.Ctx) error {
+	i := new(CreateThumbnailEvent)
+	if err := c.BodyParser(i); err != nil {
+		return c.Status(400).SendString("video input failed unmarshalling")
+	}
+
+	// TODO :: Check payload for null values
+
+	thumbnailPayload := []string{
+		fmt.Sprintf(`rclone_source=%s`, i.RcloneSource),
+		fmt.Sprintf(`rclone_dest=%s`, i.RcloneDest),
+	}
+	fmt.Println("thumbnail", thumbnailPayload)
+	nomad.Dispatch("thumbnail", thumbnailPayload, utils.Config.NomadToken)
+	return c.SendString("video thumbnail running")
+}
+
 // ProcessVideoRequest dispatches a video ingest job
 func ProcessVideoRequest(c *fiber.Ctx) error {
 	i := new(processVideoInput)
@@ -47,8 +65,10 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 		return c.Status(400).SendString("video input failed unmarshalling")
 	}
 
-	srcFilename := filepath.Base(i.RcloneSourceFile)
-	srcExists := utils.Rclone("lsf", []string{i.RcloneSourceFile}, utils.Config.RcloneConfig)
+	// TODO :: Check payload for null values
+
+	srcFilename := filepath.Base(i.RcloneSource)
+	srcExists := utils.Rclone("lsf", []string{i.RcloneSource}, utils.Config.RcloneConfig)
 	srcExists = strings.Replace(srcExists, "\n", "", -1)
 	if srcFilename != srcExists {
 		errMsg := "rclone source file not found"
@@ -58,8 +78,8 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 	// TODO :: Check that remote exists
 
 	ingestPayload := []string{
-		fmt.Sprintf(`rclone_source_file=%s`, i.RcloneSourceFile),
-		fmt.Sprintf(`rclone_dest_dir=%s`, i.RcloneDestinationDir),
+		fmt.Sprintf(`rclone_source=%s`, i.RcloneSource),
+		fmt.Sprintf(`rclone_dest=%s`, i.RcloneDest),
 	}
 	fmt.Println("ingest", ingestPayload)
 	nomad.Dispatch("ingest", ingestPayload, utils.Config.NomadToken)
@@ -88,4 +108,5 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/", healthCheck)
 	app.Get("/videos/:id", GetVideo)
 	app.Post("/videos", ProcessVideoRequest)
+	app.Post("/videos/thumbnails", CreateThumbnailRequest)
 }

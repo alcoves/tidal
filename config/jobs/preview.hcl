@@ -3,12 +3,6 @@ job "preview" {
   type        = "batch"
   datacenters = ["dc1"]
 
-  constraint {
-    operator  = "regexp"
-    value     = "app-"
-    attribute = "${attr.unique.hostname}"
-  }
-
   parameterized {
     payload       = "optional"
     meta_required = [
