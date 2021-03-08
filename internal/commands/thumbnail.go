@@ -1,58 +1,74 @@
 package commands
 
-// import (
-// 	"fmt"
-// 	"io/ioutil"
-// 	"log"
-// 	"os"
-// 	"os/exec"
-// 	"strings"
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
 
-// 	"github.com/bkenio/tidal/src/utils"
-// )
+	"github.com/bkenio/tidal/internal/utils"
+)
 
-// // ThumbnailInput is for GenerateThumbnail
-// type ThumbnailInput struct {
-// 	Cmd          string
-// 	RcloneSource string
-// 	RcloneDest   string
-// }
+// CreateThumbnailEvent is used to generate a video thumbnail event
+type CreateThumbnailEvent struct {
+	RcloneSource string `json:"rcloneSource"` // remote:path
+	RcloneDest   string `json:"rcloneDest"`   // remote:path
+}
 
-// func generateThumbnail(thumbnailPath string, cmd string) {
-// 	ffmpegCmdParts := strings.Split(cmd, " ")
-// 	args := []string{}
-// 	args = append(args, "-y")
-// 	args = append(args, "-i")
-// 	args = append(args, thumbnailPath)
+func createThumbnail(sourceURL string, tmpDir string) string {
+	thumbnailPath := fmt.Sprintf("%s/thumb.webp", tmpDir)
 
-// 	for i := 0; i < len(ffmpegCmdParts); i++ {
-// 		args = append(args, ffmpegCmdParts[i])
-// 	}
+	args := []string{}
+	args = append(args, "-hide_banner")
+	args = append(args, "-y")
+	args = append(args, "-i")
+	args = append(args, sourceURL)
+	args = append(args, "-vf")
+	args = append(args, "scale=854:480:force_original_aspect_ratio=increase,crop=854:480")
+	args = append(args, "-vframes")
+	args = append(args, "1")
+	args = append(args, "-q:v")
+	args = append(args, "50")
+	args = append(args, thumbnailPath)
 
-// 	args = append(args, outputPath)
-// 	cmd := exec.Command("ffmpeg", args...)
-// 	cmd.Stdout = os.Stdout
-// 	cmd.Stderr = os.Stderr
-// 	return cmd
-// }
+	fmt.Println("ffmpeg command", args)
+	cmd := exec.Command("ffmpeg", args...)
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// writeCmdLogs(cmd, "segmentation", tmpDir)
 
-// func Thumbnail(e ThumbnailInput) {
-// 	fmt.Println("Starting thumbnail job")
-// 	thumbnailPath, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error:", err)
+		panic(err)
+	}
 
-// 	thumbnailPath, err := ioutil.TempFile("/tmp", "tidal-thumbnail-*.webp")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	return thumbnailPath
+}
 
-// 	fmt.Println("Generating thumbnail")
-// 	// TODO :: Can this be replaced with a generic ffmpeg func?
-// 	generateThumbnail(thumbnailPath, e.Cmd)
+// CreateThumbnail will create a video thumbnail
+func CreateThumbnail(e CreateThumbnailEvent) {
+	fmt.Println("Create temporary directory")
+	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
+	tmpDir, err := ioutil.TempDir(utils.Config.TidalTmpDir, "tidal-thumbnail-")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	fmt.Println("Uploading thumbnail")
-// 	utils.Rclone("copy", []string{thumbnailPath, e.RcloneDest})
+	fmt.Println("Getting signed URL")
+	sourceURL := utils.Rclone("link", []string{e.RcloneSource, "--expire", "1h"}, utils.Config.RcloneConfig)
+	sourceURL = strings.Replace(sourceURL, "\n", "", -1)
 
-// }
+	fmt.Println("Create video thumbnail")
+	thumbnailPath := createThumbnail(sourceURL, tmpDir)
+
+	fmt.Println("Uploading thumbnail to destination")
+	utils.Rclone("copyto", []string{thumbnailPath, e.RcloneDest}, utils.Config.RcloneConfig)
+
+	fmt.Println("Removing tmp dir")
+	err = os.RemoveAll(tmpDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

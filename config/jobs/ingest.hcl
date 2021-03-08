@@ -6,8 +6,8 @@ job "ingest" {
   parameterized {
     payload       = "optional"
     meta_required = [
-      "rclone_source_file",
-      "rclone_dest_dir",
+      "rclone_source",
+      "rclone_dest",
     ]
   }
 
@@ -29,8 +29,8 @@ job "ingest" {
         command = "tidal"
         args    = [
           "ingest",
-          "${NOMAD_META_RCLONE_SOURCE_FILE}",
-          "${NOMAD_META_RCLONE_DEST_DIR}",
+          "${NOMAD_META_RCLONE_SOURCE}",
+          "${NOMAD_META_RCLONE_DEST}",
         ]
       }
     }

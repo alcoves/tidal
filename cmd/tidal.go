@@ -42,6 +42,20 @@ func main() {
 		},
 	}
 
+	var thumbnailCommand = &cobra.Command{
+		Use:   "thumbnail [rclone_source rclone_dest]",
+		Short: "Creates a video thumbnail",
+		Args:  cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			tidalConfigDir, _ := cmd.Flags().GetString("tidalConfigDir")
+			utils.LoadConfig(tidalConfigDir)
+			commands.CreateThumbnail(commands.CreateThumbnailEvent{
+				RcloneSource: args[0],
+				RcloneDest:   args[1],
+			})
+		},
+	}
+
 	var tidalConfigDir string
 
 	var rootCmd = &cobra.Command{Use: "tidal"}
@@ -51,5 +65,7 @@ func main() {
 	apiCommand.Flags().String("port", "4000", "port the tidal api server should run on")
 
 	rootCmd.AddCommand(ingestCommand)
+	rootCmd.AddCommand(thumbnailCommand)
+
 	rootCmd.Execute()
 }
