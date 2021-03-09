@@ -3,12 +3,17 @@ job "fabio" {
   type        = "system"
 
   constraint {
-    attribute = "${attr.cpu.arch}"
     operator  = "="
     value     = "amd64"
+    attribute = "${attr.cpu.arch}"
   }
 
   group "fabio" {
+    constraint {
+      operator  = "distinct_hosts"
+      value     = "true"
+    }
+
     network {
       port "lb" { static = 80 }
       port "ui" { static = 9998 }

@@ -3,6 +3,12 @@ job "api" {
   datacenters = ["dc1"]
   type        = "service"
 
+  constraint {
+    operator  = "="
+    value     = "amd64"
+    attribute = "${attr.cpu.arch}"
+  }
+
   group "services" {
     update {
       max_parallel     = 1
@@ -18,14 +24,7 @@ job "api" {
     }
 
     task "api" {
-      constraint {
-        value     = "explorer-"
-        operator  = "regexp"
-        attribute = "${attr.unique.hostname}"
-      }
-
       driver = "raw_exec"
-
       config {
         command  = "tidal"
         args     = [ "api", "--port", "4000" ]

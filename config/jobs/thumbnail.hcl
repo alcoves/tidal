@@ -3,6 +3,12 @@ job "thumbnail" {
   type        = "batch"
   datacenters = ["dc1"]
 
+  constraint {
+    operator  = "="
+    value     = "amd64"
+    attribute = "${attr.cpu.arch}"
+  }
+
   parameterized {
     payload       = "optional"
     meta_required = [
