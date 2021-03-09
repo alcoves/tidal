@@ -56,6 +56,22 @@ func main() {
 		},
 	}
 
+	var transcodeCommand = &cobra.Command{
+		Use:   "transcode [rclone_source rclone_dest]",
+		Short: "Transcodes a file with ffmpeg",
+		Args:  cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			ffmpegCmd, _ := cmd.Flags().GetString("cmd")
+			tidalConfigDir, _ := cmd.Flags().GetString("tidalConfigDir")
+			utils.LoadConfig(tidalConfigDir)
+			commands.Transcode(commands.TranscodeEvent{
+				RcloneSource: args[0],
+				RcloneDest:   args[1],
+				Cmd:          ffmpegCmd,
+			})
+		},
+	}
+
 	var tidalConfigDir string
 
 	var rootCmd = &cobra.Command{Use: "tidal"}
@@ -66,6 +82,9 @@ func main() {
 
 	rootCmd.AddCommand(ingestCommand)
 	rootCmd.AddCommand(thumbnailCommand)
+
+	rootCmd.AddCommand(transcodeCommand)
+	transcodeCommand.Flags().String("cmd", "", "the ffmpeg command to run")
 
 	rootCmd.Execute()
 }
