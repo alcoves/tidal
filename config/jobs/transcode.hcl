@@ -7,32 +7,14 @@ job "transcode" {
     payload       = "optional"
     meta_required = [
       "cmd",
-      "s3_in",
-      "s3_out",
+      "rclone_source",
+      "rclone_dest",
     ]
   }
 
   group "transcode" {
     task "transcode" {
       driver = "raw_exec"
-
-      template {
-        data = <<EOH
-NOMAD_TOKEN="{{key "secrets/NOMAD_TOKEN"}}"
-CONSUL_TOKEN="{{key "secrets/CONSUL_TOKEN"}}"
-
-S3_IN_ENDPOINT="{{key "secrets/DO_ENDPOINT"}}"
-S3_IN_ACCESS_KEY_ID="{{key "secrets/DO_ACCESS_KEY_ID"}}"
-S3_IN_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
-
-S3_OUT_ENDPOINT="{{key "secrets/DO_ENDPOINT"}}"
-S3_OUT_ACCESS_KEY_ID="{{key "secrets/DO_ACCESS_KEY_ID"}}"
-S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
-        EOH
-        
-        destination = ".env"
-        env         = true
-      }
 
       restart {
         attempts = 3
@@ -45,11 +27,11 @@ S3_OUT_SECRET_ACCESS_KEY="{{key "secrets/DO_SECRET_ACCESS_KEY"}}"
       }
 
       config {
-        command = "/home/ubuntu/tidal/main"
+        command = "tidal"
         args    = [
           "transcode",
-          "${NOMAD_META_S3_IN}",
-          "${NOMAD_META_S3_OUT}",
+          "${NOMAD_META_RCLONE_SOURCE}",
+          "${NOMAD_META_RCLONE_DEST}",
           "--cmd",
           "${NOMAD_META_CMD}",
         ]

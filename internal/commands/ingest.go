@@ -8,9 +8,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
+	"github.com/bkenio/tidal/internal/nomad"
 	"github.com/bkenio/tidal/internal/utils"
 )
 
@@ -86,35 +86,6 @@ func countFiles(path string) []string {
 		log.Fatal(err)
 	}
 	return fileList
-}
-
-func transcodeSegment(wg *sync.WaitGroup, sourceSegmentPath string, transcodedSegmentPath string, ffmpegCmd string) string {
-	defer wg.Done()
-	ffmpegCmdParts := strings.Split(ffmpegCmd, " ")
-	destDir := filepath.Dir(transcodedSegmentPath)
-	os.MkdirAll(destDir, os.ModePerm)
-
-	args := []string{}
-	args = append(args, "-hide_banner")
-	args = append(args, "-y")
-	args = append(args, "-i")
-	args = append(args, sourceSegmentPath)
-
-	for i := 0; i < len(ffmpegCmdParts); i++ {
-		args = append(args, ffmpegCmdParts[i])
-	}
-
-	args = append(args, transcodedSegmentPath)
-	fmt.Println("ffmpeg command", args)
-	cmd := exec.Command("ffmpeg", args...)
-	// writeCmdLogs(cmd, "segmentation", tmpDir)
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
-	}
-
-	return transcodedSegmentPath
 }
 
 func concatinateSegments(progressiveDir string, manifestPath, presetName string) string {
@@ -316,18 +287,19 @@ func Pipeline(e PipelineEvent) {
 	fmt.Println("Source segments count", len(sourceSegments))
 
 	fmt.Println("Transcoding segments")
-
 	for i := 0; i < len(sourceSegments); i++ {
 		fmt.Println("Transcoding segment", sourceSegments[i].Name())
-		var wg sync.WaitGroup
 		for j := 0; j < len(presets); j++ {
 			fmt.Println("Transcoding preset", presets[j].Name)
 			sourceSegmentPath := fmt.Sprintf("%s/%s", sourceSegmentsDir, sourceSegments[i].Name())
 			transcodedSegmentPath := fmt.Sprintf("%s/%s/%s", transcodedSegmentsDir, presets[j].Name, sourceSegments[i].Name())
-			wg.Add(1)
-			go transcodeSegment(&wg, sourceSegmentPath, transcodedSegmentPath, presets[j].Cmd)
+			transcodePayload := []string{
+				fmt.Sprintf(`cmd=%s`, presets[j].Cmd),
+				fmt.Sprintf(`rclone_source=%s`, sourceSegmentPath),
+				fmt.Sprintf(`rclone_dest=%s`, transcodedSegmentPath),
+			}
+			nomad.Dispatch("transcode", transcodePayload, utils.Config.NomadToken)
 		}
-		wg.Wait()
 	}
 
 	fmt.Println("Waiting for transcoded to complete")

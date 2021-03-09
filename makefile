@@ -9,7 +9,7 @@ build_clean:
 install: build_clean
 	sudo cp ./tidal /usr/local/bin/tidal
 
-api: install
+dev: install
 	tidal api
 
 run: jobs
