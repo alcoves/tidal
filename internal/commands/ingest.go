@@ -256,6 +256,11 @@ func Pipeline(e PipelineEvent) {
 		log.Fatal(err)
 	}
 
+	tidalMeta := utils.TidalMeta{
+		Status: "processing",
+	}
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	os.Mkdir(tmpDir, os.ModePerm)
 	fmt.Println("Tmp Dir:", tmpDir)
 
@@ -333,6 +338,9 @@ func Pipeline(e PipelineEvent) {
 
 	fmt.Println("Syncing logs with remote")
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
+
+	tidalMeta.Status = "completed"
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
 	fmt.Println("Remove temporary directory")
 	err = os.RemoveAll(tmpDir)
