@@ -334,7 +334,7 @@ func Pipeline(e PipelineEvent) {
 	packagedDir := packageHls(tmpDir, progressiveDir)
 
 	fmt.Println("Syncing hls assets with remote")
-	utils.Rclone("copy", []string{packagedDir, e.RcloneDest}, utils.Config.RcloneConfig)
+	utils.Rclone("copy", []string{packagedDir, e.RcloneDest + "/hls"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Syncing logs with remote")
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)

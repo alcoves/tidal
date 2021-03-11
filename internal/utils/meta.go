@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 // TidalMeta is a struct that contains relevant metadata about a video encode
@@ -25,15 +24,14 @@ func UpsertTidalMeta(m TidalMeta, rcloneDest string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tmpTidalMetaPath := filepath.Join(Config.TidalTmpDir, tmpTidalMetaFile.Name())
-	defer os.Remove(tmpTidalMetaPath)
+	defer os.Remove(tmpTidalMetaFile.Name())
 
 	file, err := json.MarshalIndent(m, "", " ")
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = ioutil.WriteFile(tmpTidalMetaPath, file, os.ModePerm)
+	_ = ioutil.WriteFile(tmpTidalMetaFile.Name(), file, os.ModePerm)
 
 	fmt.Println("Creating tidal meta file in remote")
-	Rclone("copyto", []string{tmpTidalMetaPath, remoteMetaPath}, Config.RcloneConfig)
+	Rclone("copyto", []string{tmpTidalMetaFile.Name(), remoteMetaPath}, Config.RcloneConfig)
 }
