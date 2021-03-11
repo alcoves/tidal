@@ -49,8 +49,8 @@ job "api" {
       }
 
       resources {
-        memory = 100
-        cpu    = 100
+        memory = 500
+        cpu    = 500
       }
     }
   }
