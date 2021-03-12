@@ -27,23 +27,20 @@ type Response struct {
 
 // Video is a slim ffprobe struct
 type Video struct {
-	width     int
-	height    int
-	bitrate   int
-	rotate    int
-	framerate float64
-	duration  float32
+	Width     int     `json:"width"`
+	Height    int     `json:"height"`
+	Bitrate   int     `json:"bitrate"`
+	Rotate    int     `json:"rotate"`
+	Framerate float64 `json:"framerate"`
+	Duration  float32 `json:"duration"`
 }
 
 // CalculatePresets returns a json list of availible presets
-func CalculatePresets(inputPath string) Presets {
-	metadata := GetMetadata(inputPath)
-	presets := GetPresets(metadata)
-
+func CalculatePresets(videoMetadata Video) Presets {
+	presets := GetPresets(videoMetadata)
 	response := Response{
 		Presets: presets,
 	}
-
 	prettyResponse, err := json.Marshal(response)
 	if err != nil {
 		log.Println(err)
@@ -109,7 +106,7 @@ func GetPresets(v Video) Presets {
 		},
 	}
 
-	if ClampPreset(v.width, v.height, 1280, 720) {
+	if ClampPreset(v.Width, v.Height, 1280, 720) {
 		addition := Preset{
 			Name: "720",
 			Cmd:  x264(v, 1280),
@@ -117,7 +114,7 @@ func GetPresets(v Video) Presets {
 		presets = append(presets, addition)
 	}
 
-	if ClampPreset(v.width, v.height, 1920, 1080) {
+	if ClampPreset(v.Width, v.Height, 1920, 1080) {
 		addition := Preset{
 			Name: "1080",
 			Cmd:  x264(v, 1920),
@@ -125,7 +122,7 @@ func GetPresets(v Video) Presets {
 		presets = append(presets, addition)
 	}
 
-	if ClampPreset(v.width, v.height, 2560, 1440) {
+	if ClampPreset(v.Width, v.Height, 2560, 1440) {
 		addition := Preset{
 			Name: "1440",
 			Cmd:  x264(v, 2560),
@@ -133,7 +130,7 @@ func GetPresets(v Video) Presets {
 		presets = append(presets, addition)
 	}
 
-	if ClampPreset(v.width, v.height, 3840, 2160) {
+	if ClampPreset(v.Width, v.Height, 3840, 2160) {
 		addition := Preset{
 			Name: "2160",
 			Cmd:  x264(v, 3840),
@@ -150,8 +147,8 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 }
 
 func x264(v Video, desiredWidth int) string {
-	scale := CalcScale(v.width, v.height, desiredWidth)
-	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.framerate, scale)
+	scale := CalcScale(v.Width, v.Height, desiredWidth)
+	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
 
 	commands := []string{
 		vf,
@@ -166,8 +163,8 @@ func x264(v Video, desiredWidth int) string {
 		"-force_key_frames expr:gte(t,n_forced*2)",
 	}
 
-	if v.bitrate > 0 {
-		maxrateKb := calcMaxBitrate(v.width, desiredWidth, v.bitrate)
+	if v.Bitrate > 0 {
+		maxrateKb := calcMaxBitrate(v.Width, desiredWidth, v.Bitrate)
 		bufsize := int(float32(maxrateKb) * 1.5)
 		maxrateCommand := fmt.Sprintf("-maxrate %dK -bufsize %dK", maxrateKb, bufsize)
 		commands = append(commands, maxrateCommand)
@@ -258,33 +255,33 @@ func GetMetadata(url string) Video {
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.duration = float32(duration)
+			metadata.Duration = float32(duration)
 		} else if key == "width" {
 			width, err := strconv.Atoi(value)
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.width = int(width)
+			metadata.Width = int(width)
 		} else if key == "height" {
 			height, err := strconv.Atoi(value)
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.height = int(height)
+			metadata.Height = int(height)
 		} else if key == "bit_rate" {
 			bitrate, err := strconv.Atoi(value)
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.bitrate = int(bitrate)
+			metadata.Bitrate = int(bitrate)
 		} else if key == "TAG:rotate" {
 			rotate, err := strconv.Atoi(value)
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.rotate = rotate
+			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
-			metadata.framerate = ParseFramerate(value)
+			metadata.Framerate = ParseFramerate(value)
 		}
 	}
 
