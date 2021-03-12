@@ -347,7 +347,7 @@ func Pipeline(e PipelineEvent) {
 					transcodedRenditionSegments, _ := ioutil.ReadDir(transcodedSegmentsDir + "/" + presets[i].Name)
 					percentCompleted := 0.0
 					if len(transcodedRenditionSegments) > 0 {
-						percentCompleted = percent.PercentOf(len(sourceSegments), len(transcodedRenditionSegments))
+						percentCompleted = percent.PercentOf(len(transcodedRenditionSegments), len(sourceSegments))
 					}
 
 					tidalMeta.Renditions[j].PercentCompleted = percentCompleted
