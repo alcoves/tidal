@@ -8,11 +8,24 @@ import (
 	"os"
 )
 
+// TidalMetaRendition represents an individual video preset
+type TidalMetaRendition struct {
+	Type             string  `json:"type"`
+	Name             string  `json:"name"`
+	Link             string  `json:"link"`
+	PercentCompleted float64 `json:"percent_completed"`
+}
+
 // TidalMeta is a struct that contains relevant metadata about a video encode
 type TidalMeta struct {
-	Status           string  `json:"status"`
-	Duration         int     `json:"duration"`
-	PercentCompleted float32 `json:"percentCompleted"`
+	ID                  string               `json:"id"`
+	Source              string               `json:"source"`
+	Status              string               `json:"status"`
+	Duration            float64              `json:"duration"`
+	Thumbnail           string               `json:"thumbnail"`
+	Renditions          []TidalMetaRendition `json:"renditions"`
+	HLSMasterLink       string               `json:"hls_master_link"`
+	SourceSegmentsCount int                  `json:"source_segments_count"`
 }
 
 // UpsertTidalMeta marshals the input and copyies it to the remote

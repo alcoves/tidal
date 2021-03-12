@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/bkenio/tidal/internal/nomad"
 	"github.com/bkenio/tidal/internal/utils"
@@ -69,7 +68,6 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 
 	srcFilename := filepath.Base(i.RcloneSource)
 	srcExists := utils.Rclone("lsf", []string{i.RcloneSource}, utils.Config.RcloneConfig)
-	srcExists = strings.Replace(srcExists, "\n", "", -1)
 	if srcFilename != srcExists {
 		errMsg := "rclone source file not found"
 		return c.Status(400).SendString(errMsg)

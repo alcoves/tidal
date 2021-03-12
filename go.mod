@@ -3,6 +3,7 @@ module github.com/bkenio/tidal
 go 1.16
 
 require (
+	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2 // indirect
 	github.com/gofiber/fiber/v2 v2.5.0
 	github.com/klauspost/compress v1.11.9 // indirect
 	github.com/spf13/cobra v1.1.3

@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/bkenio/tidal/internal/utils"
 )
@@ -58,7 +57,6 @@ func CreateThumbnail(e CreateThumbnailEvent) {
 
 	fmt.Println("Getting signed URL")
 	sourceURL := utils.Rclone("link", []string{e.RcloneSource, "--expire", "1h"}, utils.Config.RcloneConfig)
-	sourceURL = strings.Replace(sourceURL, "\n", "", -1)
 
 	fmt.Println("Create video thumbnail")
 	thumbnailPath := createThumbnail(sourceURL, tmpDir)
