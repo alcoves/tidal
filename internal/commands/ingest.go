@@ -252,10 +252,8 @@ func Pipeline(e PipelineEvent) {
 
 	// First update
 	tidalMeta := utils.TidalMeta{
-		ID:        videoID,
-		Status:    "started",
-		Duration:  0.0,
-		Thumbnail: e.RcloneDest + "/thumb.webp",
+		ID:     videoID,
+		Status: "started",
 	}
 	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
@@ -281,16 +279,6 @@ func Pipeline(e PipelineEvent) {
 	sourceLink := utils.Rclone("link", []string{e.RcloneSource}, utils.Config.RcloneConfig)
 	tidalMeta.HLSMasterLink = sourceLink
 	tidalMeta.Status = "completed"
-
-	fmt.Println("Creating initial thumbnail")
-	rcloneThumbnailDest := e.RcloneDest + "/thumb.webp"
-	thumbnailEvent := CreateThumbnailEvent{
-		RcloneSource: e.RcloneSource,
-		RcloneDest:   rcloneThumbnailDest,
-	}
-	CreateThumbnail(thumbnailEvent)
-	thumbnailURL := utils.Rclone("link", []string{rcloneThumbnailDest}, utils.Config.RcloneConfig)
-	tidalMeta.Thumbnail = thumbnailURL
 	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
 	fmt.Println("Downloading source file")
