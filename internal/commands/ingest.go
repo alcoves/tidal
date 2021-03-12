@@ -373,7 +373,7 @@ func Pipeline(e PipelineEvent) {
 			fmt.Println("Transcoding complete!")
 			break
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 	tidalMeta.Status = "packaging"
