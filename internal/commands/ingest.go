@@ -276,17 +276,25 @@ func Pipeline(e PipelineEvent) {
 	filename := filepath.Base(e.RcloneSource)
 	sourcePath := fmt.Sprintf("%s/%s", tmpDir, filename)
 
-	sourceLink := utils.Rclone("link", []string{e.RcloneSource}, utils.Config.RcloneConfig)
-	tidalMeta.HLSMasterLink = sourceLink
-	tidalMeta.Status = "completed"
+	fmt.Println("Creating initial thumbnail")
+	rcloneThumbnailDest := e.RcloneDest + "/thumb.webp"
+	thumbnailEvent := CreateThumbnailEvent{
+		RcloneSource: e.RcloneSource,
+		RcloneDest:   rcloneThumbnailDest,
+	}
+	CreateThumbnail(thumbnailEvent)
+	thumbnailURL := utils.Rclone("link", []string{rcloneThumbnailDest}, utils.Config.RcloneConfig)
+	tidalMeta.Thumbnail = thumbnailURL
 	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
 	fmt.Println("Downloading source file")
 	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
 
 	fmt.Println("Getting video presets")
-	presets := utils.CalculatePresets(sourcePath)
+	videoMetadata := utils.GetMetadata(sourcePath)
+	presets := utils.CalculatePresets(videoMetadata)
 	fmt.Println("presets", presets)
+	tidalMeta.Duration = videoMetadata.Duration
 
 	for i := 0; i < len(presets); i++ {
 		rendition := utils.TidalMetaRendition{

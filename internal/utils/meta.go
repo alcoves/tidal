@@ -12,16 +12,18 @@ import (
 type TidalMetaRendition struct {
 	Type             string  `json:"type"`
 	Name             string  `json:"name"`
-	PercentCompleted float64 `json:"percent_completed"`
+	PercentCompleted float64 `json:"percentCompleted"`
 }
 
 // TidalMeta is a struct that contains relevant metadata about a video encode
 type TidalMeta struct {
 	ID                  string               `json:"id"`
 	Status              string               `json:"status"`
+	Duration            float32              `json:"duration"`
+	Thumbnail           string               `json:"thumbnail"`
 	Renditions          []TidalMetaRendition `json:"renditions"`
-	HLSMasterLink       string               `json:"hls_master_link"`
-	SourceSegmentsCount int                  `json:"source_segments_count"`
+	HLSMasterLink       string               `json:"hlsMasterLink"`
+	SourceSegmentsCount int                  `json:"sourceSegmentsCount"`
 }
 
 // UpsertTidalMeta marshals the input and copyies it to the remote

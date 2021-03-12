@@ -61,12 +61,12 @@ func TestCalcScale(t *testing.T) {
 
 func TestGetPresetsHorizontalVideo(t *testing.T) {
 	v := Video{
-		bitrate:   0,
-		rotate:    0,
-		duration:  600,
-		width:     1920,
-		height:    1080,
-		framerate: 60,
+		Bitrate:   0,
+		Rotate:    0,
+		Duration:  600,
+		Width:     1920,
+		Height:    1080,
+		Framerate: 60,
 	}
 
 	expectedPresets := Presets{
@@ -99,12 +99,12 @@ func TestGetPresetsHorizontalVideo(t *testing.T) {
 
 func TestGetPresetsVerticalVideo(t *testing.T) {
 	v := Video{
-		bitrate:   0,
-		rotate:    90,
-		duration:  600,
-		width:     1920,
-		height:    1080,
-		framerate: 60,
+		Bitrate:   0,
+		Rotate:    90,
+		Duration:  600,
+		Width:     1920,
+		Height:    1080,
+		Framerate: 60,
 	}
 
 	expectedPresets := Presets{
@@ -137,12 +137,12 @@ func TestGetPresetsVerticalVideo(t *testing.T) {
 
 func TestGetPresetsVideo(t *testing.T) {
 	v := Video{
-		bitrate:   0,
-		rotate:    0,
-		duration:  30,
-		width:     720,
-		height:    1568,
-		framerate: 60,
+		Bitrate:   0,
+		Rotate:    0,
+		Duration:  30,
+		Width:     720,
+		Height:    1568,
+		Framerate: 60,
 	}
 
 	expectedPresets := Presets{
