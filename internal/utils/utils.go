@@ -32,7 +32,7 @@ type Video struct {
 	Bitrate   int     `json:"bitrate"`
 	Rotate    int     `json:"rotate"`
 	Framerate float64 `json:"framerate"`
-	Duration  float32 `json:"duration"`
+	Duration  float64 `json:"duration"`
 }
 
 // CalculatePresets returns a json list of availible presets
@@ -78,8 +78,8 @@ func Rclone(subCommand string, arguments []string, configPath string) string {
 
 // CalcScale returns an ffmpeg video filter
 func CalcScale(w int, h int, dw int) string {
-	videoRatio := float32(h) / float32(w)
-	desiredHeight := int(videoRatio * float32(dw))
+	videoRatio := float64(h) / float64(w)
+	desiredHeight := int(videoRatio * float64(dw))
 
 	// Video heights must be divisible by 2
 	if desiredHeight%2 != 0 {
@@ -142,8 +142,8 @@ func GetPresets(v Video) Presets {
 }
 
 func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
-	vidRatio := float32(desiredWidth) / float32(originalWidth)
-	return int(vidRatio * float32(bitrate) / 1000)
+	vidRatio := float64(desiredWidth) / float64(originalWidth)
+	return int(vidRatio * float64(bitrate) / 1000)
 }
 
 func x264(v Video, desiredWidth int) string {
@@ -165,7 +165,7 @@ func x264(v Video, desiredWidth int) string {
 
 	if v.Bitrate > 0 {
 		maxrateKb := calcMaxBitrate(v.Width, desiredWidth, v.Bitrate)
-		bufsize := int(float32(maxrateKb) * 1.5)
+		bufsize := int(float64(maxrateKb) * 1.5)
 		maxrateCommand := fmt.Sprintf("-maxrate %dK -bufsize %dK", maxrateKb, bufsize)
 		commands = append(commands, maxrateCommand)
 	}
@@ -182,7 +182,7 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
-// ParseFramerate converts an ffmpeg framerate string to a float32
+// ParseFramerate converts an ffmpeg framerate string to a float64
 func ParseFramerate(fr string) float64 {
 	var parsedFramerate float64 = 0
 
@@ -255,7 +255,7 @@ func GetMetadata(url string) Video {
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.Duration = float32(duration)
+			metadata.Duration = float64(duration)
 		} else if key == "width" {
 			width, err := strconv.Atoi(value)
 			if err != nil {

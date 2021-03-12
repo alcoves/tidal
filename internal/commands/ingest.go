@@ -363,6 +363,8 @@ func Pipeline(e PipelineEvent) {
 				}
 			}
 		}
+
+		tidalMeta.PercentCompleted = percent.PercentOf(len(transcodedSegments), expectedSegments)
 		utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
 		fmt.Println("Transcoded segments count", len(transcodedSegments))
