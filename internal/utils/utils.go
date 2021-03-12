@@ -76,7 +76,7 @@ func Rclone(subCommand string, arguments []string, configPath string) string {
 	}
 
 	output := out.String()
-	return output
+	return strings.Replace(output, "\n", "", -1)
 }
 
 // CalcScale returns an ffmpeg video filter

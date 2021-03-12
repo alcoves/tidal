@@ -12,6 +12,7 @@ import (
 
 	"github.com/bkenio/tidal/internal/nomad"
 	"github.com/bkenio/tidal/internal/utils"
+	"github.com/dariubs/percent"
 )
 
 // Preset is a struct containing transcoder commands
@@ -249,18 +250,22 @@ func Pipeline(e PipelineEvent) {
 	srcFilename := filepath.Base(e.RcloneSource)
 	videoID := strings.TrimSuffix(srcFilename, filepath.Ext(srcFilename))
 
+	// First update
+	tidalMeta := utils.TidalMeta{
+		ID:        videoID,
+		Status:    "started",
+		Duration:  0.0,
+		Thumbnail: e.RcloneDest + "/thumb.webp",
+	}
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	fmt.Println("Create temporary directory")
 	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
 	tmpDir, err := ioutil.TempDir(utils.Config.TidalTmpDir, videoID+"-")
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	tidalMeta := utils.TidalMeta{
-		Status: "processing",
-	}
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
-
+	defer os.RemoveAll(tmpDir)
 	os.Mkdir(tmpDir, os.ModePerm)
 	fmt.Println("Tmp Dir:", tmpDir)
 
@@ -273,6 +278,21 @@ func Pipeline(e PipelineEvent) {
 	filename := filepath.Base(e.RcloneSource)
 	sourcePath := fmt.Sprintf("%s/%s", tmpDir, filename)
 
+	sourceLink := utils.Rclone("link", []string{e.RcloneSource}, utils.Config.RcloneConfig)
+	tidalMeta.HLSMasterLink = sourceLink
+	tidalMeta.Status = "completed"
+
+	fmt.Println("Creating initial thumbnail")
+	rcloneThumbnailDest := e.RcloneDest + "/thumb.webp"
+	thumbnailEvent := CreateThumbnailEvent{
+		RcloneSource: e.RcloneSource,
+		RcloneDest:   rcloneThumbnailDest,
+	}
+	CreateThumbnail(thumbnailEvent)
+	thumbnailURL := utils.Rclone("link", []string{rcloneThumbnailDest}, utils.Config.RcloneConfig)
+	tidalMeta.Thumbnail = thumbnailURL
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	fmt.Println("Downloading source file")
 	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
 
@@ -280,18 +300,35 @@ func Pipeline(e PipelineEvent) {
 	presets := utils.CalculatePresets(sourcePath)
 	fmt.Println("presets", presets)
 
+	for i := 0; i < len(presets); i++ {
+		rendition := utils.TidalMetaRendition{
+			PercentCompleted: 0,
+			Type:             "hls",
+			Name:             presets[i].Name,
+		}
+		tidalMeta.Renditions = append(tidalMeta.Renditions, rendition)
+	}
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	fmt.Println("Splitting source audio")
 	sourceAudioPath := splitAudio(sourcePath)
 	fmt.Println("sourceAudioPath", sourceAudioPath)
 
 	fmt.Println("Segmenting video")
+	tidalMeta.Status = "segmenting"
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 	sourceSegmentsDir := segmentVideo(sourcePath, presets)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
 
 	sourceSegments, _ := ioutil.ReadDir(sourceSegmentsDir)
 	fmt.Println("Source segments count", len(sourceSegments))
 
+	tidalMeta.SourceSegmentsCount = len(sourceSegments)
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	fmt.Println("Transcoding segments")
+	tidalMeta.Status = "transcoding"
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 	for i := 0; i < len(sourceSegments); i++ {
 		fmt.Println("Transcoding segment", sourceSegments[i].Name())
 		for j := 0; j < len(presets); j++ {
@@ -315,6 +352,23 @@ func Pipeline(e PipelineEvent) {
 		}
 		transcodedSegments := countFiles(transcodedSegmentsDir)
 		expectedSegments := len(sourceSegments) * len(presets)
+
+		for i := 0; i < len(presets); i++ {
+			for j, v := range tidalMeta.Renditions {
+				if v.Name == presets[i].Name {
+					transcodedRenditionSegments, _ := ioutil.ReadDir(transcodedSegmentsDir + "/" + presets[i].Name)
+					percentCompleted := 0.0
+					if len(transcodedRenditionSegments) > 0 {
+						percentCompleted = percent.PercentOf(len(sourceSegments), len(transcodedRenditionSegments))
+					}
+
+					tidalMeta.Renditions[j].PercentCompleted = percentCompleted
+					break
+				}
+			}
+		}
+		utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 		fmt.Println("Transcoded segments count", len(transcodedSegments))
 		fmt.Println("Expected segments count", expectedSegments)
 		if len(transcodedSegments) >= expectedSegments {
@@ -323,6 +377,9 @@ func Pipeline(e PipelineEvent) {
 		}
 		time.Sleep(10 * time.Second)
 	}
+
+	tidalMeta.Status = "packaging"
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
 
 	for i := 0; i < len(presets); i++ {
 		fmt.Println("Concatinating video", presets[i])
@@ -333,18 +390,18 @@ func Pipeline(e PipelineEvent) {
 	fmt.Println("Packaging video")
 	packagedDir := packageHls(tmpDir, progressiveDir)
 
+	tidalMeta.Status = "finalizing"
+	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+
 	fmt.Println("Syncing hls assets with remote")
 	utils.Rclone("copy", []string{packagedDir, e.RcloneDest + "/hls"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Syncing logs with remote")
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
+	fmt.Println("Adding hls master link")
+	hlsMasterLink := utils.Rclone("link", []string{e.RcloneDest + "/hls/master.m3u8"}, utils.Config.RcloneConfig)
+	tidalMeta.HLSMasterLink = hlsMasterLink
 	tidalMeta.Status = "completed"
 	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
-
-	fmt.Println("Remove temporary directory")
-	err = os.RemoveAll(tmpDir)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
