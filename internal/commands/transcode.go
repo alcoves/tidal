@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -23,6 +25,13 @@ func Transcode(e TranscodeEvent) string {
 	// Transcode should be refactored to fetch files if the source and dest path
 	// look like they point to rclone remotes.
 
+	filename := filepath.Base(e.RcloneDest)
+	tmpFilePattern := fmt.Sprintf("tidal-transcode-segment.*.%s", filename)
+	tmpFile, err := ioutil.TempFile("/tmp", tmpFilePattern)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	ffmpegCmdParts := strings.Split(e.Cmd, " ")
 	destDir := filepath.Dir(e.RcloneDest)
 	os.MkdirAll(destDir, os.ModePerm)
@@ -37,7 +46,7 @@ func Transcode(e TranscodeEvent) string {
 		args = append(args, ffmpegCmdParts[i])
 	}
 
-	args = append(args, e.RcloneDest)
+	args = append(args, tmpFile.Name())
 	fmt.Println("ffmpeg command", args)
 	cmd := exec.Command("ffmpeg", args...)
 	// writeCmdLogs(cmd, "segmentation", tmpDir)
@@ -47,5 +56,10 @@ func Transcode(e TranscodeEvent) string {
 		panic(err)
 	}
 
+	err = os.Rename(tmpFile.Name(), e.RcloneDest)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("success!")
 	return e.RcloneDest
 }
