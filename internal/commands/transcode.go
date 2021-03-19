@@ -2,8 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -18,30 +16,6 @@ type TranscodeEvent struct {
 	RcloneDest   string `json:"rcloneDest"`   // remote:path
 }
 
-func moveFile(sourcePath, destPath string) error {
-	inputFile, err := os.Open(sourcePath)
-	if err != nil {
-		return fmt.Errorf("Couldn't open source file: %s", err)
-	}
-	outputFile, err := os.Create(destPath)
-	if err != nil {
-		inputFile.Close()
-		return fmt.Errorf("Couldn't open dest file: %s", err)
-	}
-	defer outputFile.Close()
-	_, err = io.Copy(outputFile, inputFile)
-	inputFile.Close()
-	if err != nil {
-		return fmt.Errorf("Writing to output file failed: %s", err)
-	}
-	// The copy was successful, so now delete the original file
-	err = os.Remove(sourcePath)
-	if err != nil {
-		return fmt.Errorf("Failed removing original file: %s", err)
-	}
-	return nil
-}
-
 // Transcode performs an ffmpeg command on a given rclone source file
 func Transcode(e TranscodeEvent) string {
 	// TODO :: The names RcloneSource and RcloneDest indicate that the inputs to
@@ -51,11 +25,7 @@ func Transcode(e TranscodeEvent) string {
 	// look like they point to rclone remotes.
 
 	filename := filepath.Base(e.RcloneDest)
-	tmpFilePattern := fmt.Sprintf("tidal-transcode-segment.*.%s", filename)
-	tmpFile, err := ioutil.TempFile("/tmp", tmpFilePattern)
-	if err != nil {
-		log.Fatal(err)
-	}
+	hiddenFilePath := strings.Replace(e.RcloneDest, filename, "."+filename, 1)
 
 	ffmpegCmdParts := strings.Split(e.Cmd, " ")
 	destDir := filepath.Dir(e.RcloneDest)
@@ -71,7 +41,7 @@ func Transcode(e TranscodeEvent) string {
 		args = append(args, ffmpegCmdParts[i])
 	}
 
-	args = append(args, tmpFile.Name())
+	args = append(args, hiddenFilePath)
 	fmt.Println("ffmpeg command", args)
 	cmd := exec.Command("ffmpeg", args...)
 	// writeCmdLogs(cmd, "segmentation", tmpDir)
@@ -81,7 +51,10 @@ func Transcode(e TranscodeEvent) string {
 		panic(err)
 	}
 
-	moveFile(tmpFile.Name(), e.RcloneDest)
+	err := os.Rename(hiddenFilePath, e.RcloneDest)
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println("success!")
 	return e.RcloneDest
 }

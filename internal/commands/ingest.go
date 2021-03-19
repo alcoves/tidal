@@ -81,6 +81,10 @@ func countFiles(path string) []string {
 		if f.IsDir() {
 			return nil
 		}
+		// Ignore hidden files, this is really important for some callers (like progress estimation)
+		if f.Name()[0] == '.' {
+			return nil
+		}
 		fileList = append(fileList, path)
 		return nil
 	})

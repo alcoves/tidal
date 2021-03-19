@@ -9,14 +9,14 @@ build_clean:
 install: build_clean
 	sudo cp ./tidal /usr/local/bin/tidal
 
-dev: install
+dev: install nomad jobs
 	tidal api
 
-run: jobs
-	go run cmd/tidal.go $(ARGS)
+nomad:
+	nomad agent -dev &
 
-# Nomad
 jobs:
+	sleep 15
 	nomad job run config/jobs/ingest.hcl
 	nomad job run config/jobs/thumbnail.hcl
 	nomad job run config/jobs/transcode.hcl
