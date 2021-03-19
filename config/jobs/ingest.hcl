@@ -14,6 +14,7 @@ job "ingest" {
     meta_required = [
       "rclone_source",
       "rclone_dest",
+      "webhook_url",
     ]
   }
 
@@ -37,6 +38,8 @@ job "ingest" {
           "ingest",
           "${NOMAD_META_RCLONE_SOURCE}",
           "${NOMAD_META_RCLONE_DEST}",
+          "--webhookURL",
+          "${NOMAD_META_WEBHOOK_URL}"
         ]
       }
     }

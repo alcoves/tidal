@@ -1,11 +1,12 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
+	"net/http"
 )
 
 // TidalMetaRendition represents an individual video preset
@@ -27,23 +28,28 @@ type TidalMeta struct {
 	SourceSegmentsCount int                  `json:"sourceSegmentsCount"`
 }
 
-// UpsertTidalMeta marshals the input and copyies it to the remote
-func UpsertTidalMeta(m TidalMeta, rcloneDest string) {
-	remoteMetaPath := fmt.Sprintf("%s/meta.json", rcloneDest)
+// UpsertTidalMeta marshals the input and sends it to an http server
+func UpsertTidalMeta(m *TidalMeta, endpoint string) {
+	fmt.Println("Dispatching webhook", endpoint)
+	jsonValue, _ := json.Marshal(m)
 
-	fmt.Println("Create temporary meta file")
-	tmpTidalMetaFile, err := ioutil.TempFile(Config.TidalTmpDir, "tidal-meta-")
+	client := &http.Client{}
+	req, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(jsonValue))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "test")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(tmpTidalMetaFile.Name())
 
-	file, err := json.MarshalIndent(m, "", " ")
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = ioutil.WriteFile(tmpTidalMetaFile.Name(), file, os.ModePerm)
 
-	fmt.Println("Creating tidal meta file in remote")
-	Rclone("copyto", []string{tmpTidalMetaFile.Name(), remoteMetaPath}, Config.RcloneConfig)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Webhook Reponse:", string(body))
 }

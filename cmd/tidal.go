@@ -33,11 +33,13 @@ func main() {
 		Short: "Runs full video encode pipeline",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
+			webhookURL, _ := cmd.Flags().GetString("webhookURL")
 			tidalConfigDir, _ := cmd.Flags().GetString("tidalConfigDir")
 			utils.LoadConfig(tidalConfigDir)
 			commands.Pipeline(commands.PipelineEvent{
 				RcloneSource: args[0],
 				RcloneDest:   args[1],
+				WebhookURL:   webhookURL,
 			})
 		},
 	}
@@ -81,6 +83,8 @@ func main() {
 	apiCommand.Flags().String("port", "4000", "port the tidal api server should run on")
 
 	rootCmd.AddCommand(ingestCommand)
+	ingestCommand.Flags().String("webhookURL", "", "an http endpoint that tidal will send PATCH requests containing progress updates to")
+
 	rootCmd.AddCommand(thumbnailCommand)
 
 	rootCmd.AddCommand(transcodeCommand)

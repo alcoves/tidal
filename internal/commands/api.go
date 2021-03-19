@@ -2,9 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io/fs"
-	"log"
-	"os"
 	"path/filepath"
 
 	"github.com/bkenio/tidal/internal/nomad"
@@ -15,28 +12,11 @@ import (
 type processVideoInput struct {
 	RcloneSource string `json:"rcloneSource"`
 	RcloneDest   string `json:"rcloneDest"`
+	WebhookURL   string `json:"webhookURL"`
 }
 
 func healthCheck(c *fiber.Ctx) error {
 	return c.SendString("up")
-}
-
-func readDirRec(path string) []fs.FileInfo {
-	files := []fs.FileInfo{}
-
-	err := filepath.Walk(path,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				panic(err)
-			}
-			files = append(files, info)
-			return nil
-		})
-	if err != nil {
-		log.Println(err)
-	}
-
-	return files
 }
 
 // CreateThumbnailRequest proxies the thumbnail creation subcommand to the api
@@ -78,33 +58,16 @@ func ProcessVideoRequest(c *fiber.Ctx) error {
 	ingestPayload := []string{
 		fmt.Sprintf(`rclone_source=%s`, i.RcloneSource),
 		fmt.Sprintf(`rclone_dest=%s`, i.RcloneDest),
+		fmt.Sprintf(`webhook_url=%s`, i.WebhookURL),
 	}
 	fmt.Println("ingest", ingestPayload)
 	nomad.Dispatch("ingest", ingestPayload, utils.Config.NomadToken)
 	return c.SendString("video ingest running")
 }
 
-func GetVideo(c *fiber.Ctx) error {
-	videoID := c.Params("id")
-	files := readDirRec(fmt.Sprintf("/tmp/tidal/tmp/%s", videoID))
-
-	// read source-segments dir
-	// read transcoded-segments. 360, 720
-	// return { id: "", presets: [{ id: "", percentCompleted: 0 }, {}, {}] }
-
-	for i := 0; i < len(files); i++ {
-		fmt.Println(files[i].Name())
-	}
-
-	// Reads dir from disk
-	// Computes status
-	return c.SendString(videoID)
-}
-
 // SetupRoutes contrcuts consumable routes for fiber to use
 func SetupRoutes(app *fiber.App) {
 	app.Get("/", healthCheck)
-	app.Get("/videos/:id", GetVideo)
 	app.Post("/videos", ProcessVideoRequest)
 	app.Post("/videos/thumbnails", CreateThumbnailRequest)
 }
