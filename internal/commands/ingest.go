@@ -26,6 +26,7 @@ type Presets []Preset
 
 // PipelineEvent is used to enqueue an end-to-end encoding job
 type PipelineEvent struct {
+	WebhookURL   string // where to send patch updates to
 	RcloneSource string // remote:path
 	RcloneDest   string // remote:path
 }
@@ -255,7 +256,7 @@ func Pipeline(e PipelineEvent) {
 		ID:     videoID,
 		Status: "started",
 	}
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Create temporary directory")
 	os.MkdirAll(utils.Config.TidalTmpDir, os.ModePerm)
@@ -285,7 +286,7 @@ func Pipeline(e PipelineEvent) {
 	CreateThumbnail(thumbnailEvent)
 	thumbnailURL := utils.Rclone("link", []string{rcloneThumbnailDest}, utils.Config.RcloneConfig)
 	tidalMeta.Thumbnail = thumbnailURL
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Downloading source file")
 	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
@@ -304,7 +305,7 @@ func Pipeline(e PipelineEvent) {
 		}
 		tidalMeta.Renditions = append(tidalMeta.Renditions, rendition)
 	}
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Splitting source audio")
 	sourceAudioPath := splitAudio(sourcePath)
@@ -312,7 +313,7 @@ func Pipeline(e PipelineEvent) {
 
 	fmt.Println("Segmenting video")
 	tidalMeta.Status = "segmenting"
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 	sourceSegmentsDir := segmentVideo(sourcePath, presets)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
 
@@ -320,11 +321,11 @@ func Pipeline(e PipelineEvent) {
 	fmt.Println("Source segments count", len(sourceSegments))
 
 	tidalMeta.SourceSegmentsCount = len(sourceSegments)
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Transcoding segments")
 	tidalMeta.Status = "transcoding"
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 	for i := 0; i < len(sourceSegments); i++ {
 		fmt.Println("Transcoding segment", sourceSegments[i].Name())
 		for j := 0; j < len(presets); j++ {
@@ -365,7 +366,7 @@ func Pipeline(e PipelineEvent) {
 		}
 
 		tidalMeta.PercentCompleted = percent.PercentOf(len(transcodedSegments), expectedSegments)
-		utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+		utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 		fmt.Println("Transcoded segments count", len(transcodedSegments))
 		fmt.Println("Expected segments count", expectedSegments)
@@ -377,7 +378,7 @@ func Pipeline(e PipelineEvent) {
 	}
 
 	tidalMeta.Status = "packaging"
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	for i := 0; i < len(presets); i++ {
 		fmt.Println("Concatinating video", presets[i])
@@ -389,7 +390,7 @@ func Pipeline(e PipelineEvent) {
 	packagedDir := packageHls(tmpDir, progressiveDir)
 
 	tidalMeta.Status = "finalizing"
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Syncing hls assets with remote")
 	utils.Rclone("copy", []string{packagedDir, e.RcloneDest + "/hls"}, utils.Config.RcloneConfig)
@@ -401,5 +402,5 @@ func Pipeline(e PipelineEvent) {
 	hlsMasterLink := utils.Rclone("link", []string{e.RcloneDest + "/hls/master.m3u8"}, utils.Config.RcloneConfig)
 	tidalMeta.HLSMasterLink = hlsMasterLink
 	tidalMeta.Status = "completed"
-	utils.UpsertTidalMeta(tidalMeta, e.RcloneDest)
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 }
