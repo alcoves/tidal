@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,6 +16,30 @@ type TranscodeEvent struct {
 	Cmd          string `json:"cmd"`
 	RcloneSource string `json:"rcloneSource"` // remote:path
 	RcloneDest   string `json:"rcloneDest"`   // remote:path
+}
+
+func moveFile(sourcePath, destPath string) error {
+	inputFile, err := os.Open(sourcePath)
+	if err != nil {
+		return fmt.Errorf("Couldn't open source file: %s", err)
+	}
+	outputFile, err := os.Create(destPath)
+	if err != nil {
+		inputFile.Close()
+		return fmt.Errorf("Couldn't open dest file: %s", err)
+	}
+	defer outputFile.Close()
+	_, err = io.Copy(outputFile, inputFile)
+	inputFile.Close()
+	if err != nil {
+		return fmt.Errorf("Writing to output file failed: %s", err)
+	}
+	// The copy was successful, so now delete the original file
+	err = os.Remove(sourcePath)
+	if err != nil {
+		return fmt.Errorf("Failed removing original file: %s", err)
+	}
+	return nil
 }
 
 // Transcode performs an ffmpeg command on a given rclone source file
@@ -56,10 +81,7 @@ func Transcode(e TranscodeEvent) string {
 		panic(err)
 	}
 
-	err = os.Rename(tmpFile.Name(), e.RcloneDest)
-	if err != nil {
-		log.Fatal(err)
-	}
+	moveFile(tmpFile.Name(), e.RcloneDest)
 	fmt.Println("success!")
 	return e.RcloneDest
 }
