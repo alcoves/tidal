@@ -18,3 +18,5 @@ run: jobs
 # Nomad
 jobs:
 	nomad job run config/jobs/ingest.hcl
+	nomad job run config/jobs/thumbnail.hcl
+	nomad job run config/jobs/transcode.hcl
