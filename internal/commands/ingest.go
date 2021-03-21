@@ -288,9 +288,6 @@ func Pipeline(e PipelineEvent) {
 		RcloneDest:   rcloneThumbnailDest,
 	}
 	CreateThumbnail(thumbnailEvent)
-	thumbnailURL := utils.Rclone("link", []string{rcloneThumbnailDest}, utils.Config.RcloneConfig)
-	tidalMeta.Thumbnail = thumbnailURL
-	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Downloading source file")
 	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
@@ -402,9 +399,7 @@ func Pipeline(e PipelineEvent) {
 	fmt.Println("Syncing logs with remote")
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
-	fmt.Println("Adding hls master link")
-	hlsMasterLink := utils.Rclone("link", []string{e.RcloneDest + "/hls/master.m3u8"}, utils.Config.RcloneConfig)
-	tidalMeta.HLSMasterLink = hlsMasterLink
+	fmt.Println("Setting status completed")
 	tidalMeta.Status = "completed"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 }
