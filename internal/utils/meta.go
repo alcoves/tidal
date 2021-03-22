@@ -21,9 +21,7 @@ type TidalMeta struct {
 	ID                  string               `json:"id"`
 	Status              string               `json:"status"`
 	Duration            float64              `json:"duration"`
-	Thumbnail           string               `json:"thumbnail"`
 	Renditions          []TidalMetaRendition `json:"renditions"`
-	HLSMasterLink       string               `json:"hlsMasterLink"`
 	PercentCompleted    float64              `json:"percentCompleted"`
 	SourceSegmentsCount int                  `json:"sourceSegmentsCount"`
 }
