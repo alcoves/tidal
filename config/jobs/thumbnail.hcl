@@ -17,12 +17,12 @@ job "thumbnail" {
     ]
   }
 
-  group "thumbnail" {
+  group "tidal" {
     task "thumbnail" {
       driver = "raw_exec"
 
       restart {
-        attempts = 2
+        attempts = 1
         delay    = "10s"
       }
       
@@ -43,7 +43,7 @@ job "thumbnail" {
   }
 
   reschedule {
-    attempts       = 2
+    attempts       = 1
     delay          = "30s"
     max_delay      = "30s"
     unlimited      = false

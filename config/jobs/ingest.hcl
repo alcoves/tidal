@@ -1,5 +1,5 @@
 job "ingest" {
-  priority    = 90
+  priority    = 1
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -18,7 +18,7 @@ job "ingest" {
     ]
   }
 
-  group "ingest" {
+  group "tidal" {
     task "ingest" {
       driver = "raw_exec"
 
@@ -45,11 +45,7 @@ job "ingest" {
     }
 
     reschedule {
-      attempts       = 1
-      delay          = "30s"
-      max_delay      = "30s"
-      unlimited      = false
-      delay_function = "exponential"
+      attempts = 0
     }
   }
 }
