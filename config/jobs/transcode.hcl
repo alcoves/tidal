@@ -1,5 +1,5 @@
 job "transcode" {
-  priority    = 95
+  priority    = 100
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -18,12 +18,12 @@ job "transcode" {
     ]
   }
 
-  group "transcode" {
+  group "tidal" {
     task "transcode" {
       driver = "raw_exec"
 
       restart {
-        attempts = 1
+        attempts = 2
         delay    = "10s"
       }
 
