@@ -52,15 +52,14 @@ func writeCmdLogs(cmd *exec.Cmd, logPrefix string, tmpDir string) {
 	cmd.Stderr = os.Stderr
 }
 
-func splitAudio(sourcePath string) string {
-	sourceDir := filepath.Dir(sourcePath)
-	sourceAudioPath := fmt.Sprintf("%s/audio.wav", sourceDir)
+func splitAudio(sourceLink string, tmpDir string) string {
+	sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
 
 	args := []string{}
 	args = append(args, "-hide_banner")
 	args = append(args, "-y")
 	args = append(args, "-i")
-	args = append(args, sourcePath)
+	args = append(args, sourceLink)
 	args = append(args, "-vn")
 	args = append(args, sourceAudioPath)
 
@@ -186,9 +185,8 @@ func remuxWithAudio(concatinatedVideoPath string, sourceAudioPath string, preset
 	return remuxedVideoPath
 }
 
-func segmentVideo(sourcePath string, presets utils.Presets, duration float64) string {
-	sourceDir := filepath.Dir(sourcePath)
-	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", sourceDir)
+func segmentVideo(sourceLink string, tmpDir string, presets utils.Presets, duration float64) string {
+	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", tmpDir)
 	os.Mkdir(sourceSegmentsDir, os.ModePerm)
 
 	segmentTime := "120"
@@ -206,7 +204,7 @@ func segmentVideo(sourcePath string, presets utils.Presets, duration float64) st
 	args = append(args, "-hide_banner")
 	args = append(args, "-y")
 	args = append(args, "-i")
-	args = append(args, sourcePath)
+	args = append(args, sourceLink)
 	args = append(args, "-f")
 	args = append(args, "segment")
 	args = append(args, "-c")
@@ -214,7 +212,7 @@ func segmentVideo(sourcePath string, presets utils.Presets, duration float64) st
 	args = append(args, "-an")
 	args = append(args, "-segment_time")
 	args = append(args, segmentTime)
-	args = append(args, sourceSegmentsDir+`/%08d.ts`)
+	args = append(args, sourceSegmentsDir+`/%08d.ts`) // TODO :: support more than x264 segments
 
 	fmt.Println("ffmpeg command", args)
 	cmd := exec.Command("ffmpeg", args...)
@@ -293,8 +291,8 @@ func Pipeline(e PipelineEvent) {
 	transcodedSegmentsDir := fmt.Sprintf("%s/transcoded-segments", tmpDir)
 	os.MkdirAll(transcodedSegmentsDir, os.ModePerm)
 
-	filename := filepath.Base(e.RcloneSource)
-	sourcePath := fmt.Sprintf("%s/%s", tmpDir, filename)
+	fmt.Println("Generating signed url for fetching")
+	sourceLink := utils.Rclone("link", []string{e.RcloneSource}, utils.Config.RcloneConfig)
 
 	fmt.Println("Creating initial thumbnail")
 	rcloneThumbnailDest := e.RcloneDest + "/thumb.webp"
@@ -306,11 +304,8 @@ func Pipeline(e PipelineEvent) {
 	tidalMeta.Thumbnail = rcloneThumbnailDest
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
-	fmt.Println("Downloading source file")
-	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
-
 	fmt.Println("Getting video presets")
-	videoMetadata := utils.GetMetadata(sourcePath)
+	videoMetadata := utils.GetMetadata(sourceLink)
 	presets := utils.CalculatePresets(videoMetadata)
 	fmt.Println("presets", presets)
 	tidalMeta.Duration = videoMetadata.Duration
@@ -326,13 +321,13 @@ func Pipeline(e PipelineEvent) {
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Splitting source audio")
-	sourceAudioPath := splitAudio(sourcePath)
+	sourceAudioPath := splitAudio(sourceLink, tmpDir)
 	fmt.Println("sourceAudioPath", sourceAudioPath)
 
 	fmt.Println("Segmenting video")
 	tidalMeta.Status = "segmenting"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
-	sourceSegmentsDir := segmentVideo(sourcePath, presets, videoMetadata.Duration)
+	sourceSegmentsDir := segmentVideo(sourceLink, tmpDir, presets, videoMetadata.Duration)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
 
 	sourceSegments, _ := ioutil.ReadDir(sourceSegmentsDir)
