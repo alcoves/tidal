@@ -200,8 +200,6 @@ func segmentVideo(sourcePath string, presets utils.Presets, duration float64) st
 		segmentTime = "20"
 	} else if duration < 300 {
 		segmentTime = "10"
-	} else if duration < 60 {
-		segmentTime = "5"
 	}
 
 	args := []string{}
