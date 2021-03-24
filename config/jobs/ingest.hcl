@@ -23,7 +23,7 @@ job "ingest" {
       driver = "raw_exec"
 
       restart {
-        attempts = 5
+        attempts = 1
         delay    = "10s"
       }
 
@@ -45,9 +45,9 @@ job "ingest" {
     }
 
     reschedule {
-      attempts       = 5
+      attempts       = 1
       delay          = "30s"
-      max_delay      = "30m"
+      max_delay      = "30s"
       unlimited      = false
       delay_function = "exponential"
     }

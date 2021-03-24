@@ -22,7 +22,7 @@ job "thumbnail" {
       driver = "raw_exec"
 
       restart {
-        attempts = 3
+        attempts = 2
         delay    = "10s"
       }
       
@@ -43,9 +43,9 @@ job "thumbnail" {
   }
 
   reschedule {
-    attempts       = 5
+    attempts       = 2
     delay          = "30s"
-    max_delay      = "30m"
+    max_delay      = "30s"
     unlimited      = false
     delay_function = "exponential"
   }
