@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bkenio/tidal/internal/nomad"
@@ -244,7 +245,8 @@ func packageHls(tmpDir string, progressiveDir string) string {
 	return hlsDir
 }
 
-func concatinate(transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string) {
+func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string) {
+	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
 	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
 	remuxWithAudio(concatinatedVideoPath, sourceAudioPath, presetName)
@@ -386,10 +388,12 @@ func Pipeline(e PipelineEvent) {
 	tidalMeta.Status = "packaging"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
+	var concatWg sync.WaitGroup
 	for i := 0; i < len(presets); i++ {
 		fmt.Println("Concatinating video", presets[i])
 		transcodedSegmentsDir := fmt.Sprintf("%s/%s", transcodedSegmentsDir, presets[i].Name)
-		concatinate(transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name)
+		concatWg.Add(1)
+		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name)
 	}
 
 	fmt.Println("Packaging video")
