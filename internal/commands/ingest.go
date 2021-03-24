@@ -376,8 +376,7 @@ func Pipeline(e PipelineEvent) {
 		tidalMeta.PercentCompleted = percent.PercentOf(len(transcodedSegments), expectedSegments)
 		utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
-		fmt.Println("Transcoded segments count", len(transcodedSegments))
-		fmt.Println("Expected segments count", expectedSegments)
+		fmt.Println("Percent Completed", tidalMeta.PercentCompleted)
 		if len(transcodedSegments) >= expectedSegments {
 			fmt.Println("Transcoding complete!")
 			break
