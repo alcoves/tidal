@@ -288,6 +288,8 @@ func Pipeline(e PipelineEvent) {
 		RcloneDest:   rcloneThumbnailDest,
 	}
 	CreateThumbnail(thumbnailEvent)
+	tidalMeta.Thumbnail = rcloneThumbnailDest
+	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
 	fmt.Println("Downloading source file")
 	utils.Rclone("copy", []string{e.RcloneSource, tmpDir}, utils.Config.RcloneConfig)
@@ -346,7 +348,10 @@ func Pipeline(e PipelineEvent) {
 	timeoutLimit := 4320 * 60 // 72hrs in minutes
 	for i := 0; i <= timeoutLimit; i++ {
 		if i > 4320 {
-			log.Fatal("Timeout waiting for transcoded segments has been reached")
+			tidalMeta.Status = "failed"
+			utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
+			fmt.Println("Timeout waiting for transcoded segments has been reached")
+			os.Exit(0)
 		}
 		transcodedSegments := countFiles(transcodedSegmentsDir)
 		expectedSegments := len(sourceSegments) * len(presets)
@@ -400,6 +405,7 @@ func Pipeline(e PipelineEvent) {
 	utils.Rclone("copy", []string{tmpDir + "/logs", e.RcloneDest + "/logs"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Setting status completed")
+	tidalMeta.HLSMasterLink = fmt.Sprintf("%s/hls/master.m3u8", e.RcloneDest)
 	tidalMeta.Status = "completed"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 }
