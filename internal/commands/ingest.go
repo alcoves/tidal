@@ -184,10 +184,23 @@ func remuxWithAudio(concatinatedVideoPath string, sourceAudioPath string, preset
 	return remuxedVideoPath
 }
 
-func segmentVideo(sourcePath string, presets utils.Presets) string {
+func segmentVideo(sourcePath string, presets utils.Presets, duration float64) string {
 	sourceDir := filepath.Dir(sourcePath)
 	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", sourceDir)
 	os.Mkdir(sourceSegmentsDir, os.ModePerm)
+
+	segmentTime := "120"
+	if duration < 3600 {
+		segmentTime = "60"
+	} else if duration < 1800 {
+		segmentTime = "30"
+	} else if duration < 900 {
+		segmentTime = "20"
+	} else if duration < 300 {
+		segmentTime = "10"
+	} else if duration < 60 {
+		segmentTime = "5"
+	}
 
 	args := []string{}
 	args = append(args, "-hide_banner")
@@ -200,7 +213,7 @@ func segmentVideo(sourcePath string, presets utils.Presets) string {
 	args = append(args, "copy")
 	args = append(args, "-an")
 	args = append(args, "-segment_time")
-	args = append(args, "10")
+	args = append(args, segmentTime)
 	args = append(args, sourceSegmentsDir+`/%08d.ts`)
 
 	fmt.Println("ffmpeg command", args)
@@ -319,7 +332,7 @@ func Pipeline(e PipelineEvent) {
 	fmt.Println("Segmenting video")
 	tidalMeta.Status = "segmenting"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
-	sourceSegmentsDir := segmentVideo(sourcePath, presets)
+	sourceSegmentsDir := segmentVideo(sourcePath, presets, videoMetadata.Duration)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
 
 	sourceSegments, _ := ioutil.ReadDir(sourceSegmentsDir)
