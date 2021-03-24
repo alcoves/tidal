@@ -52,8 +52,8 @@ func writeCmdLogs(cmd *exec.Cmd, logPrefix string, tmpDir string) {
 	cmd.Stderr = os.Stderr
 }
 
-func splitAudio(sourceLink string, tmpDir string) string {
-	sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
+func splitAudio(wg *sync.WaitGroup, sourceLink string, sourceAudioPath string) {
+	defer wg.Done()
 
 	args := []string{}
 	args = append(args, "-hide_banner")
@@ -71,8 +71,6 @@ func splitAudio(sourceLink string, tmpDir string) string {
 		fmt.Println("Error:", err)
 		panic(err)
 	}
-
-	return sourceAudioPath
 }
 
 func countFiles(path string) []string {
@@ -185,8 +183,8 @@ func remuxWithAudio(concatinatedVideoPath string, sourceAudioPath string, preset
 	return remuxedVideoPath
 }
 
-func segmentVideo(sourceLink string, tmpDir string, presets utils.Presets, duration float64) string {
-	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", tmpDir)
+func segmentVideo(wg *sync.WaitGroup, sourceLink string, sourceSegmentsDir string, presets utils.Presets, duration float64) {
+	defer wg.Done()
 	os.Mkdir(sourceSegmentsDir, os.ModePerm)
 
 	segmentTime := "120"
@@ -222,8 +220,6 @@ func segmentVideo(sourceLink string, tmpDir string, presets utils.Presets, durat
 		fmt.Println("Error:", err)
 		panic(err)
 	}
-
-	return sourceSegmentsDir
 }
 
 func packageHls(tmpDir string, progressiveDir string) string {
@@ -320,15 +316,23 @@ func Pipeline(e PipelineEvent) {
 	}
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
-	fmt.Println("Splitting source audio")
-	sourceAudioPath := splitAudio(sourceLink, tmpDir)
-	fmt.Println("sourceAudioPath", sourceAudioPath)
-
 	fmt.Println("Segmenting video")
 	tidalMeta.Status = "segmenting"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
-	sourceSegmentsDir := segmentVideo(sourceLink, tmpDir, presets, videoMetadata.Duration)
+
+	var segmentWg sync.WaitGroup
+	sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
+	fmt.Println("sourceAudioPath", sourceAudioPath)
+	go splitAudio(&segmentWg, sourceLink, sourceAudioPath)
+	segmentWg.Add(1)
+
+	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", tmpDir)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
+	go segmentVideo(&segmentWg, sourceLink, sourceSegmentsDir, presets, videoMetadata.Duration)
+	segmentWg.Add(1)
+
+	fmt.Println("Waiting for segmentation to complete")
+	segmentWg.Wait()
 
 	sourceSegments, _ := ioutil.ReadDir(sourceSegmentsDir)
 	fmt.Println("Source segments count", len(sourceSegments))
