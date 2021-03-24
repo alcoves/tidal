@@ -28,8 +28,8 @@ job "transcode" {
       }
 
       resources {
-        cpu    = 2000
-        memory = 3500
+        cpu    = 8000
+        memory = 4000
       }
 
       config {
