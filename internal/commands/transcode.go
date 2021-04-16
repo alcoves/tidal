@@ -47,8 +47,7 @@ func Transcode(e TranscodeEvent) string {
 	// writeCmdLogs(cmd, "segmentation", tmpDir)
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
+		log.Fatal(err)
 	}
 
 	err := os.Rename(hiddenFilePath, e.RcloneDest)
