@@ -23,8 +23,8 @@ job "transcode" {
       driver = "raw_exec"
 
       restart {
-        attempts = 2
-        delay    = "10s"
+        attempts = 0
+        mode     = "fail"
       }
 
       resources {
@@ -45,11 +45,7 @@ job "transcode" {
     }
 
     reschedule {
-      attempts       = 1
-      delay          = "10s"
-      max_delay      = "120s"
-      unlimited      = false
-      delay_function = "exponential"
+      attempts = 0
     }
   }
 }
