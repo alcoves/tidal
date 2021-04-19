@@ -277,7 +277,8 @@ func GetMetadata(url string) Video {
 		} else if key == "bit_rate" {
 			bitrate, err := strconv.Atoi(value)
 			if err != nil {
-				log.Panic(err)
+				fmt.Println("Failed to parse bitrate, falling back to 0")
+				bitrate = 0
 			}
 			metadata.Bitrate = int(bitrate)
 		} else if key == "TAG:rotate" {
