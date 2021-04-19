@@ -240,6 +240,8 @@ func GetMetadata(url string) Video {
 	metadataSplit := strings.Split(output, "\n")
 	metadata := new(Video)
 
+	metadata.HasAudio = false
+
 	for i := 0; i < len(metadataSplit); i++ {
 		metaTupleSplit := strings.Split(metadataSplit[i], "=")
 
@@ -282,13 +284,9 @@ func GetMetadata(url string) Video {
 			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
-		}
-
-		if key == "codec_type" && value == "audio" {
+		} else if key == "codec_type" && value == "audio" {
 			// codec_type=audio means the video contains an audio stream
 			metadata.HasAudio = true
-		} else {
-			metadata.HasAudio = false
 		}
 	}
 
