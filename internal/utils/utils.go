@@ -192,18 +192,18 @@ func ParseFramerate(fr string) float64 {
 
 		frameFrequency, err := strconv.ParseFloat(slice[0], 64)
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 		timeInterval, err := strconv.ParseFloat(slice[1], 64)
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 
 		parsedFramerate = toFixed(frameFrequency/timeInterval, 3)
 	} else {
 		fr, err := strconv.ParseFloat(fr, 64)
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 		parsedFramerate = fr
 	}
@@ -282,9 +282,13 @@ func GetMetadata(url string) Video {
 			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
-		} else if key == "codec_type" && value == "audio" {
+		}
+
+		if key == "codec_type" && value == "audio" {
 			// codec_type=audio means the video contains an audio stream
 			metadata.HasAudio = true
+		} else {
+			metadata.HasAudio = false
 		}
 	}
 

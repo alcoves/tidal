@@ -2,6 +2,7 @@ package nomad
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 )
@@ -30,7 +31,6 @@ func Dispatch(jobName string, meta []string, nomadToken string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
+		log.Panic(err)
 	}
 }

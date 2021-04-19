@@ -38,13 +38,13 @@ func writeCmdLogs(cmd *exec.Cmd, logPrefix string, tmpDir string) {
 
 	stdoutFile, err := os.Create(fmt.Sprintf("%s/%s-stdout.txt", logDir, logPrefix))
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	defer stdoutFile.Close()
 
 	stderrFile, err := os.Create(fmt.Sprintf("%s/%s-stderr.txt", logDir, logPrefix))
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	defer stderrFile.Close()
 
@@ -68,8 +68,7 @@ func splitAudio(wg *sync.WaitGroup, sourceLink string, sourceAudioPath string) {
 	// writeCmdLogs(cmd, "segmentation", tmpDir)
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
+		log.Panic(err)
 	}
 }
 
@@ -115,7 +114,6 @@ func concatinateSegments(progressiveDir string, manifestPath, presetName string)
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
 		log.Fatal(err)
 	}
 
@@ -173,7 +171,6 @@ func remuxWithAudio(concatinatedVideoPath string, sourceAudioPath string, preset
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
 		log.Fatal(err)
 	}
 
@@ -218,8 +215,7 @@ func segmentVideo(wg *sync.WaitGroup, sourceLink string, sourceSegmentsDir strin
 	// writeCmdLogs(cmd, "segmentation", tmpDir)
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
+		log.Panic(err)
 	}
 }
 
@@ -246,8 +242,7 @@ func packageHls(tmpDir string, progressiveDir string) string {
 	writeCmdLogs(cmd, "package", tmpDir)
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error:", err)
-		panic(err)
+		log.Panic(err)
 	}
 
 	return hlsDir
