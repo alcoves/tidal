@@ -298,8 +298,11 @@ func Pipeline(e PipelineEvent) {
 	tidalMeta.Thumbnail = rcloneThumbnailDest
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
-	fmt.Println("Getting video presets")
+	fmt.Println("Getting video metadata")
 	videoMetadata := utils.GetMetadata(sourceLink)
+	fmt.Println("videoMetadata", videoMetadata)
+
+	fmt.Println("Calculating video presets")
 	presets := utils.CalculatePresets(videoMetadata)
 	fmt.Println("presets", presets)
 	tidalMeta.Duration = videoMetadata.Duration
