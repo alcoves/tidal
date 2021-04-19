@@ -252,7 +252,11 @@ func GetMetadata(url string) Video {
 		var key string = metaTupleSplit[0]
 		var value string = metaTupleSplit[1]
 
-		if key == "duration" {
+		// The ordering of this block matters!
+		if key == "codec_type" && value == "audio" {
+			// codec_type=audio means the video contains an audio stream
+			metadata.HasAudio = true
+		} else if key == "duration" {
 			duration, err := strconv.ParseFloat(value, 32)
 			if err != nil {
 				log.Panic(err)
@@ -284,9 +288,6 @@ func GetMetadata(url string) Video {
 			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
-		} else if key == "codec_type" && value == "audio" {
-			// codec_type=audio means the video contains an audio stream
-			metadata.HasAudio = true
 		}
 	}
 
