@@ -33,6 +33,7 @@ type Video struct {
 	Rotate    int     `json:"rotate"`
 	Framerate float64 `json:"framerate"`
 	Duration  float64 `json:"duration"`
+	HasAudio  bool    `json:"hasAudio"`
 }
 
 // CalculatePresets returns a json list of availible presets
@@ -217,11 +218,10 @@ func ParseFramerate(fr string) float64 {
 func GetMetadata(url string) Video {
 	ffprobeCmds := []string{
 		"-v", "error",
-		"-select_streams", "v:0",
-		"-show_entries", "format=duration",
+		"-show_entries", "format=duration,codec_type",
 		"-of", "default=noprint_wrappers=1",
 		"-show_entries", "stream=width,height,r_frame_rate,bit_rate",
-		"-show_entries", "stream_tags=rotate", // Shows rotation as TAG:rotate=90
+		"-show_entries", "stream_tags=rotate", // Shows rotation as TAG:rotate=90,
 		url,
 	}
 
@@ -282,6 +282,9 @@ func GetMetadata(url string) Video {
 			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
+		} else if key == "codec_type" && value == "audio" {
+			// codec_type=audio means the video contains an audio stream
+			metadata.HasAudio = true
 		}
 	}
 

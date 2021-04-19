@@ -5,7 +5,7 @@ Tidal is a distributed chunk based video transcoder that can run on any mix of h
 ## Simple explination
 
 - The `ingest` command splits a video into 10 second segments, the audio is set aside for now. ffmpeg presets are generated based on the resolution and framerate of the input file.
-  - IE. 480p, 720p, 1080p 
+  - IE. 480p, 720p, 1080p
 - The `transcode` command is called for each preset and for each segment. The transcode command simply applies a given ffmpeg command onto a source segment, the result is stored.
 - The `package` command is invoked when all transcoded segments for a given preset are accounted for. It concatinates the video segments, creates HLS streaming assets, and also syncronously creates a `master.m3u8` playlist file.
 
@@ -27,6 +27,7 @@ I've decided to attempt to make tidal hardware agnostic, that's why I run it on 
 Early on, I realzied having a seperate database to manage tidal state was a bit of a pain. I might add a database in the future but right now s3 is the database. You can query the state of a video and look for metadata by using simple s3 queries. More to come on how to make these queries.
 
 ### Architecture
+
 ##### Ingest
 
 This stage splits a video into segments. The video file must contain a valid x264 stream. Right now only .mp4 and .mov files that contain x264 streams are supported right now. I understand that greater codec fleability is a huge want, but at this time it's just easier to support a single codec.

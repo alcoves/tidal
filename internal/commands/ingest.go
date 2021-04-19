@@ -153,6 +153,7 @@ func createManifest(transcodedSegmentsDir string, progressiveDir string, presetN
 }
 
 func remuxWithAudio(concatinatedVideoPath string, sourceAudioPath string, presetName string) string {
+	fmt.Println("Remuxing video with source audio")
 	concatinatedDir := filepath.Dir(concatinatedVideoPath)
 	remuxedVideoPath := fmt.Sprintf("%s/%s.mp4", concatinatedDir, presetName)
 
@@ -256,7 +257,9 @@ func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDi
 	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
 	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
-	remuxWithAudio(concatinatedVideoPath, sourceAudioPath, presetName)
+	if sourceAudioPath != "" {
+		remuxWithAudio(concatinatedVideoPath, sourceAudioPath, presetName)
+	}
 }
 
 // Pipeline executes an end-to-end transcoding job
@@ -320,11 +323,18 @@ func Pipeline(e PipelineEvent) {
 	tidalMeta.Status = "segmenting"
 	utils.UpsertTidalMeta(&tidalMeta, e.WebhookURL)
 
+	fmt.Println("Creating segmentation wait group")
 	var segmentWg sync.WaitGroup
-	sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
-	fmt.Println("sourceAudioPath", sourceAudioPath)
-	go splitAudio(&segmentWg, sourceLink, sourceAudioPath)
-	segmentWg.Add(1)
+	sourceAudioPath := ""
+
+	if videoMetadata.HasAudio {
+		sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
+		fmt.Println("sourceAudioPath", sourceAudioPath)
+		go splitAudio(&segmentWg, sourceLink, sourceAudioPath)
+		segmentWg.Add(1)
+	} else {
+		fmt.Println("Video did not contain audio stream, skipping audio splitting")
+	}
 
 	sourceSegmentsDir := fmt.Sprintf("%s/source-segments", tmpDir)
 	fmt.Println("sourceSegmentsDir", sourceSegmentsDir)
