@@ -24,7 +24,7 @@ func main() {
 			app.Use(cors.New())
 			app.Use(recover.New())
 			commands.SetupRoutes(app)
-			log.Panic(app.Listen(":" + port))
+			log.Fatal(app.Listen(":" + port))
 		},
 	}
 
