@@ -326,7 +326,7 @@ func Pipeline(e PipelineEvent) {
 	sourceAudioPath := ""
 
 	if videoMetadata.HasAudio {
-		sourceAudioPath := fmt.Sprintf("%s/audio.wav", tmpDir)
+		sourceAudioPath = fmt.Sprintf("%s/audio.wav", tmpDir)
 		fmt.Println("sourceAudioPath", sourceAudioPath)
 		go splitAudio(&segmentWg, sourceLink, sourceAudioPath)
 		segmentWg.Add(1)

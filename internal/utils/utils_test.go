@@ -168,3 +168,39 @@ func TestGetPresetsVideo(t *testing.T) {
 		}
 	}
 }
+
+func TestGetMetadata(t *testing.T) {
+	var tests = []struct {
+		url      string
+		metadata Video
+	}{
+		{"https://cdn.bken.io/tests/with-audio.mp4", Video{
+			Rotate:    0,
+			Framerate: 30,
+			Height:    720,
+			Width:     1280,
+			HasAudio:  true,
+			Bitrate:   2084419,
+			Duration:  20.373332977294922,
+		}},
+		{"https://cdn.bken.io/tests/no-audio.mp4", Video{
+			Rotate:    90,
+			Framerate: 60,
+			Height:    768,
+			Width:     1024,
+			HasAudio:  false,
+			Bitrate:   11918866,
+			Duration:  1.3391000032424927,
+		}},
+	}
+
+	for _, tt := range tests {
+		testname := fmt.Sprintln(tt.url)
+		t.Run(testname, func(t *testing.T) {
+			metadata := GetMetadata(tt.url)
+			if metadata != tt.metadata {
+				t.Errorf("got %v, want %v", metadata, tt.metadata)
+			}
+		})
+	}
+}
