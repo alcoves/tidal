@@ -183,6 +183,31 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
+// VideoHasAudio uses ffprobe to check for an audio stream
+func VideoHasAudio(input string) bool {
+	ffprobeCmds := []string{
+		"-v", "error",
+		"-show_streams",
+		"-select_streams", "a",
+		"-show_entries", "stream=codec_type",
+		"-of", "default=noprint_wrappers=1",
+		input,
+	}
+
+	cmd := exec.Command("ffprobe", ffprobeCmds...)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		panic(fmt.Sprint(err) + ": " + stderr.String())
+	}
+
+	output := out.String()
+	return output != ""
+}
+
 // ParseFramerate converts an ffmpeg framerate string to a float64
 func ParseFramerate(fr string) float64 {
 	var parsedFramerate float64 = 0
@@ -218,7 +243,8 @@ func ParseFramerate(fr string) float64 {
 func GetMetadata(url string) Video {
 	ffprobeCmds := []string{
 		"-v", "error",
-		"-show_entries", "format=duration,codec_type",
+		"-select_streams", "v",
+		"-show_entries", "format=duration",
 		"-of", "default=noprint_wrappers=1",
 		"-show_entries", "stream=width,height,r_frame_rate,bit_rate",
 		"-show_entries", "stream_tags=rotate", // Shows rotation as TAG:rotate=90,
@@ -240,11 +266,8 @@ func GetMetadata(url string) Video {
 	metadataSplit := strings.Split(output, "\n")
 	metadata := new(Video)
 
-	metadata.HasAudio = false
-
 	for i := 0; i < len(metadataSplit); i++ {
 		metaTupleSplit := strings.Split(metadataSplit[i], "=")
-
 		if len(metaTupleSplit) <= 1 {
 			break
 		}
@@ -252,11 +275,7 @@ func GetMetadata(url string) Video {
 		var key string = metaTupleSplit[0]
 		var value string = metaTupleSplit[1]
 
-		// The ordering of this block matters!
-		if key == "codec_type" && value == "audio" {
-			// codec_type=audio means the video contains an audio stream
-			metadata.HasAudio = true
-		} else if key == "duration" {
+		if key == "duration" {
 			duration, err := strconv.ParseFloat(value, 32)
 			if err != nil {
 				log.Panic(err)
@@ -292,5 +311,8 @@ func GetMetadata(url string) Video {
 		}
 	}
 
+	// TODO :: This a/v should be seperate goroutines
+	metadata.HasAudio = VideoHasAudio(url)
+	fmt.Println("metadata", metadata)
 	return *metadata
 }
