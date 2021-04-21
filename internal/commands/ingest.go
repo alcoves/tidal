@@ -105,10 +105,10 @@ func concatinateSegments(progressiveDir string, manifestPath, presetName string)
 	args = append(args, manifestPath)
 	args = append(args, "-c:v")
 	args = append(args, "copy")
-	// args = append(args, "-map_metadata")
-	// args = append(args, "0")
-	// args = append(args, "-metadata:s:v")
-	// args = append(args, fmt.Sprintf(`rotate="%d"`, 0)) // TODO :: Pass in rotational value
+	args = append(args, "-map_metadata")
+	args = append(args, "0")
+	args = append(args, "-metadata:s:v")
+	args = append(args, fmt.Sprintf(`rotate="%d"`, 0)) // TODO :: Pass in rotational value
 	args = append(args, concatinatedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
