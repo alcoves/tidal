@@ -91,7 +91,7 @@ func countFiles(path string) []string {
 	return fileList
 }
 
-func concatinateSegments(progressiveDir string, manifestPath, presetName string) string {
+func concatinateSegments(progressiveDir string, manifestPath, presetName string, metadata utils.Video) string {
 	concatinatedVideoPath := fmt.Sprintf("%s/concatinated-%s.ts", progressiveDir, presetName)
 
 	args := []string{}
@@ -108,7 +108,7 @@ func concatinateSegments(progressiveDir string, manifestPath, presetName string)
 	args = append(args, "-map_metadata")
 	args = append(args, "0")
 	args = append(args, "-metadata:s:v")
-	args = append(args, fmt.Sprintf(`rotate="%d"`, 0)) // TODO :: Pass in rotational value
+	args = append(args, fmt.Sprintf(`rotate="%d"`, metadata.Rotate)) // TODO :: Pass in rotational value
 	args = append(args, concatinatedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -254,10 +254,10 @@ func packageHls(tmpDir string, progressiveDir string) string {
 	return hlsDir
 }
 
-func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string) {
+func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string, metadata utils.Video) {
 	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
-	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
+	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName, metadata)
 	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName)
 }
 
@@ -416,7 +416,7 @@ func Pipeline(e PipelineEvent) {
 		fmt.Println("Concatinating video", presets[i])
 		transcodedSegmentsDir := fmt.Sprintf("%s/%s", transcodedSegmentsDir, presets[i].Name)
 		concatWg.Add(1)
-		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name)
+		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name, videoMetadata)
 	}
 	concatWg.Wait()
 
