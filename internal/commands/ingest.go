@@ -105,8 +105,10 @@ func concatinateSegments(progressiveDir string, manifestPath, presetName string)
 	args = append(args, manifestPath)
 	args = append(args, "-c:v")
 	args = append(args, "copy")
-	// -map_metadata 0 -metadata:s:v rotate="90" needed to support rotated video
-
+	// args = append(args, "-map_metadata")
+	// args = append(args, "0")
+	// args = append(args, "-metadata:s:v")
+	// args = append(args, fmt.Sprintf(`rotate="%d"`, 0)) // TODO :: Pass in rotational value
 	args = append(args, concatinatedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -415,6 +417,9 @@ func Pipeline(e PipelineEvent) {
 		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name)
 	}
 	concatWg.Wait()
+
+	fmt.Println("Upload progressive videos to remote")
+	utils.Rclone("copy", []string{progressiveDir, e.RcloneDest + "/progressive"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Packaging video")
 	packagedDir := packageHls(tmpDir, progressiveDir)
