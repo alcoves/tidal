@@ -91,7 +91,7 @@ func countFiles(path string) []string {
 	return fileList
 }
 
-func concatinateSegments(progressiveDir string, manifestPath, presetName string, metadata utils.Video) string {
+func concatinateSegments(progressiveDir string, manifestPath, presetName string) string {
 	concatinatedVideoPath := fmt.Sprintf("%s/concatinated-%s.ts", progressiveDir, presetName)
 
 	args := []string{}
@@ -105,8 +105,6 @@ func concatinateSegments(progressiveDir string, manifestPath, presetName string,
 	args = append(args, manifestPath)
 	args = append(args, "-c:v")
 	args = append(args, "copy")
-	args = append(args, "-metadata:s:v:0")
-	args = append(args, fmt.Sprintf("rotate=%d", metadata.Rotate))
 	args = append(args, concatinatedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -150,7 +148,7 @@ func createManifest(transcodedSegmentsDir string, progressiveDir string, presetN
 	return manifestPath
 }
 
-func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string) string {
+func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string, metadata utils.Video) string {
 	fmt.Println("Remuxing video to mp4")
 	concatinatedDir := filepath.Dir(concatinatedVideoPath)
 	remuxedVideoPath := fmt.Sprintf("%s/%s.mp4", concatinatedDir, presetName)
@@ -168,6 +166,8 @@ func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName
 
 	args = append(args, "-c:v")
 	args = append(args, "copy")
+	args = append(args, "-metadata:s:v:0")
+	args = append(args, fmt.Sprintf("rotate=%d", metadata.Rotate))
 	args = append(args, remuxedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -255,8 +255,8 @@ func packageHls(tmpDir string, progressiveDir string) string {
 func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string, metadata utils.Video) {
 	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
-	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName, metadata)
-	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName)
+	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
+	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName, metadata)
 }
 
 // Pipeline executes an end-to-end transcoding job
