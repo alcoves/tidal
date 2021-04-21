@@ -416,8 +416,8 @@ func Pipeline(e PipelineEvent) {
 	}
 	concatWg.Wait()
 
-	fmt.Println("Upload progressive videos to remote")
-	utils.Rclone("copy", []string{progressiveDir, e.RcloneDest + "/progressive"}, utils.Config.RcloneConfig)
+	// fmt.Println("Upload progressive videos to remote")
+	// utils.Rclone("copy", []string{progressiveDir, e.RcloneDest + "/progressive"}, utils.Config.RcloneConfig)
 
 	fmt.Println("Packaging video")
 	packagedDir := packageHls(tmpDir, progressiveDir)
