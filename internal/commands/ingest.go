@@ -148,7 +148,7 @@ func createManifest(transcodedSegmentsDir string, progressiveDir string, presetN
 	return manifestPath
 }
 
-func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string, metadata utils.Video) string {
+func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string) string {
 	fmt.Println("Remuxing video to mp4")
 	concatinatedDir := filepath.Dir(concatinatedVideoPath)
 	remuxedVideoPath := fmt.Sprintf("%s/%s.mp4", concatinatedDir, presetName)
@@ -166,8 +166,6 @@ func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName
 
 	args = append(args, "-c:v")
 	args = append(args, "copy")
-	args = append(args, "-metadata:s:v:0")
-	args = append(args, fmt.Sprintf("rotate=%d", metadata.Rotate))
 	args = append(args, remuxedVideoPath)
 
 	cmd := exec.Command("ffmpeg", args...)
@@ -256,7 +254,7 @@ func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDi
 	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
 	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
-	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName, metadata)
+	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName)
 }
 
 // Pipeline executes an end-to-end transcoding job
