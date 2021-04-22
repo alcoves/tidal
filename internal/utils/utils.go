@@ -305,7 +305,9 @@ func GetMetadata(url string) Video {
 			if err != nil {
 				log.Panic(err)
 			}
-			metadata.Rotate = rotate
+			// If the video is rotated 90 degress, we want to rotate it back 90
+			// so 90 * -1 = -90 degree rotation.
+			metadata.Rotate = rotate * -1
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
 		}
