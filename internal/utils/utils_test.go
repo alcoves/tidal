@@ -184,7 +184,7 @@ func TestGetMetadata(t *testing.T) {
 			Duration:  20.373332977294922,
 		}},
 		{"https://cdn.bken.io/tests/no-audio.mp4", Video{
-			Rotate:    90,
+			Rotate:    -90,
 			Framerate: 60,
 			Height:    768,
 			Width:     1024,
