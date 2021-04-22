@@ -110,15 +110,15 @@ func TestGetPresetsVerticalVideo(t *testing.T) {
 	expectedPresets := Presets{
 		Preset{
 			Name: "360",
-			Cmd:  "-vf fps=fps=60.000000,scale=640:360,transpose=2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60.000000,scale=640:360,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "720",
-			Cmd:  "-vf fps=fps=60.000000,scale=1280:720,transpose=2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60.000000,scale=1280:720,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 		Preset{
 			Name: "1080",
-			Cmd:  "-vf fps=fps=60.000000,scale=1920:1080,transpose=2 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+			Cmd:  "-vf fps=fps=60.000000,scale=1920:1080,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
