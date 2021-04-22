@@ -152,9 +152,9 @@ func x264(v Video, desiredWidth int) string {
 	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
 
 	if v.Rotate == 90 {
-		vf += ",transpose=2"
-	} else if v.Rotate == -90 {
 		vf += ",transpose=1"
+	} else if v.Rotate == -90 {
+		vf += ",transpose=2"
 	} else if v.Rotate == 180 || v.Rotate == -180 {
 		vf += ",transpose=2,transpose=2"
 	}
