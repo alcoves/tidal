@@ -173,6 +173,7 @@ func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName
 	args = append(args, "copy")
 	args = append(args, remuxedVideoPath)
 
+	fmt.Println("Remux args", args)
 	cmd := exec.Command("ffmpeg", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
