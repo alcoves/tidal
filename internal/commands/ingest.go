@@ -148,7 +148,7 @@ func createManifest(transcodedSegmentsDir string, progressiveDir string, presetN
 	return manifestPath
 }
 
-func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string, metadata utils.Video) string {
+func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName string) string {
 	fmt.Println("Remuxing video to mp4")
 	concatinatedDir := filepath.Dir(concatinatedVideoPath)
 	remuxedVideoPath := fmt.Sprintf("%s/%s.mp4", concatinatedDir, presetName)
@@ -162,11 +162,6 @@ func remuxToMp4(concatinatedVideoPath string, sourceAudioPath string, presetName
 	if sourceAudioPath != "" {
 		args = append(args, "-i")
 		args = append(args, sourceAudioPath)
-	}
-
-	if metadata.Rotate != 0 {
-		args = append(args, "-metadata:s:v")
-		args = append(args, fmt.Sprintf("rotate=%d", metadata.Rotate))
 	}
 
 	args = append(args, "-c:v")
@@ -256,11 +251,11 @@ func packageHls(tmpDir string, progressiveDir string) string {
 	return hlsDir
 }
 
-func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string, metadata utils.Video) {
+func concatinate(wg *sync.WaitGroup, transcodedSegmentsDir string, progressiveDir string, sourceAudioPath string, presetName string) {
 	defer wg.Done()
 	manifestPath := createManifest(transcodedSegmentsDir, progressiveDir, presetName)
 	concatinatedVideoPath := concatinateSegments(progressiveDir, manifestPath, presetName)
-	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName, metadata)
+	remuxToMp4(concatinatedVideoPath, sourceAudioPath, presetName)
 }
 
 // Pipeline executes an end-to-end transcoding job
@@ -418,7 +413,7 @@ func Pipeline(e PipelineEvent) {
 		fmt.Println("Concatinating video", presets[i])
 		transcodedSegmentsDir := fmt.Sprintf("%s/%s", transcodedSegmentsDir, presets[i].Name)
 		concatWg.Add(1)
-		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name, videoMetadata)
+		go concatinate(&concatWg, transcodedSegmentsDir, progressiveDir, sourceAudioPath, presets[i].Name)
 	}
 	concatWg.Wait()
 
