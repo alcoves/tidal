@@ -11,6 +11,12 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.x
+    - uses: FedericoCarboni/setup-ffmpeg@v1
+      with:
+        # Not strictly necessary, but it may prevent rate limit
+        # errors especially on GitHub-hosted macos machines.
+        token: ${{ secrets.GITHUB_TOKEN }}
+      id: setup-ffmpeg
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Tests
