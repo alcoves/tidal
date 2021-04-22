@@ -151,6 +151,14 @@ func x264(v Video, desiredWidth int) string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
 	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
 
+	if v.Rotate == 90 {
+		vf += ",transpose=2"
+	} else if v.Rotate == -90 {
+		vf += ",transpose=1"
+	} else if v.Rotate == 180 || v.Rotate == -180 {
+		vf += ",transpose=2,transpose=2"
+	}
+
 	commands := []string{
 		vf,
 		"-bf 2",
@@ -305,9 +313,7 @@ func GetMetadata(url string) Video {
 			if err != nil {
 				log.Panic(err)
 			}
-			// If the video is rotated 90 degress, we want to rotate it back 90
-			// so 90 * -1 = -90 degree rotation.
-			metadata.Rotate = rotate * -1
+			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
 		}
