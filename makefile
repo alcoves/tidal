@@ -17,6 +17,7 @@ nomad:
 
 jobs:
 	sleep 15
+	nomad job run config/jobs/consul.hcl
 	nomad job run config/jobs/ingest.hcl
 	nomad job run config/jobs/thumbnail.hcl
 	nomad job run config/jobs/transcode.hcl
