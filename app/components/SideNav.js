@@ -4,7 +4,7 @@ import { IoOptionsOutline, IoStatsChartOutline } from 'react-icons/io5';
 
 export default function NavBar() {
   return (
-    <Flex flexDirection='column' h='100vh' w='60px'>
+    <Flex flexDirection='column' w='60px'>
       <Link href='/'>
         <Flex mt='5px' justifyContent='center' w='100%' cursor='pointer'>
           <IoStatsChartOutline size='1.7em' />

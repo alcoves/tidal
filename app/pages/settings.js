@@ -3,8 +3,8 @@ import Layout from '../components/Layout';
 import { IoEllipse } from 'react-icons/io5';
 import { useState } from 'react';
 
-export default function Home() {
-  const [settings, setSettings] = useState('')
+export default function Home({ data }) {
+  const [settings, setSettings] = useState(data?.config)
 
   return (
     <Layout>
@@ -12,11 +12,11 @@ export default function Home() {
         <Heading as="h1" size="lg">Settings</Heading>
         <Flex flexDirection='column' my='10px'>
           <Flex alignItems='center'>
-            <IoEllipse style={{ fill: '#38A169' }}/>
+            <IoEllipse style={{ fill: data?.nomadUp ? "#38A169" : '#E53E3E' }}/>
             <Text pl='3px' fontWeight='600' fontSize='.8em' textTransform='uppercase' >Nomad</Text>
           </Flex>
           <Flex alignItems='center'>
-            <IoEllipse style={{ fill: '#38A169' }}/>
+            <IoEllipse style={{ fill: data?.consulUp ? "#38A169" : '#E53E3E' }}/>
             <Text pl='3px' fontWeight='600' fontSize='.8em' textTransform='uppercase' >Consul</Text>
           </Flex>
         </Flex>
@@ -34,4 +34,10 @@ export default function Home() {
       </Container>
     </Layout>
   )
+}
+
+export async function getServerSideProps() {
+  const res = await fetch(`http://localhost:3000/api/config`)
+  const data = await res.json()
+  return { props: { data }}
 }
