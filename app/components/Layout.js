@@ -1,16 +1,10 @@
-import { Flex } from '@chakra-ui/layout';
+import { Box, Flex } from '@chakra-ui/layout';
 import SideNav from './SideNav';
 
-function Content({ children }) {
-  return <div>{children}</div>;
-}
-
 const Layout = ({ children }) => (
-  <Flex flexDirection='row'>
+  <Flex flexDirection='row' mt='20px'>
     <SideNav />
-    <Content>
-      {children}
-    </Content>
+    <Box>{children}</Box>
   </Flex>
 );
 

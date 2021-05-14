@@ -6,7 +6,6 @@ export default class MyDocument extends Document {
     return(
       <Html>
         <Head>
-          <title>Tidal</title>
           <link rel="icon" href="/favicon.ico" />
           <meta name="description" content="User interface for tidal" />
         </Head>
