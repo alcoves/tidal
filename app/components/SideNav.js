@@ -1,6 +1,6 @@
 import { Flex, Box, useColorMode, IconButton } from '@chakra-ui/react';
 import Link from 'next/link';
-import { IoOptionsOutline, IoStatsChartOutline, IoSunnyOutline, IoSunny } from 'react-icons/io5';
+import { IoOptionsOutline, IoGrid, IoSunnyOutline, IoSunny } from 'react-icons/io5';
 
 export default function NavBar() {
   const { colorMode, toggleColorMode } = useColorMode()
@@ -9,7 +9,7 @@ export default function NavBar() {
       <Box>
         <Link href='/'>
           <Flex mt='5px' justifyContent='center' w='100%' cursor='pointer'>
-            <IoStatsChartOutline size='1.7em' />
+            <IoGrid size='1.7em' />
           </Flex>
         </Link>
         <Link href='/settings'>

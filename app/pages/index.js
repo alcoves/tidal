@@ -1,14 +1,20 @@
-import { Container, Heading } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading } from '@chakra-ui/react'
 import Layout from '../components/Layout';
 import TidalJob from '../components/TidalJob';
+import { IoAddCircleOutline } from 'react-icons/io5'
 
 export default function Dashboard() {
   return (
     <Layout>
-      <Container>
+      <Box>
         <Heading as="h1" size="lg">Dashboard</Heading>
+        <Flex m='2'>
+          <Button size='sm' leftIcon={<IoAddCircleOutline size='1.3rem' />}>
+            Add
+          </Button>
+        </Flex>
         <TidalJob/>
-      </Container>
+      </Box>
     </Layout>
   )
 }

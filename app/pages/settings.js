@@ -8,7 +8,7 @@ export default function Home({ data }) {
 
   return (
     <Layout>
-      <Container>
+      <Box>
         <Heading as="h1" size="lg">Settings</Heading>
         <Flex flexDirection='column' my='10px'>
           <Flex alignItems='center'>
@@ -31,7 +31,7 @@ export default function Home({ data }) {
             Save
           </Button>
         </Box>
-      </Container>
+      </Box>
     </Layout>
   )
 }
