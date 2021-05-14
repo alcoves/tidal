@@ -126,3 +126,25 @@ Default thumbnail transformation
 #### Ingest video
 
 tidal ingest s3://cdn.bken.io/v/id/source.mp4
+
+
+### Local Development
+
+Start Nomad and Consul
+
+```
+nomad agent -dev
+consule agent -dev
+```
+
+Build the app docker container
+
+```
+docker build .
+```
+
+Run the app in nomad
+
+nomad job run config/app.hcl
+
+Visit http://localhost:3000

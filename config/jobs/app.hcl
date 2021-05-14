@@ -20,19 +20,19 @@ job "api" {
     }
 
     network {
-      port "tidal_api_port" { static = 4000 }
+      port "tidal_app_port" { static = 3000 }
     }
 
     task "api" {
       driver = "raw_exec"
       config {
         command  = "tidal"
-        args     = [ "api", "--port", "4000" ]
+        args     = [ "api", "--port", "3000" ]
       }
 
       service {
-        name = "tidal-api"
-        port = "tidal_api_port"
+        name = "tidal-app"
+        port = "tidal_app_port"
         tags = ["urlprefix-/tidal strip=/tidal"]
 
         connect {
@@ -44,7 +44,7 @@ job "api" {
           timeout  = "2s"
           interval = "10s"
           type     = "http"
-          name     = "tidal_api_port alive"
+          name     = "tidal_app_port alive"
         }
       }
 
