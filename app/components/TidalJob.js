@@ -50,8 +50,8 @@ export default function TidalJob() {
           {jobs.map(j => {
             return (
               <Flex w='100' alignItems='center' flexDirection='column'>
-                {j.status === "completed" ? <IoCheckmarkOutline size='1.5rem'/> : <IoRadioButtonOff size='1.5rem'/>}
-                <Text textTransform='uppercase' fontSize='.8rem' fontWeight='700'> {j.name}</Text>
+                {j.status === "completed" ? <IoCheckmarkOutline size='1.5rrem'/> : <IoRadioButtonOff size='1.5rrem'/>}
+                <Text textTransform='uppercase' fontSize='.8rrem' fontWeight='700'> {j.name}</Text>
               </Flex>
             )
           })}

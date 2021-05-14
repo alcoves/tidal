@@ -9,7 +9,7 @@ export default function Dashboard() {
       <Box>
         <Heading as="h1" size="lg">Dashboard</Heading>
         <Flex m='2'>
-          <Button size='sm' leftIcon={<IoAddCircleOutline size='1.3rem' />}>
+          <Button size='sm' leftIcon={<IoAddCircleOutline size='1.3rrem' />}>
             Add
           </Button>
         </Flex>

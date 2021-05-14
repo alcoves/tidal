@@ -13,11 +13,11 @@ export default function Home({ data }) {
         <Flex flexDirection='column' my='10px'>
           <Flex alignItems='center'>
             <IoEllipse style={{ fill: data?.nomadUp ? "#38A169" : '#E53E3E' }}/>
-            <Text pl='3px' fontWeight='600' fontSize='.8em' textTransform='uppercase' >Nomad</Text>
+            <Text pl='3px' fontWeight='600' fontSize='.8rem' textTransform='uppercase' >Nomad</Text>
           </Flex>
           <Flex alignItems='center'>
             <IoEllipse style={{ fill: data?.consulUp ? "#38A169" : '#E53E3E' }}/>
-            <Text pl='3px' fontWeight='600' fontSize='.8em' textTransform='uppercase' >Consul</Text>
+            <Text pl='3px' fontWeight='600' fontSize='.8rem' textTransform='uppercase' >Consul</Text>
           </Flex>
         </Flex>
 
