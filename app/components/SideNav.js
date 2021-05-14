@@ -9,12 +9,12 @@ export default function NavBar() {
       <Box>
         <Link href='/'>
           <Flex mt='5px' justifyContent='center' w='100%' cursor='pointer'>
-            <IoGrid size='1.7em' />
+            <IoGrid size='1.7rem' />
           </Flex>
         </Link>
         <Link href='/settings'>
           <Flex mt='20px' justifyContent='center' w='100%' cursor='pointer'>
-            <IoOptionsOutline size='1.7em' />
+            <IoOptionsOutline size='1.7rem' />
           </Flex>
         </Link>
       </Box>
@@ -23,7 +23,7 @@ export default function NavBar() {
           <IconButton
            variant="ghost"
            onClick={toggleColorMode}
-           icon={colorMode === "light" ? <IoSunny size='1.7em'/> : <IoSunnyOutline size='1.7em'/>}
+           icon={colorMode === "light" ? <IoSunny size='1.7rem'/> : <IoSunnyOutline size='1.7rem'/>}
           />
         </Flex>
       </Box>
