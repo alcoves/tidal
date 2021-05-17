@@ -22,7 +22,12 @@ export default function Home({ data }) {
         </Flex>
 
         <Box>
-          <Heading mb='5px' as="h4" size="sm">Tidal Global Config</Heading>
+          <Heading mb='5px' as="h4" size="sm">Global Config</Heading>
+          <Textarea minW='100%' placeholder={settings} onChange={(e) => setSettings(e.target.value)} />
+        </Box>
+
+        <Box>
+          <Heading mb='5px' as="h4" size="sm">Rclone Config</Heading>
           <Textarea minW='100%' placeholder={settings} onChange={(e) => setSettings(e.target.value)} />
         </Box>
 

@@ -1,37 +1,8 @@
 import { Flex, Box, Button, Heading, Progress, Stack, Badge, Text } from '@chakra-ui/react';
 import { IoCheckmarkOutline, IoRadioButtonOff  } from 'react-icons/io5';
 
-const data = {
-  id: 'klawDJKAWdkoap',
-  totalProgress: 72,
-  jobs: [
-    {
-      name: "setup",
-      status: 'completed'
-    },
-    {
-      name: "segmenting",
-      status: "completed"
-    },
-    {
-      name: "transcoding",
-      status: "completed",
-    },
-    {
-      name: "concatinating",
-      status: "running"
-    },
-    {
-      name: "packaging",
-      status: "pending"
-    }
-  ],
-  framerate: 24.976,
-  resolutions: ["260p", "480p", "720p", "1080p", "1440p", "2160p"]
-}
-
-export default function TidalJob() {
-  const {id, totalProgress, jobs, resolutions, framerate} = data
+export default function TidalJob({ job }) {
+  const { id, totalProgress, jobs, resolutions, framerate } = job.Value;
   return (
     <Box p='4'>
       <Heading size='md'>{id}</Heading>
@@ -40,7 +11,7 @@ export default function TidalJob() {
         <Stack direction="row">
           <Badge colorScheme="green">{framerate} FPS</Badge>
           {resolutions.map((r) => {
-            return <Badge colorScheme="blue">{r}</Badge>
+            return <Badge key={r} colorScheme="blue">{r}</Badge>
           })}
         </Stack>
       </Flex>
@@ -49,9 +20,9 @@ export default function TidalJob() {
         <Stack direction="row" spacing={10}>
           {jobs.map(j => {
             return (
-              <Flex w='100' alignItems='center' flexDirection='column'>
-                {j.status === "completed" ? <IoCheckmarkOutline size='1.5rrem'/> : <IoRadioButtonOff size='1.5rrem'/>}
-                <Text textTransform='uppercase' fontSize='.8rrem' fontWeight='700'> {j.name}</Text>
+              <Flex key={j.name} w='100' alignItems='center' flexDirection='column'>
+                {j.status === "completed" ? <IoCheckmarkOutline size='1.5rem'/> : <IoRadioButtonOff size='1.5rem'/>}
+                <Text textTransform='uppercase' fontSize='.8rem' fontWeight='700'> {j.name}</Text>
               </Flex>
             )
           })}
