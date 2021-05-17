@@ -1,0 +1,39 @@
+{
+  "id": "klawDJKAWdkoap",
+  "totalProgress": 72,
+  "totalSegments": 40,
+  "presets": [
+    {
+      "name": "1080p",
+      "cmd": "",
+      "segmentsTranscoded": 0
+    }
+  ],
+  "states": [
+    {
+      "name": "thumbnailing",
+      "status": "running"
+    },
+    {
+      "name": "audio",
+      "status": ""
+    },
+    {
+      "name": "segmentation",
+      "status": "complete"
+    },
+    {
+      "name": "transcoding",
+      "status": "running"
+    },
+    {
+      "name": "concatinating",
+      "status": ""
+    },
+    {
+      "name": "packaging",
+      "status": ""
+    }
+  ],
+  "framerate": 24.976
+}
