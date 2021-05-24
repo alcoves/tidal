@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	Key string `json:"Key"`
+	TidalDir   string   `json:"tidalDir"`
+	RcloneEnvs []string `json:"rcloneEnvs"`
 }
 
 func getKv(key string) (*api.KVPair, error) {
