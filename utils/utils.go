@@ -248,7 +248,7 @@ func ParseFramerate(fr string) float64 {
 }
 
 // GetMetadata uses ffprobe to return video metadata
-func GetMetadata(url string) Video {
+func GetMetadata(URI string) Video {
 	ffprobeCmds := []string{
 		"-v", "error",
 		"-select_streams", "v",
@@ -256,7 +256,7 @@ func GetMetadata(url string) Video {
 		"-of", "default=noprint_wrappers=1",
 		"-show_entries", "stream=width,height,r_frame_rate,bit_rate",
 		"-show_entries", "stream_tags=rotate", // Shows rotation as TAG:rotate=90,
-		url,
+		URI,
 	}
 
 	cmd := exec.Command("ffprobe", ffprobeCmds...)
@@ -320,7 +320,7 @@ func GetMetadata(url string) Video {
 	}
 
 	// TODO :: This a/v should be seperate goroutines
-	metadata.HasAudio = VideoHasAudio(url)
+	metadata.HasAudio = VideoHasAudio(URI)
 	fmt.Println("metadata", metadata)
 	return *metadata
 }
