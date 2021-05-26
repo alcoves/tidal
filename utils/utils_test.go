@@ -60,7 +60,7 @@ func TestCalcScale(t *testing.T) {
 }
 
 func TestGetPresetsHorizontalVideo(t *testing.T) {
-	v := Video{
+	v := VideoMetadata{
 		Bitrate:   0,
 		Rotate:    0,
 		Duration:  600,
@@ -69,18 +69,18 @@ func TestGetPresetsHorizontalVideo(t *testing.T) {
 		Framerate: 60,
 	}
 
-	expectedPresets := Presets{
-		Preset{
-			Name: "360",
-			Cmd:  "-vf fps=fps=60.000000,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+	expectedPresets := []Preset{
+		{
+			Name:    "360",
+			Command: "-vf fps=fps=60.000000,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
-		Preset{
-			Name: "720",
-			Cmd:  "-vf fps=fps=60.000000,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+		{
+			Name:    "720",
+			Command: "-vf fps=fps=60.000000,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
-		Preset{
-			Name: "1080",
-			Cmd:  "-vf fps=fps=60.000000,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+		{
+			Name:    "1080",
+			Command: "-vf fps=fps=60.000000,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
@@ -91,14 +91,14 @@ func TestGetPresetsHorizontalVideo(t *testing.T) {
 	}
 
 	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Cmd != recievedPresets[i].Cmd {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Cmd, recievedPresets[i].Cmd)
+		if expectedPresets[i].Command != recievedPresets[i].Command {
+			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
 		}
 	}
 }
 
 func TestGetPresetsVerticalVideo(t *testing.T) {
-	v := Video{
+	v := VideoMetadata{
 		Bitrate:   0,
 		Rotate:    90,
 		Duration:  600,
@@ -107,18 +107,18 @@ func TestGetPresetsVerticalVideo(t *testing.T) {
 		Framerate: 60,
 	}
 
-	expectedPresets := Presets{
-		Preset{
-			Name: "360",
-			Cmd:  "-vf fps=fps=60.000000,scale=640:360,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+	expectedPresets := []Preset{
+		{
+			Name:    "360",
+			Command: "-vf fps=fps=60.000000,scale=640:360,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
-		Preset{
-			Name: "720",
-			Cmd:  "-vf fps=fps=60.000000,scale=1280:720,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+		{
+			Name:    "720",
+			Command: "-vf fps=fps=60.000000,scale=1280:720,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
-		Preset{
-			Name: "1080",
-			Cmd:  "-vf fps=fps=60.000000,scale=1920:1080,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+		{
+			Name:    "1080",
+			Command: "-vf fps=fps=60.000000,scale=1920:1080,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
@@ -129,14 +129,14 @@ func TestGetPresetsVerticalVideo(t *testing.T) {
 	}
 
 	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Cmd != recievedPresets[i].Cmd {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Cmd, recievedPresets[i].Cmd)
+		if expectedPresets[i].Command != recievedPresets[i].Command {
+			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
 		}
 	}
 }
 
 func TestGetPresetsVideo(t *testing.T) {
-	v := Video{
+	v := VideoMetadata{
 		Bitrate:   0,
 		Rotate:    0,
 		Duration:  30,
@@ -145,14 +145,14 @@ func TestGetPresetsVideo(t *testing.T) {
 		Framerate: 60,
 	}
 
-	expectedPresets := Presets{
-		Preset{
-			Name: "360",
-			Cmd:  "-vf fps=fps=60.000000,scale=640:1394 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+	expectedPresets := []Preset{
+		{
+			Name:    "360",
+			Command: "-vf fps=fps=60.000000,scale=640:1394 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
-		Preset{
-			Name: "720",
-			Cmd:  "-vf fps=fps=60.000000,scale=1280:2788 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+		{
+			Name:    "720",
+			Command: "-vf fps=fps=60.000000,scale=1280:2788 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
 		},
 	}
 
@@ -163,8 +163,8 @@ func TestGetPresetsVideo(t *testing.T) {
 	}
 
 	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Cmd != recievedPresets[i].Cmd {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Cmd, recievedPresets[i].Cmd)
+		if expectedPresets[i].Command != recievedPresets[i].Command {
+			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
 		}
 	}
 }
@@ -172,9 +172,9 @@ func TestGetPresetsVideo(t *testing.T) {
 func TestGetMetadata(t *testing.T) {
 	var tests = []struct {
 		url      string
-		metadata Video
+		metadata VideoMetadata
 	}{
-		{"https://cdn.bken.io/tests/with-audio.mp4", Video{
+		{"https://cdn.bken.io/tests/with-audio.mp4", VideoMetadata{
 			Rotate:    0,
 			Framerate: 30,
 			Height:    720,
@@ -183,7 +183,7 @@ func TestGetMetadata(t *testing.T) {
 			Bitrate:   2084419,
 			Duration:  20.373332977294922,
 		}},
-		{"https://cdn.bken.io/tests/no-audio.mp4", Video{
+		{"https://cdn.bken.io/tests/no-audio.mp4", VideoMetadata{
 			Rotate:    90,
 			Framerate: 60,
 			Height:    768,

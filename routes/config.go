@@ -3,37 +3,18 @@ package routes
 import (
 	"encoding/json"
 
+	"github.com/bkenio/tidal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hashicorp/consul/api"
 )
 
-type Config struct {
-	TidalDir   string   `json:"tidalDir"`
-	RcloneEnvs []string `json:"rcloneEnvs"`
-}
-
-func getKv(key string) (*api.KVPair, error) {
-	client, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
-		return nil, err
-	}
-
-	kv := client.KV()
-	pair, _, err := kv.Get(key, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return pair, err
-}
-
 func GetConfig(c *fiber.Ctx) error {
-	kvGet, err := getKv("config")
+	kvGet, err := utils.GetKv("config")
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	config := Config{}
+	config := utils.Config{}
 	json.Unmarshal([]byte(kvGet.Value), &config)
 	return c.JSON(config)
 }
@@ -44,7 +25,7 @@ func PutConfig(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	newConfig := new(Config)
+	newConfig := new(utils.Config)
 	if err := c.BodyParser(newConfig); err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -61,12 +42,12 @@ func PutConfig(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	kvGet, err := getKv("config")
+	kvGet, err := utils.GetKv("config")
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	config := Config{}
+	config := utils.Config{}
 	json.Unmarshal([]byte(kvGet.Value), &config)
 	return c.JSON(config)
 }

@@ -8,17 +8,18 @@ import (
 )
 
 func PostJob(c *fiber.Ctx) error {
-	job := new(Job)
+	job := new(utils.Job)
 	if err := c.BodyParser(job); err != nil {
 		return err
 	}
 
 	fmt.Println("Getting metadata")
-	metadata := utils.GetMetadata("https://cdn.bken.io/tests/with-audio.mp4")
-	fmt.Println("metadata", metadata)
+	job.Metadata = utils.GetMetadata("https://cdn.bken.io/tests/with-audio.mp4")
+	fmt.Printf("Job Metadata: %+v\n", job.Metadata)
 
 	fmt.Println("Generating presets")
-	// Generate presets
+	job.Presets = utils.GetPresets(job.Metadata)
+	fmt.Printf("Job Presets: %+v\n", job.Presets)
 
 	// Segment video
 
@@ -31,6 +32,12 @@ func PostJob(c *fiber.Ctx) error {
 	// Package MPEG Dash
 
 	// Upload to CDN
+	// publishRes := utils.RcloneCmd([]string{
+	// 	"sync",
+	// 	job.TmpDir,
+	// 	job.RcloneDestinationURI,
+	// })
+	// fmt.Println("publishRes", publishRes)
 
 	return c.JSON(job)
 }

@@ -9,36 +9,13 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/consul/api"
 )
 
-// Preset is a struct containing transcoder commands
-type Preset struct {
-	Name string `json:"name"`
-	Cmd  string `json:"cmd"`
-}
-
-// Presets is an array of presets
-type Presets []Preset
-
-// Response is what goes back to the caller
-type Response struct {
-	Presets []Preset `json:"presets"`
-}
-
-// Video is a slim ffprobe struct
-type Video struct {
-	Width     int     `json:"width"`
-	Height    int     `json:"height"`
-	Bitrate   int     `json:"bitrate"`
-	Rotate    int     `json:"rotate"`
-	Framerate float64 `json:"framerate"`
-	Duration  float64 `json:"duration"`
-	HasAudio  bool    `json:"hasAudio"`
-}
-
 // CalculatePresets returns a json list of availible presets
-func CalculatePresets(videoMetadata Video) Presets {
-	presets := GetPresets(videoMetadata)
+func CalculatePresets(metadata VideoMetadata) []Preset {
+	presets := GetPresets(metadata)
 	response := Response{
 		Presets: presets,
 	}
@@ -77,12 +54,12 @@ func Rclone(subCommand string, arguments []string, configPath string) string {
 	return strings.Replace(output, "\n", "", -1)
 }
 
-// CalcScale returns an ffmpeg video filter
+// CalcScale returns an ffmpeg VideoMetadata filter
 func CalcScale(w int, h int, dw int) string {
-	videoRatio := float64(h) / float64(w)
-	desiredHeight := int(videoRatio * float64(dw))
+	VideoMetadataRatio := float64(h) / float64(w)
+	desiredHeight := int(VideoMetadataRatio * float64(dw))
 
-	// Video heights must be divisible by 2
+	// VideoMetadata heights must be divisible by 2
 	if desiredHeight%2 != 0 {
 		desiredHeight++
 	}
@@ -90,7 +67,7 @@ func CalcScale(w int, h int, dw int) string {
 	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
 }
 
-// ClampPreset checks if the video fits the specified dimensions
+// ClampPreset checks if the VideoMetadata fits the specified dimensions
 func ClampPreset(w int, h int, dw int, dh int) bool {
 	if (w >= dw && h >= dh) || (w >= dh && h >= dw) {
 		return true
@@ -99,42 +76,42 @@ func ClampPreset(w int, h int, dw int, dh int) bool {
 }
 
 // GetPresets returns consumable presets
-func GetPresets(v Video) Presets {
-	presets := Presets{
-		Preset{
-			Name: "360",
-			Cmd:  x264(v, 640),
+func GetPresets(v VideoMetadata) []Preset {
+	presets := []Preset{
+		{
+			Name:    "360",
+			Command: x264(v, 640),
 		},
 	}
 
 	if ClampPreset(v.Width, v.Height, 1280, 720) {
 		addition := Preset{
-			Name: "720",
-			Cmd:  x264(v, 1280),
+			Name:    "720",
+			Command: x264(v, 1280),
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 1920, 1080) {
 		addition := Preset{
-			Name: "1080",
-			Cmd:  x264(v, 1920),
+			Name:    "1080",
+			Command: x264(v, 1920),
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 2560, 1440) {
 		addition := Preset{
-			Name: "1440",
-			Cmd:  x264(v, 2560),
+			Name:    "1440",
+			Command: x264(v, 2560),
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 3840, 2160) {
 		addition := Preset{
-			Name: "2160",
-			Cmd:  x264(v, 3840),
+			Name:    "2160",
+			Command: x264(v, 3840),
 		}
 		presets = append(presets, addition)
 	}
@@ -147,7 +124,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 	return int(vidRatio * float64(bitrate) / 1000)
 }
 
-func x264(v Video, desiredWidth int) string {
+func x264(v VideoMetadata, desiredWidth int) string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
 	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
 
@@ -191,8 +168,8 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
-// VideoHasAudio uses ffprobe to check for an audio stream
-func VideoHasAudio(input string) bool {
+// VideoMetadataHasAudio uses ffprobe to check for an audio stream
+func VideoMetadataHasAudio(input string) bool {
 	ffprobeCmds := []string{
 		"-v", "error",
 		"-show_streams",
@@ -247,8 +224,8 @@ func ParseFramerate(fr string) float64 {
 	return parsedFramerate
 }
 
-// GetMetadata uses ffprobe to return video metadata
-func GetMetadata(URI string) Video {
+// GetMetadata uses ffprobe to return VideoMetadata metadata
+func GetMetadata(URI string) VideoMetadata {
 	ffprobeCmds := []string{
 		"-v", "error",
 		"-select_streams", "v",
@@ -260,19 +237,13 @@ func GetMetadata(URI string) Video {
 	}
 
 	cmd := exec.Command("ffprobe", ffprobeCmds...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatal(fmt.Sprint(err) + ": " + stderr.String())
+		log.Fatal(err)
 	}
 
-	output := out.String()
-	metadataSplit := strings.Split(output, "\n")
-	metadata := new(Video)
+	metadataSplit := strings.Split(string(out), "\n")
+	metadata := new(VideoMetadata)
 
 	for i := 0; i < len(metadataSplit); i++ {
 		metaTupleSplit := strings.Split(metadataSplit[i], "=")
@@ -320,7 +291,21 @@ func GetMetadata(URI string) Video {
 	}
 
 	// TODO :: This a/v should be seperate goroutines
-	metadata.HasAudio = VideoHasAudio(URI)
-	fmt.Println("metadata", metadata)
+	metadata.HasAudio = VideoMetadataHasAudio(URI)
 	return *metadata
+}
+
+func GetKv(key string) (*api.KVPair, error) {
+	client, err := api.NewClient(api.DefaultConfig())
+	if err != nil {
+		return nil, err
+	}
+
+	kv := client.KV()
+	pair, _, err := kv.Get(key, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return pair, err
 }
