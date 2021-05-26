@@ -31,7 +31,19 @@ type Config struct {
 // Job is used to create a new video encoding job
 type Job struct {
 	ID              string        `json:"id"`
-	Metadata        VideoMetadata `json:"metadata"`
+	TmpDir          string        `json:"tmpDir"`
 	Presets         []Preset      `json:"presets"`
+	Metadata        VideoMetadata `json:"metadata"`
 	RcloneSourceURI string        `json:"rcloneSourceUri"`
+}
+
+type SegmentationRequest struct {
+	TmpDir    string        `json:"tmpDir"`
+	Metadata  VideoMetadata `json:"metadata"`
+	SourceURI string        `json:"sourceUri"`
+}
+
+type SegmentationResponse struct {
+	TotalSegments     int    `json:"totalSegments"`
+	SourceSegmentsDir string `json:"sourceSegmentsDir"`
 }
