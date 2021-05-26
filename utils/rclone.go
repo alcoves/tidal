@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"os"
@@ -19,9 +20,14 @@ func RcloneCmd(args []string) string {
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, config.RcloneEnvs...)
 
-	out, err := cmd.CombinedOutput()
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err = cmd.Run()
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		log.Fatal(stderr.String())
 	}
-	return string(out)
+	return stdout.String()
 }

@@ -22,6 +22,12 @@ func PostJob(c *fiber.Ctx) error {
 	fmt.Printf("Job Presets: %+v\n", job.Presets)
 
 	// Segment video
+	segRes := utils.SegmentVideo(utils.SegmentationRequest{
+		TmpDir:    job.TmpDir,
+		Metadata:  job.Metadata,
+		SourceURI: "https://cdn.bken.io/tests/with-audio.mp4",
+	})
+	fmt.Println("segRes", segRes)
 
 	// Transcode segments
 
