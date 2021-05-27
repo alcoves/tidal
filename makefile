@@ -9,5 +9,8 @@ build_clean:
 install: build_clean
 	sudo cp ./tidal /usr/local/bin/tidal
 
-dev:
+api:
 	go run ./main.go
+
+ui:
+	cd client && yarn start

@@ -3,13 +3,15 @@ package utils
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // SegmentVideo splits a video file into smaller segments
 func SegmentVideo(segReq SegmentationRequest) SegmentationResponse {
-	sourceSegmentsDir := fmt.Sprintf("%s/%s", segReq.TmpDir, "source-segments")
+	log.Debug("SegmentVideo")
+	sourceSegmentsDir := fmt.Sprintf("%s/%s", segReq.JobDir, "source-segments")
 	os.MkdirAll(sourceSegmentsDir, os.ModePerm)
 
 	segmentTime := "120"
@@ -23,7 +25,7 @@ func SegmentVideo(segReq SegmentationRequest) SegmentationResponse {
 		segmentTime = "10"
 	}
 
-	ffmpegRes := Ffmpeg([]string{
+	Ffmpeg([]string{
 		"-hide_banner", "-y",
 		"-i", segReq.SourceURI,
 		"-f", "segment",
@@ -32,7 +34,6 @@ func SegmentVideo(segReq SegmentationRequest) SegmentationResponse {
 		"-segment_time", segmentTime,
 		sourceSegmentsDir + `/%08d` + ".ts",
 	})
-	fmt.Println("ffmpegRes", ffmpegRes)
 
 	segments, err := ioutil.ReadDir(sourceSegmentsDir)
 	if err != nil {
@@ -43,5 +44,6 @@ func SegmentVideo(segReq SegmentationRequest) SegmentationResponse {
 		TotalSegments:     len(segments),
 		SourceSegmentsDir: sourceSegmentsDir,
 	}
+	log.Debug("SegmentVideo", response)
 	return response
 }

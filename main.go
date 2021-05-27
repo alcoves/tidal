@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/bkenio/tidal/routes"
 	"github.com/gofiber/fiber/v2"
@@ -19,6 +19,7 @@ func setupRoutes(app *fiber.App) {
 }
 
 func main() {
+	log.SetLevel(log.DebugLevel)
 	godotenv.Load(".env")
 
 	app := fiber.New()
