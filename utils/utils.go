@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/hashicorp/consul/api"
+	log "github.com/sirupsen/logrus"
 )
 
 // CalculatePresets returns a json list of availible presets
 func CalculatePresets(metadata VideoMetadata) []Preset {
+	log.Debug("CalculatePresets")
 	presets := GetPresets(metadata)
 	response := Response{
 		Presets: presets,
@@ -23,12 +24,13 @@ func CalculatePresets(metadata VideoMetadata) []Preset {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(string(prettyResponse))
+	log.Debug(fmt.Sprintf("Presets: %+v", prettyResponse))
 	return presets
 }
 
 // Rclone executes an rclone subprocess given the inputs
 func Rclone(subCommand string, arguments []string, configPath string) string {
+	log.Debug("Rclone")
 	args := []string{}
 	args = append(args, subCommand)
 
@@ -42,7 +44,7 @@ func Rclone(subCommand string, arguments []string, configPath string) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 
-	fmt.Println("Running rclone command", args)
+	log.Debug("Running rclone command", args)
 	cmd := exec.Command("rclone", args...)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
@@ -51,6 +53,7 @@ func Rclone(subCommand string, arguments []string, configPath string) string {
 	}
 
 	output := out.String()
+	log.Debug("Rclone Output", output)
 	return strings.Replace(output, "\n", "", -1)
 }
 
@@ -226,6 +229,7 @@ func ParseFramerate(fr string) float64 {
 
 // GetMetadata uses ffprobe to return VideoMetadata metadata
 func GetMetadata(URI string) VideoMetadata {
+	log.Debug("Getting metadata")
 	ffprobeCmds := []string{
 		"-v", "error",
 		"-select_streams", "v",
@@ -292,6 +296,7 @@ func GetMetadata(URI string) VideoMetadata {
 
 	// TODO :: This a/v should be seperate goroutines
 	metadata.HasAudio = VideoMetadataHasAudio(URI)
+	log.Debug("Metadata", fmt.Sprintf("Metadata: %+v", metadata))
 	return *metadata
 }
 

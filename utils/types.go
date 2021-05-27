@@ -29,16 +29,18 @@ type Config struct {
 }
 
 // Job is used to create a new video encoding job
+// TODO :: Breakup request and response to prevent weird shit
 type Job struct {
-	ID              string        `json:"id"`
-	TmpDir          string        `json:"tmpDir"`
-	Presets         []Preset      `json:"presets"`
-	Metadata        VideoMetadata `json:"metadata"`
-	RcloneSourceURI string        `json:"rcloneSourceUri"`
+	ID                   string        `json:"id"`
+	JobDir               string        `json:"jobDir"`
+	Presets              []Preset      `json:"presets"`
+	Metadata             VideoMetadata `json:"metadata"`
+	RcloneSourceURI      string        `json:"rcloneSourceUri"`
+	RcloneDestinationURI string        `json:"rcloneDestinationUri"`
 }
 
 type SegmentationRequest struct {
-	TmpDir    string        `json:"tmpDir"`
+	JobDir    string        `json:"JobDir"`
 	Metadata  VideoMetadata `json:"metadata"`
 	SourceURI string        `json:"sourceUri"`
 }
@@ -46,4 +48,21 @@ type SegmentationRequest struct {
 type SegmentationResponse struct {
 	TotalSegments     int    `json:"totalSegments"`
 	SourceSegmentsDir string `json:"sourceSegmentsDir"`
+}
+
+type TranscodeSegmentsRequest struct {
+	JobDir            string   `json:"JobDir"`
+	Presets           []Preset `json:"presets"`
+	SourceSegmentsDir string   `json:"sourceSegmentsDir"`
+}
+
+type TranscodeSegmentsResponse struct {
+	TotalSegments     int    `json:"totalSegments"`
+	SourceSegmentsDir string `json:"sourceSegmentsDir"`
+}
+
+type ConcatinatePresetsRequest struct {
+	JobDir                string   `json:"jobDir"`
+	Presets               []Preset `json:"presets"`
+	TranscodedSegmentsDir string   `json:"transcodedSegmentsDir"`
 }
