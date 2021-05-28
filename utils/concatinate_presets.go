@@ -59,6 +59,22 @@ func ConcatinatePresets(request ConcatinatePresetsRequest) {
 			outPath,
 		})
 
+		if request.SourceAudioPath != "" {
+			log.Debug("Muxing audio")
+			outPathTmp := outPath + ".tmp.mp4"
+			Ffmpeg([]string{
+				"-hide_banner", "-y",
+				"-i", outPath,
+				"-i", request.SourceAudioPath,
+				"-c:v", "copy",
+				outPathTmp,
+			})
+			err := os.Rename(outPathTmp, outPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		// log.Debug("Combining source audio")
 		// ffmpeg([]string{})
 	}
