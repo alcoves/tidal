@@ -20,30 +20,43 @@ func PostJob(c *fiber.Ctx) error {
 		return err
 	}
 
-	job.Metadata = utils.GetMetadata("https://s3.us-east-2.wasabisys.com/cdn.bken.io/tests/1440p-60fps-small/source.mp4")
+	signedUrl := utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
+	job.Metadata = utils.GetMetadata(signedUrl)
 	job.Presets = utils.GetPresets(job.Metadata)
 
+	// Dispatch job and await repsonse
 	segmentationReponse := utils.SegmentVideo(utils.SegmentationRequest{
 		JobDir:    job.JobDir,
 		Metadata:  job.Metadata,
-		SourceURI: "https://s3.us-east-2.wasabisys.com/cdn.bken.io/tests/1440p-60fps-small/source.mp4",
+		SourceURI: signedUrl,
 	})
 
+	// Splitting source audio could occur in the segmentation stage
+	if job.Metadata.HasAudio {
+		job.SourceAudioPath = utils.SplitSourceAudio(utils.SplitSourceAudioRequest{
+			JobDir:    job.JobDir,
+			SourceURI: signedUrl,
+		})
+	}
+
+	// Dispatch jobs and await responses
 	utils.TranscodeSegments(utils.TranscodeSegmentsRequest{
 		JobDir:            job.JobDir,
 		Presets:           job.Presets,
 		SourceSegmentsDir: segmentationReponse.SourceSegmentsDir,
 	})
 
+	// Dispatch jobs and await responses
 	utils.ConcatinatePresets(utils.ConcatinatePresetsRequest{
-		// SourceAudioPath: "",
-		JobDir:  job.JobDir,
-		Presets: job.Presets,
+		JobDir:          job.JobDir,
+		Presets:         job.Presets,
+		SourceAudioPath: job.SourceAudioPath,
 	})
 
-	// utils.PackageHLS(utils.PackageHLSRequest{
-	// 	JobDir: job.JobDir,
-	// })
+	// Dispatch job and await response
+	utils.PackageHLS(utils.PackageHLSRequest{
+		JobDir: job.JobDir,
+	})
 
 	utils.RcloneCmd([]string{
 		"copy",
@@ -51,5 +64,6 @@ func PostJob(c *fiber.Ctx) error {
 		job.RcloneDestinationURI,
 	})
 
+	// utils.UpsertTidalMeta(&tidalMeta)
 	return c.JSON(job)
 }

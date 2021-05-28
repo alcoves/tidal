@@ -35,6 +35,7 @@ type Job struct {
 	JobDir               string        `json:"jobDir"`
 	Presets              []Preset      `json:"presets"`
 	Metadata             VideoMetadata `json:"metadata"`
+	SourceAudioPath      string        `json:"sourceAudioPath"`
 	RcloneSourceURI      string        `json:"rcloneSourceUri"`
 	RcloneDestinationURI string        `json:"rcloneDestinationUri"`
 }
@@ -64,5 +65,15 @@ type TranscodeSegmentsResponse struct {
 type ConcatinatePresetsRequest struct {
 	JobDir                string   `json:"jobDir"`
 	Presets               []Preset `json:"presets"`
+	SourceAudioPath       string   `json:"sourceAudioPath"`
 	TranscodedSegmentsDir string   `json:"transcodedSegmentsDir"`
+}
+
+type PackageHLSRequest struct {
+	JobDir string `json:"jobDir"`
+}
+
+type SplitSourceAudioRequest struct {
+	JobDir    string `json:"jobDir"`
+	SourceURI string `json:"sourceUri"`
 }
