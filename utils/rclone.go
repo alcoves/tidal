@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func RcloneCmd(args []string) string {
@@ -29,5 +30,7 @@ func RcloneCmd(args []string) string {
 	if err != nil {
 		log.Fatal(stderr.String())
 	}
-	return stdout.String()
+
+	output := stdout.String()
+	return strings.Replace(output, "\n", "", -1)
 }
