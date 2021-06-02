@@ -1,15 +1,16 @@
-FROM golang:1.16-alpine as BUILDER
-
-WORKDIR /go/src/github.com/bkenio/tidal
+FROM golang:latest AS build
+WORKDIR /app
 COPY . .
-RUN go mod download
-RUN go mod verify 
-RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o tidal cmd/tidal.go
+
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV CGO_ENABLED=0
+
+RUN go build -o /out/tidal .
 
 FROM alpine:latest
-ENV ARGS ""
+RUN apk add  --no-cache ffmpeg rclone
+COPY --from=build /out/tidal .
+
 EXPOSE 4000
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /go/src/github.com/bkenio/tidal/tidal .
-CMD ./tidal $ARGS
+CMD [ "/tidal" ]
