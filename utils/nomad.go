@@ -14,6 +14,8 @@ func Dispatch(jobName string, meta map[string]string) {
 		log.Error("Nomad token is empty")
 	}
 
+	log.Info("Nomad ACL :", nomadToken)
+
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
 		log.Fatal(err)
