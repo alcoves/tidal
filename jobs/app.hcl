@@ -19,8 +19,15 @@ job "api" {
       min_healthy_time = "30s"
     }
 
+    constraint {
+      operator  = "distinct_hosts"
+      value     = "true"
+    }
+
+    count = 2
+
     network {
-      port "tidal_app_port" { static = 3000 }
+      port "tidal_app_port" { static = 4000 }
     }
 
     task "api" {
