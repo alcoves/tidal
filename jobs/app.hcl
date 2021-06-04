@@ -53,6 +53,12 @@ job "api" {
         data        = "{{ key \"secrets/.env\" }}"
       }
 
+      template {
+        env         = false
+        destination = "root/.config/rclone/rclone.conf"
+        data        = "{{ key \"secrets/rclone.conf\" }}"
+      }
+
       config {
         command  = "tidal"
         args     = [ "api", "--port", "${NOMAD_PORT_tidal_app_port}"]
