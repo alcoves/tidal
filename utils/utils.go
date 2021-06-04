@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math"
 	"os/exec"
@@ -12,50 +11,6 @@ import (
 	"github.com/hashicorp/consul/api"
 	log "github.com/sirupsen/logrus"
 )
-
-// CalculatePresets returns a json list of availible presets
-func CalculatePresets(metadata VideoMetadata) []Preset {
-	log.Debug("CalculatePresets")
-	presets := GetPresets(metadata)
-	response := Response{
-		Presets: presets,
-	}
-	prettyResponse, err := json.Marshal(response)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Debug(fmt.Sprintf("Presets: %+v", prettyResponse))
-	return presets
-}
-
-// Rclone executes an rclone subprocess given the inputs
-func Rclone(subCommand string, arguments []string, configPath string) string {
-	log.Debug("Rclone")
-	args := []string{}
-	args = append(args, subCommand)
-
-	for i := 0; i < len(arguments); i++ {
-		args = append(args, arguments[i])
-	}
-
-	args = append(args, "--config")
-	args = append(args, configPath)
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-
-	log.Debug("Running rclone command", args)
-	cmd := exec.Command("rclone", args...)
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
-	}
-
-	output := out.String()
-	log.Debug("Rclone Output", output)
-	return strings.Replace(output, "\n", "", -1)
-}
 
 // CalcScale returns an ffmpeg VideoMetadata filter
 func CalcScale(w int, h int, dw int) string {
@@ -82,39 +37,53 @@ func ClampPreset(w int, h int, dw int, dh int) bool {
 func GetPresets(v VideoMetadata) []Preset {
 	presets := []Preset{
 		{
-			Name:    "360",
-			Command: x264(v, 640),
+			Name:   "240",
+			Width:  426,
+			Height: 240,
 		},
+	}
+
+	if ClampPreset(v.Width, v.Height, 854, 480) {
+		addition := Preset{
+			Name:   "480",
+			Width:  854,
+			Height: 480,
+		}
+		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 1280, 720) {
 		addition := Preset{
-			Name:    "720",
-			Command: x264(v, 1280),
+			Name:   "720",
+			Width:  1280,
+			Height: 720,
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 1920, 1080) {
 		addition := Preset{
-			Name:    "1080",
-			Command: x264(v, 1920),
+			Name:   "1080",
+			Width:  1920,
+			Height: 1080,
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 2560, 1440) {
 		addition := Preset{
-			Name:    "1440",
-			Command: x264(v, 2560),
+			Name:   "1440",
+			Width:  2560,
+			Height: 1440,
 		}
 		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 3840, 2160) {
 		addition := Preset{
-			Name:    "2160",
-			Command: x264(v, 3840),
+			Name:   "2160",
+			Width:  3840,
+			Height: 2160,
 		}
 		presets = append(presets, addition)
 	}
@@ -127,7 +96,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 	return int(vidRatio * float64(bitrate) / 1000)
 }
 
-func x264(v VideoMetadata, desiredWidth int) string {
+func X264(v VideoMetadata, desiredWidth int, streamId int) string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
 	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
 
@@ -140,16 +109,17 @@ func x264(v VideoMetadata, desiredWidth int) string {
 	}
 
 	commands := []string{
-		vf,
-		"-bf 2",
+		fmt.Sprintf("-c:v:%d libx264", streamId),
+		fmt.Sprintf("-c:a:%d aac", streamId),
 		"-crf 22",
-		"-coder 1",
-		"-c:v libx264",
+		vf,
 		"-preset faster",
+		"-bf 2",
+		"-coder 1",
 		"-sc_threshold 0",
 		"-profile:v high",
 		"-pix_fmt yuv420p",
-		"-force_key_frames expr:gte(t,n_forced*2)",
+		`-force_key_frames "expr:gte(t,n_forced*2)"`,
 	}
 
 	if v.Bitrate > 0 {

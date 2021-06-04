@@ -59,115 +59,115 @@ func TestCalcScale(t *testing.T) {
 	}
 }
 
-func TestGetPresetsHorizontalVideo(t *testing.T) {
-	v := VideoMetadata{
-		Bitrate:   0,
-		Rotate:    0,
-		Duration:  600,
-		Width:     1920,
-		Height:    1080,
-		Framerate: 60,
-	}
+// func TestGetPresetsHorizontalVideo(t *testing.T) {
+// 	v := VideoMetadata{
+// 		Bitrate:   0,
+// 		Rotate:    0,
+// 		Duration:  600,
+// 		Width:     1920,
+// 		Height:    1080,
+// 		Framerate: 60,
+// 	}
 
-	expectedPresets := []Preset{
-		{
-			Name:    "360",
-			Command: "-vf fps=fps=60.000000,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-		{
-			Name:    "720",
-			Command: "-vf fps=fps=60.000000,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-		{
-			Name:    "1080",
-			Command: "-vf fps=fps=60.000000,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-	}
+// 	expectedPresets := []Preset{
+// 		{
+// 			Name:    "360",
+// 			Command: "-vf fps=fps=60.000000,scale=640:360 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 		{
+// 			Name:    "720",
+// 			Command: "-vf fps=fps=60.000000,scale=1280:720 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 		{
+// 			Name:    "1080",
+// 			Command: "-vf fps=fps=60.000000,scale=1920:1080 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 	}
 
-	recievedPresets := GetPresets(v)
+// 	recievedPresets := GetPresets(v)
 
-	if len(expectedPresets) != len(recievedPresets) {
-		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
-	}
+// 	if len(expectedPresets) != len(recievedPresets) {
+// 		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
+// 	}
 
-	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Command != recievedPresets[i].Command {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
-		}
-	}
-}
+// 	for i := 0; i < len(expectedPresets); i++ {
+// 		if expectedPresets[i].Command != recievedPresets[i].Command {
+// 			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
+// 		}
+// 	}
+// }
 
-func TestGetPresetsVerticalVideo(t *testing.T) {
-	v := VideoMetadata{
-		Bitrate:   0,
-		Rotate:    90,
-		Duration:  600,
-		Width:     1920,
-		Height:    1080,
-		Framerate: 60,
-	}
+// func TestGetPresetsVerticalVideo(t *testing.T) {
+// 	v := VideoMetadata{
+// 		Bitrate:   0,
+// 		Rotate:    90,
+// 		Duration:  600,
+// 		Width:     1920,
+// 		Height:    1080,
+// 		Framerate: 60,
+// 	}
 
-	expectedPresets := []Preset{
-		{
-			Name:    "360",
-			Command: "-vf fps=fps=60.000000,scale=640:360,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-		{
-			Name:    "720",
-			Command: "-vf fps=fps=60.000000,scale=1280:720,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-		{
-			Name:    "1080",
-			Command: "-vf fps=fps=60.000000,scale=1920:1080,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-	}
+// 	expectedPresets := []Preset{
+// 		{
+// 			Name:    "360",
+// 			Command: "-vf fps=fps=60.000000,scale=640:360,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 		{
+// 			Name:    "720",
+// 			Command: "-vf fps=fps=60.000000,scale=1280:720,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 		{
+// 			Name:    "1080",
+// 			Command: "-vf fps=fps=60.000000,scale=1920:1080,transpose=1 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 	}
 
-	recievedPresets := GetPresets(v)
+// 	recievedPresets := GetPresets(v)
 
-	if len(expectedPresets) != len(recievedPresets) {
-		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
-	}
+// 	if len(expectedPresets) != len(recievedPresets) {
+// 		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
+// 	}
 
-	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Command != recievedPresets[i].Command {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
-		}
-	}
-}
+// 	for i := 0; i < len(expectedPresets); i++ {
+// 		if expectedPresets[i].Command != recievedPresets[i].Command {
+// 			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
+// 		}
+// 	}
+// }
 
-func TestGetPresetsVideo(t *testing.T) {
-	v := VideoMetadata{
-		Bitrate:   0,
-		Rotate:    0,
-		Duration:  30,
-		Width:     720,
-		Height:    1568,
-		Framerate: 60,
-	}
+// func TestGetPresetsVideo(t *testing.T) {
+// 	v := VideoMetadata{
+// 		Bitrate:   0,
+// 		Rotate:    0,
+// 		Duration:  30,
+// 		Width:     720,
+// 		Height:    1568,
+// 		Framerate: 60,
+// 	}
 
-	expectedPresets := []Preset{
-		{
-			Name:    "360",
-			Command: "-vf fps=fps=60.000000,scale=640:1394 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-		{
-			Name:    "720",
-			Command: "-vf fps=fps=60.000000,scale=1280:2788 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
-		},
-	}
+// 	expectedPresets := []Preset{
+// 		{
+// 			Name:    "360",
+// 			Command: "-vf fps=fps=60.000000,scale=640:1394 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 		{
+// 			Name:    "720",
+// 			Command: "-vf fps=fps=60.000000,scale=1280:2788 -bf 2 -crf 22 -coder 1 -c:v libx264 -preset faster -sc_threshold 0 -profile:v high -pix_fmt yuv420p -force_key_frames expr:gte(t,n_forced*2)",
+// 		},
+// 	}
 
-	recievedPresets := GetPresets(v)
+// 	recievedPresets := GetPresets(v)
 
-	if len(expectedPresets) != len(recievedPresets) {
-		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
-	}
+// 	if len(expectedPresets) != len(recievedPresets) {
+// 		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
+// 	}
 
-	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Command != recievedPresets[i].Command {
-			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
-		}
-	}
-}
+// 	for i := 0; i < len(expectedPresets); i++ {
+// 		if expectedPresets[i].Command != recievedPresets[i].Command {
+// 			t.Errorf("\nexpected\n%s\nrecieved\n%s", expectedPresets[i].Command, recievedPresets[i].Command)
+// 		}
+// 	}
+// }
 
 func TestGetMetadata(t *testing.T) {
 	var tests = []struct {
