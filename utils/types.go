@@ -18,6 +18,17 @@ type VideoMetadata struct {
 	HasAudio  bool    `json:"hasAudio"`
 }
 
+// TranscodeJob handles the variables for a video transcode
+type TranscodeJob struct {
+	JobDir               string `json:"jobDir"`
+	Status               string `json:"status"`
+	MPDLink              string `json:"mpdLink"`
+	VideoID              string `json:"videoId"`
+	WebhookURL           string `json:"webhookURL"`
+	RcloneSourceURI      string `json:"rcloneSourceURI"`
+	RcloneDestinationURI string `json:"rcloneDestinationURI"`
+}
+
 // Config is a global tidal configuration
 type Config struct {
 	TidalDir   string   `json:"tidalDir"`
