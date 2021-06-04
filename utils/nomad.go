@@ -20,6 +20,10 @@ func Dispatch(jobName string, meta map[string]string) {
 	}
 
 	jobs := client.Jobs()
-	jobs.Dispatch("transcode", meta, nil, nil)
+	response, _, err := jobs.Dispatch("transcode", meta, nil, nil)
+	if err != nil {
+		log.Error(err)
+	}
+	log.Info("Dispatch Response: ", response)
 	// opts := api.QueryOptions{AuthToken: nomadToken}
 }
