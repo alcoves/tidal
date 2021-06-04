@@ -4,10 +4,10 @@ test:
 	go test -v ./...
 
 build_clean:
-	go build cmd/tidal.go
+	go build main.go
 
 install: build_clean
-	sudo cp ./tidal /usr/local/bin/tidal
+	sudo cp ./main /usr/local/bin/tidal
 
 api:
 	go run ./main.go
