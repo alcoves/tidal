@@ -27,7 +27,6 @@ job "api" {
       driver = "raw_exec"
       config {
         command  = "tidal"
-        args     = [ "api", "--port", "3000" ]
       }
 
       service {
@@ -49,8 +48,8 @@ job "api" {
       }
 
       resources {
-        memory = 500
-        cpu    = 500
+        memory = 4000
+        cpu    = 4000
       }
     }
   }
