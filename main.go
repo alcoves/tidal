@@ -24,6 +24,7 @@ func setupRoutes(app *fiber.App) {
 
 func main() {
 	godotenv.Load(".env")
+	log.SetLevel(log.DebugLevel)
 
 	var apiCommand = &cobra.Command{
 		Use:   "api",
@@ -44,8 +45,6 @@ func main() {
 		Short: "Transcodes a file with ffmpeg",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cobra *cobra.Command, args []string) {
-			log.SetLevel(log.DebugLevel)
-
 			videoId, _ := cobra.Flags().GetString("videoId")
 			webhookUrl, _ := cobra.Flags().GetString("webhookUrl")
 			rcloneSourceUri, _ := cobra.Flags().GetString("rcloneSourceUri")
