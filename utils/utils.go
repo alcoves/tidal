@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -273,12 +274,19 @@ func GetMetadata(URI string) VideoMetadata {
 func GetKv(key string) (*api.KVPair, error) {
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 
 	kv := client.KV()
-	pair, _, err := kv.Get(key, nil)
+	consulToken := os.Getenv("CONSUL_TOKEN")
+	if consulToken == "" {
+		log.Error("Consul token is empty")
+	}
+	opts := api.QueryOptions{Token: consulToken}
+	pair, _, err := kv.Get(key, &opts)
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 
