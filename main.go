@@ -13,9 +13,9 @@ import (
 
 func setupRoutes(app *fiber.App) {
 	api := app.Group("/", logger.New())
-	api.Post("/jobs", routes.PostJob)
 	api.Get("/config", routes.GetConfig)
 	api.Put("/config", routes.PutConfig)
+	api.Post("/transcodes", routes.PostTranscodes)
 }
 
 func main() {
