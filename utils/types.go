@@ -20,6 +20,7 @@ type VideoMetadata struct {
 
 // TranscodeJob handles the variables for a video transcode
 type TranscodeJob struct {
+	Async                bool          `json:"async"`
 	JobDir               string        `json:"jobDir"`
 	Status               string        `json:"status"`
 	MPDLink              string        `json:"mpdLink"`

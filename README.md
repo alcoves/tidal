@@ -58,3 +58,21 @@ done
 
 aws s3 sync ./tmp s3://cdn.bken.io/tests/tmp --profile wasabi --endpoint="https://us-east-2.wasabisys.com"
 ```
+
+```bash
+go build main.go && ./main api --port=4000
+
+VIDEO_ID="Uv5PtPQ45_TCMripDWy_d"
+go build main.go && ./main transcode \
+  --videoId="$VIDEO_ID" \
+  --webhookUrl="https://bken.io/api/videos/${VIDEO_ID}" \
+  --rcloneDestinationUri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
+  --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
+
+VIDEO_ID="Uv5PtPQ45_TCMripDWy_d"
+nomad job dispatch transcoding \
+  -meta video_id="$VIDEO_ID" \
+  -meta webhook_url="https://bken.io/api/videos/${VIDEO_ID}" \
+  -meta rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
+  -meta rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
+```

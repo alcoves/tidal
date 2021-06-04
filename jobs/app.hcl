@@ -45,6 +45,7 @@ job "api" {
 
       config {
         command  = "tidal"
+        commands = [ "api" "--port", "${NOMAD_PORT}"]
       }
 
       service {
