@@ -10,20 +10,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func generateTranscodeArguments(signedUrl string, presets []utils.Preset, metadata utils.VideoMetadata) []string {
-	transcodeArgs := []string{"ffmpeg", "-hide_banner", "-y", "-i", fmt.Sprintf(`"%s"`, signedUrl)}
+func generateTranscodeArguments(job *utils.TranscodeJob) []string {
+	mpdOutputPath := job.JobDir + "/output.mpd"
+	transcodeArgs := []string{"ffmpeg", "-hide_banner", "-y", "-i", fmt.Sprintf(`"%s"`, job.SignedURL)}
 
-	for i := 0; i < len(presets); i++ {
+	for i := 0; i < len(job.Presets); i++ {
 		transcodeArgs = append(transcodeArgs, "-map", "0:v:0", "-map", "0:a\\?:0")
 	}
 
-	for i := 0; i < len(presets); i++ {
-		preset := presets[i]
+	for i := 0; i < len(job.Presets); i++ {
+		preset := job.Presets[i]
 		log.Info(preset.Width)
-		transcodeArgs = append(transcodeArgs, utils.X264(metadata, preset.Width, i))
+		transcodeArgs = append(transcodeArgs, utils.X264(job.Metadata, preset.Width, i))
 	}
 
-	transcodeArgs = append(transcodeArgs, "-use_timeline", "1", "-use_template", "1", "-adaptation_sets", "'id=0,streams=v id=1,streams=a'", "./tmp/output.mpd")
+	transcodeArgs = append(transcodeArgs, "-use_timeline", "1", "-use_template", "1", "-adaptation_sets", "'id=0,streams=v id=1,streams=a'", mpdOutputPath)
 	return transcodeArgs
 }
 
@@ -43,10 +44,10 @@ func PostTranscodes(c *fiber.Ctx) error {
 	job.Status = "started"
 	utils.Notify(job)
 
-	signedUrl := utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
-	metadata := utils.GetMetadata(signedUrl)
-	presets := utils.GetPresets(metadata)
-	utils.Ffmpeg(generateTranscodeArguments(signedUrl, presets, metadata))
+	job.SignedURL = utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
+	job.Metadata = utils.GetMetadata(job.SignedURL)
+	job.Presets = utils.GetPresets(job.Metadata)
+	utils.Ffmpeg(generateTranscodeArguments(job))
 
 	utils.RcloneCmd([]string{
 		"copy",
