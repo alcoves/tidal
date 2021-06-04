@@ -2,33 +2,15 @@ package routes
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/bkenio/tidal/utils"
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
 )
 
-type PostTranscodeInput struct {
-	JobDir               string `json:"jobDir"`
-	VideoID              string `json:"videoId"`
-	RcloneSourceURI      string `json:"rcloneSourceURI"`
-	RcloneDestinationURI string `json:"rcloneDestinationURI"`
-}
-
-func PostTranscodes(c *fiber.Ctx) error {
-	transcodeInput := new(PostTranscodeInput)
-	if err := c.BodyParser(transcodeInput); err != nil {
-		return err
-	}
-
-	log.Info("Obtaining signed URL")
-	signedUrl := utils.RcloneCmd([]string{"link", transcodeInput.RcloneSourceURI})
-	metadata := utils.GetMetadata(signedUrl)
-	presets := utils.GetPresets(metadata)
-
-	log.Debug("presets", presets)
-
-	log.Info("Transcoding video")
+func generateTranscodeArguments(signedUrl string, presets []utils.Preset, metadata utils.VideoMetadata) []string {
 	transcodeArgs := []string{"ffmpeg", "-hide_banner", "-y", "-i", fmt.Sprintf(`"%s"`, signedUrl)}
 
 	for i := 0; i < len(presets); i++ {
@@ -41,18 +23,41 @@ func PostTranscodes(c *fiber.Ctx) error {
 		transcodeArgs = append(transcodeArgs, utils.X264(metadata, preset.Width, i))
 	}
 
-	transcodeArgs = append(transcodeArgs, "-use_timeline", "1", "-use_template", "1", "-adaptation_sets", "'id=0,streams=v id=1,streams=a'")
-	transcodeArgs = append(transcodeArgs, "./tmp/output.mpd")
+	transcodeArgs = append(transcodeArgs, "-use_timeline", "1", "-use_template", "1", "-adaptation_sets", "'id=0,streams=v id=1,streams=a'", "./tmp/output.mpd")
+	return transcodeArgs
+}
 
-	// Invokes ffmpeg
-	utils.Ffmpeg(transcodeArgs)
+func PostTranscodes(c *fiber.Ctx) error {
+	job := new(utils.TranscodeJob)
+	if err := c.BodyParser(job); err != nil {
+		return err
+	}
 
-	log.Info("Publishing video assets")
+	tmpDir, err := ioutil.TempDir("/tmp", "tidal-transcode-")
+	if err != nil {
+		log.Fatal(err)
+	}
+	job.JobDir = tmpDir
+	log.Debug("Job Dir", job.JobDir)
+
+	job.Status = "started"
+	utils.Notify(job)
+
+	signedUrl := utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
+	metadata := utils.GetMetadata(signedUrl)
+	presets := utils.GetPresets(metadata)
+	utils.Ffmpeg(generateTranscodeArguments(signedUrl, presets, metadata))
+
 	utils.RcloneCmd([]string{
 		"copy",
-		transcodeInput.JobDir,
-		transcodeInput.RcloneDestinationURI,
+		job.JobDir,
+		job.RcloneDestinationURI,
 	})
 
+	job.MPDLink = job.RcloneDestinationURI + "/output.mpd"
+	job.Status = "completed"
+	utils.Notify(job)
+
+	defer os.RemoveAll(tmpDir)
 	return c.SendString("Done transcoding")
 }

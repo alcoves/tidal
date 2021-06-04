@@ -3,10 +3,11 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func RcloneCmd(args []string) string {
@@ -18,6 +19,7 @@ func RcloneCmd(args []string) string {
 	json.Unmarshal([]byte(kvGet.Value), &config)
 
 	cmd := exec.Command("rclone", args...)
+	log.Debug(cmd.Args)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, config.RcloneEnvs...)
 
