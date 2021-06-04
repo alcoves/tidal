@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"math"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/consul/api"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -269,26 +267,4 @@ func GetMetadata(URI string) VideoMetadata {
 	metadata.HasAudio = VideoMetadataHasAudio(URI)
 	log.Debug("Metadata", fmt.Sprintf("Metadata: %+v", metadata))
 	return *metadata
-}
-
-func GetKv(key string) (*api.KVPair, error) {
-	client, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	kv := client.KV()
-	consulToken := os.Getenv("CONSUL_TOKEN")
-	if consulToken == "" {
-		log.Error("Consul token is empty")
-	}
-	opts := api.QueryOptions{Token: consulToken}
-	pair, _, err := kv.Get(key, &opts)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	return pair, err
 }

@@ -48,12 +48,9 @@ job "api" {
       driver = "raw_exec"
 
       template {
-        data = <<EOH
-      NOMAD_TOKEN="{{ key "secrets/NOMAD_TOKEN" }}"
-      CONSUL_TOKEN="{{ key "secrets/CONSUL_TOKEN" }}"
-      EOH
-        destination = "secrets/.env"
         env         = true
+        destination = "secrets/.env"
+        data        = "{{ key \"secrets/.env\" }}"
       }
 
       config {

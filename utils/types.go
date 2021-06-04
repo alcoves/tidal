@@ -32,9 +32,3 @@ type TranscodeJob struct {
 	RcloneSourceURI      string        `json:"rcloneSourceURI"`
 	RcloneDestinationURI string        `json:"rcloneDestinationURI"`
 }
-
-// Config is a global tidal configuration
-type Config struct {
-	TidalDir   string   `json:"tidalDir"`
-	RcloneEnvs []string `json:"rcloneEnvs"`
-}
