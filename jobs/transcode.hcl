@@ -27,6 +27,12 @@ job "transcode" {
         data        = "{{ key \"secrets/.env\" }}"
       }
 
+      template {
+        env         = false
+        destination = "root/.config/rclone/rclone.conf"
+        data        = "{{ key \"secrets/rclone.conf\" }}"
+      }
+
       restart {
         attempts = 1
         mode     = "fail"
