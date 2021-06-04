@@ -19,15 +19,29 @@ job "api" {
       min_healthy_time = "30s"
     }
 
-    constraint {
-      operator  = "distinct_hosts"
-      value     = "true"
-    }
+    // constraint {
+    //   operator  = "distinct_hosts"
+    //   value     = "true"
+    // }
 
-    count = 2
+    // count = 2
 
     network {
       port "tidal_app_port" { static = 4000 }
+    }
+
+    service {
+      name = "tidal-app"
+      port = "tidal_app_port"
+      tags = ["urlprefix-/tidal strip=/tidal"]
+
+      check {
+        path     = "/"
+        timeout  = "2s"
+        interval = "10s"
+        type     = "http"
+        name     = "tidal_app_port alive"
+      }
     }
 
     task "api" {
@@ -45,25 +59,7 @@ job "api" {
 
       config {
         command  = "tidal"
-        commands = [ "api" "--port", "${NOMAD_PORT}"]
-      }
-
-      service {
-        name = "tidal-app"
-        port = "tidal_app_port"
-        tags = ["urlprefix-/tidal strip=/tidal"]
-
-        connect {
-          sidecar_service {}
-        }
-
-        check {
-          path     = "/"
-          timeout  = "2s"
-          interval = "10s"
-          type     = "http"
-          name     = "tidal_app_port alive"
-        }
+        args     = [ "api", "--port", "${NOMAD_PORT_tidal_app_port}"]
       }
 
       resources {

@@ -70,9 +70,10 @@ go build main.go && ./main transcode \
   --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
 
 VIDEO_ID="Uv5PtPQ45_TCMripDWy_d"
-nomad job dispatch transcoding \
-  -meta video_id="$VIDEO_ID" \
-  -meta webhook_url="https://bken.io/api/videos/${VIDEO_ID}" \
-  -meta rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
-  -meta rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
+nomad job dispatch -detach \
+  -meta=video_id="$VIDEO_ID" \
+  -meta=webhook_url="https://bken.io/api/videos/${VIDEO_ID}" \
+  -meta=rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
+  -meta=rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4" \
+  transcode
 ```
