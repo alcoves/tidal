@@ -21,6 +21,15 @@ job "transcode" {
     task "transcode" {
       driver = "raw_exec"
 
+      template {
+        data = <<EOH
+      NOMAD_TOKEN="{{ key "secrets/NOMAD_TOKEN" }}"
+      CONSUL_TOKEN="{{ key "secrets/CONSUL_TOKEN" }}"
+      EOH
+        destination = "secrets/.env"
+        env         = true
+      }
+
       restart {
         attempts = 1
         mode     = "fail"
@@ -48,7 +57,7 @@ job "transcode" {
     }
 
     reschedule {
-      attempts = 0
+      attempts = 1
     }
   }
 }
