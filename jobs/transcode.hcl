@@ -1,5 +1,5 @@
 job "transcode" {
-  priority    = 100
+  priority    = 20
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -12,9 +12,8 @@ job "transcode" {
   parameterized {
     payload       = "optional"
     meta_required = [
-      "cmd",
-      "rclone_source",
-      "rclone_dest",
+      "video_id", "webhook_url",
+      "rclone_destination_uri", "rclone_source_uri"
     ]
   }
 
@@ -23,23 +22,27 @@ job "transcode" {
       driver = "raw_exec"
 
       restart {
-        attempts = 0
+        attempts = 1
         mode     = "fail"
       }
 
       resources {
         cpu    = 8000
-        memory = 4000
+        memory = 6000
       }
 
       config {
         command = "tidal"
         args    = [
           "transcode",
-          "${NOMAD_META_RCLONE_SOURCE}",
-          "${NOMAD_META_RCLONE_DEST}",
-          "--cmd",
-          "${NOMAD_META_CMD}",
+          "--videoId",
+          "${NOMAD_META_VIDEO_ID}",
+          "--webhookUrl",
+          "${NOMAD_META_WEBHOOK_URL}",
+          "--rcloneDestinationUri",
+          "${NOMAD_META_RCLONE_DESTINATION_URI}",
+          "--rcloneSourceUri",
+          "${NOMAD_META_RCLONE_SOURCE_URI}"
         ]
       }
     }
