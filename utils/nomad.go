@@ -11,7 +11,7 @@ import (
 func Dispatch(jobName string, meta map[string]string) {
 	nomadToken := os.Getenv("NOMAD_TOKEN")
 	if nomadToken == "" {
-		log.Error("Consul token is empty")
+		log.Error("Nomad token is empty")
 	}
 
 	client, err := api.NewClient(api.DefaultConfig())
