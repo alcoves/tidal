@@ -62,6 +62,12 @@ func PostTranscode(c *fiber.Ctx) error {
 	if err := c.BodyParser(job); err != nil {
 		return err
 	}
+
+	// utils.Dispatch()
+	// Dispatch transcode job
+	// transcode job is a nomad job which calls the tidal cli like so
+	// tidal transcode
+
 	go runTranscode(job)
 	return c.SendStatus(202)
 }
