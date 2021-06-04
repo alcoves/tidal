@@ -28,12 +28,7 @@ func generateTranscodeArguments(job *utils.TranscodeJob) []string {
 	return transcodeArgs
 }
 
-func PostTranscodes(c *fiber.Ctx) error {
-	job := new(utils.TranscodeJob)
-	if err := c.BodyParser(job); err != nil {
-		return err
-	}
-
+func runTranscode(job *utils.TranscodeJob) {
 	tmpDir, err := ioutil.TempDir("/tmp", "tidal-transcode-")
 	if err != nil {
 		log.Fatal(err)
@@ -60,5 +55,13 @@ func PostTranscodes(c *fiber.Ctx) error {
 	utils.Notify(job)
 
 	defer os.RemoveAll(tmpDir)
-	return c.SendString("Done transcoding")
+}
+
+func PostTranscode(c *fiber.Ctx) error {
+	job := new(utils.TranscodeJob)
+	if err := c.BodyParser(job); err != nil {
+		return err
+	}
+	go runTranscode(job)
+	return c.SendStatus(202)
 }
