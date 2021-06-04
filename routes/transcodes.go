@@ -12,8 +12,13 @@ func PostTranscode(c *fiber.Ctx) error {
 		return err
 	}
 
-	if job.Async == true {
-		go cmd.Transcode(job)
+	if job.Async {
+		utils.Dispatch("transcode", map[string]string{
+			"video_id":               job.VideoID,
+			"webhook_url":            job.WebhookURL,
+			"rclone_source_uri":      job.RcloneSourceURI,
+			"rclone_destination_uri": job.RcloneDestinationURI,
+		})
 		return c.SendStatus(202)
 	} else {
 		cmd.Transcode(job)

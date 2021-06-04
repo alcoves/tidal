@@ -11,6 +11,7 @@ require (
 	github.com/google/btree v1.0.0 // indirect
 	github.com/hashicorp/consul/api v1.8.1
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
+	github.com/hashicorp/nomad/api v0.0.0-20210604155109-7e19e27a0e8d // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
