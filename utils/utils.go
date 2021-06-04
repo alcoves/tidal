@@ -98,7 +98,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 
 func X264(v VideoMetadata, desiredWidth int, streamId int) string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
-	vf := fmt.Sprintf("-vf fps=fps=%f,%s", v.Framerate, scale)
+	vf := fmt.Sprintf("-filter:v:%d fps=fps=%f,%s", streamId, v.Framerate, scale)
 
 	if v.Rotate == 90 {
 		vf += ",transpose=1"
