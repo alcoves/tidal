@@ -16,7 +16,7 @@ func setupRoutes(app *fiber.App) {
 	api.Get("/", routes.GetRoot)
 	api.Get("/config", routes.GetConfig)
 	api.Put("/config", routes.PutConfig)
-	api.Post("/transcodes", routes.PostTranscodes)
+	api.Post("/transcodes", routes.PostTranscode)
 }
 
 func main() {
