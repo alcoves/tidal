@@ -18,6 +18,10 @@ job "jobs" {
   }
 
   group "tidal" {
+    reschedule {
+      attempts = 1
+    }
+
     task "transcode" {
       driver = "raw_exec"
 
@@ -59,12 +63,7 @@ job "jobs" {
       }
     }
 
-    reschedule {
-      attempts = 1
-    }
-  }
-
-  task "thumbnail" {
+    task "thumbnail" {
       driver = "raw_exec"
 
       template {
@@ -92,7 +91,7 @@ job "jobs" {
       config {
         command = "tidal"
         args    = [
-          "thumbnail",
+          "transcode",
           "--videoId",
           "${NOMAD_META_VIDEO_ID}",
           "--webhookUrl",
@@ -103,10 +102,6 @@ job "jobs" {
           "${NOMAD_META_RCLONE_SOURCE_URI}"
         ]
       }
-    }
-
-    reschedule {
-      attempts = 1
     }
   }
 }
