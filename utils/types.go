@@ -12,10 +12,10 @@ type VideoMetadata struct {
 	Width     int     `json:"width"`
 	Height    int     `json:"height"`
 	Bitrate   int     `json:"bitrate"`
-	Rotate    int     `json:"rotate"`
+	Rotate    int     `json:"rotate"` // TODO :: Deprecate
 	Framerate float64 `json:"framerate"`
 	Duration  float64 `json:"duration"`
-	HasAudio  bool    `json:"hasAudio"`
+	HasAudio  bool    `json:"hasAudio"` // TODO :: Deprecate
 }
 
 // VideoJob handles the variables for a video transcode
