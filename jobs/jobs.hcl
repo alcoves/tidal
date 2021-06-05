@@ -1,4 +1,4 @@
-job "transcode" {
+job "jobs" {
   priority    = 20
   type        = "batch"
   datacenters = ["dc1"]
@@ -47,6 +47,52 @@ job "transcode" {
         command = "tidal"
         args    = [
           "transcode",
+          "--videoId",
+          "${NOMAD_META_VIDEO_ID}",
+          "--webhookUrl",
+          "${NOMAD_META_WEBHOOK_URL}",
+          "--rcloneDestinationUri",
+          "${NOMAD_META_RCLONE_DESTINATION_URI}",
+          "--rcloneSourceUri",
+          "${NOMAD_META_RCLONE_SOURCE_URI}"
+        ]
+      }
+    }
+
+    reschedule {
+      attempts = 1
+    }
+  }
+
+  task "thumbnail" {
+      driver = "raw_exec"
+
+      template {
+        env         = true
+        destination = "secrets/.env"
+        data        = "{{ key \"secrets/.env\" }}"
+      }
+
+      template {
+        env         = false
+        destination = "root/.config/rclone/rclone.conf"
+        data        = "{{ key \"secrets/rclone.conf\" }}"
+      }
+
+      restart {
+        attempts = 1
+        mode     = "fail"
+      }
+
+      resources {
+        cpu    = 2000
+        memory = 2000
+      }
+
+      config {
+        command = "tidal"
+        args    = [
+          "thumbnail",
           "--videoId",
           "${NOMAD_META_VIDEO_ID}",
           "--webhookUrl",

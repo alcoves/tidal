@@ -18,17 +18,14 @@ type VideoMetadata struct {
 	HasAudio  bool    `json:"hasAudio"`
 }
 
-// TranscodeJob handles the variables for a video transcode
-type TranscodeJob struct {
+// VideoJob handles the variables for a video transcode
+type VideoJob struct {
 	JobDir               string        `json:"jobDir"`
-	Status               string        `json:"status"`
-	MPDLink              string        `json:"mpdLink"`
 	VideoID              string        `json:"videoId"`
 	Presets              []Preset      `json:"presets"`
 	Metadata             VideoMetadata `json:"metadata"`
 	SignedURL            string        `json:"signedUrl"`
 	WebhookURL           string        `json:"webhookURL"`
 	RcloneSourceURI      string        `json:"rcloneSourceURI"`
-	PercentCompleted     float64       `json:"percentCompleted"`
 	RcloneDestinationURI string        `json:"rcloneDestinationURI"`
 }

@@ -76,4 +76,11 @@ nomad job dispatch -detach \
   -meta=rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
   -meta=rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4" \
   transcode
+
+VIDEO_ID="zhZspVW7im_2rcQvbrQLg"                                                    ✔ │ 4s │ 16:54:31
+go build main.go && ./main thumbnail \
+  --videoId="$VIDEO_ID" \
+  --webhookUrl="https://bken.io/api/videos/${VIDEO_ID}" \
+  --rcloneDestinationUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/thumb.webp" \
+  --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
 ```
