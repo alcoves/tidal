@@ -34,7 +34,7 @@ func parseFfmpegDuration(str string) float64 {
 	return secondsElapsed
 }
 
-func Ffmpeg(args []string, job *TranscodeJob) {
+func Ffmpeg(args []string, job *VideoJob, notify bool) {
 	duration := job.Metadata.Duration
 	cmd := exec.Command("ffmpeg", args...)
 	fmt.Printf("\n%v\n", cmd.Args)
@@ -48,10 +48,13 @@ func Ffmpeg(args []string, job *TranscodeJob) {
 		m := scanner.Text()
 		if strings.Contains(m, "time=") {
 			secondsElapsed := parseFfmpegDuration(m)
-			pc := (secondsElapsed / duration) * 100
-			log.Info("Percent Completed: ", pc)
-			job.PercentCompleted = pc
-			Notify(job)
+			percentCompleted := (secondsElapsed / duration) * 100
+			log.Info("Percent Completed: ", percentCompleted)
+			if notify {
+				Notify(job.WebhookURL, map[string]interface{}{
+					"percentCompleted": percentCompleted,
+				})
+			}
 		}
 	}
 	cmd.Wait()

@@ -17,7 +17,8 @@ import (
 func setupRoutes(app *fiber.App) {
 	api := app.Group("/", logger.New())
 	api.Get("/", routes.GetRoot)
-	api.Post("/transcodes", routes.PostTranscode)
+	api.Post("/jobs/transcode", routes.PostTranscode)
+	api.Post("/jobs/thumbnail", routes.PostThumbnail)
 }
 
 func main() {
@@ -47,14 +48,32 @@ func main() {
 			webhookUrl, _ := cobra.Flags().GetString("webhookUrl")
 			rcloneSourceUri, _ := cobra.Flags().GetString("rcloneSourceUri")
 			rcloneDestinationUri, _ := cobra.Flags().GetString("rcloneDestinationUri")
-
-			job := utils.TranscodeJob{
+			job := utils.VideoJob{
 				VideoID:              videoId,
 				WebhookURL:           webhookUrl,
 				RcloneSourceURI:      rcloneSourceUri,
 				RcloneDestinationURI: rcloneDestinationUri,
 			}
 			cmd.Transcode(&job)
+		},
+	}
+
+	var thumbnailCommand = &cobra.Command{
+		Use:   "thumbnail",
+		Short: "Generate thumbnail with ffmpeg",
+		Args:  cobra.MinimumNArgs(0),
+		Run: func(cobra *cobra.Command, args []string) {
+			videoId, _ := cobra.Flags().GetString("videoId")
+			webhookUrl, _ := cobra.Flags().GetString("webhookUrl")
+			rcloneSourceUri, _ := cobra.Flags().GetString("rcloneSourceUri")
+			rcloneDestinationUri, _ := cobra.Flags().GetString("rcloneDestinationUri")
+			job := utils.VideoJob{
+				VideoID:              videoId,
+				WebhookURL:           webhookUrl,
+				RcloneSourceURI:      rcloneSourceUri,
+				RcloneDestinationURI: rcloneDestinationUri,
+			}
+			cmd.Thumbnail(&job)
 		},
 	}
 
@@ -68,6 +87,12 @@ func main() {
 	transcodeCommand.Flags().String("rcloneSourceUri", "", "the rclone source path")
 	transcodeCommand.Flags().String("rcloneDestinationUri", "", "the rclone destination")
 	transcodeCommand.Flags().String("webhookUrl", "", "the url to deliver event updates to")
+
+	rootCmd.AddCommand(thumbnailCommand)
+	thumbnailCommand.Flags().String("videoId", "", "the id of the video")
+	thumbnailCommand.Flags().String("rcloneSourceUri", "", "the rclone source path")
+	thumbnailCommand.Flags().String("rcloneDestinationUri", "", "the rclone destination")
+	thumbnailCommand.Flags().String("webhookUrl", "", "the url to deliver event updates to")
 
 	rootCmd.Execute()
 }

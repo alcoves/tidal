@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func generateTranscodeArguments(job *utils.TranscodeJob) []string {
+func generateTranscodeArguments(job *utils.VideoJob) []string {
 	mpdOutputPath := job.JobDir + "/output.mpd"
 	transcodeArgs := []string{"-hide_banner", "-y", "-i", job.SignedURL}
 
@@ -32,7 +32,7 @@ func generateTranscodeArguments(job *utils.TranscodeJob) []string {
 	return transcodeArgs
 }
 
-func Transcode(job *utils.TranscodeJob) {
+func Transcode(job *utils.VideoJob) {
 	tmpDir, err := ioutil.TempDir("/tmp", "tidal-transcode-")
 	if err != nil {
 		log.Fatal(err)
@@ -40,19 +40,21 @@ func Transcode(job *utils.TranscodeJob) {
 	job.JobDir = tmpDir
 	log.Debug("Job Dir", job.JobDir)
 
-	job.Status = "processing"
-	utils.Notify(job)
+	utils.Notify(job.WebhookURL, map[string]interface{}{
+		"status": "processing",
+	})
 
 	job.SignedURL = utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
 	job.Metadata = utils.GetMetadata(job.SignedURL)
 	job.Presets = utils.GetPresets(job.Metadata)
 
 	ffArgs := generateTranscodeArguments(job)
-	log.Debug(ffArgs)
-	utils.Ffmpeg(ffArgs, job)
+	utils.Ffmpeg(ffArgs, job, true)
 
-	job.Status = "publishing"
-	utils.Notify(job)
+	utils.Notify(job.WebhookURL, map[string]interface{}{
+		"status": "publishing",
+	})
+
 	utils.RcloneCmd([]string{
 		"copy",
 		job.JobDir,
@@ -61,8 +63,9 @@ func Transcode(job *utils.TranscodeJob) {
 
 	defer os.RemoveAll(tmpDir)
 
-	job.Status = "completed"
-	job.PercentCompleted = 100
-	job.MPDLink = job.RcloneDestinationURI + "/output.mpd"
-	utils.Notify(job)
+	utils.Notify(job.WebhookURL, map[string]interface{}{
+		"percentCompleted": 100,
+		"status":           "completed",
+		"mpdLink":          job.RcloneDestinationURI + "/output.mpd",
+	})
 }
