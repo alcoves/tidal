@@ -95,9 +95,9 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 	return int(vidRatio * float64(bitrate) / 1000)
 }
 
-func X264(v VideoMetadata, desiredWidth int, streamId int) string {
+func X264(v VideoMetadata, desiredWidth int, streamId int) []string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
-	vf := fmt.Sprintf("-filter:v:%d fps=fps=%f,%s", streamId, v.Framerate, scale)
+	vf := fmt.Sprintf("fps=fps=%f,%s", v.Framerate, scale)
 
 	if v.Rotate == 90 {
 		vf += ",transpose=1"
@@ -108,27 +108,28 @@ func X264(v VideoMetadata, desiredWidth int, streamId int) string {
 	}
 
 	commands := []string{
-		fmt.Sprintf("-c:v:%d libx264", streamId),
-		fmt.Sprintf("-c:a:%d aac", streamId),
-		"-crf 22",
+		fmt.Sprintf("-c:v:%d", streamId), "libx264",
+		fmt.Sprintf("-c:a:%d", streamId), "aac",
+		fmt.Sprintf("-filter:v:%d", streamId),
 		vf,
-		"-preset faster",
-		"-bf 2",
-		"-coder 1",
-		"-sc_threshold 0",
-		"-profile:v high",
-		"-pix_fmt yuv420p",
-		`-force_key_frames "expr:gte(t,n_forced*2)"`,
+		"-crf", "22",
+		"-preset", "faster",
+		"-bf", "2",
+		"-coder", "1",
+		"-sc_threshold", "0",
+		"-profile:v", "high",
 	}
 
 	if v.Bitrate > 0 {
 		maxrateKb := calcMaxBitrate(v.Width, desiredWidth, v.Bitrate)
 		bufsize := int(float64(maxrateKb) * 1.5)
-		maxrateCommand := fmt.Sprintf("-maxrate %dK -bufsize %dK", maxrateKb, bufsize)
-		commands = append(commands, maxrateCommand)
+		commands = append(commands, "-maxrate")
+		commands = append(commands, fmt.Sprintf("%dK", maxrateKb))
+		commands = append(commands, "-bufsize")
+		commands = append(commands, fmt.Sprintf("%dK", bufsize))
 	}
 
-	return strings.Join(commands, " ")
+	return commands
 }
 
 func round(num float64) int {
