@@ -29,5 +29,6 @@ type TranscodeJob struct {
 	SignedURL            string        `json:"signedUrl"`
 	WebhookURL           string        `json:"webhookURL"`
 	RcloneSourceURI      string        `json:"rcloneSourceURI"`
+	PercentCompleted     float64       `json:"percentCompleted"`
 	RcloneDestinationURI string        `json:"rcloneDestinationURI"`
 }
