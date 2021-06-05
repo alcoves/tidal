@@ -21,7 +21,7 @@ func Dispatch(jobName string, meta map[string]string) {
 
 	jobs := client.Jobs()
 	writeOps := api.WriteOptions{AuthToken: nomadToken}
-	response, _, err := jobs.Dispatch("transcode", meta, nil, &writeOps)
+	response, _, err := jobs.Dispatch(jobName, meta, nil, &writeOps)
 	if err != nil {
 		log.Error(err)
 	}
