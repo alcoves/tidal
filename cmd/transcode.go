@@ -40,7 +40,7 @@ func Transcode(job *utils.TranscodeJob) {
 	job.JobDir = tmpDir
 	log.Debug("Job Dir", job.JobDir)
 
-	job.Status = "started"
+	job.Status = "processing"
 	utils.Notify(job)
 
 	job.SignedURL = utils.RcloneCmd([]string{"link", job.RcloneSourceURI})
@@ -51,16 +51,18 @@ func Transcode(job *utils.TranscodeJob) {
 	log.Debug(ffArgs)
 	utils.Ffmpeg(ffArgs, job)
 
+	job.Status = "publishing"
+	utils.Notify(job)
 	utils.RcloneCmd([]string{
 		"copy",
 		job.JobDir,
 		job.RcloneDestinationURI,
 	})
 
+	defer os.RemoveAll(tmpDir)
+
 	job.Status = "completed"
 	job.PercentCompleted = 100
 	job.MPDLink = job.RcloneDestinationURI + "/output.mpd"
 	utils.Notify(job)
-
-	defer os.RemoveAll(tmpDir)
 }
