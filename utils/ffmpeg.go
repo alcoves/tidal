@@ -44,8 +44,10 @@ func Ffmpeg(args []string, job *VideoJob, notify bool) {
 
 	scanner := bufio.NewScanner(stderrPipe)
 	scanner.Split(bufio.ScanWords)
+	var fullOutput string
 	for scanner.Scan() {
 		m := scanner.Text()
+		fullOutput += fmt.Sprintf("%s ", m)
 		if strings.Contains(m, "time=") {
 			secondsElapsed := parseFfmpegDuration(m)
 			percentCompleted := (secondsElapsed / duration) * 100
@@ -57,5 +59,7 @@ func Ffmpeg(args []string, job *VideoJob, notify bool) {
 			}
 		}
 	}
+
 	cmd.Wait()
+	log.Debug("FFMPEG OUT: ", fullOutput)
 }
