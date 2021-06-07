@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 	"os/exec"
@@ -97,7 +96,11 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 
 func X264(v VideoMetadata, desiredWidth int, streamId int) []string {
 	scale := CalcScale(v.Width, v.Height, desiredWidth)
-	vf := fmt.Sprintf("fps=fps=%f,%s", v.Framerate, scale)
+	vf := scale
+	if v.Framerate > 0 {
+		log.Debug("Applying framerate to video filter")
+		vf = fmt.Sprintf("%s,fps=fps=%f", vf, v.Framerate)
+	}
 
 	commands := []string{
 		fmt.Sprintf("-c:v:%d", streamId), "libx264",
@@ -131,31 +134,6 @@ func round(num float64) int {
 func toFixed(num float64, precision int) float64 {
 	output := math.Pow(10, float64(precision))
 	return float64(round(num*output)) / output
-}
-
-// VideoMetadataHasAudio uses ffprobe to check for an audio stream
-func VideoMetadataHasAudio(input string) bool {
-	ffprobeCmds := []string{
-		"-v", "error",
-		"-show_streams",
-		"-select_streams", "a",
-		"-show_entries", "stream=codec_type",
-		"-of", "default=noprint_wrappers=1",
-		input,
-	}
-
-	cmd := exec.Command("ffprobe", ffprobeCmds...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		panic(fmt.Sprint(err) + ": " + stderr.String())
-	}
-
-	output := out.String()
-	return output != ""
 }
 
 // ParseFramerate converts an ffmpeg framerate string to a float64
@@ -193,12 +171,11 @@ func ParseFramerate(fr string) float64 {
 func GetMetadata(URI string) VideoMetadata {
 	log.Debug("Getting metadata")
 	ffprobeCmds := []string{
-		"-v", "error",
+		"-loglevel", "quiet",
 		"-select_streams", "v",
 		"-show_entries", "format=duration",
 		"-of", "default=noprint_wrappers=1",
 		"-show_entries", "stream=width,height,r_frame_rate,bit_rate",
-		"-show_entries", "stream_tags=rotate", // Shows rotation as TAG:rotate=90,
 		URI,
 	}
 
@@ -245,19 +222,11 @@ func GetMetadata(URI string) VideoMetadata {
 				bitrate = 0
 			}
 			metadata.Bitrate = int(bitrate)
-		} else if key == "TAG:rotate" {
-			rotate, err := strconv.Atoi(value)
-			if err != nil {
-				log.Panic(err)
-			}
-			metadata.Rotate = rotate
 		} else if key == "r_frame_rate" {
 			metadata.Framerate = ParseFramerate(value)
 		}
 	}
 
-	// TODO :: This a/v should be seperate goroutines
-	metadata.HasAudio = VideoMetadataHasAudio(URI)
 	log.Debug("Metadata", fmt.Sprintf("Metadata: %+v", metadata))
 	return *metadata
 }
