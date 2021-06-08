@@ -71,14 +71,9 @@ func TestGetPresetsVideo(t *testing.T) {
 
 	expectedPresets := []Preset{
 		{
-			Name:   "240",
-			Width:  426,
-			Height: 240,
-		},
-		{
-			Name:   "480",
-			Width:  854,
-			Height: 480,
+			Name:   "360",
+			Width:  640,
+			Height: 360,
 		},
 		{
 			Name:   "720",
