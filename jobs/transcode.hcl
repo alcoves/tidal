@@ -25,6 +25,10 @@ job "transcode" {
     task "transcode" {
       driver = "raw_exec"
 
+      artifact {
+        source = "https://cdn.bken.io/releases/tidal/latest"
+      }
+
       template {
         env         = true
         destination = "secrets/.env"
