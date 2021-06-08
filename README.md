@@ -1,86 +1,45 @@
 # Tidal
 
-Tidal is a chunk-based video transcoding pipeline that utilizes Hashicorp Nomad and Consul to horizontally scale across hundreds of nodes.
+Tidal is a media encoding API with ajoining pipeline and CLI functionalist. Tidal accepts requests over it's API and uses Consul, Nomad, and the Tidal CLI to perform batched video transcodes.
 
-### Local Development
+### Overview
 
-Start Nomad and Consul
+Tidal is composed of an API and CLI that are packaged together. Tidal is written in Go and largely just wraps ffmpeg and rclone commands. While the earliest versions of tidal was just bash scripts, I found that bash was not the right tool for things like error handling, event notifications (webhooks), and preset generation to name a few.
 
-```
-nomad agent -dev
-consul agent -dev
-yarn dev
-```
+In production, Tidal uses Nomad and Consul to create a simple architecture that contains the following resources
 
-#### Config Files
+Infrastructure:
 
-Tidal uses consul kv to store configuration parameters that control how tidal operates.
+- 1-3 master servers for Consul and Nomad
+- 1-2 worker servers for the Tidal API and the Tidal CLI
 
-Required Keys
+Nomad:
 
-```
-config/tidal_dir # The directory that tidal uses to process videos (this should be an NFS mount availible on each node)
-config/rclone # The rclone config that tidal will use to ingress and egress video data
-config/nomad_acl_token # Required when acl is enabled
-config/consul_acl_token # Required when acl is enabled
-```
+- Fabio job for load balancing
+- Nomad job for running the Tidal API
+- Nomad batch jobs for scalable workload scheduling
 
-```
-rm -rf tmp && mkdir -p tmp/360p && \
-ffmpeg -y -i "https://s3.us-east-2.wasabisys.com/cdn.bken.io/tests/1440p-60fps-small/source.mp4" \
-  -vf scale=w=640:h=360:force_original_aspect_ratio=decrease -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod  -b:v 800k -maxrate 856k -bufsize 1200k -b:a 96k -hls_segment_filename tmp/360p/%d.ts tmp/360p/index.m3u8 \
-  -vf scale=w=842:h=480:force_original_aspect_ratio=decrease -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod -b:v 1400k -maxrate 1498k -bufsize 2100k -b:a 128k -hls_segment_filename tmp/480p_%03d.ts tmp/480p.m3u8 \
-  -vf scale=w=1280:h=720:force_original_aspect_ratio=decrease -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod -b:v 2800k -maxrate 2996k -bufsize 4200k -b:a 128k -hls_segment_filename tmp/720p_%03d.ts tmp/720p.m3u8 \
-  -vf scale=w=1920:h=1080:force_original_aspect_ratio=decrease -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod -b:v 5000k -maxrate 5350k -bufsize 7500k -b:a 192k -hls_segment_filename tmp/1080p_%03d.ts tmp/1080p.m3u8 \
-  -hls_master_name tmp/master.m3u8
+Consul:
+
+- Consul KV for secrets storage
+
+In a clustered setup, the request flow would look something like this.
 
 ```
-
-```sh
-echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > ${HOME}/.passwd-s3fs
-chmod 600 ${HOME}/.passwd-s3fs
-s3fs mybucket /path/to/mountpoint -o passwd_file=${HOME}/.passwd-s3fs
-
-rm -rf tmp && mkdir -p tmp
-
-ffmpeg -y -i "https://s3.us-east-2.wasabisys.com/cdn.bken.io/tests/1440p-60fps-small/source.mp4" \
- -vf scale=w=640:h=360:force_original_aspect_ratio=decrease,fps=fps=15 -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod -b:v 800k -maxrate 856k -bufsize 1200k -b:a 96k -hls_segment_filename tmp/360p_%06d.ts -master_pl_name 360p_master.m3u8 tmp/360p.m3u8 \
- -vf scale=w=842:h=480:force_original_aspect_ratio=decrease,fps=fps=15 -c:a aac -ar 48000 -c:v h264 -profile:v main -crf 20 -sc_threshold 0 -g 48 -keyint_min 48 -hls_time 4 -hls_playlist_type vod -b:v 1400k -maxrate 1498k -bufsize 2100k -b:a 128k -hls_segment_filename tmp/480p_%03d.ts -master_pl_name 480_master.m3u8 tmp/480p.m3u8
-
-echo "#EXTM3U" > ./tmp/master.m3u8
-echo "#EXT-X-VERSION:3" >> ./tmp/master.m3u8
-
-for f in ./tmp/*_master.m3u8; do
-  echo "Processing: $f"
-  echo $(sed '3q;d' ./tmp/master.m3u8) >> ./tmp/master.m3u8
-  echo $(sed '4q;d' ./tmp/master.m3u8) >> ./tmp/master.m3u8
-done
-
-aws s3 sync ./tmp s3://cdn.bken.io/tests/tmp --profile wasabi --endpoint="https://us-east-2.wasabisys.com"
+User transcode request (POST /jobs/transcode) -> Fabio -> Tidal API -> Nomad Dispatch -> Return 202
+Nomad Dispatch -> Nomad Schedules `tidal transcode...` -> Transcode runs and webhooks current status back to configured endpoint
 ```
 
-```bash
-go build main.go && ./main api --port=4000
+### Development
 
-VIDEO_ID="zhZspVW7im_2rcQvbrQLg"
-go build main.go && ./main transcode \
-  --videoId="$VIDEO_ID" \
-  --webhookUrl="https://bken.io/api/videos/${VIDEO_ID}" \
-  --rcloneDestinationUri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
-  --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
+I'm not accepting pull requests right now. Tidal is still just an experimental idea.
 
-VIDEO_ID="zhZspVW7im_2rcQvbrQLg"
-nomad job dispatch -detach \
-  -meta=video_id="$VIDEO_ID" \
-  -meta=webhook_url="https://bken.io/api/videos/${VIDEO_ID}" \
-  -meta=rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}" \
-  -meta=rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4" \
-  transcode
+### Brief History
 
-VIDEO_ID="zhZspVW7im_2rcQvbrQLg"                                                    ✔ │ 4s │ 16:54:31
-go build main.go && ./main thumbnail \
-  --videoId="$VIDEO_ID" \
-  --webhookUrl="https://bken.io/api/videos/${VIDEO_ID}" \
-  --rcloneDestinationUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/thumb.webp" \
-  --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
-```
+In 2019, I set off on a journey to build a chunked-based distributed video transcoder. TLDR: Chunk-based transcoders are stupidly fast and stupidly complex.
+
+Everything becomes more complicated as the traditional single-node video processing pipeline is broken apart and distributed. Early versions of Tidal ran on AWS Lambda and AWS EC2 spot instances. These versions we're incredibly fast at the expense of brittle behavior and high fiscal cost. The AWS Lambda version, for example, could transcode a full-length feature film at multiple bitrates in under 5 minutes.
+
+It's easy to see the benefits of a chunk-based approach. Netflix and Bitmovin have good reasons to pursue chunk-based or scene-based transcoding. Though, under the surface probably lies a heap of complexity that we don't see. For those who deal with processing heaps of video, it's incredible to see the process become _network_ limited as opposed to computing power limited. I found that stitching segments back together and packaging content for delivery took longer than transcoding each chunk (assuming an adequately sized infrastructure).
+
+I eventually gave up on the idea of an open-source chunk-based transcoder because of the ballooning complexity. Every link in the chain needed error handling, retries, rate limiting, health checking, etc... Maybe one day, but for now, bken.io needs a simple transcoder. It doesn't need to be _that_ fast.
