@@ -19,15 +19,10 @@ job "api" {
       min_healthy_time = "30s"
     }
 
-    constraint {
-      operator  = "distinct_hosts"
-      value     = "true"
-    }
-
     count = 2
 
     network {
-      port "tidal_app_port" { static = 4000 }
+      port "tidal_app_port" { }
     }
 
     service {
@@ -46,6 +41,10 @@ job "api" {
 
     task "api" {
       driver = "raw_exec"
+
+      artifact {
+        source = "https://cdn.bken.io/releases/tidal/latest"
+      }
 
       template {
         env         = true
