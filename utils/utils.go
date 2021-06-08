@@ -35,19 +35,10 @@ func ClampPreset(w int, h int, dw int, dh int) bool {
 func GetPresets(v VideoMetadata) []Preset {
 	presets := []Preset{
 		{
-			Name:   "240",
-			Width:  426,
-			Height: 240,
+			Name:   "360",
+			Width:  640,
+			Height: 360,
 		},
-	}
-
-	if ClampPreset(v.Width, v.Height, 854, 480) {
-		addition := Preset{
-			Name:   "480",
-			Width:  854,
-			Height: 480,
-		}
-		presets = append(presets, addition)
 	}
 
 	if ClampPreset(v.Width, v.Height, 1280, 720) {
