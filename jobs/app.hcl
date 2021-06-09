@@ -43,7 +43,8 @@ job "api" {
       driver = "raw_exec"
 
       artifact {
-        source = "https://cdn.bken.io/releases/tidal/latest"
+        source      = "https://cdn.bken.io/releases/tidal/latest"
+        destination = "local/tidal"
       }
 
       template {
