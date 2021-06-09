@@ -59,7 +59,7 @@ job "api" {
       }
 
       config {
-        command  = "local/tidal"
+        command  = "tidal"
         args     = [ "api", "--port", "${NOMAD_PORT_tidal_app_port}"]
       }
 
