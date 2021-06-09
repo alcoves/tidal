@@ -1,13 +1,14 @@
-default: install
-
 test:
 	go test -v ./...
 
-build_clean:
-	go build main.go
+build_windows:
+	GOOS=windows GOARCH=386 go build -o tidal main.go
 
-install: build_clean
-	sudo cp ./main /usr/local/bin/tidal
+build_darwin:
+	GOOS=darwin GOARCH=amd64 go build -o tidal main.go
+
+build_linux:
+	GOOS=linux GOARCH=amd64 go build -o tidal main.go
 
 api:
 	go run ./main.go api --port=4000
@@ -15,9 +16,7 @@ api:
 ui:
 	cd client && yarn start
 
-publish: build_clean
-	mv ./main ./tidal
-	chmod +x ./tidal
-	zip -r latest.zip ./tidal
-	rclone copyto ./latest.zip wasabi:cdn.bken.io/releases/tidal/latest.zip
-	rm -rf latest.zip tidal
+publish: build_linux
+	GZIP=-9 tar -czvf latest.tar.gz ./tidal
+	rclone copyto ./latest.tar.gz wasabi:cdn.bken.io/releases/tidal/latest.tar.gz
+	rm -rf latest.tar.gz tidal

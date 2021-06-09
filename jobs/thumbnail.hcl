@@ -26,9 +26,9 @@ job "thumbnail" {
       driver = "raw_exec"
 
       artifact {
-        source = "https://cdn.bken.io/releases/tidal/latest.zip"
+        source = "https://cdn.bken.io/releases/tidal/latest.tar.gz"
       }
-
+      
       template {
         env         = true
         destination = "secrets/.env"
