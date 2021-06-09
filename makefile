@@ -14,3 +14,10 @@ api:
 
 ui:
 	cd client && yarn start
+
+publish: build_clean
+	mv ./main ./tidal
+	chmod +x ./tidal
+	zip -r latest.zip ./tidal
+	rclone copyto ./latest.zip wasabi:cdn.bken.io/releases/tidal/latest.zip
+	rm -rf latest.zip tidal
