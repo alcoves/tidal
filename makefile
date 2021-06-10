@@ -15,8 +15,3 @@ api:
 
 ui:
 	cd client && yarn start
-
-publish: build_linux
-	GZIP=-9 tar -czvf latest.tar.gz ./tidal
-	rclone copyto ./latest.tar.gz wasabi:cdn.bken.io/releases/tidal/latest.tar.gz
-	rm -rf latest.tar.gz tidal
