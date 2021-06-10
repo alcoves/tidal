@@ -5,7 +5,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     env:
-      GZIP: -9
       GOOS: linux
       GOARCH: amd64
       AWS_ACCESS_KEY_ID: ${{ secrets.WASABI_ACCESS_KEY_ID }}
