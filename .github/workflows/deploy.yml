@@ -15,10 +15,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build
+    - name: Install Go
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.x
+    - name: Build
       run: |
         go build -o tidal main.go
         tar -czvf $BUILD_NAME ./tidal
