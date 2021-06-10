@@ -1,5 +1,7 @@
 name: Deploy
-on: push
+on:
+  push:
+    branches: [dev, main]
 jobs:
   Deploy:
     name: Deploy
@@ -7,19 +9,21 @@ jobs:
     env:
       GOOS: linux
       GOARCH: amd64
+      BUILD_NAME: build.tar.gz
       AWS_ACCESS_KEY_ID: ${{ secrets.WASABI_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.WASABI_SECRET_ACCESS_KEY  }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Install Go
+    - name: Build
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.x
-    - name: Deploy
       run: |
         go build -o tidal main.go
-        tar -czvf build.tar.gz ./tidal
-        aws s3 cp ./build.tar.gz s3://cdn.bken.io/releases/tidal/latest.tar.gz --endpoint=https://s3.us-east-2.wasabisys.com
-        aws s3 cp ./build.tar.gz s3://cdn.bken.io/releases/tidal/${{ github.sha }}.tar.gz --endpoint=https://s3.us-east-2.wasabisys.com
-        rm -rf build.tar.gz tidal
+        tar -czvf $BUILD_NAME ./tidal
+    - name: Deploy
+      run: |
+        aws s3 cp ./$BUILD_NAME s3://cdn.bken.io/releases/tidal/latest.tar.gz --endpoint-url=https://s3.us-east-2.wasabisys.com
+        aws s3 cp ./$BUILD_NAME s3://cdn.bken.io/releases/tidal/${{ github.sha }}.tar.gz --endpoint-url=https://s3.us-east-2.wasabisys.com
+        rm -rf $BUILD_NAME tidal
