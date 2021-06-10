@@ -1,9 +1,7 @@
 name: Tests
-
 on: push
-
 jobs:
-  test:
+  tests:
     name: Tests
     runs-on: ubuntu-latest
     steps:

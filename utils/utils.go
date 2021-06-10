@@ -11,11 +11,8 @@ import (
 )
 
 // CalculateResizeFilter returns an ffmpeg VideoMetadata filter
-func CalculateResizeFilter(videoWidth int, videoHeight int, presetWidth int, presetHeight int) string {
-	if videoHeight > videoWidth {
-		return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetHeight, presetWidth)
-	}
-	return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetHeight)
+func CalculateResizeFilter(presetWidth int) string {
+	return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetWidth)
 }
 
 // ClampPreset checks if the VideoMetadata fits the specified dimensions
@@ -81,7 +78,7 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 }
 
 func X264(v VideoMetadata, p Preset, streamId int) []string {
-	videoFilter := CalculateResizeFilter(v.Width, v.Height, p.Width, p.Height)
+	videoFilter := CalculateResizeFilter(p.Width)
 	if v.Framerate > 0 {
 		log.Debug("Applying framerate to video filter")
 		videoFilter = fmt.Sprintf("%s,fps=fps=%f", videoFilter, v.Framerate)

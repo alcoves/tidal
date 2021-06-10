@@ -42,25 +42,25 @@ func TestCalcScale(t *testing.T) {
 		vw, vh, pw, ph int
 		expected       string
 	}{
-		{3440, 2160, 640, 360, "scale=640:360:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 1280, 720, "scale=1280:720:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 1920, 1080, "scale=1920:1080:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 2560, 1440, "scale=2560:1440:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 3440, 2160, "scale=3440:2160:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 2560, 1440, "scale=2560:2560:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 3440, 2160, "scale=3440:3440:force_original_aspect_ratio=decrease"},
 
-		{1920, 1080, 640, 360, "scale=640:360:force_original_aspect_ratio=decrease"},
-		{1920, 1080, 1280, 720, "scale=1280:720:force_original_aspect_ratio=decrease"},
-		{1920, 1080, 1920, 1080, "scale=1920:1080:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease"},
 
-		{1080, 1920, 640, 360, "scale=360:640:force_original_aspect_ratio=decrease"},
-		{1080, 1920, 1280, 720, "scale=720:1280:force_original_aspect_ratio=decrease"},
-		{1080, 1920, 1920, 1080, "scale=1080:1920:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease"},
 	}
 
 	for _, test := range tests {
 		testname := fmt.Sprintf("%dx%d video has scale filter %s", test.vw, test.vh, test.expected)
 		t.Run(testname, func(t *testing.T) {
-			recieved := CalculateResizeFilter(test.vw, test.vh, test.pw, test.ph)
+			recieved := CalculateResizeFilter(test.pw)
 			if recieved != test.expected {
 				t.Errorf("expected %s, recieved %s", test.expected, recieved)
 			}
@@ -77,19 +77,19 @@ func TestX264(t *testing.T) {
 	}{
 		{
 			VideoMetadata{Width: 1920, Height: 1080}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1080:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1080:1920:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1280, Height: 720}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=720:1280:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1280:1280:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1024, Height: 768}, Preset{Width: 854, Height: 360}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=854:360:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=854:854:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
 		},
 	}
 
