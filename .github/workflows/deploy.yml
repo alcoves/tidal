@@ -17,11 +17,6 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.x
-    - name: Install AWS Cli
-      run: |
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        unzip awscliv2.zip
-        sudo ./aws/install
     - name: Deploy
       run: |
         go build -o tidal main.go
