@@ -17,8 +17,7 @@ func generateTranscodeArguments(job *utils.VideoJob) []string {
 	}
 	for i := 0; i < len(job.Presets); i++ {
 		preset := job.Presets[i]
-		log.Info(preset.Width)
-		transcodeArgs = append(transcodeArgs, utils.X264(job.Metadata, preset.Width, i)...)
+		transcodeArgs = append(transcodeArgs, utils.X264(job.Metadata, preset, i)...)
 	}
 
 	transcodeArgs = append(transcodeArgs,
