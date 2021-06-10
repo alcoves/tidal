@@ -4,6 +4,12 @@ jobs:
   Deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      GZIP: -9
+      GOOS: linux
+      GOARCH: amd64
+      AWS_ACCESS_KEY_ID: ${{ secrets.WASABI_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.WASABI_SECRET_ACCESS_KEY  }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -11,15 +17,12 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.x
-    - uses: chrislennon/action-aws-cli@v1.1
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.WASABI_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.WASABI_SECRET_ACCESS_KEY  }}
+    - name: Install AWS Cli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
     - name: Deploy
-      env:
-        GZIP: -9
-        GOOS: linux
-        GOARCH: amd64
       run: |
         go build -o tidal main.go
         tar -czvf build.tar.gz ./tidal
