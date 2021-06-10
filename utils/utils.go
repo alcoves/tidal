@@ -10,17 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CalcScale returns an ffmpeg VideoMetadata filter
-func CalcScale(w int, h int, dw int) string {
-	VideoMetadataRatio := float64(h) / float64(w)
-	desiredHeight := int(VideoMetadataRatio * float64(dw))
-
-	// VideoMetadata heights must be divisible by 2
-	if desiredHeight%2 != 0 {
-		desiredHeight++
+// CalculateResizeFilter returns an ffmpeg VideoMetadata filter
+func CalculateResizeFilter(videoWidth int, videoHeight int, presetWidth int, presetHeight int) string {
+	if videoHeight > videoWidth {
+		return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetHeight, presetWidth)
 	}
-
-	return fmt.Sprintf("scale=%d:%d", dw, desiredHeight)
+	return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetHeight)
 }
 
 // ClampPreset checks if the VideoMetadata fits the specified dimensions
@@ -85,19 +80,18 @@ func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 	return int(vidRatio * float64(bitrate) / 1000)
 }
 
-func X264(v VideoMetadata, desiredWidth int, streamId int) []string {
-	scale := CalcScale(v.Width, v.Height, desiredWidth)
-	vf := scale
+func X264(v VideoMetadata, p Preset, streamId int) []string {
+	videoFilter := CalculateResizeFilter(v.Width, v.Height, p.Width, p.Height)
 	if v.Framerate > 0 {
 		log.Debug("Applying framerate to video filter")
-		vf = fmt.Sprintf("%s,fps=fps=%f", vf, v.Framerate)
+		videoFilter = fmt.Sprintf("%s,fps=fps=%f", videoFilter, v.Framerate)
 	}
 
 	commands := []string{
 		fmt.Sprintf("-c:v:%d", streamId), "libx264",
 		fmt.Sprintf("-c:a:%d", streamId), "aac",
 		fmt.Sprintf("-filter:v:%d", streamId),
-		vf,
+		videoFilter,
 		"-crf", "22",
 		"-preset", "faster",
 		"-bf", "2",
@@ -107,7 +101,7 @@ func X264(v VideoMetadata, desiredWidth int, streamId int) []string {
 	}
 
 	if v.Bitrate > 0 {
-		maxrateKb := calcMaxBitrate(v.Width, desiredWidth, v.Bitrate)
+		maxrateKb := calcMaxBitrate(v.Width, p.Width, v.Bitrate)
 		bufsize := int(float64(maxrateKb) * 1.5)
 		commands = append(commands, "-maxrate")
 		commands = append(commands, fmt.Sprintf("%dK", maxrateKb))

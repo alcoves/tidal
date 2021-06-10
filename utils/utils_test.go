@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -37,22 +39,64 @@ func TestParseFramerate(t *testing.T) {
 
 func TestCalcScale(t *testing.T) {
 	tests := []struct {
-		w, h, dw int
-		expected string
+		vw, vh, pw, ph int
+		expected       string
 	}{
-		{1920, 1080, 640, "scale=640:360"},
-		{1440, 1080, 640, "scale=640:480"},
-		{1920, 1200, 1280, "scale=1280:800"},
-		{1920, 1080, 1920, "scale=1920:1080"},
-		{1920, 1080, 1920, "scale=1920:1080"},
-		{720, 1568, 720, "scale=720:1568"},
-		{888, 544, 854, "scale=854:524"},
+		{3440, 2160, 640, 360, "scale=640:360:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 1280, 720, "scale=1280:720:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 1920, 1080, "scale=1920:1080:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 2560, 1440, "scale=2560:1440:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 3440, 2160, "scale=3440:2160:force_original_aspect_ratio=decrease"},
+
+		{1920, 1080, 640, 360, "scale=640:360:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 1280, 720, "scale=1280:720:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 1920, 1080, "scale=1920:1080:force_original_aspect_ratio=decrease"},
+
+		{1080, 1920, 640, 360, "scale=360:640:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 1280, 720, "scale=720:1280:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 1920, 1080, "scale=1080:1920:force_original_aspect_ratio=decrease"},
 	}
 
 	for _, test := range tests {
-		testname := fmt.Sprintf("%dx%d video has scale filter %s", test.w, test.h, test.expected)
+		testname := fmt.Sprintf("%dx%d video has scale filter %s", test.vw, test.vh, test.expected)
 		t.Run(testname, func(t *testing.T) {
-			recieved := CalcScale(test.w, test.h, test.dw)
+			recieved := CalculateResizeFilter(test.vw, test.vh, test.pw, test.ph)
+			if recieved != test.expected {
+				t.Errorf("expected %s, recieved %s", test.expected, recieved)
+			}
+		})
+	}
+}
+
+func TestX264(t *testing.T) {
+	tests := []struct {
+		v        VideoMetadata
+		p        Preset
+		streamId int
+		expected string
+	}{
+		{
+			VideoMetadata{Width: 1920, Height: 1080}, Preset{Width: 1920, Height: 1080}, 0,
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1080:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+		},
+		{
+			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1920, Height: 1080}, 0,
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1080:1920:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+		},
+		{
+			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1280, Height: 720}, 0,
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=720:1280:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+		},
+		{
+			VideoMetadata{Width: 1024, Height: 768}, Preset{Width: 854, Height: 360}, 0,
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=854:360:force_original_aspect_ratio=decrease -crf 22 -preset faster -bf 2 -coder 1 -sc_threshold 0 -profile:v high",
+		},
+	}
+
+	for _, test := range tests {
+		testname := fmt.Sprintf("%dx%d x264 commands", test.v.Width, test.v.Height)
+		t.Run(testname, func(t *testing.T) {
+			recieved := strings.Join(X264(test.v, test.p, test.streamId), " ")
 			if recieved != test.expected {
 				t.Errorf("expected %s, recieved %s", test.expected, recieved)
 			}
@@ -61,48 +105,51 @@ func TestCalcScale(t *testing.T) {
 }
 
 func TestGetPresetsVideo(t *testing.T) {
-	v := VideoMetadata{
-		Bitrate:   0,
-		Duration:  600,
-		Width:     1920,
-		Height:    1080,
-		Framerate: 60,
-	}
-
-	expectedPresets := []Preset{
+	tests := []struct {
+		v        VideoMetadata
+		expected []Preset
+	}{
 		{
-			Name:   "360",
-			Width:  640,
-			Height: 360,
+			VideoMetadata{Width: 1920, Height: 1080},
+			[]Preset{
+				{Width: 640, Height: 360, Name: "360"},
+				{Width: 1280, Height: 720, Name: "720"},
+				{Width: 1920, Height: 1080, Name: "1080"},
+			},
 		},
 		{
-			Name:   "720",
-			Width:  1280,
-			Height: 720,
+			VideoMetadata{Width: 1080, Height: 1920},
+			[]Preset{
+				{Width: 640, Height: 360, Name: "360"},
+				{Width: 1280, Height: 720, Name: "720"},
+				{Width: 1920, Height: 1080, Name: "1080"},
+			},
 		},
 		{
-			Name:   "1080",
-			Width:  1920,
-			Height: 1080,
+			VideoMetadata{Width: 608, Height: 1080},
+			[]Preset{
+				{Width: 640, Height: 360, Name: "360"},
+			},
 		},
 	}
 
-	recievedPresets := GetPresets(v)
+	for _, test := range tests {
+		testname := fmt.Sprintf("%dx%d x264 commands", test.v.Width, test.v.Height)
+		t.Run(testname, func(t *testing.T) {
+			presets := GetPresets(test.v)
 
-	if len(expectedPresets) != len(recievedPresets) {
-		t.Errorf("expectedPresets:%d\nrecievedPresets:%d", len(expectedPresets), len(recievedPresets))
-	}
+			if len(presets) != len(test.expected) {
+				t.Errorf("Expected: %v, Recieved: %v", len(test.expected), len(presets))
+			}
 
-	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Height != recievedPresets[i].Height {
-			t.Errorf("\nexpected\n%d\nrecieved\n%d", expectedPresets[i].Height, recievedPresets[i].Height)
-		}
-	}
-
-	for i := 0; i < len(expectedPresets); i++ {
-		if expectedPresets[i].Width != recievedPresets[i].Width {
-			t.Errorf("\nexpected\n%d\nrecieved\n%d", expectedPresets[i].Width, recievedPresets[i].Width)
-		}
+			for i := 0; i < len(test.expected); i++ {
+				preset := presets[i]
+				expected := test.expected[i]
+				if !reflect.DeepEqual(preset, expected) {
+					t.Errorf("Expected: %v, Recieved: %v", expected, preset)
+				}
+			}
+		})
 	}
 }
 
