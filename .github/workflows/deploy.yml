@@ -10,6 +10,7 @@ jobs:
       GOOS: linux
       GOARCH: amd64
       BUILD_NAME: build.tar.gz
+      AWS_DEFAULT_REGION: us-east-2
       AWS_ACCESS_KEY_ID: ${{ secrets.WASABI_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.WASABI_SECRET_ACCESS_KEY  }}
     steps:
