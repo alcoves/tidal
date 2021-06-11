@@ -10,9 +10,24 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
+}
+
+// CalcMaxBitrate uses the videos original bitrate to determine what the max should be
+func CalcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
+	vidRatio := float64(desiredWidth) / float64(originalWidth)
+	return int(vidRatio * float64(bitrate) / 1000)
+}
+
 // CalculateResizeFilter returns an ffmpeg VideoMetadata filter
 func CalculateResizeFilter(presetWidth int) string {
-	return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetWidth)
+	return fmt.Sprintf("scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetWidth)
 }
 
 // ClampPreset checks if the VideoMetadata fits the specified dimensions
@@ -21,101 +36,6 @@ func ClampPreset(w int, h int, dw int, dh int) bool {
 		return true
 	}
 	return false
-}
-
-// GetPresets returns consumable presets
-func GetPresets(v VideoMetadata) []Preset {
-	presets := []Preset{
-		{
-			Name:   "360",
-			Width:  640,
-			Height: 360,
-		},
-	}
-
-	if ClampPreset(v.Width, v.Height, 1280, 720) {
-		addition := Preset{
-			Name:   "720",
-			Width:  1280,
-			Height: 720,
-		}
-		presets = append(presets, addition)
-	}
-
-	if ClampPreset(v.Width, v.Height, 1920, 1080) {
-		addition := Preset{
-			Name:   "1080",
-			Width:  1920,
-			Height: 1080,
-		}
-		presets = append(presets, addition)
-	}
-
-	if ClampPreset(v.Width, v.Height, 2560, 1440) {
-		addition := Preset{
-			Name:   "1440",
-			Width:  2560,
-			Height: 1440,
-		}
-		presets = append(presets, addition)
-	}
-
-	if ClampPreset(v.Width, v.Height, 3840, 2160) {
-		addition := Preset{
-			Name:   "2160",
-			Width:  3840,
-			Height: 2160,
-		}
-		presets = append(presets, addition)
-	}
-
-	return presets
-}
-
-func calcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
-	vidRatio := float64(desiredWidth) / float64(originalWidth)
-	return int(vidRatio * float64(bitrate) / 1000)
-}
-
-func X264(v VideoMetadata, p Preset, streamId int) []string {
-	videoFilter := CalculateResizeFilter(p.Width)
-	if v.Framerate > 0 {
-		log.Debug("Applying framerate to video filter")
-		videoFilter = fmt.Sprintf("%s,fps=fps=%f", videoFilter, v.Framerate)
-	}
-
-	commands := []string{
-		fmt.Sprintf("-c:v:%d", streamId), "libx264",
-		fmt.Sprintf("-c:a:%d", streamId), "aac",
-		fmt.Sprintf("-filter:v:%d", streamId),
-		videoFilter,
-		"-crf", "22",
-		"-preset", "faster",
-		"-bf", "2",
-		"-coder", "1",
-		"-sc_threshold", "0",
-		"-profile:v", "high",
-	}
-
-	if v.Bitrate > 0 {
-		maxrateKb := calcMaxBitrate(v.Width, p.Width, v.Bitrate)
-		bufsize := int(float64(maxrateKb) * 1.5)
-		commands = append(commands, "-maxrate")
-		commands = append(commands, fmt.Sprintf("%dK", maxrateKb))
-		commands = append(commands, "-bufsize")
-		commands = append(commands, fmt.Sprintf("%dK", bufsize))
-	}
-
-	return commands
-}
-
-func round(num float64) int {
-	return int(num + math.Copysign(0.5, num))
-}
-
-func toFixed(num float64, precision int) float64 {
-	output := math.Pow(10, float64(precision))
-	return float64(round(num*output)) / output
 }
 
 // ParseFramerate converts an ffmpeg framerate string to a float64
