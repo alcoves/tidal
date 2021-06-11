@@ -42,19 +42,19 @@ func TestCalcScale(t *testing.T) {
 		vw, vh, pw, ph int
 		expected       string
 	}{
-		{3440, 2160, 640, 360, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=640:640:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 1280, 720, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1280:1280:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 1920, 1080, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1920:1920:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 2560, 1440, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=2560:2560:force_original_aspect_ratio=decrease"},
-		{3440, 2160, 3440, 2160, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=3440:3440:force_original_aspect_ratio=decrease"},
+		{3440, 2160, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{3440, 2160, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{3440, 2160, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{3440, 2160, 2560, 1440, "scale=2560:2560:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{3440, 2160, 3440, 2160, "scale=3440:3440:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
 
-		{1920, 1080, 640, 360, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=640:640:force_original_aspect_ratio=decrease"},
-		{1920, 1080, 1280, 720, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1280:1280:force_original_aspect_ratio=decrease"},
-		{1920, 1080, 1920, 1080, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1920:1920:force_original_aspect_ratio=decrease"},
+		{1920, 1080, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{1920, 1080, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{1920, 1080, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
 
-		{1080, 1920, 640, 360, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=640:640:force_original_aspect_ratio=decrease"},
-		{1080, 1920, 1280, 720, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1280:1280:force_original_aspect_ratio=decrease"},
-		{1080, 1920, 1920, 1080, "scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1920:1920:force_original_aspect_ratio=decrease"},
+		{1080, 1920, 640, 360, "scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{1080, 1920, 1280, 720, "scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
+		{1080, 1920, 1920, 1080, "scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2"},
 	}
 
 	for _, test := range tests {
@@ -77,19 +77,19 @@ func TestX264(t *testing.T) {
 	}{
 		{
 			VideoMetadata{Width: 1920, Height: 1080}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1920:1920:force_original_aspect_ratio=decrease -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1920:1920:force_original_aspect_ratio=decrease -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1280, Height: 720}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=1280:1280:force_original_aspect_ratio=decrease -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
 		},
 		{
 			VideoMetadata{Width: 1024, Height: 768}, Preset{Width: 640, Height: 360}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=640:640:force_original_aspect_ratio=decrease -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
 		},
 	}
 

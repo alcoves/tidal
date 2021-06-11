@@ -27,7 +27,7 @@ func CalcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
 
 // CalculateResizeFilter returns an ffmpeg VideoMetadata filter
 func CalculateResizeFilter(presetWidth int) string {
-	return fmt.Sprintf("scale=trunc(iw/2)*2:trunc(ih/2)*2,scale=%d:%d:force_original_aspect_ratio=decrease", presetWidth, presetWidth)
+	return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2", presetWidth, presetWidth)
 }
 
 // ClampPreset checks if the VideoMetadata fits the specified dimensions
