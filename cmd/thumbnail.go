@@ -42,6 +42,6 @@ func Thumbnail(job *utils.VideoJob) {
 	defer os.RemoveAll(tmpDir)
 
 	utils.Notify(job.WebhookURL, map[string]interface{}{
-		"thumbnail": utils.RcloneCmd([]string{"link", job.RcloneDestinationURI}),
+		"thumbnail": job.RcloneDestinationURI,
 	})
 }
