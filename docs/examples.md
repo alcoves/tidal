@@ -10,7 +10,7 @@ VIDEO_ID="zhZspVW7im_2rcQvbrQLg"
 go build main.go && ./main transcode \
   --videoId="$VIDEO_ID" \
   --webhookUrl="https://bken.io/api/videos/${VIDEO_ID}" \
-  --rcloneDestinationUri="wasabi:cdn.bken.io/pkg/${VIDEO_ID}" \
+  --rcloneDestinationUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/pkg" \
   --rcloneSourceUri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4"
 
 # In a clustered environment, it is better to dispatch a job so that Nomad can schedule it
@@ -18,7 +18,7 @@ VIDEO_ID="zhZspVW7im_2rcQvbrQLg"
 nomad job dispatch -detach \
   -meta=video_id="$VIDEO_ID" \
   -meta=webhook_url="https://bken.io/api/videos/${VIDEO_ID}" \
-  -meta=rclone_destination_uri="wasabi:cdn.bken.io/pkg/${VIDEO_ID}" \
+  -meta=rclone_destination_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/pkg" \
   -meta=rclone_source_uri="wasabi:cdn.bken.io/v/${VIDEO_ID}/${VIDEO_ID}.mp4" \
   transcode
 
