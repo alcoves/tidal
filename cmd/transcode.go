@@ -24,8 +24,9 @@ func generateTranscodeArguments(job *utils.VideoJob) []string {
 	transcodeArgs = append(transcodeArgs,
 		"-pix_fmt", "yuv420p",
 		"-force_key_frames", "expr:gte(t,n_forced*2)",
-		"-use_timeline", "1",
-		"-use_template", "1",
+		"-use_timeline", "1", "-use_template", "1",
+		"-dash_segment_type", "mp4", "-hls_playlist", "1",
+		"-seg_duration", "2", "-streaming", "1",
 		"-adaptation_sets", "id=0,streams=v id=1,streams=a",
 		mpdOutputPath,
 	)
