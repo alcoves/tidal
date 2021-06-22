@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -8,8 +9,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const MANIFEST_FILENAME = "manifest.mpd"
+
 func generateTranscodeArguments(job *utils.VideoJob) []string {
-	mpdOutputPath := job.JobDir + "/output.mpd"
+	dashManifestPath := fmt.Sprintf("%s/%s", job.JobDir, MANIFEST_FILENAME)
 	transcodeArgs := []string{"-hide_banner", "-y", "-i", job.SignedURL}
 
 	for i := 0; i < len(job.Presets); i++ {
@@ -28,7 +31,8 @@ func generateTranscodeArguments(job *utils.VideoJob) []string {
 		"-dash_segment_type", "mp4", "-hls_playlist", "1",
 		"-seg_duration", "2", "-streaming", "1",
 		"-adaptation_sets", "id=0,streams=v id=1,streams=a",
-		mpdOutputPath,
+		"-f", "dash",
+		dashManifestPath,
 	)
 	return transcodeArgs
 }
@@ -67,6 +71,6 @@ func Transcode(job *utils.VideoJob) {
 	utils.Notify(job.WebhookURL, map[string]interface{}{
 		"percentCompleted": 100,
 		"status":           "completed",
-		"mpdLink":          job.RcloneDestinationURI + "/output.mpd",
+		"mpdLink":          fmt.Sprintf("%s/%s", job.RcloneDestinationURI, MANIFEST_FILENAME),
 	})
 }
