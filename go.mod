@@ -13,6 +13,6 @@ require (
 	github.com/klauspost/compress v1.13.0 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.2.0
+	github.com/spf13/cobra v1.2.1
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 )
