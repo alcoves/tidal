@@ -13,7 +13,7 @@ const MANIFEST_FILENAME = "manifest.mpd"
 
 func generateTranscodeArguments(job *utils.VideoJob) []string {
 	dashManifestPath := fmt.Sprintf("%s/%s", job.JobDir, MANIFEST_FILENAME)
-	transcodeArgs := []string{"-hide_banner", "-strict", "-2", "-y", "-i", job.SignedURL}
+	transcodeArgs := []string{"-hide_banner", "-y", "-i", job.SignedURL, "-strict", "-2"}
 
 	for i := 0; i < len(job.Presets); i++ {
 		preset := job.Presets[i]
@@ -22,8 +22,8 @@ func generateTranscodeArguments(job *utils.VideoJob) []string {
 	}
 
 	// Adding audio tracks
-	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a:0", "128k", "-ar", "48000", "-ac", "2")
-	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:1", "aac", "-b:a:1", "128k", "-ar", "48000", "-ac", "2")
+	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a:0", "128k", "-ar", "48000")
+	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:1", "aac", "-b:a:1", "128k", "-ar", "48000")
 
 	transcodeArgs = append(transcodeArgs,
 		"-pix_fmt", "yuv420p",
