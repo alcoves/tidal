@@ -31,7 +31,25 @@ func TestParseFramerate(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			recieved := ParseFramerate(test.framerate)
 			if recieved != test.expected {
-				t.Errorf("expected %f, recieved %f", test.expected, recieved)
+				t.Errorf("Expected: %f, recieved %f", test.expected, recieved)
+			}
+		})
+	}
+}
+
+func TestCalcMaxBitrate(t *testing.T) {
+	tests := []struct {
+		vw, dvw, bitrate, expected int
+	}{
+		{1920, 1920, 4000 * 1000, 4000},
+	}
+
+	for _, test := range tests {
+		testname := fmt.Sprintf("%dx%d calcuate max bitrate %d", test.vw, test.dvw, test.expected)
+		t.Run(testname, func(t *testing.T) {
+			recieved := CalcMaxBitrate(test.vw, test.dvw, test.bitrate)
+			if recieved != test.expected {
+				t.Errorf("expected %d, recieved %d", test.expected, recieved)
 			}
 		})
 	}
@@ -76,20 +94,20 @@ func TestX264(t *testing.T) {
 		expected string
 	}{
 		{
-			VideoMetadata{Width: 1920, Height: 1080}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			VideoMetadata{Width: 1920, Height: 1080}, Preset{Width: 1920, Height: 1080, DefaultMaxRate: 8000}, 0,
+			"-map 0:v:0 -c:v:0 libx264 -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high -maxrate 8000K -bufsize 12000K",
 		},
 		{
-			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1920, Height: 1080}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1920, Height: 1080, DefaultMaxRate: 8000}, 0,
+			"-map 0:v:0 -c:v:0 libx264 -filter:v:0 scale=1920:1920:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high -maxrate 8000K -bufsize 12000K",
 		},
 		{
-			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1280, Height: 720}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			VideoMetadata{Width: 1080, Height: 1920}, Preset{Width: 1280, Height: 720, DefaultMaxRate: 8000}, 1,
+			"-map 0:v:0 -c:v:1 libx264 -filter:v:1 scale=1280:1280:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high -maxrate 8000K -bufsize 12000K",
 		},
 		{
-			VideoMetadata{Width: 1024, Height: 768}, Preset{Width: 640, Height: 360}, 0,
-			"-c:v:0 libx264 -c:a:0 aac -filter:v:0 scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high",
+			VideoMetadata{Width: 1024, Height: 768}, Preset{Width: 640, Height: 360, DefaultMaxRate: 8000}, 2,
+			"-map 0:v:0 -c:v:2 libx264 -filter:v:2 scale=640:640:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 -crf 22 -preset medium -bf 2 -coder 1 -profile:v high -maxrate 8000K -bufsize 12000K",
 		},
 	}
 
@@ -112,23 +130,23 @@ func TestGetPresetsVideo(t *testing.T) {
 		{
 			VideoMetadata{Width: 1920, Height: 1080},
 			[]Preset{
-				{Width: 640, Height: 360, Name: "360"},
-				{Width: 1280, Height: 720, Name: "720"},
-				{Width: 1920, Height: 1080, Name: "1080"},
+				{Width: 640, Height: 360, Name: "360", DefaultMaxRate: 1500},
+				{Width: 1280, Height: 720, Name: "720", DefaultMaxRate: 8000},
+				{Width: 1920, Height: 1080, Name: "1080", DefaultMaxRate: 12000},
 			},
 		},
 		{
 			VideoMetadata{Width: 1080, Height: 1920},
 			[]Preset{
-				{Width: 640, Height: 360, Name: "360"},
-				{Width: 1280, Height: 720, Name: "720"},
-				{Width: 1920, Height: 1080, Name: "1080"},
+				{Width: 640, Height: 360, Name: "360", DefaultMaxRate: 1500},
+				{Width: 1280, Height: 720, Name: "720", DefaultMaxRate: 8000},
+				{Width: 1920, Height: 1080, Name: "1080", DefaultMaxRate: 12000},
 			},
 		},
 		{
 			VideoMetadata{Width: 608, Height: 1080},
 			[]Preset{
-				{Width: 640, Height: 360, Name: "360"},
+				{Width: 640, Height: 360, Name: "360", DefaultMaxRate: 1500},
 			},
 		},
 	}

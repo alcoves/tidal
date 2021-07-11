@@ -2,9 +2,10 @@ package utils
 
 // Preset is a struct containing transcoder commands
 type Preset struct {
-	Name   string `json:"name"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
+	Name           string `json:"name"`
+	Width          int    `json:"width"`
+	Height         int    `json:"height"`
+	DefaultMaxRate int    `json:"defaultMaxRate"`
 }
 
 // VideoMetadata is a slim ffprobe struct

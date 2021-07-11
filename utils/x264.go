@@ -14,8 +14,8 @@ func X264(v VideoMetadata, p Preset, streamId int) []string {
 	}
 
 	commands := []string{
+		"-map", "0:v:0",
 		fmt.Sprintf("-c:v:%d", streamId), "libx264",
-		fmt.Sprintf("-c:a:%d", streamId), "aac",
 		fmt.Sprintf("-filter:v:%d", streamId),
 		videoFilter,
 		"-crf", "22",
@@ -30,6 +30,13 @@ func X264(v VideoMetadata, p Preset, streamId int) []string {
 		bufsize := int(float64(maxrateKb) * 1.5)
 		commands = append(commands, "-maxrate")
 		commands = append(commands, fmt.Sprintf("%dK", maxrateKb))
+		commands = append(commands, "-bufsize")
+		commands = append(commands, fmt.Sprintf("%dK", bufsize))
+	} else {
+		bufsize := int(float64(p.DefaultMaxRate) * 1.5)
+		fmt.Println("DefaultMaxRate", p.DefaultMaxRate)
+		commands = append(commands, "-maxrate")
+		commands = append(commands, fmt.Sprintf("%dK", p.DefaultMaxRate))
 		commands = append(commands, "-bufsize")
 		commands = append(commands, fmt.Sprintf("%dK", bufsize))
 	}
