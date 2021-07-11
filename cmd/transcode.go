@@ -22,8 +22,8 @@ func generateTranscodeArguments(job *utils.VideoJob) []string {
 	}
 
 	// Adding audio tracks
-	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a", "128k", "-ar", "48000", "-ac", "2")
-	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:1", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2")
+	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a:0", "128k", "-ar", "48000", "-ac", "2")
+	transcodeArgs = append(transcodeArgs, "-map", "0:a?:0", "-c:a:1", "aac", "-b:a:1", "128k", "-ar", "48000", "-ac", "2")
 
 	transcodeArgs = append(transcodeArgs,
 		"-pix_fmt", "yuv420p",
