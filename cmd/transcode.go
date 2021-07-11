@@ -13,7 +13,7 @@ const MANIFEST_FILENAME = "manifest.mpd"
 
 func generateTranscodeArguments(job *utils.VideoJob) []string {
 	dashManifestPath := fmt.Sprintf("%s/%s", job.JobDir, MANIFEST_FILENAME)
-	transcodeArgs := []string{"-hide_banner", "-y", "-i", job.SignedURL}
+	transcodeArgs := []string{"-hide_banner", "-strict", "-2", "-y", "-i", job.SignedURL}
 
 	for i := 0; i < len(job.Presets); i++ {
 		preset := job.Presets[i]
