@@ -1,9 +1,9 @@
 import { Box } from '@chakra-ui/react';
 
-export default function Home() {
+export default function Jobs() {
   return (
     <Box>
-      Here is the dashboard
+      Here are the Jobs
     </Box>
   )
 }
