@@ -9,3 +9,6 @@ main.exe
 tmp
 
 *.env
+
+
+node_modules
