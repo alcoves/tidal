@@ -2,17 +2,14 @@ import { Box, Button } from '@chakra-ui/react';
 import { useState } from 'react';
 
 export default function Jobs() {
-
   // gets jobs with swr
-
-  const [res, setRes] = useState();
-
+  const [res, setRes] = useState('');
 
   async function handleClick() {
     // Make remote call
     const res = await fetch('/api/jobs', { method: 'POST', body: { data: 'test' } })
     console.log(res);
-    setRes(res);
+    setRes(JSON.stringify(res));
   }
 
   return (
@@ -21,7 +18,7 @@ export default function Jobs() {
         Run Job
       </Button>
       <pre>
-        {JSON.stringify(res, null, 2)}
+        {res}
       </pre>
     </Box>
   )
