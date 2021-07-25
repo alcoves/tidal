@@ -1,9 +1,28 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
+import { useState } from 'react';
 
 export default function Jobs() {
+
+  // gets jobs with swr
+
+  const [res, setRes] = useState();
+
+
+  async function handleClick() {
+    // Make remote call
+    const res = await fetch('/api/jobs', { method: 'POST', body: { data: 'test' } })
+    console.log(res);
+    setRes(res);
+  }
+
   return (
     <Box>
-      Here are the Jobs
+      <Button onClick={handleClick}>
+        Run Job
+      </Button>
+      <pre>
+        {JSON.stringify(res, null, 2)}
+      </pre>
     </Box>
   )
 }
