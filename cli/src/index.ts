@@ -26,6 +26,12 @@ async function main() {
   }).argv;
 
   console.log(args);
+
+  consul.kv.get('hello', function(err, result) {
+    if (err) throw err;
+    if (result === undefined) throw new Error('key not found');
+  });
+
 }
 
 main();
