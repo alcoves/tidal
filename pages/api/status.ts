@@ -5,7 +5,7 @@ type Data = {
   consul: boolean
 }
 
-export default async function handler(
+export default async function handler (
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
@@ -13,7 +13,7 @@ export default async function handler(
     res.status(200).json({
       nomad: true,
       consul: true
-    });
+    })
   }
-  res.status(405).end();
+  res.status(405).end()
 }

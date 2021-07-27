@@ -1,5 +1,5 @@
-import { getPresets } from './getPresets';
-import { Metadata } from './getMetadata';
+import { getPresets } from './getPresets'
+import { Metadata } from './getMetadata'
 
 describe('getPresets', () => {
   test('that presets are generated', () => {
@@ -7,6 +7,6 @@ describe('getPresets', () => {
       width: 1920,
       height: 1080
     }
-    expect(getPresets(metadata)).toMatchSnapshot();
+    expect(getPresets(metadata)).toMatchSnapshot()
   })
 })
