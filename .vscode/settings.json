@@ -15,5 +15,6 @@
     "titleBar.inactiveBackground": "#52907199",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#529071"
+  "peacock.color": "#529071",
+  "jest.jestCommandLine": "yarn jest"
 }

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getPresets that presets are generated 1`] = `
+Array [
+  Object {
+    "defaultMaxRate": 1500,
+    "height": 360,
+    "name": "360",
+    "width": 640,
+  },
+  Object {
+    "defaultMaxRate": 8000,
+    "height": 720,
+    "name": "720",
+    "width": 1280,
+  },
+  Object {
+    "defaultMaxRate": 12000,
+    "height": 1080,
+    "name": "1080",
+    "width": 1920,
+  },
+]
+`;
