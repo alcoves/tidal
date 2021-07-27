@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { Text, Box, Flex, Heading } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { IoPieChart, IoLayers, IoOptions } from 'react-icons/io5';
+// import { useSwr } from 'swr';
+import { IoPieChart, IoLayers, IoOptions, IoEllipse } from 'react-icons/io5';
 
 const menu = [
   { title: 'Dashboard', path: '/', icon: IoPieChart },
@@ -10,11 +11,17 @@ const menu = [
   { title: 'Settings', path: '/settings', icon: IoOptions },
 ]
 
+const colors = {
+  healthy: '#179848',
+  unhealthy: '#bf1e2e'
+}
+
 export default function Sidebar() {
   const router = useRouter()
 
   return(
-    <Box w='250px' bg='gray.50' h='100vh' boxShadow='lg'>
+    <Flex w='250px' bg='gray.50' h='100vh' boxShadow='lg' justify='space-between' direction='column'>
+      <Flex direction='column'>
       <Flex justify='center' align='center' h='60px' bg='gray.200'>
         <Heading size='sm'> Tidal Media Server </Heading>
       </Flex>
@@ -36,6 +43,17 @@ export default function Sidebar() {
           )
         })}
       </Flex>
-    </Box>
+      </Flex>
+      <Flex h='60px'>
+        <Flex w='50%' justify='center' direction='column' align='center'>
+          <IoEllipse color={colors.healthy}/>
+          <Text fontSize='.8rem' textTransform='uppercase'>Nomad</Text>
+        </Flex>
+        <Flex w='50%' justify='center' direction='column' align='center'>
+          <IoEllipse color={colors.unhealthy}/>
+          <Text fontSize='.8rem' textTransform='uppercase'>Consul</Text>
+        </Flex>
+      </Flex>
+    </Flex>
   )
 }
