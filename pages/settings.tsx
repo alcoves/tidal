@@ -1,6 +1,6 @@
-import { Box } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react'
 
-export default function Settings() {
+export default function Settings () {
   return (
     <Box>
       Here are the Settings
