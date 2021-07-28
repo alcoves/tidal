@@ -7,7 +7,7 @@ interface Preset {
   defaultMaxRate: number
 }
 
-function clampPreset (w: number, h: number, dw: number, dh: number): boolean {
+export function clampPreset (w: number, h: number, dw: number, dh: number): boolean {
   if ((w >= dw && h >= dh) || (w >= dh && h >= dw)) {
     return true
   }

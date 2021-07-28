@@ -1,4 +1,5 @@
 import ffmpeg from './ffmpeg'
+import { getMetadata } from './getMetadata'
 
 interface TranscodeEvent {
   rcloneSourceUri: string
@@ -8,19 +9,23 @@ interface TranscodeEvent {
 export default async function transcode (event: TranscodeEvent) {
   try {
     console.log('Creating temoporary directory')
-    // const tmpDir = await fs.
 
     console.log('Writing entry to database')
 
     console.log('Fetching metadata')
+    const metadata = await getMetadata(event.rcloneSourceUri)
+    console.log('METADATA', metadata)
 
     console.log('Fetching video presets')
 
     console.log('Generating ffmpeg arguments')
-    // const ffargs =
 
     console.log('Transcoding video')
-    const ffRes = await ffmpeg(event.rcloneSourceUri, event.rcloneDestinationUri)
+    await ffmpeg(
+      event.rcloneSourceUri,
+      event.rcloneDestinationUri,
+      '-c:v libx264 -crf 35'
+    )
 
     console.log('Syncing assets to CDN')
   } catch (error) {

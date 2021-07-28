@@ -1,8 +1,12 @@
 import { ffprobe } from 'fluent-ffmpeg'
 
-export default async function metadata (input: string) {
-  const metadata = await ffprobe(input)
-  return metadata
+export function getMetadata (input: string) {
+  return new Promise((resolve, reject) => {
+    ffprobe(input, function (err, metadata) {
+      if (err) reject(err)
+      resolve(metadata)
+    })
+  })
 }
 
 export interface Metadata {
