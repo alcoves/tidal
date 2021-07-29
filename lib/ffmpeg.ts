@@ -1,12 +1,13 @@
 import ffmpeg from 'fluent-ffmpeg'
 
-export default function Ffmpeg (inPath: string, outPath: string, cmd: string): Promise<string> {
+export default function Ffmpeg (inPath: string, outPath: string, commands: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     ffmpeg(inPath)
-
-      .outputOptions(cmd.split(' '))
+      .outputOptions(commands)
       .output(outPath)
-
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
       .on('progress', function (progress) {
         console.log('Processing: ' + progress.percent + '% done')
       })
