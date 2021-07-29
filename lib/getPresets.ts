@@ -1,6 +1,6 @@
 import { Metadata } from './getMetadata'
 
-interface Preset {
+export interface Preset {
   name: string
   width: number,
   height: number,
@@ -15,6 +15,9 @@ export function clampPreset (w: number, h: number, dw: number, dh: number): bool
 }
 
 export function getPresets (m: Metadata) {
+  const w = m.video.width || 0
+  const h = m.video.height || 0
+
   const presets: Preset[] = [{
     name: '360',
     defaultMaxRate: 1500,
@@ -22,7 +25,7 @@ export function getPresets (m: Metadata) {
     height: 360
   }]
 
-  if (clampPreset(m.width, m.height, 1280, 720)) {
+  if (clampPreset(w, h, 1280, 720)) {
     presets.push({
       name: '720',
       defaultMaxRate: 8000,
@@ -31,7 +34,7 @@ export function getPresets (m: Metadata) {
     })
   }
 
-  if (clampPreset(m.width, m.height, 1920, 1080)) {
+  if (clampPreset(w, h, 1920, 1080)) {
     presets.push({
       name: '1080',
       defaultMaxRate: 12000,
@@ -40,7 +43,7 @@ export function getPresets (m: Metadata) {
     })
   }
 
-  if (clampPreset(m.width, m.height, 2560, 1440)) {
+  if (clampPreset(w, h, 2560, 1440)) {
     presets.push({
       name: '1440',
       defaultMaxRate: 24000,
@@ -49,7 +52,7 @@ export function getPresets (m: Metadata) {
     })
   }
 
-  if (clampPreset(m.width, m.height, 3840, 2160)) {
+  if (clampPreset(w, h, 3840, 2160)) {
     presets.push({
       name: '2160',
       defaultMaxRate: 50000,

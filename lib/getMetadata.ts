@@ -1,15 +1,36 @@
-import { ffprobe } from 'fluent-ffmpeg'
-
-export function getMetadata (input: string) {
-  return new Promise((resolve, reject) => {
-    ffprobe(input, function (err, metadata) {
-      if (err) reject(err)
-      resolve(metadata)
-    })
-  })
-}
+import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 
 export interface Metadata {
-  width: number,
-  height: number
+  audio: FfprobeStream,
+  video: FfprobeStream,
+  format: FfprobeFormat
+}
+
+function transformFfprobeToMetadata (rawMeta: FfprobeData): Metadata {
+  // When analyzing a video, we assume that the first video track found is the
+  // only video track We don't error when a container has multiple video tracks,
+  // but we currently don't support having multiple video streams
+  const videoStreams = rawMeta.streams.filter((stream) => {
+    return stream.codec_type === 'video'
+  })
+
+  const audioStreams = rawMeta.streams.filter((stream) => {
+    return stream.codec_type === 'audio'
+  })
+
+  const metadata: Metadata = {
+    video: videoStreams[0],
+    audio: audioStreams[0],
+    format: rawMeta.format
+  }
+  return metadata
+}
+
+export function getMetadata (input: string): Promise<Metadata> {
+  return new Promise((resolve, reject) => {
+    ffprobe(input, function (err, rawMetadata) {
+      if (err) reject(err)
+      resolve(transformFfprobeToMetadata(rawMetadata))
+    })
+  })
 }
