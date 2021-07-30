@@ -1,7 +1,7 @@
 name: Build
 env:
   DO_API_KEY: ${{ secrets.DO_API_KEY }}
-  REPO: registry.digitalocean.com/bken/reef
+  REPO: registry.digitalocean.com/bken/tidal
 on:
   push:
     branches:
@@ -19,10 +19,7 @@ jobs:
       - name: Build container image
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: docker build
-          --build-arg NEXT_PUBLIC_GIT_SHA=$GITHUB_SHA
-          -t $REPO:latest
-          -t $REPO:$GITHUB_SHA .
+        run: docker build -t $REPO:latest -t $REPO:$GITHUB_SHA .
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
       - name: Push image to DigitalOcean Container Registry
