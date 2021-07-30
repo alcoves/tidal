@@ -1,8 +1,9 @@
 const { spawn } = require('child_process')
 
 export function rcloneGetLink (sourcePath: string): Promise<string> {
-  return new Promise((resolve) => {
-    const child = spawn('rclone', ['link', sourcePath])
+  return new Promise((resolve, reject) => {
+    const child = spawn('rclone', ['link', '--expire', '5m', sourcePath])
+    child.stderr.on('data', (d: Buffer) => reject(d.toString()))
     child.stdout.on('data', (d: Buffer) => {
       resolve(decodeURIComponent(d.toString().replace(/\s/g, '')))
     })
