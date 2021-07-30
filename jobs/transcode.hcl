@@ -38,19 +38,16 @@ job "new_transcode" {
 
       template {
         env         = false
-        destination = "root/.config/rclone/rclone.conf"
+        destination = "/home/nextjs/.config/rclone/rclone.conf"
         data        = "{{ key \"secrets/rclone.conf\" }}"
       }
 
       config {
         force_pull = false
         image      = "registry.digitalocean.com/bken/tidal:latest"
-        command    = "curl"
+        command    = "/bin/sh"
         args       = [
-          "-X", "POST",
-          "-d", "{\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"}",
-          "-H", "Content-Type: application/json",
-          "http://localhost:3000/api/jobs/transcode"
+          "-c", "yarn start & sleep 5 && curl -X POST -H Content-Type: application/json -d {\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"} http://localhost:3000/api/jobs/transcode",
         ]
 
         auth {
