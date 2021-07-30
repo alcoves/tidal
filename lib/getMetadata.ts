@@ -29,8 +29,11 @@ function transformFfprobeToMetadata (rawMeta: FfprobeData): Metadata {
 export function getMetadata (input: string): Promise<Metadata> {
   return new Promise((resolve, reject) => {
     ffprobe(input, function (err, rawMetadata) {
-      if (err) reject(err)
-      resolve(transformFfprobeToMetadata(rawMetadata))
+      if (err) return reject(err)
+      if (!rawMetadata?.streams?.length) {
+        return reject(new Error('Metadata did not contain any streams'))
+      }
+      return resolve(transformFfprobeToMetadata(rawMetadata))
     })
   })
 }
