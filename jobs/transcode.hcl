@@ -1,4 +1,4 @@
-job "transcode" {
+job "new_transcode" {
   priority    = 20
   datacenters = ["dc1"]
   type        = "batch"
@@ -43,20 +43,19 @@ job "transcode" {
       }
 
       config {
-        force_pull = true
-        ports      = ["tidal_port"]
+        force_pull = false
         image      = "registry.digitalocean.com/bken/tidal:latest"
         command    = "curl"
         args       = [
           "-X", "POST",
           "-d", "{\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"}",
           "-H", "Content-Type: application/json",
-          "http://localhost:4000/api/jobs/transcode"
+          "http://localhost:3000/api/jobs/transcode"
         ]
 
         auth {
-          username = "{{key "secrets/DO_API_KEY"}}"
-          password = "{{key "secrets/DO_API_KEY"}}"
+          username = "${DO_API_KEY}"
+          password = "${DO_API_KEY}"
         }
       }
 
