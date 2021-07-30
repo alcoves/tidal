@@ -9,7 +9,7 @@ job "tidal" {
     attribute = "${attr.cpu.arch}"
   }
 
-  group "tidal1" {
+  group "tidal" {
     update {
       max_parallel     = 1
       canary           = 1
@@ -28,7 +28,7 @@ job "tidal" {
     service {
       name = "tidal"
       port = "tidal_port"
-      tags = ["urlprefix-/tidal2 strip=/tidal2"]
+      tags = ["urlprefix-/tidalnew strip=/tidalnew"]
 
       check {
         path     = "/"

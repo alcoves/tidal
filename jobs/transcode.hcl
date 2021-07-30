@@ -46,9 +46,12 @@ job "transcode" {
         force_pull = true
         ports      = ["tidal_port"]
         image      = "registry.digitalocean.com/bken/tidal:latest"
-        command    = "tidal"
+        command    = "curl"
         args       = [
-          "transcode", "source", "dest"
+          "-X", "POST",
+          "-d", "{\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"}",
+          "-H", "Content-Type: application/json",
+          "http://localhost:4000/api/jobs/transcode"
         ]
 
         auth {
