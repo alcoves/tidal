@@ -1,7 +1,9 @@
+import fs from 'fs-extra'
 import ffmpeg from './ffmpeg'
-import { getMetadata } from './getMetadata'
+import rclone, { rcloneGetLink } from './rclone'
+import { x264 } from './ffCommands'
 import { getPresets } from './getPresets'
-import { getFfmpegArgs } from './getFfmpegArgs'
+import { getMetadata } from './getMetadata'
 
 interface TranscodeEvent {
   rcloneSourceUri: string
@@ -9,13 +11,18 @@ interface TranscodeEvent {
 }
 
 export default async function transcode (event: TranscodeEvent) {
-  try {
-    console.log('Creating temoporary directory')
+  console.log('Creating temoporary directory')
+  const tmpDir = await fs.mkdtemp('/tmp/tidal-')
+  console.log('TMPDIR', tmpDir)
 
-    console.log('Writing entry to database')
+  try {
+    // TODO console.log('Writing entry to database')
+    console.log('Getting signed source file url')
+    const signedSourceUri = await rcloneGetLink(event.rcloneSourceUri)
+    console.log('SIGNEDSOURCEURI', signedSourceUri)
 
     console.log('Fetching metadata')
-    const metadata = await getMetadata(event.rcloneSourceUri)
+    const metadata = await getMetadata(signedSourceUri)
     console.log('METADATA', metadata)
 
     console.log('Fetching video presets')
@@ -23,20 +30,23 @@ export default async function transcode (event: TranscodeEvent) {
     console.log('PRESETS', presets)
 
     console.log('Generating ffmpeg arguments')
-    const ffCommands = getFfmpegArgs(metadata, presets)
-    console.log('FFARGS', ffCommands)
+    const x264Commands = x264(metadata, presets)
+    console.log('FFARGS', x264Commands)
 
     console.log('Transcoding video')
     await ffmpeg(
-      event.rcloneSourceUri,
-      event.rcloneDestinationUri,
-      ffCommands
+      signedSourceUri,
+      tmpDir,
+      x264Commands
     )
 
     console.log('Syncing assets to CDN')
+    await rclone('copy', [tmpDir, event.rcloneDestinationUri, '-P'])
   } catch (error) {
-    console.log('An error occured')
+    console.error('An error occured', error)
     // write error to consul
-    throw error
+  } finally {
+    console.log('Removing temporary directory', tmpDir)
+    await fs.remove(tmpDir)
   }
 }

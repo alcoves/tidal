@@ -1,10 +1,36 @@
 import ffmpeg from 'fluent-ffmpeg'
 
-export default function Ffmpeg (inPath: string, outPath: string, commands: string[]): Promise<string> {
+const opusAudio = [
+  '-map', '0:a?:0', '-c:a:0', 'libopus', '-b:a:0', '128k', '-ar:0', '48000'
+]
+const aacAudio = [
+  '-map', '0:a?:0', '-c:a:1', 'aac', '-b:a:1', '128k', '-ar:1', '48000'
+]
+const dashArgs = [
+  '-pix_fmt yuv420p',
+  '-force_key_frames expr:gte(t,n_forced*2)',
+  '-use_timeline 1', '-use_template 1',
+  '-seg_duration 4', '-streaming 1',
+  '-f dash'
+]
+
+export default function Ffmpeg (inPath: string, outPath: string, x264Commands: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    ffmpeg(inPath)
-      .outputOptions(commands)
-      .output(outPath)
+    ffmpeg()
+      .input(inPath)
+      .inputFormat('mp4')
+
+      .outputOptions(x264Commands)
+
+      .outputOptions(opusAudio)
+      .outputOptions(aacAudio)
+
+      .outputOptions(dashArgs)
+      // This is a temporary hack because adaptation sets don't work in arrays
+      // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/1036
+      .outputOption('-adaptation_sets', 'id=0,streams=v id=1,streams=a')
+
+      .output(`${outPath}/manifest.mpd`)
       .on('start', function (commandLine) {
         console.log('Spawned Ffmpeg with command: ' + commandLine)
       })
