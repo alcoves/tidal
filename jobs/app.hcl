@@ -22,7 +22,7 @@ job "tidal" {
     count = 1
 
     network {
-      port "tidal_port" { }
+      port "tidal_port" { to = 3000 }
     }
 
     service {
