@@ -4,8 +4,7 @@ export function rcloneGetLink (sourcePath: string): Promise<string> {
   return new Promise((resolve) => {
     const child = spawn('rclone', ['link', sourcePath])
     child.stdout.on('data', (d: Buffer) => {
-      resolve(decodeURIComponent(d.toString()))
-      // resolve('https://s3.us-east-2.wasabisys.com/cdn.bken.io/test/nextjs/original')
+      resolve(decodeURIComponent(d.toString().replace(/\s/g, '')))
     })
   })
 }
