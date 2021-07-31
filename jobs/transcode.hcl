@@ -43,11 +43,11 @@ job "new_transcode" {
       }
 
       config {
-        force_pull = false
+        force_pull = true
         image      = "registry.digitalocean.com/bken/tidal:latest"
         command    = "/bin/sh"
         args       = [
-          "-c", "yarn start & sleep 5 && curl -X POST -H Content-Type: application/json -d {\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"} http://localhost:3000/api/jobs/transcode",
+          "-c", "yarn start & sleep 5 && curl -X POST -H \"Content-Type: application/json\" -d {\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"} http://localhost:3000/api/jobs/transcode",
         ]
 
         auth {
