@@ -1,4 +1,4 @@
-import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
+import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from "fluent-ffmpeg"
 
 export interface Metadata {
   audio: FfprobeStream,
@@ -11,11 +11,11 @@ function transformFfprobeToMetadata (rawMeta: FfprobeData): Metadata {
   // only video track We don't error when a container has multiple video tracks,
   // but we currently don't support having multiple video streams
   const videoStreams = rawMeta.streams.filter((stream) => {
-    return stream.codec_type === 'video'
+    return stream.codec_type === "video"
   })
 
   const audioStreams = rawMeta.streams.filter((stream) => {
-    return stream.codec_type === 'audio'
+    return stream.codec_type === "audio"
   })
 
   const metadata: Metadata = {
@@ -31,7 +31,7 @@ export function getMetadata (input: string): Promise<Metadata> {
     ffprobe(input, function (err, rawMetadata) {
       if (err) return reject(err)
       if (!rawMetadata?.streams?.length) {
-        return reject(new Error('Metadata did not contain any streams'))
+        return reject(new Error("Metadata did not contain any streams"))
       }
       return resolve(transformFfprobeToMetadata(rawMetadata))
     })
