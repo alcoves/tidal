@@ -1,4 +1,4 @@
-job "tidal" {
+job "tidal_api" {
   priority    = 100
   datacenters = ["dc1"]
   type        = "service"
@@ -26,7 +26,7 @@ job "tidal" {
     }
 
     service {
-      name = "tidal"
+      name = "tidal_api"
       port = "tidal_port"
       tags = ["urlprefix-/tidalnew strip=/tidalnew"]
 
@@ -39,7 +39,7 @@ job "tidal" {
       }
     }
 
-    task "tidal" {
+    task "tidal_api" {
       driver = "docker"
 
       template {

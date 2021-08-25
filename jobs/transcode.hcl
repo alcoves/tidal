@@ -1,4 +1,4 @@
-job "new_transcode" {
+job "tidal_transcode" {
   priority    = 20
   datacenters = ["dc1"]
   type        = "batch"
@@ -22,7 +22,7 @@ job "new_transcode" {
       attempts = 1
     }
 
-    task "tidal" {
+    task "tidal_transcode" {
       driver = "docker"
 
       restart {
@@ -45,9 +45,11 @@ job "new_transcode" {
       config {
         force_pull = true
         image      = "registry.digitalocean.com/bken/tidal:latest"
-        command    = "/bin/sh"
+        command    = "node"
         args       = [
-          "-c", "yarn start & sleep 5 && curl -X POST -H \"Content-Type: application/json\" -d {\"rcloneSourceUri\":\"NOMAD_META_RCLONE_SOURCE_URI\",\"rcloneDestinationUri\":\"${NOMAD_META_RCLONE_DESTINATION_URI}\"} http://localhost:3000/api/jobs/transcode",
+          "./dist/index.js",
+          "transcode",
+          "--args", "args"
         ]
 
         auth {
