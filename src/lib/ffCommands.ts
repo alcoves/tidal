@@ -1,5 +1,5 @@
-import { Metadata } from './getMetadata'
-import { Preset } from './getPresets'
+import { Metadata } from "./getMetadata"
+import { Preset } from "./getPresets"
 
 // CalcMaxBitrate uses the videos original bitrate to determine what the max should be
 // func CalcMaxBitrate(originalWidth int, desiredWidth int, bitrate int) int {
@@ -14,22 +14,22 @@ function calcResizeFilter (w: number): string {
 function getX264Args (m: Metadata, p: Preset, streamId: number): string[] {
   let videoFilter = calcResizeFilter(p.width)
   if (m.video.r_frame_rate) {
-    console.info('Applying framerate to video filter')
+    console.info("Applying framerate to video filter")
     videoFilter += `,fps=fps=${m.video.r_frame_rate}`
   }
 
   const commands = [
-    '-map',
-    '0:v:0',
+    "-map",
+    "0:v:0",
     `-c:v:${streamId}`,
-    'libx264',
+    "libx264",
     `-filter:v:${streamId}`,
     videoFilter,
-    '-crf', '22',
-    '-preset', 'medium',
-    '-bf', '2',
-    '-coder', '1',
-    `-profile:v:${streamId}`, 'high'
+    "-crf", "22",
+    "-preset", "medium",
+    "-bf", "2",
+    "-coder", "1",
+    `-profile:v:${streamId}`, "high"
   ]
 
   if (m?.format?.bit_rate) {
