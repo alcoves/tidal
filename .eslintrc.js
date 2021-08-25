@@ -1,30 +1,39 @@
 module.exports = {
   env: {
-    browser: true,
     es2021: true,
     node: true,
-    'jest/globals': true
+    "jest/globals": true
   },
   extends: [
-    'plugin:jest/recommended',
-    'plugin:react/recommended',
-    'standard',
-    'next',
-    'next/core-web-vitals'
+    "eslint:recommended",
+    "plugin:jest/recommended",
+    "plugin:@typescript-eslint/recommended",
   ],
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true
-    },
     ecmaVersion: 12,
-    sourceType: 'module'
+    sourceType: "module"
   },
   plugins: [
-    'react',
-    'jest',
-    '@typescript-eslint'
+    "jest",
+    "@typescript-eslint"
   ],
   rules: {
+    indent: [
+      "error",
+      2
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    quotes: [
+      "error",
+      "double"
+    ],
+    semi: [
+      "error",
+      "never"
+    ]
   }
 }
