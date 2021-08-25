@@ -1,6 +1,4 @@
-import * as dotenv from "dotenv"
-dotenv.config()
-
+import "./config/index"
 import yargs from "yargs"
 import morgan from "morgan"
 import express from "express"
