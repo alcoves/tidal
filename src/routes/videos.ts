@@ -10,14 +10,9 @@ router.get("/", async (req, res) => {
 })
 
 router.post("/", async (req, res) => {
-  const { rcloneSourceURI, rcloneDestinationURI } = req.body
-  if (!rcloneSourceURI || !rcloneDestinationURI) {
-    return res.sendStatus(400)
-  }
-  await transcode({
-    rcloneSourceUri: rcloneSourceURI,
-    rcloneDestinationUri: rcloneDestinationURI,
-  })
+  const { input } = req.body
+  if (!input) return res.sendStatus(400)
+  await transcode(input)
   res.json({
     data: {
       id: "123",

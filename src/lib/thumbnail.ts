@@ -1,22 +1,19 @@
 import fs from "fs-extra"
+import { copy } from "../config/s3"
 // import ffmpeg from './ffmpeg'
-import rclone, { rcloneGetLink } from "./rclone"
 
-interface ThumbnailEvent {
-  rcloneSourceUri: string
-  rcloneDestinationUri: string
-}
+export default async function thumbnail (input: string) {
+  const destinationParams = {
+    Bucket: "cdn.bken.io",
+    Key: "" // TODO :: Interpolate
+  }
 
-export default async function transcode (event: ThumbnailEvent) {
   console.log("Creating temoporary directory")
   const tmpDir = await fs.mkdtemp("/tmp/tidal-")
   console.log("TMPDIR", tmpDir)
 
   try {
     // TODO console.log('Writing entry to database')
-    console.log("Getting signed source file url")
-    const signedSourceUri = await rcloneGetLink(event.rcloneSourceUri)
-    console.log("SIGNEDSOURCEURI", signedSourceUri)
 
     // const thumabnailArgs = await getThumbnailArgs()
     // console.log('thumabnailArgs', thumabnailArgs)
@@ -29,7 +26,7 @@ export default async function transcode (event: ThumbnailEvent) {
     // )
 
     console.log("Syncing assets to CDN")
-    await rclone("copy", [tmpDir, event.rcloneDestinationUri, "-P"])
+    await copy(tmpDir, destinationParams)
   } catch (error) {
     console.error("An error occured", error)
     // write error to consul

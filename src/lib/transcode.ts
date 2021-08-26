@@ -1,28 +1,27 @@
 import fs from "fs-extra"
 import ffmpeg from "./ffmpeg"
-import rclone, { rcloneGetLink } from "./rclone"
+import { copy } from "../config/s3"
 import { x264 } from "./ffCommands"
 import { getPresets } from "./getPresets"
 import { getMetadata } from "./getMetadata"
 
-interface TranscodeEvent {
-  rcloneSourceUri: string
-  rcloneDestinationUri: string
-}
+export default async function transcode (input: string) {
+  // TODO :: Should abstract this into a configurable object
+  const destinationParams = {
+    Bucket: "cdn.bken.io",
+    Key: "tests/360p-30fps-small/pkg"
+  }
 
-export default async function transcode (event: TranscodeEvent) {
   console.log("Creating temoporary directory")
   const tmpDir = await fs.mkdtemp("/tmp/tidal-")
   console.log("TMPDIR", tmpDir)
 
   try {
     // TODO console.log('Writing entry to database')
-    console.log("Getting signed source file url")
-    const signedSourceUri = await rcloneGetLink(event.rcloneSourceUri)
-    console.log("SIGNEDSOURCEURI", signedSourceUri)
+    // Database abstraction that updates the record manually
 
     console.log("Fetching metadata")
-    const metadata = await getMetadata(signedSourceUri)
+    const metadata = await getMetadata(input)
     console.log("METADATA", metadata)
 
     console.log("Fetching video presets")
@@ -35,13 +34,13 @@ export default async function transcode (event: TranscodeEvent) {
 
     console.log("Transcoding video")
     await ffmpeg(
-      signedSourceUri,
+      input,
       tmpDir,
       x264Commands
     )
 
     console.log("Syncing assets to CDN")
-    await rclone("copy", [tmpDir, event.rcloneDestinationUri, "-P"])
+    await copy(tmpDir, destinationParams)
   } catch (error) {
     console.error("An error occured", error)
     // write error to consul
