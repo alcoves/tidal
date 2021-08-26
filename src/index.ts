@@ -18,6 +18,10 @@ app.get("/", async (req, res) => {
   res.sendStatus(200)
 })
 
+app.use(express.json())
+app.use(express.urlencoded({
+  extended: true
+}))
 app.use("/videos", videos)
 
 // CLI

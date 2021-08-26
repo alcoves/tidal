@@ -1,5 +1,6 @@
-import express from "express"
 import db from "../db/index"
+import express from "express"
+import transcode from "../lib/transcode"
 
 const router = express.Router()
 
@@ -9,7 +10,14 @@ router.get("/", async (req, res) => {
 })
 
 router.post("/", async (req, res) => {
-  // Go process the video file async
+  const { rcloneSourceURI, rcloneDestinationURI } = req.body
+  if (!rcloneSourceURI || !rcloneDestinationURI) {
+    return res.sendStatus(400)
+  }
+  await transcode({
+    rcloneSourceUri: rcloneSourceURI,
+    rcloneDestinationUri: rcloneDestinationURI,
+  })
   res.json({
     data: {
       id: "123",
