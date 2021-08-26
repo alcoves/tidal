@@ -8,6 +8,9 @@ const requiredEnvs = [
   "PGDATABASE",
   "PGPASSWORD",
   "API_KEY",
+  "WASABI_ENDPOINT",
+  "WASABI_ACCESS_KEY_ID",
+  "WASABI_SECRET_ACCESS_KEY"
 ]
 
 requiredEnvs.forEach((env) => {
