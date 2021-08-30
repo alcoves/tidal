@@ -57,7 +57,7 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
       service {
         name = "bken-tidal"
         port = "bken_tidal_port"
-        tags = ["urlprefix-/tidal strip=/tidal"]
+        tags = ["urlprefix-tidal.bken.io/"]
 
         check {
           path     = "/"
