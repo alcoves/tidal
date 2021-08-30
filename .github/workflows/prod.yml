@@ -1,0 +1,46 @@
+name: Deploy
+env:
+  DO_API_KEY: ${{ secrets.DO_API_KEY }}
+  NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+  NOMAD_ADDRESS: ${{ secrets.NOMAD_ADDRESS }}
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_KEY }}
+      - name: Build container image
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: docker build
+          --build-arg NEXT_PUBLIC_GIT_SHA=$GITHUB_SHA
+          -t registry.digitalocean.com/bken/tidal:latest
+          -t registry.digitalocean.com/bken/tidal:$GITHUB_SHA .
+      - name: Login to DigitalOcean Docker Registry
+        run: doctl registry login --expiry-seconds 600
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push registry.digitalocean.com/bken/tidal --all-tags
+      - name: Deploy job
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.NOMAD_ADDRESS }}
+          envs: GITHUB_SHA,NOMAD_TOKEN
+          script: |
+            cd /root/tidal && git fetch -p && git reset --hard ${GITHUB_SHA}
+            sed -i "s+:latest+:${GITHUB_SHA}+g" ./job.hcl
+            nomad job run -token ${NOMAD_TOKEN} ./job.hcl
+      - name: Cleanup Repository
+        run: ./scripts/doco_registry_cleanup.sh
