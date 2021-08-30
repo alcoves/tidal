@@ -1,4 +1,6 @@
 import ffmpeg from "fluent-ffmpeg"
+import db from "../db/index"
+import _ from "lodash"
 
 const opusAudio = [
   "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a:0", "128k", "-ar:0", "48000"
@@ -15,7 +17,11 @@ const dashArgs = [
   "-f dash"
 ]
 
-export default function Ffmpeg (inPath: string, outPath: string, x264Commands: string[]): Promise<string> {
+export default function Ffmpeg (inPath: string, video_id: string, outPath: string, x264Commands: string[]): Promise<string> {
+  const updateProgress = _.debounce(async function (progress: number) {
+    await db.query( "update videos set percent_completed = $2 where id = $1", [ video_id, progress, ] )
+  }, 4000)
+
   return new Promise((resolve, reject) => {
     ffmpeg(inPath)
       .outputOptions(x264Commands)
@@ -32,8 +38,9 @@ export default function Ffmpeg (inPath: string, outPath: string, x264Commands: s
       .on("start", function (commandLine) {
         console.log("Spawned Ffmpeg with command: " + commandLine)
       })
-      .on("progress", function (progress) {
+      .on("progress", async function (progress) {
         console.log("Processing: " + progress.percent + "% done")
+        updateProgress(progress.percent)
       })
       .on("error", function (err) {
         console.log("An error occurred: " + err.message)

@@ -21,10 +21,12 @@ router.get("/", async (req, res) => {
 })
 
 router.post("/", async (req, res) => {
-  const { input } = req.body
-  if (!input) return res.sendStatus(400)
-  const video = await transcode(input)
-  res.json({ data: "" || await getVideo("") })
+  const { input, user_id } = req.body
+  if (!input || !user_id) return res.sendStatus(400)
+  const inputSplit = input.split("/")
+  const id = inputSplit[inputSplit.length - 2]
+  await transcode(input, id, user_id)
+  res.json({ data: await getVideo(id) })
 })
 
 router.patch("/:id", async (req, res) => {
@@ -64,18 +66,12 @@ router.delete("/:id", async (req, res) => {
   // res.json({ data: await getVideo(req.params.id) })
 })
 
-
-router.post("/:id/thumbnails", async (req, res) => {
+router.post("/:id/thumbnail", async (req, res) => {
   const { input } = req.body
   const { id } = req.params
   if (!id || !input) return res.sendStatus(400)
   await thumbnail(id, input)
-  res.json({
-    data: {
-      id,
-      status: "completed"
-    }
-  })
+  res.json({ data: await getVideo(id) })
 })
 
 export default router
