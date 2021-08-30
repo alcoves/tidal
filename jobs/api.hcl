@@ -1,15 +1,11 @@
-job "tidal_api" {
+job "tidal" {
   priority    = 100
-  datacenters = ["dc1"]
+  datacenters = ["nyc3"]
   type        = "service"
 
-  constraint {
-    operator  = "="
-    value     = "amd64"
-    attribute = "${attr.cpu.arch}"
-  }
-
-  group "tidal" {
+  group "services" {
+    count = 1
+    
     update {
       max_parallel     = 1
       canary           = 1
@@ -19,44 +15,37 @@ job "tidal_api" {
       min_healthy_time = "30s"
     }
 
-    count = 1
-
     network {
-      port "tidal_port" { to = 4000 }
+      port "bken_tidal_port" { to = 4000 }
     }
 
-    service {
-      name = "tidal_api"
-      port = "tidal_port"
-      tags = ["urlprefix-/tidal strip=/tidal"]
-
-      check {
-        path     = "/"
-        timeout  = "2s"
-        interval = "10s"
-        type     = "http"
-        name     = "tidal_port alive"
-      }
-    }
-
-    task "tidal_api" {
+    task "tidal" {
       driver = "docker"
 
       template {
+        data = <<EOH
+DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
+        EOH
+        
         env         = true
-        destination = "secrets/.env"
-        data        = "{{ key \"secrets/.env\" }}"
+        destination = ".env"
       }
 
       template {
-        env         = false
-        destination = "root/.config/rclone/rclone.conf"
-        data        = "{{ key \"secrets/rclone.conf\" }}"
+        env         = true
+        destination = "secrets/tidal/.env"
+        data        = "{{ key \"secrets/tidal/.env\" }}"
+      }
+
+      constraint {
+        operator  = "regexp"
+        value     = "[/tidal/]"
+        attribute = "${attr.unique.hostname}"
       }
 
       config {
         force_pull = true
-        ports      = ["tidal_port"]
+        ports      = ["bken_tidal_port"]
         image      = "registry.digitalocean.com/bken/tidal:latest"
 
         auth {
@@ -65,9 +54,23 @@ job "tidal_api" {
         }
       }
 
+      service {
+        name = "bken-tidal"
+        port = "bken_tidal_port"
+        tags = ["urlprefix-/tidal strip=/tidal"]
+
+        check {
+          path     = "/"
+          timeout  = "2s"
+          interval = "10s"
+          type     = "http"
+          name     = "bken_tidal_port alive"
+        }
+      }
+
       resources {
-        memory = 512
-        cpu    = 512
+        memory = 300
+        cpu    = 300
       }
     }
   }
