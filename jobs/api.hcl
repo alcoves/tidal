@@ -22,13 +22,13 @@ job "tidal_api" {
     count = 1
 
     network {
-      port "tidal_port" { to = 3000 }
+      port "tidal_port" { to = 4000 }
     }
 
     service {
       name = "tidal_api"
       port = "tidal_port"
-      tags = ["urlprefix-/tidalnew strip=/tidalnew"]
+      tags = ["urlprefix-/tidal strip=/tidal"]
 
       check {
         path     = "/"

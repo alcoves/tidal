@@ -57,7 +57,9 @@ router.patch("/:id", async (req, res) => {
 })
 
 router.get("/:id", async (req, res) => {
-  res.json({ data: await getVideo(req.params.id) })
+  const video = await getVideo(req.params.id)
+  console.log("Returning Video", video)
+  res.json({ data: video })
 })
 
 router.delete("/:id", async (req, res) => {
