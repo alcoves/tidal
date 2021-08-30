@@ -12,14 +12,18 @@ const s3 = new AWS.S3({
 async function copy(dir: string, destinationParams: any) { // TODO :: Type destination params
   const files = await fs.readdir(dir)
   await Promise.all(files.map((fileName) => {
+    const uploadPath = `${dir}/${fileName}`
+    const destinationPath = `${destinationParams.Key}/${fileName}`
+    console.info(`Uploading ${uploadPath} to ${destinationPath}`)
     return s3.upload({
+      Key: destinationPath,
       Bucket: destinationParams.Bucket,
-      Key: `${destinationParams.Key}/${fileName}`,
       Body: fs.createReadStream(`${dir}/${fileName}`),
     }).promise()
   }))
 }
 
 export {
+  s3,
   copy
 }

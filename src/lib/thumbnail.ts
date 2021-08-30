@@ -1,11 +1,13 @@
 import fs from "fs-extra"
+import db from "../db/index"
+import { ffThumb } from "./ffmpeg"
 import { copy } from "../config/s3"
-// import ffmpeg from './ffmpeg'
+import getThumbnailArgs from "./getThumbnailArgs"
 
-export default async function thumbnail (input: string) {
+export default async function thumbnail (id: string, input: string) {
   const destinationParams = {
     Bucket: "cdn.bken.io",
-    Key: "" // TODO :: Interpolate
+    Key: `v/${id}`
   }
 
   console.log("Creating temoporary directory")
@@ -14,19 +16,24 @@ export default async function thumbnail (input: string) {
 
   try {
     // TODO console.log('Writing entry to database')
-
-    // const thumabnailArgs = await getThumbnailArgs()
-    // console.log('thumabnailArgs', thumabnailArgs)
+    const thumabnailArgs = await getThumbnailArgs()
+    console.log("thumabnailArgs", thumabnailArgs)
 
     console.log("Creating thumbnail")
-    // await ffmpeg(
-    //   signedSourceUri,
-    //   tmpDir
-    //   thumabnailArgs
-    // )
+    await ffThumb(
+      input,
+      tmpDir,
+      thumabnailArgs
+    )
 
     console.log("Syncing assets to CDN")
     await copy(tmpDir, destinationParams)
+
+    console.log("Updating database with thumbnail URL")
+    const data = await db.query(
+      "update videos set thumbnail = $1 where id = $2",
+      [`https://cdn.bken.io/v/${id}/thumb.webp`, id])
+    console.log("Database Result", data)
   } catch (error) {
     console.error("An error occured", error)
     // write error to consul
