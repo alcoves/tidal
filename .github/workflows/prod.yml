@@ -6,7 +6,7 @@ env:
 on:
   push:
     branches:
-      - main
+      - dev
 jobs:
   deploy:
     name: Deploy
@@ -40,7 +40,7 @@ jobs:
           envs: GITHUB_SHA,NOMAD_TOKEN
           script: |
             cd /root/tidal && git fetch -p && git reset --hard ${GITHUB_SHA}
-            sed -i "s+:latest+:${GITHUB_SHA}+g" ./job.hcl
-            nomad job run -token ${NOMAD_TOKEN} ./job.hcl
+            sed -i "s+:latest+:${GITHUB_SHA}+g" ./jobs/api.hcl
+            nomad job run -token ${NOMAD_TOKEN} ./jobs/api.hcl
       - name: Cleanup Repository
         run: ./scripts/doco_registry_cleanup.sh
