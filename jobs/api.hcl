@@ -69,8 +69,8 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
       }
 
       resources {
-        memory = 300
-        cpu    = 300
+        memory = 6000
+        cpu    = 4000
       }
     }
   }
