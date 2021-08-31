@@ -77,11 +77,11 @@ export default function Ffmpeg (inPath: string, video_id: string, outPath: strin
   })
 }
 
-export function ffThumb (inPath: string, outPath: string, thumbParams: string[]): Promise<string> {
+export function ffThumb (inPath: string, outPath: string, thumbParams: string[], thumbnailName: string): Promise<string> {
   return new Promise((resolve, reject) => {
     ffmpeg(inPath)
       .outputOptions(thumbParams)
-      .output(`${outPath}/thumb.webp`)
+      .output(`${outPath}/${thumbnailName}`)
       .on("start", function (commandLine) {
         console.log("Spawned Ffmpeg with command: " + commandLine)
       })

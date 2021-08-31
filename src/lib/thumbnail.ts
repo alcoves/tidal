@@ -19,11 +19,14 @@ export default async function thumbnail (video_id: string, input: string) {
     const thumabnailArgs = await getThumbnailArgs()
     console.log("thumabnailArgs", thumabnailArgs)
 
+    const thumbnailName = "thumb.jpg"
+
     console.log("Creating thumbnail")
     await ffThumb(
       input,
       tmpDir,
-      thumabnailArgs
+      thumabnailArgs,
+      thumbnailName
     )
 
     console.log("Syncing assets to CDN")
@@ -34,7 +37,7 @@ export default async function thumbnail (video_id: string, input: string) {
       event: TidalEvent.video_asset_thumbnail_ready,
       data: {
         id: video_id,
-        thumbnail_url: `https://cdn.bken.io/v/${video_id}/thumb.webp`
+        thumbnail_url: `https://cdn.bken.io/v/${video_id}/${thumbnailName}`
       }
     })
   } catch (error) {
