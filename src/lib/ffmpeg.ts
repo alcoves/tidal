@@ -1,6 +1,6 @@
-import ffmpeg from "fluent-ffmpeg"
-import db from "../db/index"
 import _ from "lodash"
+import ffmpeg from "fluent-ffmpeg"
+import { dispatch, TidalEvent } from "./webhook"
 
 const opusAudio = [
   "-map", "0:a?:0", "-c:a:0", "libopus", "-b:a:0", "128k", "-ar:0", "48000"
@@ -18,9 +18,28 @@ const dashArgs = [
 ]
 
 export default function Ffmpeg (inPath: string, video_id: string, outPath: string, x264Commands: string[]): Promise<string> {
-  const updateProgress = _.debounce(async function (progress: number) {
-    await db.query( "update videos set percent_completed = $2 where id = $1", [ video_id, progress, ] )
-  }, 4000)
+  // const updateProgress = _.debounce(function (progress: number) {
+  //   console.log("here")
+  //   dispatch({
+  //     event: TidalEvent.video_asset_updated,
+  //     data: {
+  //       id: video_id,
+  //       status: "encoding",
+  //       percent_completed: progress
+  //     }
+  //   })
+  // }, 4000)
+
+  function updateProgress(progress: number) {
+    dispatch({
+      event: TidalEvent.video_asset_updated,
+      data: {
+        id: video_id,
+        status: "encoding",
+        percent_completed: progress
+      }
+    })
+  }
 
   return new Promise((resolve, reject) => {
     ffmpeg(inPath)

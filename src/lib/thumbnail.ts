@@ -1,7 +1,7 @@
 import fs from "fs-extra"
-import db from "../db/index"
 import { ffThumb } from "./ffmpeg"
 import { copy } from "../config/s3"
+import { dispatch, TidalEvent } from "./webhook"
 import getThumbnailArgs from "./getThumbnailArgs"
 
 export default async function thumbnail (video_id: string, input: string) {
@@ -29,14 +29,17 @@ export default async function thumbnail (video_id: string, input: string) {
     console.log("Syncing assets to CDN")
     await copy(tmpDir, destinationParams)
 
-    console.log("Updating database with thumbnail URL")
-    const data = await db.query(
-      "update videos set thumbnail = $1 where id = $2",
-      [`https://cdn.bken.io/v/${video_id}/thumb.webp`, video_id])
-    console.log("Database Result", data)
+    console.log("Dispatching webhook")
+    await dispatch({
+      event: TidalEvent.video_asset_thumbnail_ready,
+      data: {
+        id: video_id,
+        thumbnail_url: `https://cdn.bken.io/v/${video_id}/thumb.webp`
+      }
+    })
   } catch (error) {
     console.error("An error occured", error)
-    await db.query( "update videos set status = $2, where id = $1", [ video_id, "error", ] )
+    // TODO :: webhook error message
   } finally {
     console.log("Removing temporary directory", tmpDir)
     await fs.remove(tmpDir)
