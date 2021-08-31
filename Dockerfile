@@ -1,4 +1,4 @@
-FROM node:16-alpine AS build
+FROM node:16 AS build
 
 WORKDIR /srv
 COPY package.json yarn.lock tsconfig.json /srv/
@@ -7,8 +7,8 @@ COPY src /srv/src/
 RUN yarn build
 RUN yarn install --frozen-lockfile --production
 
-FROM node:16-alpine
-RUN apk add ffmpeg --no-cache
+FROM node:16
+RUN sudo apt install -y ffmpeg
 WORKDIR /srv
 COPY --from=build /srv/node_modules /srv/node_modules
 COPY --from=build /srv/dist /srv/
