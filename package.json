@@ -8,7 +8,7 @@
     "dev": "ts-node-dev src/index.ts api --port 4000"
   },
   "dependencies": {
-    "aws-sdk": "^2.979.0",
+    "aws-sdk": "^2.987.0",
     "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
