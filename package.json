@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint --fix",
+    "test": "jest",
     "dev": "ts-node-dev src/index.ts api --port 4000"
   },
   "dependencies": {
