@@ -34,4 +34,26 @@ describe("getPresets", () => {
     }
     expect(getPresets(metadata)).toMatchSnapshot()
   })
+
+  test("that presets are generated", () => {
+    const metadata: Metadata = {
+      audio: {
+        index: 0,
+      },
+      video: {
+        index: 0,
+        width: 2280,
+        height: 1080
+      },
+      format: {
+        width: 2280,
+        height: 1080
+      }
+    }
+    expect(getPresets(metadata)).toEqual([
+      {"defaultMaxRate": 1500, "height": 360, "name": "360", "width": 640},
+      {"defaultMaxRate": 8000, "height": 720, "name": "720", "width": 1280},
+      {"defaultMaxRate": 12000, "height": 1080, "name": "1080", "width": 1920}
+    ])
+  })
 })
