@@ -17,7 +17,7 @@ describe("clampPreset", () => {
 })
 
 describe("getPresets", () => {
-  test("that presets are generated", () => {
+  test("that presets are generated 1/2", () => {
     const metadata: Metadata = {
       audio: {
         index: 0,
@@ -35,7 +35,7 @@ describe("getPresets", () => {
     expect(getPresets(metadata)).toMatchSnapshot()
   })
 
-  test("that presets are generated", () => {
+  test("that presets are generated 2/2", () => {
     const metadata: Metadata = {
       audio: {
         index: 0,
