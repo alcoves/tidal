@@ -1,6 +1,7 @@
 import fs from "fs-extra"
 import path from "path"
-// import PackageJob from "./packageJob"
+import PackageJob from "./packageJob"
+import ThumbnailJob from "./thumbnailJob"
 import TranscodeJob from "./transcodeJob"
 
 import { Job } from "./types"
@@ -17,13 +18,13 @@ export async function processJob(job: Job): Promise<void> {
       await TranscodeJob(job, tmpDirPath)
       break
     case "package":
-      // await PackageJob(job, tmpDirPath)
+      await PackageJob(job, tmpDirPath)
       break
     case "thumbnail":
-      // aws s3 cp ./thumb.jpg s3://cdn.bken.io/v/${videoId}/thumb.jpg --profile wasabi --endpoint https://us-east-2.wasabisys.com
+      await ThumbnailJob(job, tmpDirPath)
       break
     default:
-      console.log("Unknown job was not processed")
+      console.log(`Unknown Job : ${job.type}`)
       break
     }
   } catch (error) {

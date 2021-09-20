@@ -2,9 +2,7 @@ import fs from "fs-extra"
 import { Job } from "./types"
 import { spawnChild } from "./spawnChild"
 
-const isWin = process.platform === "win32"
-
-export default async function TranscodeJob(job: Job, tmpDirPath: string) {
+export default async function TranscodeJob(job: Job, tmpDirPath: string): Promise<void> {
   await spawnChild("ffmpeg", job.ffmpegCommand.split(" "), {
     cwd: tmpDirPath,
     env: process.env
@@ -15,7 +13,7 @@ export default async function TranscodeJob(job: Job, tmpDirPath: string) {
 
   for (const file of files) {
     const tmpFileName = `tmp-${file}`
-    if (isWin) {
+    if (process.platform === "win32") {
       await spawnChild("cmd", ["/c", "C:\\Windows\\bin\\mp4fragment", ...bento4Commands, file, tmpFileName], {
         cwd: tmpDirPath,
         env: process.env
