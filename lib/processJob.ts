@@ -1,12 +1,9 @@
 import fs from "fs-extra"
 import path from "path"
-import { spawnChild } from "./spawnChild"
-interface Job {
-  _id: string
-  commands: string[]
-}
+// import PackageJob from "./packageJob"
+import TranscodeJob from "./transcodeJob"
 
-const isWin = process.platform === "win32"
+import { Job } from "./types"
 
 export async function processJob(job: Job): Promise<void> {
   const tmpDirPath = path.normalize(`/tmp/${job._id}`)
@@ -15,24 +12,19 @@ export async function processJob(job: Job): Promise<void> {
 
   try {
     console.log(job)
-    for (const command of job.commands) {
-      const args = command.split(" ")
-      const binary = args.shift()
-      console.log("Command binary", binary)
-      console.log("Command args", args)
-
-      if (binary === "mp4hls" && isWin) {
-        const files = await fs.readdir(tmpDirPath)
-        await spawnChild("cmd", ["/c", "C:\\Windows\\bin\\mp4hls.bat", ...files], {
-          cwd: tmpDirPath,
-          env: process.env
-        })
-      } else {
-        await spawnChild(binary, args, {
-          cwd: tmpDirPath,
-          env: process.env
-        })
-      }
+    switch (job.type) {
+    case "transcode":
+      await TranscodeJob(job, tmpDirPath)
+      break
+    case "package":
+      // await PackageJob(job, tmpDirPath)
+      break
+    case "thumbnail":
+      // aws s3 cp ./thumb.jpg s3://cdn.bken.io/v/${videoId}/thumb.jpg --profile wasabi --endpoint https://us-east-2.wasabisys.com
+      break
+    default:
+      console.log("Unknown job was not processed")
+      break
     }
   } catch (error) {
     console.error("Error in step, writing error to api and exiting", error)
