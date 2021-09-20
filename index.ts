@@ -1,14 +1,20 @@
 import axios from "axios"
 import { processJob } from "./lib/processJob"
 
+function getApiUrl() {
+  if (process.env.NODE_ENV === "production") {
+    return "https://api.bken.io"
+  }
+  return "http://localhost:3100"
+}
+
 function main() {
   try {
     let currentlyProcessing = false
-    
     setInterval(() => {
       if (!currentlyProcessing) {
-        axios.get("http://localhost:3100/jobs").then((res) => {
-          if (res.data) {
+        axios.get(`${getApiUrl()}/jobs`).then((res) => {
+          if (res.data && res.data !== "OK") {
             currentlyProcessing = true
             processJob(res.data).then(() => {
               console.log("JOB SUCCESS")

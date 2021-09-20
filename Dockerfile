@@ -1,16 +1,22 @@
-FROM node:16-alpine AS build
+FROM ubuntu
 
-WORKDIR /srv
-COPY package.json yarn.lock tsconfig.json /srv/
-RUN yarn install --frozen-lockfile
-COPY src /srv/src/
+RUN apt update
+RUN apt install -y curl ffmpeg unzip python3.8
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt install -y nodejs
+RUN npm i -g yarn
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+
+RUN curl "https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-639.x86_64-unknown-linux.zip"  -o "bento4.zip"
+RUN unzip bento4.zip
+RUN cp -r ./Bento4-SDK-1-6-0-639.x86_64-unknown-linux /usr/local
+RUN rm -rf ./Bento4-SDK-1-6-0-639.x86_64-unknown-linux
+
+WORKDIR /app
+COPY . .
+RUN yarn
 RUN yarn build
-RUN yarn install --frozen-lockfile --production
-
-FROM node:16-alpine
-RUN apk add ffmpeg --no-cache
-WORKDIR /srv
-COPY --from=build /srv/node_modules /srv/node_modules
-COPY --from=build /srv/dist /srv/
-EXPOSE 4000
-CMD ["node", "/srv/index.js" ]
+CMD ["node", "./dist/index.js" ]
