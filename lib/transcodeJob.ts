@@ -1,5 +1,5 @@
 import fs from "fs-extra"
-import { Job } from "./types"
+import { Job } from "../types"
 import { spawnChild } from "./spawnChild"
 
 export default async function TranscodeJob(job: Job, tmpDirPath: string): Promise<void> {

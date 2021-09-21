@@ -1,5 +1,5 @@
 import { spawnChild } from "./spawnChild"
-import { Job } from "./types"
+import { Job } from "../types"
 
 export default async function ThumbnailJob(job: Job, tmpDirPath: string): Promise<void> {
   await spawnChild("ffmpeg", job.ffmpegCommand.split(" "), {

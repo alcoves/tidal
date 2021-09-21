@@ -8,7 +8,7 @@ import PackageJob from "./packageJob"
 import ThumbnailJob from "./thumbnailJob"
 import TranscodeJob from "./transcodeJob"
 
-import { Job } from "./types"
+import { Job } from "../types"
 
 export async function processJob(job: Job): Promise<void> {
   const tmpDirPath = path.normalize(`/tmp/${job._id}`)
