@@ -1,5 +1,9 @@
-import fs from "fs-extra"
+import dotenv from "dotenv"
+dotenv.config()
+
 import path from "path"
+import axios from "axios"
+import fs from "fs-extra"
 import PackageJob from "./packageJob"
 import ThumbnailJob from "./thumbnailJob"
 import TranscodeJob from "./transcodeJob"
@@ -27,9 +31,15 @@ export async function processJob(job: Job): Promise<void> {
       console.log(`Unknown Job : ${job.type}`)
       break
     }
+
+    await axios.patch(`${process.env.API_ENDPOINT}/jobs/${job._id}`, {
+      status: "completed"
+    }, { headers: { "X-API-Key": process.env.TIDAL_API_KEY } })
   } catch (error) {
-    console.error("Error in step, writing error to api and exiting", error)
-    // TODO :: Write error to api
+    console.error(error)
+    await axios.patch(`${process.env.API_ENDPOINT}/jobs/${job._id}`, {
+      status: "error"
+    }, { headers: { "X-API-Key": process.env.TIDAL_API_KEY } })
     throw new Error(error)
   } finally {
     await fs.remove(tmpDirPath)
