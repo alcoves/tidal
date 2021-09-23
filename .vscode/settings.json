@@ -1,20 +1,20 @@
 {
   "workbench.colorCustomizations": {
-    "activityBar.activeBackground": "#6baa8a",
-    "activityBar.activeBorder": "#efebf3",
-    "activityBar.background": "#6baa8a",
+    "activityBar.activeBackground": "#ffd633",
+    "activityBar.activeBorder": "#009f7f",
+    "activityBar.background": "#ffd633",
     "activityBar.foreground": "#15202b",
     "activityBar.inactiveForeground": "#15202b99",
-    "activityBarBadge.background": "#efebf3",
-    "activityBarBadge.foreground": "#15202b",
-    "statusBar.background": "#529071",
-    "statusBar.foreground": "#e7e7e7",
-    "statusBarItem.hoverBackground": "#6baa8a",
-    "titleBar.activeBackground": "#529071",
-    "titleBar.activeForeground": "#e7e7e7",
-    "titleBar.inactiveBackground": "#52907199",
-    "titleBar.inactiveForeground": "#e7e7e799"
+    "activityBarBadge.background": "#009f7f",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "statusBar.background": "#ffcc00",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#cca300",
+    "titleBar.activeBackground": "#ffcc00",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#ffcc0099",
+    "titleBar.inactiveForeground": "#15202b99"
   },
-  "peacock.color": "#529071",
+  "peacock.color": "ffcc00",
   "jest.jestCommandLine": "yarn jest"
 }

@@ -1,12 +1,13 @@
 
 import ffmpeg from "fluent-ffmpeg"
+import { Rendition, RenditionInterface } from "../models/models"
 
-function transcode(input: string) {
+function transcode(rendition: RenditionInterface) {
+  console.log("rendition", rendition)
   return new Promise((resolve, reject) => {
-    const hlsOptions = "-c:v libx264 -crf 30 -hls_playlist_type event -hls_time 4 -method PUT"
-    ffmpeg(input)
-      .outputOptions(hlsOptions.split(" "))
-      .output("http://localhost:3200/upload/stream.m3u8")
+    ffmpeg(rendition.asset.input)
+      .outputOptions(rendition.command.split(" "))
+      .output(`http://localhost:3200/chunks/${rendition.asset._id}/${rendition._id}/stream.m3u8`)
       .on("start", function (commandLine) {
         console.log("Spawned Ffmpeg with command: " + commandLine)
       })
@@ -15,6 +16,9 @@ function transcode(input: string) {
         reject(err.message)
       })
       .on("end", async function () {
+        console.log("ffmpeg command completed")
+        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "completed" })
+        console.log("updated database successfully")
         resolve("done")
       })
       .run()
@@ -27,9 +31,23 @@ async function jobRunner() {
   setInterval(() => {
     if (!processing) {
       console.info("Pooling for jobs...", `Processing: ${processing}`)
-      processing = true
+      Rendition.findOne({ status: "queued" }).populate("asset").then((rendition) => {
+        if (rendition) {
+          processing = true
+          transcode(rendition).then((res) => {
+            console.log(res)
+          }).catch((error) => {
+            console.error(error)
+          }).finally(() => {
+            console.log("Processing done, going back for more...")
+            processing = false
+          })
+        } 
+      }).catch((error) => {
+        console.error(error)
+      })  
     }
-  }, 1000 * 10)
+  }, 1000 * 2)
 }
 
 if (process.env.TIDAL_ENCODE) jobRunner()

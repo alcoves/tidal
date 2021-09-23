@@ -1,14 +1,16 @@
 import{ Schema, model, Types } from "mongoose"
 
-export interface Asset {
+export interface AssetInterface {
   _id: Types.ObjectId,
   views: number,
+  input: string,
   status: string,
   duration: string,
-  renditions: Rendition[]
+  renditions: RenditionInterface[]
 }
 
-export interface Rendition {
+export interface RenditionInterface {
+  _id: Types.ObjectId,
   name: string,
   width: number,
   height: number,
@@ -16,14 +18,29 @@ export interface Rendition {
   status: string,
   command: string,
   bandwidth: number,
+  asset: AssetInterface,
 }
 
-const assetSchama = new Schema<Asset>({
+const assetSchama = new Schema<AssetInterface>({
   _id: Types.ObjectId,
+  input: String,
   status: String,
-  renditions: [],
   duration: String,
   views: { type: Number, default: 0 },
+  renditions: [{ type: Schema.Types.ObjectId, ref: "Rendition" }],
 }, { timestamps: true })
 
-export const Asset = model<Asset>("Assets", assetSchama)
+const renditionSchema = new Schema<RenditionInterface>({
+  _id: Types.ObjectId,
+  name: String,
+  width: Number,
+  height: Number,
+  codecs: String,
+  status: String,
+  command: String,
+  bandwidth: String,
+  asset: { type: Schema.Types.ObjectId, ref: "Asset" },
+}, { timestamps: true })
+
+export const Asset = model<AssetInterface>("Asset", assetSchama)
+export const Rendition = model<RenditionInterface>("Rendition", renditionSchema)
