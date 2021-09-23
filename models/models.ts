@@ -1,4 +1,4 @@
-import{ Schema, model, Types } from "mongoose"
+import{ Schema, model, Types, PopulatedDoc, Document } from "mongoose"
 
 export interface AssetInterface {
   _id: Types.ObjectId,
@@ -6,7 +6,7 @@ export interface AssetInterface {
   input: string,
   status: string,
   duration: string,
-  renditions: RenditionInterface[]
+  renditions: PopulatedDoc<RenditionInterface & Document>[]
 }
 
 export interface RenditionInterface {
@@ -18,11 +18,11 @@ export interface RenditionInterface {
   status: string,
   command: string,
   bandwidth: number,
-  asset: AssetInterface,
+  asset: PopulatedDoc<AssetInterface & Document>,
 }
 
 const assetSchama = new Schema<AssetInterface>({
-  _id: Types.ObjectId,
+  _id: Schema.Types.ObjectId,
   input: String,
   status: String,
   duration: String,
@@ -31,7 +31,7 @@ const assetSchama = new Schema<AssetInterface>({
 }, { timestamps: true })
 
 const renditionSchema = new Schema<RenditionInterface>({
-  _id: Types.ObjectId,
+  _id: Schema.Types.ObjectId,
   name: String,
   width: Number,
   height: Number,
