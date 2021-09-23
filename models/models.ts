@@ -1,15 +1,30 @@
-import mongoose from "mongoose"
+import{ Schema, model, Types } from "mongoose"
 
-export const TidalVideo = mongoose.model("TidalVideo", new mongoose.Schema({
-  _id: mongoose.Types.ObjectId,
+export interface Asset {
+  _id: Types.ObjectId,
+  status: string,
+  duration: string,
+  views: number,
+  renditions: Rendition[]
+}
+
+export interface Rendition {
+  status: string,
+  name: string,
+  width: number,
+  height: number,
+  codecs: string
+  bandwidth: number,
+
+  command: string,
+}
+
+const assetSchama = new Schema<Asset>({
+  _id: Types.ObjectId,
   status: String,
   duration: String,
+  renditions: [],
   views: { type: Number, default: 0 },
-  renditions: { type : mongoose.Types.ObjectId, ref: "TidalRendition" },
-}, { timestamps: true }))
+}, { timestamps: true })
 
-export const TidalRendition = mongoose.model("TidalRendition", new mongoose.Schema({
-  _id: mongoose.Types.ObjectId,
-  status: String,
-  command: String,
-}, { timestamps: true }))
+export const Asset = model<Asset>("Assets", assetSchama)

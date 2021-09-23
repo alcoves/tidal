@@ -8,3 +8,5 @@ export function generateManifest() {
 https://s3.us-east-2.wasabisys.com/cdn.bken.io/tests/hls2/stream.m3u8
   `
 }
+
+//   // #EXT-X-STREAM-INF:BANDWIDTH=2516370,AVERAGE-BANDWIDTH=2516370,CODECS="mp4a.40.2,avc1.640020",RESOLUTION=1280x720,CLOSED-CAPTIONS=NONE
