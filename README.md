@@ -1,38 +1,32 @@
-# Tidal
+# Tidal Overview
 
-Tidal is a media encoding API with ajoining pipeline and CLI functionalist. Tidal accepts requests over it's API and uses Consul, Nomad, and the Tidal CLI to perform batched video transcodes.
+### API
 
-### Overview
+GET / - healthcheck
 
-Tidal is composed of an API and CLI that are packaged together. Tidal is written in Go and largely just wraps ffmpeg and rclone commands. While the earliest versions of tidal was just bash scripts, I found that bash was not the right tool for things like error handling, event notifications (webhooks), and preset generation to name a few.
+#### Assets
 
-In production, Tidal uses Nomad and Consul to create a simple architecture that contains the following resources
+POST /assets - creates a video entry
+GET /assets/:assetId - returns an asset
+DELETE /assets/:assedId - deletes an asset
+GET /assets/:assetId.m3u8 - returns a .m3u8 file
 
-Infrastructure:
+#### Chunks
 
-- 1-3 master servers for Consul and Nomad
-- 1-2 worker servers for the Tidal API and the Tidal CLI
+PUT /chunks - an internal only endpoint that Tidal uses to publish video chunks, Must be called by localhost
 
-Nomad:
+Notes:
 
-- Fabio job for load balancing
-- Nomad job for running the Tidal API
-- Nomad batch jobs for scalable workload scheduling
-
-Consul:
-
-- Consul KV for secrets storage
-
-In a clustered setup, the request flow would look something like this.
-
-```
-User transcode request (POST /jobs/transcode) -> Fabio -> Tidal API -> Nomad Dispatch -> Return 202
-Nomad Dispatch -> Nomad Schedules `tidal transcode...` -> Transcode runs and webhooks current status back to configured endpoint
-```
+- When a video is created, renditions are written to the database. These renditions contain the ffmpeg command necessary to encode the content.
+- The m3u8 playlists will only return renditions that are completed. So you must wait for at least 1 encoding to be completed before the video will be playable
 
 ### Development
 
 I'm not accepting pull requests right now. Tidal is still just an experimental idea.
+
+### Deployment
+
+Tidal's API servers should run seperate from the encoding nodes. To enable a node for encoding work, set the environment variable TIDAL_ENCODE to "true".
 
 ### Brief History
 
