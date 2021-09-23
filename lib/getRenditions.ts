@@ -1,49 +1,48 @@
 import { Types } from "mongoose"
 import { Metadata } from "./getMetadata"
-import { AssetInterface, Rendition } from "../models/models"
 
 const RESOLUTIONS = {
   240: {
     name: "240p",
     width: 426,
     height: 240,
-    bandwidth: 300,
+    bandwidth: 250 * 1000,
   },
   360: {
     name: "360p",
     width: 640,
     height: 360,
-    bandwidth: 300,
+    bandwidth: 750 * 1000,
   },
   480: {
     name: "480p",
     width: 854,
     height: 480,
-    bandwidth: 300,
+    bandwidth: 2000 * 1000,
   },
   720: {
     name: "720p",
     width: 1280,
     height: 720,
-    bandwidth: 300,
+    bandwidth: 3500 * 1000,
   },
   1080: {
     name: "1080p",
     width: 1920,
     height: 1080,
-    bandwidth: 300,
+    bandwidth: 6000 * 1000,
   },
   1440: {
     name: "1440p",
     width: 2560,
     height: 1440,
-    bandwidth: 300,
+    bandwidth: 12000 * 1000,
   },
   2160: {
     name: "2160p",
     width: 3840,
     height: 2160,
-    bandwidth: 300,
+    bandwidth: 30000 * 1000,
   },
 }
 
