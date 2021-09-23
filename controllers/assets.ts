@@ -24,20 +24,16 @@ export async function fetchAsset(req: Request, res: Response) {
   const asset = await Asset.findOne({
     _id:  new mongoose.Types.ObjectId(req.params.assetId),
   })
-  if (!asset) res.sendStatus(404)
-  return res.sendStatus(400)
+  if (!asset) return res.sendStatus(404)
+  return res.json({ data: asset })
 }
 
 export async function fetchAssetManifest(req: Request, res: Response) {
-  const [assetId, extention] = req.params.assetId.split(".")
-  if (extention === "m3u8") {
-    const video = await Asset.findOne({
-      _id:  new mongoose.Types.ObjectId(assetId),
-    })
-    if (!video) res.sendStatus(404)
-    console.log("returning manifest")
-    res.setHeader("content-type", "application/x-mpegURL")
-    return res.send(generateManifest().toString())
-  }
-  return res.sendStatus(400)
+  const [assetId] = req.params.assetId.split(".")
+  const asset = await Asset.findOne({
+    _id: new mongoose.Types.ObjectId(assetId),
+  })
+  if (!asset) res.sendStatus(404)
+  res.setHeader("content-type", "application/x-mpegURL")
+  return res.send(generateManifest(asset).toString())
 }
