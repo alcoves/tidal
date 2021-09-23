@@ -16,4 +16,18 @@ const s3 = new AWS.S3({
   endpoint: process.env.WASABI_ENDPOINT,
 })
 
+export async function deleteFolder(params: AWS.S3.ListObjectsV2Request): Promise<boolean> {
+  const req: AWS.S3.ListObjectsV2Output = await s3.listObjectsV2(params).promise()
+  await s3.deleteObjects({
+    Bucket: params.Bucket,
+    Delete: { Objects: req?.Contents?.map(({ Key }) => ({ Key })) as AWS.S3.ObjectIdentifierList },
+  }).promise()
+
+  if (req.NextContinuationToken) {
+    params.ContinuationToken = req.NextContinuationToken
+    return deleteFolder(params)
+  }
+  return true
+}
+
 export default s3

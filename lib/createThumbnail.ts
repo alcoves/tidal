@@ -4,7 +4,7 @@ import fs from "fs-extra"
 import ffmpeg from "fluent-ffmpeg"
 import { S3 } from "aws-sdk"
 
-export default async function createThumbnail(inputUrl: string, uploadParams: S3.PutObjectRequest): Promise<void> {
+export async function createThumbnail(inputUrl: string, uploadParams: S3.PutObjectRequest): Promise<void> {
   const thumbnailName = uploadParams.Key.split("/").pop() || "thumbnail.jpg"
   const tmpDir = await fs.mkdtemp("/tmp/bken-")
   const ffThumbOutPath = `${tmpDir}/${thumbnailName}`

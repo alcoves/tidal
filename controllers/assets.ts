@@ -1,10 +1,12 @@
 
 import { Types } from "mongoose"
-import { Asset, Rendition, RenditionInterface } from "../models/models"
+import { deleteFolder } from "../lib/s3"
 import { Request, Response } from "express"
 import { getMetadata } from "../lib/getMetadata"
 import { getRenditions } from "../lib/getRenditions"
+import { createThumbnail } from "../lib/createThumbnail"
 import { generateManifest } from "../lib/generateManifest"
+import { Asset, Rendition, RenditionInterface } from "../models/models"
 
 export async function createAsset(req: Request, res: Response) {
   const { input } = req.body
@@ -25,6 +27,11 @@ export async function createAsset(req: Request, res: Response) {
     _id:  new Types.ObjectId(newAsset._id),
   }).populate("renditions").sort("-width")
 
+  await createThumbnail(input, {
+    Bucket: "cdn.bken.io",
+    Key: `v/${assetId}/thumbnail.jpg`
+  })
+
   res.json({ data: asset })
 }
 
@@ -44,4 +51,14 @@ export async function fetchAssetManifest(req: Request, res: Response) {
   if (!asset) return res.sendStatus(404)
   res.setHeader("content-type", "application/x-mpegURL")
   return res.send(generateManifest(asset).toString())
+}
+
+export async function deleteAsset(req: Request, res: Response) {
+  const { assetId } = req.params
+  await Asset.deleteOne({ _id: assetId })
+  // await Rendition.deleteMany({ _id: assetId })
+  await deleteFolder({
+    Bucket: "cdn.bken.io",
+    Prefix: `v/${assetId}`
+  })
 }
