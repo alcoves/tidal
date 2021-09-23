@@ -33,19 +33,24 @@ async function jobRunner() {
       console.info("Pooling for jobs...", `Processing: ${processing}`)
       Rendition.findOne({ status: "queued" }).populate("asset").then((rendition) => {
         if (rendition) {
-          processing = true
-          transcode(rendition).then((res) => {
-            console.log(res)
-          }).catch((error) => {
-            console.error(error)
-          }).finally(() => {
-            console.log("Processing done, going back for more...")
-            processing = false
+          Rendition.updateOne({ _id: rendition._id, status: "queued" }, {$set: { "status": "running" }}).then(updatedRows => {
+            console.log(updatedRows)
+            processing = true
+            transcode(rendition).then((res) => {
+              console.log(res)
+            }).catch((error) => {
+              console.error(error)
+            }).finally(() => {
+              console.log("Processing done, going back for more...")
+              processing = false
+            })
+          }).catch(err=>{
+            console.log(err)
           })
-        } 
+        }
       }).catch((error) => {
         console.error(error)
-      })  
+      })
     }
   }, 1000 * 2)
 }
