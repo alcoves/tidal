@@ -28,19 +28,13 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
         EOH
         
         env         = true
-        destination = ".env"
+        destination = "secrets/container/.env"
       }
 
       template {
         env         = true
-        destination = "secrets/.env"
+        destination = "secrets/tidal/.env"
         data        = "{{ key \"secrets/tidal/.env.prod\" }}"
-      }
-
-      template {
-        env         = false
-        destination = "local/ca-certificate.crt"
-        data        = "{{ key \"secrets/tidal/ca-certificate.crt\" }}"
       }
 
       constraint {
