@@ -33,13 +33,13 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
 
       template {
         env         = true
-        destination = "secrets/tidal/.env"
+        destination = "secrets/.env"
         data        = "{{ key \"secrets/tidal/.env.prod\" }}"
       }
 
       template {
         env         = false
-        destination = "ca-certificate.crt"
+        destination = "local/ca-certificate.crt"
         data        = "{{ key \"secrets/tidal/ca-certificate.crt\" }}"
       }
 
