@@ -19,7 +19,7 @@ job "tidal" {
       port "bken_tidal_port" { to = 3200 }
     }
 
-    task "tidal" {
+    task "tidal_api" {
       driver = "docker"
 
       template {
@@ -34,7 +34,7 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
       template {
         env         = true
         destination = "secrets/tidal/.env"
-        data        = "{{ key \"secrets/tidal/.env\" }}"
+        data        = "{{ key \"secrets/tidal/.env.prod\" }}"
       }
 
       template {
@@ -61,7 +61,7 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
       }
 
       service {
-        name = "bken-tidal"
+        name = "bken-tidal-api"
         port = "bken_tidal_port"
         tags = ["urlprefix-tidal.bken.io/"]
 
