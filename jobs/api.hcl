@@ -39,7 +39,7 @@ DO_API_KEY="{{key "secrets/DO_API_KEY"}}"
 
       template {
         env         = false
-        destination = "secrets/tidal/ca-certificate.crt"
+        destination = "ca-certificate.crt"
         data        = "{{ key \"secrets/tidal/ca-certificate.crt\" }}"
       }
 
