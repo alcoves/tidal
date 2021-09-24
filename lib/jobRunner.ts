@@ -55,4 +55,5 @@ async function jobRunner() {
   }, 1000 * 2)
 }
 
-if (process.env.TIDAL_ENCODE) jobRunner()
+console.log(`Tidal Job Runner Status: ${process.env.TIDAL_ENCODE === "true" ? "Enabled" : "Disabled"}`)
+if (process.env.TIDAL_ENCODE === "true") jobRunner()
