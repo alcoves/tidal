@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": "node build/index.js",
+    "start": "node dist/index.js",
     "dev": "ts-node-dev index.ts"
   },
   "dependencies": {
