@@ -18,6 +18,7 @@ const s3 = new AWS.S3({
 
 export async function deleteFolder(params: AWS.S3.ListObjectsV2Request): Promise<boolean> {
   const req: AWS.S3.ListObjectsV2Output = await s3.listObjectsV2(params).promise()
+  console.log(`Deleting ${req?.Contents?.length} objects from ${params.Prefix}`)
   await s3.deleteObjects({
     Bucket: params.Bucket,
     Delete: { Objects: req?.Contents?.map(({ Key }) => ({ Key })) as AWS.S3.ObjectIdentifierList },

@@ -55,12 +55,12 @@ export async function fetchAssetManifest(req: Request, res: Response) {
 
 export async function deleteAsset(req: Request, res: Response) {
   const { assetId } = req.params
-  await Asset.deleteOne({ _id: assetId })
-  const renditions = await Rendition.find({ asset: assetId })
-  await Rendition.deleteMany(renditions)
+  const asset = await Asset.findOne({ _id: assetId })
+  await Asset.deleteOne({ _id: asset._id })
+  await Rendition.deleteMany({ asset: asset._id })
   await deleteFolder({
     Bucket: "cdn.bken.io",
-    Prefix: `v/${assetId}`
+    Prefix: `v/${asset._id}`
   })
   return res.sendStatus(200)
 }

@@ -2,7 +2,6 @@
 import { Request, Response, NextFunction } from "express"
 
 export function auth(req: Request, res: Response, next: NextFunction) {
-  console.log("SOCKET", req.socket.remoteAddress)
   const apiKey = req?.headers["x-api-key"]
   if (apiKey !== process.env.TIDAL_API_KEY) {
     return res.sendStatus(401)
