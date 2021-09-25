@@ -39,8 +39,8 @@ const renditionSchema = new Schema<RenditionInterface>({
   codecs: String,
   status: String,
   command: String,
-  progress: Number,
   bandwidth: String,
+  progress: { type: Number, default: 0 },
   asset: { type: Schema.Types.ObjectId, ref: "Asset" },
 }, { timestamps: true })
 
