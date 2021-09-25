@@ -17,6 +17,7 @@ export interface RenditionInterface {
   codecs: string
   status: string,
   command: string,
+  progress: number,
   bandwidth: number,
   asset: PopulatedDoc<AssetInterface & Document>,
 }
@@ -38,6 +39,7 @@ const renditionSchema = new Schema<RenditionInterface>({
   codecs: String,
   status: String,
   command: String,
+  progress: Number,
   bandwidth: String,
   asset: { type: Schema.Types.ObjectId, ref: "Asset" },
 }, { timestamps: true })

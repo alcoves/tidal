@@ -11,6 +11,12 @@ function transcode(rendition: RenditionInterface) {
       .on("start", function (commandLine) {
         console.log("Spawned Ffmpeg with command: " + commandLine)
       })
+      .on("progress", async function (progress) {
+        console.log("Processing: " + progress.percent + "% done", typeof progress.percent)
+        if (progress.percent) {
+          await Rendition.findOneAndUpdate({ _id: rendition._id }, { progress: progress.percent})
+        }
+      })
       .on("error", function (err) {
         console.log("An error occurred: " + err.message)
         reject(err.message)
