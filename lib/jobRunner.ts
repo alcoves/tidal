@@ -2,12 +2,14 @@
 import ffmpeg from "fluent-ffmpeg"
 import { Rendition, RenditionInterface } from "../models/models"
 
+const API_PORT = process.env.PORT || 3200
+
 function transcode(rendition: RenditionInterface) {
   console.log("rendition", rendition)
   return new Promise((resolve, reject) => {
     ffmpeg(rendition.asset.input)
       .outputOptions(rendition.command.split(" "))
-      .output(`http://localhost:3200/chunks/${rendition.asset._id}/${rendition._id}/stream.m3u8`)
+      .output(`http://localhost:${API_PORT}/chunks/${rendition.asset._id}/${rendition._id}/stream.m3u8`)
       .on("start", function (commandLine) {
         console.log("Spawned Ffmpeg with command: " + commandLine)
       })
@@ -40,16 +42,21 @@ async function jobRunner() {
       Rendition.findOne({ status: "queued" }).populate("asset").then((rendition) => {
         if (rendition) {
           Rendition.updateOne({ _id: rendition._id, status: "queued" }, {$set: { "status": "running" }}).then(updatedRows => {
-            console.log(updatedRows)
-            processing = true
-            transcode(rendition).then((res) => {
-              console.log(res)
-            }).catch((error) => {
-              console.error(error)
-            }).finally(() => {
-              console.log("Processing done, going back for more...")
-              processing = false
-            })
+            console.log("Updated Rows", updatedRows)
+            if (updatedRows.modifiedCount) {
+              console.log("Job pulled successfully, encoding...")
+              processing = true
+              transcode(rendition).then((res) => {
+                console.log(res)
+              }).catch((error) => {
+                console.error(error)
+              }).finally(() => {
+                console.log("Processing done, going back for more...")
+                processing = false
+              })
+            } else {
+              console.log("job aquired elseware, returning for another...")
+            }
           }).catch(err=>{
             console.log(err)
           })
