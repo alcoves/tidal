@@ -56,11 +56,13 @@ export async function fetchAssetManifest(req: Request, res: Response) {
 export async function deleteAsset(req: Request, res: Response) {
   const { assetId } = req.params
   const asset = await Asset.findOne({ _id: assetId })
-  await Asset.deleteOne({ _id: asset._id })
-  await Rendition.deleteMany({ asset: asset._id })
-  await deleteFolder({
-    Bucket: process.env.S3_BUCKET,
-    Prefix: `v/${asset._id}`
-  })
+  if (asset) {
+    await Asset.deleteOne({ _id: asset._id })
+    await Rendition.deleteMany({ asset: asset._id })
+    await deleteFolder({
+      Bucket: process.env.S3_BUCKET,
+      Prefix: `v/${asset._id}`
+    })
+  }
   return res.sendStatus(200)
 }
