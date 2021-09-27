@@ -19,14 +19,14 @@ function transcode(rendition: RenditionInterface) {
           await Rendition.findOneAndUpdate({ _id: rendition._id }, { progress: progress.percent})
         }
       })
-      .on("error", function (err) {
+      .on("error", async function (err) {
         console.log("An error occurred: " + err.message)
+        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "error" })
         reject(err.message)
       })
       .on("end", async function () {
         console.log("ffmpeg command completed")
-        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "completed" })
-        console.log("updated database successfully")
+        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "completed", progress: 100 })
         resolve("done")
       })
       .run()
