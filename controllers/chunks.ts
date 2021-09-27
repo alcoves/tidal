@@ -7,7 +7,7 @@ export async function upload(req: Request, res: Response) {
   console.log("Uploading", filename, mime.getType(filename))
   await s3.upload({
     Body: req,
-    Bucket: "cdn.bken.io",
+    Bucket: process.env.S3_BUCKET,
     ContentType: mime.getType(filename),
     Key: `v/${assetId}/${renditionId}/${req.params.filename}`
   }).promise()

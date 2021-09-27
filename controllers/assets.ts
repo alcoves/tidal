@@ -28,7 +28,7 @@ export async function createAsset(req: Request, res: Response) {
   }).populate("renditions").sort("-width")
 
   await createThumbnail(input, {
-    Bucket: "cdn.bken.io",
+    Bucket: process.env.S3_BUCKET,
     Key: `v/${assetId}/thumbnail.jpg`
   })
 
@@ -59,7 +59,7 @@ export async function deleteAsset(req: Request, res: Response) {
   await Asset.deleteOne({ _id: asset._id })
   await Rendition.deleteMany({ asset: asset._id })
   await deleteFolder({
-    Bucket: "cdn.bken.io",
+    Bucket: process.env.S3_BUCKET,
     Prefix: `v/${asset._id}`
   })
   return res.sendStatus(200)

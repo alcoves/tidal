@@ -9,7 +9,7 @@ export function generateManifest(asset: AssetInterface): string {
     if (r.status === "completed") {
       manifest += `
 #EXT-X-STREAM-INF:BANDWIDTH=${r.bandwidth},AVERAGE-BANDWIDTH=${r.bandwidth},CODECS="${r.codecs}",RESOLUTION=${r.width}x${r.height},CLOSED-CAPTIONS=NONE
-https://s3.us-east-2.wasabisys.com/cdn.bken.io/v/${asset._id}/${r._id}/stream.m3u8
+${process.env.CDN_URL}/v/${asset._id}/${r._id}/stream.m3u8
           `
     }
   }
