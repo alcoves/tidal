@@ -65,7 +65,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
   }]
 
-  if (metadata.video.width > RESOLUTIONS[360].width) {
+  if (metadata.video.width >= RESOLUTIONS[360].width) {
     const rendition = RESOLUTIONS[360]
     renditions.push({
       _id: new Types.ObjectId(),
@@ -80,7 +80,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     })
   }
 
-  if (metadata.video.width > RESOLUTIONS[480].width) {
+  if (metadata.video.width >= RESOLUTIONS[480].width) {
     const rendition = RESOLUTIONS[480]
     renditions.push({
       _id: new Types.ObjectId(),
@@ -95,7 +95,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     })
   }
 
-  if (metadata.video.width > RESOLUTIONS[720].width) {
+  if (metadata.video.width >= RESOLUTIONS[720].width) {
     const rendition = RESOLUTIONS[720]
     renditions.push({
       _id: new Types.ObjectId(),
@@ -110,7 +110,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     })
   }
 
-  if (metadata.video.width > RESOLUTIONS[1080].width) {
+  if (metadata.video.width >= RESOLUTIONS[1080].width) {
     const rendition = RESOLUTIONS[1080]
     renditions.push({
       _id: new Types.ObjectId(),
