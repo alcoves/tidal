@@ -35,6 +35,31 @@ export async function createAsset(req: Request, res: Response) {
   res.json({ data: asset })
 }
 
+export async function recomputeRenditions(req: Request, res: Response) {
+  const assets = await Asset.find()
+
+  for (const asset of assets) {
+    const oldRenditions = await Rendition.find({ asset: asset._id })
+
+    for (const oldRendition of oldRenditions) {
+      console.log(oldRendition, `v/${asset._id}/${oldRendition._id.toString()}`)
+      await deleteFolder({
+        Bucket: process.env.S3_BUCKET,
+        Prefix: `v/${asset._id}/${oldRendition._id.toString()}`
+      })
+      const res = await oldRendition.delete()
+      console.log(res)
+    }
+  
+    const metadata = await getMetadata(asset.input)
+    const renditions = getRenditions(metadata, asset._id)
+    await Rendition.insertMany(renditions)
+    await Asset.findByIdAndUpdate(asset._id, { $set: { renditions: renditions.map((r: RenditionInterface) => r._id) } })
+  }
+
+  return res.sendStatus(200)
+}
+
 export async function fetchAsset(req: Request, res: Response) {
   const asset = await Asset.findOne({
     _id:  new Types.ObjectId(req.params.assetId),
