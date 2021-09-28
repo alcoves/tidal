@@ -47,11 +47,12 @@ const RESOLUTIONS = {
 }
 
 function getVideoFilter(width: number): string {
-  return `scale=${width}:${width}:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2`
+  return `-vf scale=${width}:${width}:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2`
 }
 
 export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unknown[] {
-  const hlsDefaults = "-hls_playlist_type event -hls_time 4 -method PUT"
+  const x264Defaults = "-c:v libx264 -crf 24 -preset medium"
+  const hlsDefaults = "-hls_playlist_type vod -hls_time 4 -method PUT"
 
   const renditions: unknown[] = [{
     _id: new Types.ObjectId(),
@@ -62,7 +63,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     width: RESOLUTIONS[240].width,
     height: RESOLUTIONS[240].height,
     bandwidth: RESOLUTIONS[240].bandwidth,
-    command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
+    command: `${x264Defaults} ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
   }]
 
   if (metadata.video.width >= RESOLUTIONS[360].width) {
@@ -76,7 +77,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -91,7 +92,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -106,7 +107,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -121,9 +122,39 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `-c:v libx264 -crf 26 -vf ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
+
+  // if (metadata.video.width >= RESOLUTIONS[1440].width) {
+  //   const rendition = RESOLUTIONS[1440]
+  //   renditions.push({
+  //     _id: new Types.ObjectId(),
+  //     asset: assetId,
+  //     status:"queued",
+  //     codecs: "mp4a.40.2,avc1.640020",
+  //     name: rendition.name,
+  //     width: rendition.width,
+  //     height: rendition.height,
+  //     bandwidth: rendition.bandwidth,
+  //     command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+  //   })
+  // }
+
+  // if (metadata.video.width >= RESOLUTIONS[2160].width) {
+  //   const rendition = RESOLUTIONS[2160]
+  //   renditions.push({
+  //     _id: new Types.ObjectId(),
+  //     asset: assetId,
+  //     status:"queued",
+  //     codecs: "mp4a.40.2,avc1.640020",
+  //     name: rendition.name,
+  //     width: rendition.width,
+  //     height: rendition.height,
+  //     bandwidth: rendition.bandwidth,
+  //     command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+  //   })
+  // }
 
   return renditions
 }
