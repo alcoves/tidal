@@ -5,6 +5,7 @@ import "./lib/jobRunner"
 import cors from "cors"
 import fs from "fs-extra"
 import morgan from "morgan"
+import nocache from "nocache"
 import express from "express"
 import root from "./routes/root"
 import assets from "./routes/assets"
@@ -28,6 +29,7 @@ mongoose.connect(process.env.MONGODB_URI as string, {
 
 const app = express()
 app.use(cors())
+app.use(nocache())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) 
 app.use(morgan("tiny"))
