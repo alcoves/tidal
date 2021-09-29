@@ -52,7 +52,7 @@ function getVideoFilter(width: number): string {
 
 export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unknown[] {
   const x264Defaults = "-c:v libx264 -crf 24 -preset medium"
-  const hlsDefaults = "-hls_playlist_type vod -hls_time 4 -method PUT"
+  const hlsDefaults = "-hls_playlist_type event -hls_time 4 -method PUT"
 
   const renditions: unknown[] = [{
     _id: new Types.ObjectId(),
