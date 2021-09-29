@@ -51,8 +51,9 @@ function getVideoFilter(width: number): string {
 }
 
 export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unknown[] {
-  const x264Defaults = "-c:v libx264 -crf 24 -preset medium"
-  const hlsDefaults = "-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type vod -hls_time 2 -method PUT"
+  const audioDefaults = "-c:a aac -b:a 128k -ac 2 -ar 44100"
+  const x264Defaults = "-c:v libx264 -crf 23 -preset faster -force_key_frames expr:gte(t,n_forced*2)"
+  const hlsDefaults = "-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type vod -hls_time 6 -method PUT"
 
   const renditions: unknown[] = [{
     _id: new Types.ObjectId(),
@@ -63,7 +64,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     width: RESOLUTIONS[240].width,
     height: RESOLUTIONS[240].height,
     bandwidth: RESOLUTIONS[240].bandwidth,
-    command: `${x264Defaults} ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
+    command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
   }]
 
   if (metadata.video.width >= RESOLUTIONS[360].width) {
@@ -77,7 +78,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -92,7 +93,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -107,7 +108,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -122,7 +123,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
     })
   }
 
@@ -137,7 +138,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
   //     width: rendition.width,
   //     height: rendition.height,
   //     bandwidth: rendition.bandwidth,
-  //     command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+  //       command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
   //   })
   // }
 
@@ -152,7 +153,7 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
   //     width: rendition.width,
   //     height: rendition.height,
   //     bandwidth: rendition.bandwidth,
-  //     command: `${x264Defaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+  //       command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
   //   })
   // }
 
