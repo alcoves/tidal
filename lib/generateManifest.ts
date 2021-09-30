@@ -1,6 +1,6 @@
-import { AssetInterface } from "../models/models"
+import { Asset, AssetInterface } from "../models/models"
 
-export function generateManifest(asset: AssetInterface): string {
+export async function generateManifest(asset: AssetInterface): Promise<string> {
   let manifest = `#EXTM3U
 #EXT-X-VERSION:5
 #EXT-X-INDEPENDENT-SEGMENTS
@@ -16,6 +16,8 @@ ${process.env.CDN_URL}/v/${asset._id}/${r._id}/stream.m3u8
 `
     }
   }
+
+  await Asset.findOneAndUpdate({ _id: asset._id }, { $inc : {"views" : 1 }})
 
   // const livestreamingRenditions = asset.renditions.filter((r) => r.status === "running")
   // if (livestreamingRenditions.length) {
