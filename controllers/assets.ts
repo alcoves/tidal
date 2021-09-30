@@ -75,7 +75,7 @@ export async function fetchAssetManifest(req: Request, res: Response) {
   }).populate("renditions").sort("-width")
   if (!asset) return res.sendStatus(404)
   res.setHeader("content-type", "application/x-mpegURL")
-  const manifest = await generateManifest(asset).toString()
+  const manifest = await generateManifest(asset)
   return res.send(manifest)
 }
 
