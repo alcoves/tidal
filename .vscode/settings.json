@@ -13,7 +13,13 @@
     "titleBar.activeBackground": "#ffcc00",
     "titleBar.activeForeground": "#15202b",
     "titleBar.inactiveBackground": "#ffcc0099",
-    "titleBar.inactiveForeground": "#15202b99"
+    "titleBar.inactiveForeground": "#15202b99",
+    "editorGroup.border": "#ffd633",
+    "panel.border": "#ffd633",
+    "sash.hoverBorder": "#ffd633",
+    "sideBar.border": "#ffd633",
+    "statusBarItem.remoteBackground": "#ffcc00",
+    "statusBarItem.remoteForeground": "#15202b"
   },
   "peacock.color": "ffcc00",
   "jest.jestCommandLine": "yarn jest"
