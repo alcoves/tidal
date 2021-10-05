@@ -21,7 +21,7 @@ function transcode(rendition: RenditionInterface) {
       })
       .on("error", async function (err) {
         console.log("An error occurred: " + err.message)
-        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "error" })
+        await Rendition.findOneAndUpdate({ _id: rendition._id }, { status: "errored" })
         reject(err.message)
       })
       .on("end", async function () {
