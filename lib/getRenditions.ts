@@ -51,9 +51,9 @@ function getVideoFilter(width: number): string {
 }
 
 export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unknown[] {
-  const audioDefaults = "-c:a aac -b:a 128k -ac 2 -ar 44100"
+  const audioDefaults = "-c:a aac -b:a 128k -ar 44100"
   const x264Defaults = "-c:v libx264 -crf 23 -preset faster -force_key_frames expr:gte(t,n_forced*2)"
-  const hlsDefaults = "-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type event -hls_time 6 -method PUT"
+  const hlsDefaults = "-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type event -hls_time 6 -streaming 1 -method PUT -http_persistent 1 -lhls 1 -strict -2 "
 
   const renditions: unknown[] = [{
     _id: new Types.ObjectId(),
