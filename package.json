@@ -11,7 +11,7 @@
   "dependencies": {
     "@types/mime": "^2.0.3",
     "aws-sdk": "^2.1009.0",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^5.0.0-alpha.8",
