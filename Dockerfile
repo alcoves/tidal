@@ -1,4 +1,4 @@
-FROM node:16-buster
+FROM node:17-buster
 
 RUN apt update
 RUN apt install -y ffmpeg
