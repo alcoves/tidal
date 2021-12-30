@@ -1,47 +1,27 @@
 {
   "name": "tidal",
+  "private": false,
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "start": "node dist/index.js",
-    "dev": "ts-node-dev index.ts"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@types/mime": "^2.0.3",
-    "aws-sdk": "^2.1048.0",
-    "axios": "^0.24.0",
-    "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^5.0.0-alpha.8",
-    "fluent-ffmpeg": "^2.1.2",
-    "fs-extra": "^10.0.0",
-    "mime": "^3.0.0",
-    "mongoose": "^6.1.4",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.4",
-    "nocache": "^3.0.1"
+    "@chakra-ui/react": "^1.7.3",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "framer-motion": "^5",
+    "next": "12.0.7",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.12",
-    "@types/dotenv": "^8.2.0",
-    "@types/express": "^4.17.13",
-    "@types/fluent-ffmpeg": "^2.1.20",
-    "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^27.0.3",
-    "@types/mongoose": "^5.11.97",
-    "@types/morgan": "^1.9.3",
-    "@types/multer": "^1.4.7",
-    "@types/node": "^17.0.5",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
-    "eslint": "^8.5.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-jest": "^25.3.2",
-    "jest": "^27.4.5",
-    "ts-jest": "^27.1.2",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^4.5.4"
+    "@types/node": "17.0.5",
+    "@types/react": "17.0.38",
+    "eslint": "8.5.0",
+    "eslint-config-next": "12.0.7",
+    "typescript": "4.5.4"
   }
 }
