@@ -1,10 +1,10 @@
-import { Flex } from '@chakra-ui/react'
 import Layout from '../components/Layout'
+import Dashboard from '../components/Dashboard'
 
 export default function Home() {
   return (
     <Layout>
-      Test2
+      <Dashboard />
     </Layout>
   )
 }
