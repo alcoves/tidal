@@ -7,13 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Video {
+model Job {
   id         Int         @id @default(autoincrement())
-  externalId String      @unique
+  externalId String      @unique @default(cuid())
   input      String
   output     String
   status     MediaStatus @default(CREATED)
-  completed  Float       @default(0)
+  progress   Float       @default(0)
   cmd        String
   metadata   String
 
