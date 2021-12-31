@@ -1,11 +1,24 @@
 import { Button, ButtonGroup, CircularProgress, Code, Flex } from '@chakra-ui/react'
 import axios from 'axios'
+import { useSWRConfig } from 'swr'
 
 export default function Job({ job }: { job: any }) {
+  const { mutate } = useSWRConfig()
+
   async function handleStartJob() {
     try {
       const res = await axios.post(`/api/jobs/${job.id}`)
       console.log('Start Job Response', res)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      const res = await axios.delete(`/api/jobs/${job.id}`)
+      console.log('Delete Job Response', res)
+      mutate('/api/jobs')
     } catch (error) {
       console.error(error)
     }
@@ -38,6 +51,9 @@ export default function Job({ job }: { job: any }) {
         <ButtonGroup size='xs'>
           <Button onClick={handleStartJob}> Start </Button>
           <Button isDisabled={true}> Stop </Button>
+          <Button onClick={handleDelete} isDisabled={job.status === 'PROCESSING'} colorScheme='red'>
+            Delete
+          </Button>
         </ButtonGroup>
       </Flex>
       <Flex direction='column' mt='2'>

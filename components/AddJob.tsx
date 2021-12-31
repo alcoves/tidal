@@ -16,8 +16,8 @@ import { useState } from 'react'
 export default function IngestVideo() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const [input, setInput] = useState(`https://cdn.bken.io/samples/1m.mp4`)
-  const [output, setOutput] = useState(`./output.mp4`)
+  const [input, setInput] = useState(`s3://cdn.bken.io/samples/1m.mp4`)
+  const [output, setOutput] = useState(`s3://cdn.bken.io/samples/1m-optimized.mp4`)
 
   async function handleIngest() {
     try {

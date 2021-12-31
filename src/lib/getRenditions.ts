@@ -1,45 +1,45 @@
-import { Types } from "mongoose"
-import { Metadata } from "./getMetadata"
+import { Types } from 'mongoose'
+import { Metadata } from '../../lib/getMetadata'
 
 const RESOLUTIONS = {
   240: {
-    name: "240p",
+    name: '240p',
     width: 426,
     height: 240,
     bandwidth: 250 * 1000,
   },
   360: {
-    name: "360p",
+    name: '360p',
     width: 640,
     height: 360,
     bandwidth: 750 * 1000,
   },
   480: {
-    name: "480p",
+    name: '480p',
     width: 854,
     height: 480,
     bandwidth: 2000 * 1000,
   },
   720: {
-    name: "720p",
+    name: '720p',
     width: 1280,
     height: 720,
     bandwidth: 3500 * 1000,
   },
   1080: {
-    name: "1080p",
+    name: '1080p',
     width: 1920,
     height: 1080,
     bandwidth: 6000 * 1000,
   },
   1440: {
-    name: "1440p",
+    name: '1440p',
     width: 2560,
     height: 1440,
     bandwidth: 12000 * 1000,
   },
   2160: {
-    name: "2160p",
+    name: '2160p',
     width: 3840,
     height: 2160,
     bandwidth: 30000 * 1000,
@@ -51,35 +51,41 @@ function getVideoFilter(width: number): string {
 }
 
 export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unknown[] {
-  const audioDefaults = "-c:a aac -b:a 128k -ar 44100"
-  const x264Defaults = "-c:v libx264 -crf 23 -preset faster -force_key_frames expr:gte(t,n_forced*2)"
-  // HLS LL  -streaming 1 -http_persistent 1 -lhls 1 -strict -2 
-  const hlsDefaults = "-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type event -hls_time 6 -method PUT"
+  const audioDefaults = '-c:a aac -b:a 128k -ar 44100'
+  const x264Defaults =
+    '-c:v libx264 -crf 23 -preset faster -force_key_frames expr:gte(t,n_forced*2)'
+  // HLS LL  -streaming 1 -http_persistent 1 -lhls 1 -strict -2
+  const hlsDefaults =
+    '-hls_flags independent_segments -hls_segment_type mpegts -hls_playlist_type event -hls_time 6 -method PUT'
 
-  const renditions: unknown[] = [{
-    _id: new Types.ObjectId(),
-    asset: assetId,
-    status:"queued",
-    codecs: "mp4a.40.2,avc1.640020",
-    name: RESOLUTIONS[240].name,
-    width: RESOLUTIONS[240].width,
-    height: RESOLUTIONS[240].height,
-    bandwidth: RESOLUTIONS[240].bandwidth,
-    command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(RESOLUTIONS[240].width)} ${hlsDefaults}`
-  }]
+  const renditions: unknown[] = [
+    {
+      _id: new Types.ObjectId(),
+      asset: assetId,
+      status: 'queued',
+      codecs: 'mp4a.40.2,avc1.640020',
+      name: RESOLUTIONS[240].name,
+      width: RESOLUTIONS[240].width,
+      height: RESOLUTIONS[240].height,
+      bandwidth: RESOLUTIONS[240].bandwidth,
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(
+        RESOLUTIONS[240].width
+      )} ${hlsDefaults}`,
+    },
+  ]
 
   if (metadata.video.width >= RESOLUTIONS[360].width) {
     const rendition = RESOLUTIONS[360]
     renditions.push({
       _id: new Types.ObjectId(),
       asset: assetId,
-      status:"queued",
-      codecs: "mp4a.40.2,avc1.640020",
+      status: 'queued',
+      codecs: 'mp4a.40.2,avc1.640020',
       name: rendition.name,
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`,
     })
   }
 
@@ -88,13 +94,13 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     renditions.push({
       _id: new Types.ObjectId(),
       asset: assetId,
-      status:"queued",
-      codecs: "mp4a.40.2,avc1.640020",
+      status: 'queued',
+      codecs: 'mp4a.40.2,avc1.640020',
       name: rendition.name,
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`,
     })
   }
 
@@ -103,13 +109,13 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     renditions.push({
       _id: new Types.ObjectId(),
       asset: assetId,
-      status:"queued",
-      codecs: "mp4a.40.2,avc1.640020",
+      status: 'queued',
+      codecs: 'mp4a.40.2,avc1.640020',
       name: rendition.name,
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`,
     })
   }
 
@@ -118,13 +124,13 @@ export function getRenditions(metadata: Metadata, assetId: Types.ObjectId): unkn
     renditions.push({
       _id: new Types.ObjectId(),
       asset: assetId,
-      status:"queued",
-      codecs: "mp4a.40.2,avc1.640020",
+      status: 'queued',
+      codecs: 'mp4a.40.2,avc1.640020',
       name: rendition.name,
       width: rendition.width,
       height: rendition.height,
       bandwidth: rendition.bandwidth,
-      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`
+      command: `${x264Defaults} ${audioDefaults} ${getVideoFilter(rendition.width)} ${hlsDefaults}`,
     })
   }
 

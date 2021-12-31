@@ -1,12 +1,11 @@
-
-import { Types } from "mongoose"
-import { deleteFolder } from "../lib/s3"
-import { Request, Response } from "express"
-import { getMetadata } from "../lib/getMetadata"
-import { getRenditions } from "../lib/getRenditions"
-import { createThumbnail } from "../lib/createThumbnail"
-import { generateManifest } from "../lib/generateManifest"
-import { Asset, Rendition, RenditionInterface } from "../models/models"
+import { Types } from 'mongoose'
+import { deleteFolder } from '../lib/s3'
+import { Request, Response } from 'express'
+import { getMetadata } from '../../lib/getMetadata'
+import { getRenditions } from '../lib/getRenditions'
+import { createThumbnail } from '../lib/createThumbnail'
+import { generateManifest } from '../lib/generateManifest'
+import { Asset, Rendition, RenditionInterface } from '../models/models'
 
 export async function createAsset(req: Request, res: Response) {
   const { input } = req.body
@@ -19,17 +18,19 @@ export async function createAsset(req: Request, res: Response) {
     _id: assetId,
     input,
     duration: metadata.format.duration,
-    renditions: renditions.map((r: RenditionInterface) => r._id)
+    renditions: renditions.map((r: RenditionInterface) => r._id),
   }).save()
   await Rendition.insertMany(renditions)
 
   const asset = await Asset.findOne({
-    _id:  new Types.ObjectId(newAsset._id),
-  }).populate("renditions").sort("-width")
+    _id: new Types.ObjectId(newAsset._id),
+  })
+    .populate('renditions')
+    .sort('-width')
 
   await createThumbnail(input, {
     Bucket: process.env.S3_BUCKET,
-    Key: `v/${assetId}/thumbnail.jpg`
+    Key: `v/${assetId}/thumbnail.jpg`,
   })
 
   res.json({ data: asset })
@@ -45,16 +46,18 @@ export async function recomputeRenditions(req: Request, res: Response) {
       console.log(oldRendition, `v/${asset._id}/${oldRendition._id.toString()}`)
       await deleteFolder({
         Bucket: process.env.S3_BUCKET,
-        Prefix: `v/${asset._id}/${oldRendition._id.toString()}`
+        Prefix: `v/${asset._id}/${oldRendition._id.toString()}`,
       })
       const res = await oldRendition.delete()
       console.log(res)
     }
-  
+
     const metadata = await getMetadata(asset.input)
     const renditions = getRenditions(metadata, asset._id)
     await Rendition.insertMany(renditions)
-    await Asset.findByIdAndUpdate(asset._id, { $set: { renditions: renditions.map((r: RenditionInterface) => r._id) } })
+    await Asset.findByIdAndUpdate(asset._id, {
+      $set: { renditions: renditions.map((r: RenditionInterface) => r._id) },
+    })
   }
 
   return res.sendStatus(200)
@@ -62,19 +65,23 @@ export async function recomputeRenditions(req: Request, res: Response) {
 
 export async function fetchAsset(req: Request, res: Response) {
   const asset = await Asset.findOne({
-    _id:  new Types.ObjectId(req.params.assetId),
-  }).populate("renditions").sort("-width")
+    _id: new Types.ObjectId(req.params.assetId),
+  })
+    .populate('renditions')
+    .sort('-width')
   if (!asset) return res.sendStatus(404)
   return res.json({ data: asset })
 }
 
 export async function fetchAssetManifest(req: Request, res: Response) {
-  const [assetId] = req.params.assetId.split(".")
+  const [assetId] = req.params.assetId.split('.')
   const asset = await Asset.findOne({
     _id: new Types.ObjectId(assetId),
-  }).populate("renditions").sort("-width")
+  })
+    .populate('renditions')
+    .sort('-width')
   if (!asset) return res.sendStatus(404)
-  res.setHeader("content-type", "application/x-mpegURL")
+  res.setHeader('content-type', 'application/x-mpegURL')
   const manifest = await generateManifest(asset)
   return res.send(manifest)
 }
@@ -87,7 +94,7 @@ export async function deleteAsset(req: Request, res: Response) {
     await Rendition.deleteMany({ asset: asset._id })
     await deleteFolder({
       Bucket: process.env.S3_BUCKET,
-      Prefix: `v/${asset._id}`
+      Prefix: `v/${asset._id}`,
     })
   }
   return res.sendStatus(200)
