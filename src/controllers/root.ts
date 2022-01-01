@@ -1,5 +1,3 @@
-import { Request, Response } from "express"
-
-export async function getRoot(req: Request, res: Response) {
+export function root(req, res) {
   return res.sendStatus(200)
 }
