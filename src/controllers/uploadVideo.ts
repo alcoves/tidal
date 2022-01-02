@@ -1,4 +1,4 @@
-import s3 from '../config/s3'
+import s3, { defaultBucket } from '../config/s3'
 
 export async function uploadVideo(req, res) {
   let data = Buffer.from('')
@@ -11,10 +11,13 @@ export async function uploadVideo(req, res) {
 
     await s3
       .upload({
-        Bucket: '',
+        Body: req.rawBody,
+        Bucket: defaultBucket,
+        ContentType: 'video/mp4',
+        Key: `v/${req.params.videoId}/original`,
       })
       .promise()
-  })
 
-  return res.sendStatus(200)
+    return res.sendStatus(200)
+  })
 }

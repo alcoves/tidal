@@ -32,9 +32,9 @@ router.post('/:videoId/multipart-upload', createMultipartUpload)
 router.put('/:videoId/multipart-upload', completeMultipartUpload)
 
 // Updates a video
+// router.patch('/:videoId', patchVideo)
 
 // Deletes a video
-
-// Sets a video thumbnail
+// router.delete('/:videoId', deleteVideo)
 
 export default router
