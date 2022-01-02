@@ -3,7 +3,7 @@ import app from './app'
 import db from './config/db'
 import { Server } from 'socket.io'
 
-const port = 4000
+const port = 5000
 const server = http.createServer(app)
 
 const io = new Server(server, {
