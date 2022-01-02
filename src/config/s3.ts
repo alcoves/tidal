@@ -53,4 +53,4 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
 }
 
 export default s3
-export const defaultBucket = 'cdn.bken.io'
+export const defaultBucket = process.env.DEFAULT_BUCKET as string

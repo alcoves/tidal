@@ -37,3 +37,31 @@ Everything becomes more complicated as the traditional single-node video process
 It's easy to see the benefits of a chunk-based approach. Netflix and Bitmovin have good reasons to pursue chunk-based or scene-based transcoding. Though, under the surface probably lies a heap of complexity that we don't see. For those who deal with processing heaps of video, it's incredible to see the process become _network_ limited as opposed to computing power limited. I found that stitching segments back together and packaging content for delivery took longer than transcoding each chunk (assuming an adequately sized infrastructure).
 
 I eventually gave up on the idea of an open-source chunk-based transcoder because of the ballooning complexity. Every link in the chain needed error handling, retries, rate limiting, health checking, etc... Maybe one day, but for now, bken.io needs a simple transcoder. It doesn't need to be _that_ fast.
+
+### 2022
+
+Field overlaps
+
+Tidal video record
+
+```
+id: uuid
+size
+title
+length
+status
+progress
+```
+
+Bken video record
+
+```
+id: Int
+externalId: Tidal uuid
+size
+title
+length
+status
+progress
+podId
+```

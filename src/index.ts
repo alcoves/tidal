@@ -1,6 +1,6 @@
 import http from 'http'
 import app from './app'
-import db from './config/db'
+import { db } from './config/db'
 import { Server } from 'socket.io'
 
 const port = 5000
