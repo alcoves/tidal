@@ -1,18 +1,15 @@
 import express from 'express'
+import { createVideo } from '../controllers/createVideo'
+import { reencodeVideo } from '../controllers/reencode'
 import { createMultipartUpload } from '../controllers/createMultipartUpload'
 import { completeMultipartUpload } from '../controllers/completeMultipartUpload'
-import { createVideo } from '../controllers/createVideo'
-import { uploadVideo } from '../controllers/uploadVideo'
 
 const router = express.Router()
 
 /**
  * Get Video
- * Update Video
- * Delete Video
  * Get Video Heatmap
  * Get Video Statistics
- * Reencode Video
  * List Videos
  * Set Thumbnail
  * Add Caption
@@ -22,14 +19,14 @@ const router = express.Router()
 // Creates a video entry
 router.post('/', createVideo)
 
-// Uploads a video via a direct PUT into object storage
-router.put('/:videoId/upload', uploadVideo)
-
 // Creates a multipart upload
 router.post('/:videoId/multipart-upload', createMultipartUpload)
 
 // Completes a multipart upload
 router.put('/:videoId/multipart-upload', completeMultipartUpload)
+
+// Reencodes the video
+router.post('/:videoId/reencode', reencodeVideo)
 
 // Updates a video
 // router.patch('/:videoId', patchVideo)

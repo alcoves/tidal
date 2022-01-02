@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import fs from 'fs-extra'
 
 AWS.config.update({
   region: 'us-east-2',
@@ -15,6 +16,8 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
   endpoint: process.env.SPACES_ENDPOINT,
 })
+
+export const defaultBucket = process.env.DEFAULT_BUCKET as string
 
 export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
   return s3.getSignedUrlPromise('getObject', {
@@ -52,5 +55,18 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
     .promise()
 }
 
+export async function uploadFolder(folderPath: string, uploadPath: string) {
+  const files = await fs.readdir(folderPath)
+
+  for (const file of files) {
+    await s3
+      .upload({
+        Bucket: defaultBucket,
+        Key: uploadPath,
+        Body: fs.createReadStream(`${folderPath}/${file}`),
+      })
+      .promise()
+  }
+}
+
 export default s3
-export const defaultBucket = process.env.DEFAULT_BUCKET as string

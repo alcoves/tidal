@@ -37,3 +37,18 @@ export function getMetadata(input: string): Promise<Metadata> {
     })
   })
 }
+
+export function parseFramerate(r_frame_rate: string): number {
+  let framerate: number
+
+  if (r_frame_rate.includes('/')) {
+    // Probably like 60/1 or something
+    const [frames, time] = r_frame_rate.split('/')
+    framerate = parseFloat(frames) / parseFloat(time)
+  } else {
+    // Probably like 23.976
+    framerate = parseFloat(r_frame_rate)
+  }
+
+  return framerate
+}

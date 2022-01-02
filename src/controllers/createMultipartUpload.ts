@@ -1,23 +1,17 @@
 import { db } from '../config/db'
-import mime from 'mime-types'
 import s3, { defaultBucket } from '../config/s3'
 
 export async function createMultipartUpload(req, res) {
   // TODO :: Validate input body
   const { type, size, chunks } = req.body
 
-  const video = await db.video.create({
-    data: {
-      type,
-      size,
-    },
-  })
+  const video = await db.video.create({ data: { size } })
 
   const { UploadId, Key } = await s3
     .createMultipartUpload({
       ContentType: type,
       Bucket: defaultBucket,
-      Key: `v/${video.id}/original.${mime.extension(type)}`,
+      Key: `v/${video.id}/original`,
     })
     .promise()
 

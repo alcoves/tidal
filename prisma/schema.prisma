@@ -15,8 +15,7 @@ model Video {
   progress          Float       @default(0)
   width             Int         @default(0)
   height            Int         @default(0)
-  type              String      @default("")
-  framerate         String      @default("")
+  framerate         Int         @default(0)
   collectionId      String      @default("")
   thumbnailFilename String      @default("")
   status            VideoStatus @default(CREATED)
@@ -27,11 +26,9 @@ model Video {
 }
 
 enum VideoStatus {
-  ERROR
   CREATED
   UPLOADED
-  COMPLETED
-  PROCESSING
   TRANSCODING
-  UPLOAD_FAILED
+  COMPLETED
+  ERROR
 }
