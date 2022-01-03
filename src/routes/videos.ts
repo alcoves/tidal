@@ -1,6 +1,6 @@
 import express from 'express'
+import { encodeVideo } from '../controllers/encode'
 import { createVideo } from '../controllers/createVideo'
-import { reencodeVideo } from '../controllers/reencode'
 import { createMultipartUpload } from '../controllers/createMultipartUpload'
 import { completeMultipartUpload } from '../controllers/completeMultipartUpload'
 
@@ -25,8 +25,8 @@ router.post('/:videoId/multipart-upload', createMultipartUpload)
 // Completes a multipart upload
 router.put('/:videoId/multipart-upload', completeMultipartUpload)
 
-// Reencodes the video
-router.post('/:videoId/reencode', reencodeVideo)
+// Encodes the video
+router.post('/:videoId/encode', encodeVideo)
 
 // Updates a video
 // router.patch('/:videoId', patchVideo)
