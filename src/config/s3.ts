@@ -2,9 +2,6 @@ import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 
 AWS.config.update({
-  region: 'us-east-2',
-  accessKeyId: process.env.SPACES_ACCESS_KEY_ID,
-  secretAccessKey: process.env.SPACES_SECRET_ACCESS_KEY,
   maxRetries: 8,
   httpOptions: {
     timeout: 5000,
@@ -14,7 +11,10 @@ AWS.config.update({
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
+  region: 'us-east-1',
   endpoint: process.env.SPACES_ENDPOINT,
+  accessKeyId: process.env.SPACES_ACCESS_KEY_ID,
+  secretAccessKey: process.env.SPACES_SECRET_ACCESS_KEY,
 })
 
 export const defaultBucket = process.env.DEFAULT_BUCKET as string
@@ -23,7 +23,7 @@ export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
   return s3.getSignedUrlPromise('getObject', {
     Key: urlParams.Key,
     Bucket: urlParams.Bucket,
-    Expires: 86400 * 7, // 7 days
+    Expires: 86400 * 1, // 1d
   })
 }
 

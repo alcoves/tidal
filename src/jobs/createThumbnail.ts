@@ -1,16 +1,17 @@
 import fs from 'fs-extra'
-import s3 from '../config/s3'
 import mime from 'mime-types'
-import { S3 } from 'aws-sdk'
 import ffmpeg from 'fluent-ffmpeg'
+import { Job } from 'bullmq'
+import s3, { getSignedURL } from '../config/s3'
 
-export async function createThumbnail(
-  inputUrl: string,
-  uploadParams: S3.PutObjectRequest
-): Promise<void> {
-  const thumbnailName = uploadParams.Key.split('/').pop() || 'thumbnail.jpg'
+export async function createThumbnail(job: Job): Promise<void> {
+  const thumbnailName = 'thumbnail.jpg'
   const tmpDir = await fs.mkdtemp('/tmp/bken-')
   const ffThumbOutPath = `${tmpDir}/${thumbnailName}`
+
+  const { input, output } = job.data
+  const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
+
   const thumbParams = [
     '-vf',
     'scale=854:480:force_original_aspect_ratio=increase,crop=854:480',
@@ -23,7 +24,7 @@ export async function createThumbnail(
   ]
 
   return new Promise((resolve, reject) => {
-    ffmpeg(inputUrl)
+    ffmpeg(signedUrl)
       .outputOptions(thumbParams)
       .output(ffThumbOutPath)
       .on('start', function (commandLine) {
@@ -35,9 +36,10 @@ export async function createThumbnail(
       })
       .on('end', function () {
         s3.upload({
-          ...uploadParams,
+          Bucket: output.bucket,
+          Key: 'samples/thumbnail.jpg',
+          ContentType: mime.lookup(thumbnailName),
           Body: fs.createReadStream(ffThumbOutPath),
-          ContentType: mime.lookup(thumbnailName) || '',
         })
           .promise()
           .then(() => {

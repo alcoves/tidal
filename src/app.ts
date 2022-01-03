@@ -1,8 +1,8 @@
 import cors from 'cors'
 import morgan from 'morgan'
 import express from 'express'
+import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
-import videoRoutes from './routes/videos'
 
 const app = express()
 
@@ -11,6 +11,6 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use(rootRoutes)
-app.use('/videos', videoRoutes)
+app.use('/jobs', jobRoutes)
 
 export default app

@@ -1,4 +1,6 @@
+import { Job } from 'bullmq'
 import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
+import { getSignedURL } from '../config/s3'
 
 export interface Metadata {
   audio: FfprobeStream
@@ -26,29 +28,23 @@ function transformFfprobeToMetadata(rawMeta: FfprobeData): Metadata {
   return metadata
 }
 
-export function getMetadata(input: string): Promise<Metadata> {
+export async function getMetadata(job: Job): Promise<Metadata> {
+  const { input } = job.data
+  const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
+
   return new Promise((resolve, reject) => {
-    ffprobe(input, function (err, rawMetadata) {
+    ffprobe(signedUrl, async function (err, rawMetadata) {
       if (err) return reject(err)
       if (!rawMetadata?.streams?.length) {
         return reject(new Error('Metadata did not contain any streams'))
       }
+      await job.update({
+        data: {
+          ...job.data,
+          metadata: transformFfprobeToMetadata(rawMetadata),
+        },
+      })
       return resolve(transformFfprobeToMetadata(rawMetadata))
     })
   })
-}
-
-export function parseFramerate(r_frame_rate: string): number {
-  let framerate: number
-
-  if (r_frame_rate.includes('/')) {
-    // Probably like 60/1 or something
-    const [frames, time] = r_frame_rate.split('/')
-    framerate = parseFloat(frames) / parseFloat(time)
-  } else {
-    // Probably like 23.976
-    framerate = parseFloat(r_frame_rate)
-  }
-
-  return framerate
 }
