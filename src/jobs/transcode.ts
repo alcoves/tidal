@@ -1,27 +1,27 @@
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-
-interface Progress {
-  frames: number
-  percent: number
-  timemark: string
-  currentFps: number
-  targetSize: number
-  currentKbps: number
-}
+import s3, { getSignedURL } from '../config/s3'
+import { Progress, TranscodeJobData } from '../types'
 
 export async function transcode(job: Job) {
-  console.log('Running Job', job.data)
-  const { input, output, ffmpeg_command } = job.data
+  const { input, output }: TranscodeJobData = job.data
+
+  const filename = 'optimized.mp4'
+  const tmpDir = await fs.mkdtemp('/tmp/bken-')
+  const ffOutputPath = `${tmpDir}/${filename}`
+
+  const ffmpegCommands = ['-c:v', 'libx264', '-crf', '24']
 
   try {
+    const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
+
     return new Promise((resolve, reject) => {
-      ffmpeg(input)
-        .outputOptions(ffmpeg_command.split(' '))
-        .output(output)
+      ffmpeg(signedUrl)
+        .outputOptions(ffmpegCommands)
+        .output(ffOutputPath)
         .on('start', function (commandLine) {
-          console.log('Spawned Ffmpeg with command: ' + commandLine)
+          console.log('Spawned ffmpeg with command: ' + commandLine)
         })
         .on('progress', async function (progress: Progress) {
           if (progress.percent >= 0) {
@@ -34,22 +34,23 @@ export async function transcode(job: Job) {
         })
         .on('end', function () {
           console.log('Done')
-          // s3.upload({
-          //   ...uploadParams,
-          //   ContentType: 'video/h264',
-          //   Body: fs.createReadStream(tmpFilePath),
-          // })
-          //   .promise()
-          //   .then(() => {
-          //     fs.removeSync(tmpDir)
-          //     resolve()
-          //   })
-          //   .catch(() => {
-          //     fs.removeSync(tmpDir)
-          //     console.error('Failed to upload')
-          //     reject()
-          //   })
-          resolve('done')
+          s3.upload({
+            Key: output.key,
+            Bucket: output.bucket,
+            ContentType: 'video/h264',
+            Body: fs.createReadStream(ffOutputPath),
+          })
+            .promise()
+            .then(async () => {
+              fs.removeSync(tmpDir)
+              await job.updateProgress(100)
+              resolve('done')
+            })
+            .catch(() => {
+              fs.removeSync(tmpDir)
+              console.error('Failed to upload')
+              reject()
+            })
         })
         .run()
     })

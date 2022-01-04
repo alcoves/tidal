@@ -1,6 +1,6 @@
 import { Job } from 'bullmq'
-import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 import { getSignedURL } from '../config/s3'
+import { ffprobe, FfprobeData, FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 
 export interface Metadata {
   audio: FfprobeStream
@@ -38,12 +38,6 @@ export async function getMetadata(job: Job): Promise<Metadata> {
       if (!rawMetadata?.streams?.length) {
         return reject(new Error('Metadata did not contain any streams'))
       }
-      await job.update({
-        data: {
-          ...job.data,
-          metadata: transformFfprobeToMetadata(rawMetadata),
-        },
-      })
       return resolve(transformFfprobeToMetadata(rawMetadata))
     })
   })

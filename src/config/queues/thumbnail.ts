@@ -1,5 +1,6 @@
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { createThumbnail } from '../../jobs/createThumbnail'
+import { enqueueWebhook, webhookQueue } from './webhook'
 
 function queueSwitch(job: Job) {
   switch (job.name) {
@@ -35,14 +36,15 @@ export const thumbnailWorker = new Worker(thumbnailQueue.name, async job => queu
   },
 })
 
-thumbnailWorker.on('completed', job => {
-  console.log(`${job.id} has completed!`)
+thumbnailWorker.on('completed', async job => {
+  console.log(`${job.queueName} :: ${job.id} has completed!`)
+  enqueueWebhook(job)
 })
 
 thumbnailWorker.on('failed', (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
+  console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
 })
 
 thumbnailWorker.on('progress', job => {
-  console.log(`${job.id} has progress of ${job.progress}`)
+  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
 })

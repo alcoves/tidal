@@ -1,10 +1,11 @@
 import Joi from 'joi'
-import { transcodeQueue } from '../config/queues/transcode'
+import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
-import { metadataQueue, metadataWorker } from '../config/queues/metadata'
+import { transcodeQueue } from '../config/queues/transcode'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
+    entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
       key: Joi.string().required().max(255),
@@ -29,6 +30,7 @@ export async function transcodeController(req, res) {
 
 export async function metadataController(req, res) {
   const schema = Joi.object({
+    entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
       key: Joi.string().required().max(255),
@@ -43,21 +45,13 @@ export async function metadataController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  const { id } = await metadataQueue.add('metadata', value)
-  metadataWorker.on('completed', function (job) {
-    if (job.id === id) {
-      return res.json(job.data)
-    }
-  })
-  metadataWorker.on('failed', function (job, err) {
-    if (job.id === id) {
-      return res.status(500).send(err)
-    }
-  })
+  await metadataQueue.add('metadata', value)
+  return res.sendStatus(202)
 }
 
 export async function thumbnailController(req, res) {
   const schema = Joi.object({
+    entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
       key: Joi.string().required().max(255),

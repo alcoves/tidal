@@ -1,5 +1,7 @@
-import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
+import { enqueueWebhook, webhookQueue } from './webhook'
 import { getMetadata } from '../../jobs/getMetadata'
+import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
+import { TidalWebhookBody } from '../../types'
 
 function queueSwitch(job: Job) {
   switch (job.name) {
@@ -35,14 +37,15 @@ export const metadataWorker = new Worker(metadataQueue.name, async job => queueS
   },
 })
 
-metadataWorker.on('completed', job => {
-  console.log(`${job.id} has completed!`)
+metadataWorker.on('completed', async job => {
+  console.log(`${job.queueName} :: ${job.id} has completed!`)
+  enqueueWebhook(job)
 })
 
 metadataWorker.on('failed', (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
+  console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
 })
 
 metadataWorker.on('progress', job => {
-  console.log(`${job.id} has progress of ${job.progress}`)
+  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
 })

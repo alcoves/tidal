@@ -1,5 +1,6 @@
 import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
+import { enqueueWebhook, webhookQueue } from './webhook'
 
 function queueSwitch(job: Job) {
   switch (job.name) {
@@ -35,14 +36,17 @@ export const transcodeWorker = new Worker(transcodeQueue.name, async job => queu
   },
 })
 
-transcodeWorker.on('completed', job => {
-  console.log(`${job.id} has completed!`)
+transcodeWorker.on('completed', async job => {
+  console.log(`${job.queueName} :: ${job.id} has completed!`)
+  enqueueWebhook(job)
 })
 
-transcodeWorker.on('failed', (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
+transcodeWorker.on('failed', async (job, err) => {
+  console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
+  enqueueWebhook(job)
 })
 
-transcodeWorker.on('progress', job => {
-  console.log(`${job.id} has progress of ${job.progress}`)
+transcodeWorker.on('progress', async job => {
+  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
+  enqueueWebhook(job)
 })

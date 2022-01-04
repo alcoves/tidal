@@ -3,16 +3,17 @@ import mime from 'mime-types'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import s3, { getSignedURL } from '../config/s3'
+import { Progress, ThumbnailJobData } from '../types'
+import path from 'path'
 
-export async function createThumbnail(job: Job): Promise<void> {
-  const thumbnailName = 'thumbnail.jpg'
+export async function createThumbnail(job: Job): Promise<any> {
+  const { input, output }: ThumbnailJobData = job.data
+
+  const filename = path.basename(output.key)
   const tmpDir = await fs.mkdtemp('/tmp/bken-')
-  const ffThumbOutPath = `${tmpDir}/${thumbnailName}`
+  const ffOutputPath = `${tmpDir}/${filename}`
 
-  const { input, output } = job.data
-  const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
-
-  const thumbParams = [
+  const ffmpegCommands = [
     '-vf',
     'scale=854:480:force_original_aspect_ratio=increase,crop=854:480',
     '-vframes',
@@ -23,35 +24,47 @@ export async function createThumbnail(job: Job): Promise<void> {
     'image2',
   ]
 
-  return new Promise((resolve, reject) => {
-    ffmpeg(signedUrl)
-      .outputOptions(thumbParams)
-      .output(ffThumbOutPath)
-      .on('start', function (commandLine) {
-        console.log('Spawned Ffmpeg with command: ' + commandLine)
-      })
-      .on('error', function (err) {
-        console.log('An error occurred: ' + err.message)
-        reject(err.message)
-      })
-      .on('end', function () {
-        s3.upload({
-          Bucket: output.bucket,
-          Key: 'samples/thumbnail.jpg',
-          ContentType: mime.lookup(thumbnailName),
-          Body: fs.createReadStream(ffThumbOutPath),
+  try {
+    const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
+
+    return new Promise((resolve, reject) => {
+      ffmpeg(signedUrl)
+        .outputOptions(ffmpegCommands)
+        .output(ffOutputPath)
+        .on('start', function (commandLine) {
+          console.log('Spawned ffmpeg with command: ' + commandLine)
         })
-          .promise()
-          .then(() => {
-            fs.removeSync(tmpDir)
-            resolve()
+        .on('progress', async function (progress: Progress) {
+          if (progress.percent >= 0) {
+            await job.updateProgress(progress.percent)
+          }
+        })
+        .on('error', function (err) {
+          console.log('An error occurred: ' + err.message)
+          reject(err.message)
+        })
+        .on('end', function () {
+          s3.upload({
+            Key: output.key,
+            Bucket: output.bucket,
+            ContentType: mime.lookup(filename),
+            Body: fs.createReadStream(ffOutputPath),
           })
-          .catch(() => {
-            fs.removeSync(tmpDir)
-            console.error('Failed to upload thumbnail')
-            reject()
-          })
-      })
-      .run()
-  })
+            .promise()
+            .then(() => {
+              fs.removeSync(tmpDir)
+              resolve({ thumbnailFilename: filename })
+            })
+            .catch(() => {
+              fs.removeSync(tmpDir)
+              console.error('Failed to upload thumbnail')
+              reject()
+            })
+        })
+        .run()
+    })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
