@@ -1,5 +1,6 @@
 import os from 'os'
 import { enqueueWebhook } from './webhook'
+import { hlsFlowProducer } from '../flows/hls'
 import { packageHls } from '../../jobs/package'
 import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
@@ -55,6 +56,27 @@ transcodeWorker.on('failed', async (job, err) => {
 })
 
 transcodeWorker.on('progress', async job => {
-  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
-  if (job.name !== 'transcode') await enqueueWebhook(job)
+  if (job.name === 'transcode') {
+    if (job.data.parentId) {
+      const tree = await hlsFlowProducer.getFlow({
+        id: job.data.parentId,
+        queueName: 'transcode',
+      })
+
+      if (tree.children) {
+        const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
+          acc += job.progress
+          return acc
+        }, 0)
+        const percentageDone = sumPercentageCompleted / tree.children.length - 5
+        if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
+        // Bullmq parent flow jobs don't start triggering progress updated util the job is running
+        // So we have to enqueue the webhook data manually here
+        await enqueueWebhook(tree.job)
+      }
+    }
+  } else {
+    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
+    await enqueueWebhook(job)
+  }
 })

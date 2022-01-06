@@ -63,7 +63,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
     '-c:v',
     'libx264',
     '-preset',
-    'medium',
+    'veryfast',
     '-force_key_frames',
     'expr:gte(t,n_forced*2)',
   ]
@@ -77,7 +77,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '600k',
         '-bufsize',
@@ -89,7 +89,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '800k',
         '-bufsize',
@@ -101,7 +101,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '1400k',
         '-bufsize',
@@ -113,7 +113,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '2800k',
         '-bufsize',
@@ -125,7 +125,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '5000k',
         '-bufsize',
@@ -137,7 +137,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '8000k',
         '-bufsize',
@@ -149,7 +149,7 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
       return [
         ...defaults,
         '-crf',
-        '23',
+        '26',
         '-maxrate',
         '25000k',
         '-bufsize',
