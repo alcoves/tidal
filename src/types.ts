@@ -1,3 +1,5 @@
+import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
+
 export interface Progress {
   frames: number
   percent: number
@@ -7,19 +9,34 @@ export interface Progress {
   currentKbps: number
 }
 
-export interface S3Parameters {
+export interface Metadata {
+  audio: FfprobeStream
+  video: FfprobeStream
+  format: FfprobeFormat
+}
+
+export interface S3KeyParameters {
   key: string
   bucket: string
 }
 
+export interface S3PathParameters {
+  path: string
+  bucket: string
+}
+
 export interface TranscodeJobData {
-  input: S3Parameters
-  output: S3Parameters
+  input: string
+  output: string
 }
 
 export interface ThumbnailJobData {
-  input: S3Parameters
-  output: S3Parameters
+  input: S3KeyParameters
+  output: S3KeyParameters
+}
+
+export interface MetadataJobData {
+  input: S3KeyParameters
 }
 
 export interface TidalWebhookBody {
@@ -30,4 +47,11 @@ export interface TidalWebhookBody {
   name: string | undefined
   progress: number | object
   queueName: string | undefined
+}
+
+export interface PackageJobData {
+  tmpDir: string
+  entityId: string
+  input: S3KeyParameters
+  output: S3PathParameters
 }

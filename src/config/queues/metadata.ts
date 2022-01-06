@@ -1,12 +1,11 @@
 import { enqueueWebhook, webhookQueue } from './webhook'
-import { getMetadata } from '../../jobs/getMetadata'
+import { getMetadataJob } from '../../jobs/getMetadata'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { TidalWebhookBody } from '../../types'
 
 function queueSwitch(job: Job) {
   switch (job.name) {
     case 'metadata':
-      return getMetadata(job)
+      return getMetadataJob(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }

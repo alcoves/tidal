@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
+import mime from 'mime-types'
 
 AWS.config.update({
   maxRetries: 8,
@@ -55,18 +56,36 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
     .promise()
 }
 
-export async function uploadFolder(folderPath: string, uploadPath: string) {
-  const files = await fs.readdir(folderPath)
+import * as path from 'path'
 
-  for (const file of files) {
-    await s3
+export async function uploadDir(localPath: string, remotePath: string) {
+  // Recursive getFiles from
+  // https://stackoverflow.com/a/45130990/831465
+  async function getFiles(dir: string): Promise<string | string[]> {
+    const dirents = await fs.readdir(dir, { withFileTypes: true })
+    const files = await Promise.all(
+      dirents.map(dirent => {
+        const res = path.resolve(dir, dirent.name)
+        return dirent.isDirectory() ? getFiles(res) : res
+      })
+    )
+    return Array.prototype.concat(...files)
+  }
+
+  const files = (await getFiles(localPath)) as string[]
+  const uploads = files.map(filePath => {
+    const uploadKey = `${remotePath}/${path.relative(localPath, filePath)}`
+    console.log(`Uploading ${filePath} to ${uploadKey}`)
+    return s3
       .upload({
+        Key: uploadKey,
         Bucket: defaultBucket,
-        Key: uploadPath,
-        Body: fs.createReadStream(`${folderPath}/${file}`),
+        ContentType: mime.lookup(filePath),
+        Body: fs.createReadStream(filePath),
       })
       .promise()
-  }
+  })
+  return Promise.all(uploads)
 }
 
 export default s3

@@ -1,25 +1,22 @@
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-import s3, { getSignedURL } from '../config/s3'
 import { Progress, TranscodeJobData } from '../types'
+import { generateFfmpegCommand, shouldProcess } from '../utils/video'
 
 export async function transcode(job: Job) {
   const { input, output }: TranscodeJobData = job.data
 
-  const filename = 'optimized.mp4'
-  const tmpDir = await fs.mkdtemp('/tmp/bken-')
-  const ffOutputPath = `${tmpDir}/${filename}`
+  if (await !shouldProcess(input, job.data.resolution)) return 'skipped resolution'
 
-  const ffmpegCommands = ['-c:v', 'libx264', '-crf', '24']
+  // TODO :: Determine If resolution should be encoded
+  const ffmpegCommands = generateFfmpegCommand(job.data.resolution)
 
   try {
-    const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
-
     return new Promise((resolve, reject) => {
-      ffmpeg(signedUrl)
+      ffmpeg(input)
         .outputOptions(ffmpegCommands)
-        .output(ffOutputPath)
+        .output(output)
         .on('start', function (commandLine) {
           console.log('Spawned ffmpeg with command: ' + commandLine)
         })
@@ -34,23 +31,7 @@ export async function transcode(job: Job) {
         })
         .on('end', function () {
           console.log('Done')
-          s3.upload({
-            Key: output.key,
-            Bucket: output.bucket,
-            ContentType: 'video/h264',
-            Body: fs.createReadStream(ffOutputPath),
-          })
-            .promise()
-            .then(async () => {
-              fs.removeSync(tmpDir)
-              await job.updateProgress(100)
-              resolve('done')
-            })
-            .catch(() => {
-              fs.removeSync(tmpDir)
-              console.error('Failed to upload')
-              reject()
-            })
+          resolve('done')
         })
         .run()
     })

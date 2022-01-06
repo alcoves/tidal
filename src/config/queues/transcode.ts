@@ -1,9 +1,16 @@
+import os from 'os'
+import { enqueueWebhook } from './webhook'
+import { packageHls } from '../../jobs/package'
 import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { enqueueWebhook, webhookQueue } from './webhook'
+
+const CPU_COUNT = os.cpus().length
+const concurrency = Math.round(CPU_COUNT / 4)
 
 function queueSwitch(job: Job) {
   switch (job.name) {
+    case 'package-hls':
+      return packageHls(job)
     case 'transcode':
       return transcode(job)
     default:
@@ -26,6 +33,7 @@ export const transcodeQueueScheduler = new QueueScheduler(transcodeQueue.name, {
 })
 
 export const transcodeWorker = new Worker(transcodeQueue.name, async job => queueSwitch(job), {
+  concurrency,
   limiter: {
     max: 1,
     duration: 1000,
@@ -38,15 +46,15 @@ export const transcodeWorker = new Worker(transcodeQueue.name, async job => queu
 
 transcodeWorker.on('completed', async job => {
   console.log(`${job.queueName} :: ${job.id} has completed!`)
-  enqueueWebhook(job)
+  if (job.name !== 'transcode') await enqueueWebhook(job)
 })
 
 transcodeWorker.on('failed', async (job, err) => {
   console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-  enqueueWebhook(job)
+  if (job.name !== 'transcode') await enqueueWebhook(job)
 })
 
 transcodeWorker.on('progress', async job => {
   console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
-  enqueueWebhook(job)
+  if (job.name !== 'transcode') await enqueueWebhook(job)
 })
