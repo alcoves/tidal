@@ -1,4 +1,3 @@
-import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { Progress, TranscodeJobData } from '../types'
@@ -7,9 +6,11 @@ import { generateFfmpegCommand, shouldProcess } from '../utils/video'
 export async function transcode(job: Job) {
   const { input, output }: TranscodeJobData = job.data
 
-  if (await !shouldProcess(input, job.data.resolution)) return 'skipped resolution'
+  // Make 240p process regardless of weather the video is big enough
+  if (job.data.resolution !== '240p') {
+    if (await !shouldProcess(input, job.data.resolution)) return 'skipped resolution'
+  }
 
-  // TODO :: Determine If resolution should be encoded
   const ffmpegCommands = generateFfmpegCommand(job.data.resolution)
 
   try {
