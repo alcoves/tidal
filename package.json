@@ -13,7 +13,7 @@
     "start": "node ./dist/src/index.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1052.0",
+    "aws-sdk": "^2.1053.0",
     "axios": "^0.24.0",
     "bullmq": "^1.64.0",
     "cors": "^2.8.5",
