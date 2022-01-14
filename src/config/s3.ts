@@ -13,9 +13,9 @@ AWS.config.update({
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
   region: 'us-east-1',
-  endpoint: process.env.SPACES_ENDPOINT,
-  accessKeyId: process.env.SPACES_ACCESS_KEY_ID,
-  secretAccessKey: process.env.SPACES_SECRET_ACCESS_KEY,
+  endpoint: process.env.S3_ENDPOINT,
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
 })
 
 export const defaultBucket = process.env.DEFAULT_BUCKET as string
