@@ -1,16 +1,14 @@
 name: Deploy
-env:
-  DO_API_KEY: ${{ secrets.DO_API_KEY }}
-  NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
-  NOMAD_ADDRESS: ${{ secrets.NOMAD_ADDRESS }}
 on:
   push:
     branches:
-      - main
+      - dev
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      DO_API_KEY: ${{ secrets.DO_API_KEY }}
     steps:
       - uses: actions/checkout@v2
       - name: Install doctl
@@ -21,24 +19,21 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: docker build
-          --build-arg NEXT_PUBLIC_GIT_SHA=$GITHUB_SHA
-          -t registry.digitalocean.com/bken/tidal:latest
-          -t registry.digitalocean.com/bken/tidal:$GITHUB_SHA .
+          -t registry.digitalocean.com/bken/reef:latest
+          -t registry.digitalocean.com/bken/reef:$GITHUB_SHA .
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
       - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/bken/tidal --all-tags
-      - name: Deploy job
+        run: docker push registry.digitalocean.com/bken/reef --all-tags
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
         with:
           key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          host: ${{ secrets.NOMAD_ADDRESS }}
-          envs: GITHUB_SHA,NOMAD_TOKEN
           script: |
-            cd /root/tidal && git fetch -p && git reset --hard ${GITHUB_SHA}
-            sed -i "s+:latest+:${GITHUB_SHA}+g" ./jobs/api.hcl
-            nomad job run -token ${NOMAD_TOKEN} ./jobs/api.hcl
+            doctl registry login --expiry-seconds 600
+            docker pull registry.digitalocean.com/bken/tidal:latest
+            docker stop tidal
+            docker rm tidal
+            docker run -d --name tidal -p 80:5000 registry.digitalocean.com/bken/tidal:latest
