@@ -13,15 +13,15 @@ function queueSwitch(job: Job) {
 
 export const thumbnailQueue = new Queue('thumbnail', {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
 export const thumbnailQueueScheduler = new QueueScheduler(thumbnailQueue.name, {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
@@ -31,8 +31,8 @@ export const thumbnailWorker = new Worker(thumbnailQueue.name, async job => queu
     duration: 1000,
   },
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 

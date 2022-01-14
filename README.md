@@ -1,5 +1,9 @@
 # Tidal Overview
 
+### Running Locally
+
+. ./.env && docker-compose up
+
 ### ENV
 
 ```sh

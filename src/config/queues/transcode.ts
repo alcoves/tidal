@@ -21,15 +21,15 @@ function queueSwitch(job: Job) {
 
 export const transcodeQueue = new Queue('transcode', {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
 export const transcodeQueueScheduler = new QueueScheduler(transcodeQueue.name, {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
@@ -40,8 +40,8 @@ export const transcodeWorker = new Worker(transcodeQueue.name, async job => queu
     duration: 1000,
   },
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 

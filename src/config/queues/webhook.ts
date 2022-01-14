@@ -26,15 +26,15 @@ export async function enqueueWebhook(job: Job) {
 
 export const webhookQueue = new Queue('webhook', {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
 export const webhookQueueScheduler = new QueueScheduler(webhookQueue.name, {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
@@ -45,8 +45,8 @@ export const webhookWorker = new Worker(webhookQueue.name, async job => queueSwi
     duration: 1000,
   },
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 

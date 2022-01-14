@@ -13,15 +13,15 @@ function queueSwitch(job: Job) {
 
 export const metadataQueue = new Queue('metadata', {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
 export const metadataQueueScheduler = new QueueScheduler(metadataQueue.name, {
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
@@ -31,8 +31,8 @@ export const metadataWorker = new Worker(metadataQueue.name, async job => queueS
     duration: 1000,
   },
   connection: {
-    port: 6379,
-    host: 'localhost',
+    port: process.env.REDIS_PORT,
+    host: process.env.REDIS_HOST,
   },
 })
 
