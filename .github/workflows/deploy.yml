@@ -19,12 +19,12 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: docker build
-          -t registry.digitalocean.com/bken/reef:latest
-          -t registry.digitalocean.com/bken/reef:$GITHUB_SHA .
+          -t registry.digitalocean.com/bken/tidal:latest
+          -t registry.digitalocean.com/bken/tidal:$GITHUB_SHA .
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
       - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/bken/reef --all-tags
+        run: docker push registry.digitalocean.com/bken/tidal --all-tags
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -36,4 +36,4 @@ jobs:
             docker pull registry.digitalocean.com/bken/tidal:latest
             docker stop tidal
             docker rm tidal
-            docker run -d --name tidal -p 80:5000 registry.digitalocean.com/bken/tidal:latest
+            docker run -d --name tidal -p 80:5000 -v tidal.env:.env registry.digitalocean.com/bken/tidal:latest
