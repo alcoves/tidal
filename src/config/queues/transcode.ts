@@ -6,7 +6,7 @@ import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 
 const CPU_COUNT = os.cpus().length
-const concurrency = Math.round(CPU_COUNT / 4)
+const concurrency = Math.ceil(CPU_COUNT / 4)
 
 function queueSwitch(job: Job) {
   switch (job.name) {
