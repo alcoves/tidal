@@ -15,6 +15,7 @@ export const thumbnailQueue = new Queue('thumbnail', {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -22,6 +23,7 @@ export const thumbnailQueueScheduler = new QueueScheduler(thumbnailQueue.name, {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -33,6 +35,7 @@ export const thumbnailWorker = new Worker(thumbnailQueue.name, async job => queu
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 

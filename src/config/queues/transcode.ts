@@ -23,6 +23,7 @@ export const transcodeQueue = new Queue('transcode', {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -30,6 +31,7 @@ export const transcodeQueueScheduler = new QueueScheduler(transcodeQueue.name, {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -42,6 +44,7 @@ export const transcodeWorker = new Worker(transcodeQueue.name, async job => queu
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 

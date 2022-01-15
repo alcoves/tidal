@@ -28,6 +28,7 @@ export const webhookQueue = new Queue('webhook', {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -35,6 +36,7 @@ export const webhookQueueScheduler = new QueueScheduler(webhookQueue.name, {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -47,6 +49,7 @@ export const webhookWorker = new Worker(webhookQueue.name, async job => queueSwi
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 

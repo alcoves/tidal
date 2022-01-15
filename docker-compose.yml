@@ -1,7 +1,7 @@
 services:
   redis:
     image: redis:latest
-    # environment:
-    #   - REDIS_PASSWORD=${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=test
     ports:
       - 6379:6379

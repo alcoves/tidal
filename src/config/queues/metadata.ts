@@ -15,6 +15,7 @@ export const metadataQueue = new Queue('metadata', {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -22,6 +23,7 @@ export const metadataQueueScheduler = new QueueScheduler(metadataQueue.name, {
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
@@ -33,6 +35,7 @@ export const metadataWorker = new Worker(metadataQueue.name, async job => queueS
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
   },
 })
 
