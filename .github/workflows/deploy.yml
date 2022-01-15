@@ -36,4 +36,4 @@ jobs:
             docker pull registry.digitalocean.com/bken/tidal:latest
             docker stop tidal
             docker rm tidal
-            docker run -d --name tidal -p 80:5000 -v /root/tidal.env:/app/.env registry.digitalocean.com/bken/tidal:latest
+            docker run -d --name tidal -p 80:5000 --env-file ./tidal.env registry.digitalocean.com/bken/tidal:latest
