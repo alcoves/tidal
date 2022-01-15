@@ -14,7 +14,8 @@ export async function packageHls(job: Job) {
 
   await job.updateProgress(95)
   const { stdout, stderr } = await execProm(
-    `mp4hls ${tmpDir}/*.mp4 -o ${tmpDir}/hls -f --segment-duration 4`
+    `mp4hls ${tmpDir}/*.mp4 -o ${tmpDir}/hls -f --segment-duration 4`,
+    { shell: '/bin/bash' }
   )
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
