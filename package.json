@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "main": "src/index.js",
   "repository": "git@github.com:bkenio/tidal.git",
-  "author": "Brendan Kennedy <brenwken@gmail.com>",
-  "license": "MPL-2.0",
+  "author": "Brendan Kennedy <brendan@bken.io>",
+  "license": "UNLICENSED",
   "private": false,
   "scripts": {
     "build": "tsc",
