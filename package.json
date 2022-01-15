@@ -10,7 +10,7 @@
     "build": "tsc",
     "test": "jest",
     "dev": "nodemon",
-    "start": "node ./dist/src/index.js"
+    "start": "node ./dist/index.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1053.0",
