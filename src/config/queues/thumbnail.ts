@@ -27,27 +27,29 @@ export const thumbnailQueueScheduler = new QueueScheduler(thumbnailQueue.name, {
   },
 })
 
-export const thumbnailWorker = new Worker(thumbnailQueue.name, async job => queueSwitch(job), {
-  limiter: {
-    max: 1,
-    duration: 1000,
-  },
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
-})
+if (!process.env.DISABLE_JOBS) {
+  const thumbnailWorker = new Worker(thumbnailQueue.name, async job => queueSwitch(job), {
+    limiter: {
+      max: 1,
+      duration: 1000,
+    },
+    connection: {
+      port: process.env.REDIS_PORT,
+      host: process.env.REDIS_HOST,
+      password: process.env.REDIS_PASSWORD,
+    },
+  })
 
-thumbnailWorker.on('completed', async job => {
-  console.log(`${job.queueName} :: ${job.id} has completed!`)
-  enqueueWebhook(job)
-})
+  thumbnailWorker.on('completed', async job => {
+    console.log(`${job.queueName} :: ${job.id} has completed!`)
+    enqueueWebhook(job)
+  })
 
-thumbnailWorker.on('failed', (job, err) => {
-  console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-})
+  thumbnailWorker.on('failed', (job, err) => {
+    console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
+  })
 
-thumbnailWorker.on('progress', job => {
-  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
-})
+  thumbnailWorker.on('progress', job => {
+    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
+  })
+}
