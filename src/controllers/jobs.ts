@@ -5,6 +5,7 @@ import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { transcodeQueue } from '../config/queues/transcode'
+import { FlowJob } from 'bullmq'
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
@@ -32,7 +33,7 @@ export async function transcodeHlsController(req, res) {
   function childJobs(parentJobId: string): any[] {
     const resolutions = ['240p', '360p', '480p', '720p', '1080p'] //  '1440p', '2160p'
     return resolutions.map((r: string) => {
-      return {
+      const job: FlowJob = {
         name: 'transcode',
         queueName: 'transcode',
         data: {
@@ -42,6 +43,7 @@ export async function transcodeHlsController(req, res) {
           entityId: value.entityId,
         },
       }
+      return job
     })
   }
 
@@ -51,8 +53,8 @@ export async function transcodeHlsController(req, res) {
     name: 'package-hls',
     queueName: 'transcode',
     data: { ...value },
-    opts: { jobId: parentJobId },
     children: childJobs(parentJobId),
+    opts: { jobId: parentJobId, priority: 1 },
   })
 
   return res.sendStatus(202)
