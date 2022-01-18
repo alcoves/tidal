@@ -1,5 +1,4 @@
 import Joi from 'joi'
-import fs from 'fs-extra'
 import { v4 as uuidv4 } from 'uuid'
 import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
@@ -28,7 +27,6 @@ export async function transcodeHlsController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  const tmpDir = await fs.mkdtemp('/tmp/bken-')
   const signedUrl = await getSignedURL({ Bucket: value.input.bucket, Key: value.input.key })
 
   function childJobs(parentJobId: string): any[] {
@@ -42,7 +40,6 @@ export async function transcodeHlsController(req, res) {
           input: signedUrl,
           parentId: parentJobId,
           entityId: value.entityId,
-          output: `${tmpDir}/${r}.mp4`,
         },
       }
     })
@@ -53,7 +50,7 @@ export async function transcodeHlsController(req, res) {
   await hlsFlowProducer.add({
     name: 'package-hls',
     queueName: 'transcode',
-    data: { ...value, tmpDir },
+    data: { ...value },
     opts: { jobId: parentJobId },
     children: childJobs(parentJobId),
   })

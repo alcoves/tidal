@@ -66,6 +66,17 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
     'veryfast',
     '-force_key_frames',
     'expr:gte(t,n_forced*2)',
+    // HLS Defaults
+    '-hls_flags',
+    'independent_segments',
+    '-hls_segment_type',
+    'mpegts',
+    '-hls_playlist_type',
+    'vod',
+    '-hls_time',
+    '4',
+    '-master_pl_name',
+    'rendition.m3u8',
   ]
 
   function scaleFilter(w: number) {
