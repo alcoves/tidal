@@ -1,11 +1,12 @@
 import Joi from 'joi'
+import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { transcodeQueue } from '../config/queues/transcode'
-import { FlowJob } from 'bullmq'
+import { createMainManifest } from '../jobs/package'
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
@@ -129,4 +130,25 @@ export async function thumbnailController(req, res) {
 
   await thumbnailQueue.add('thumbnail', value)
   return res.sendStatus(202)
+}
+
+export async function createManifest(req, res) {
+  const schema = Joi.object({
+    entityId: Joi.string().required().max(50),
+    output: Joi.object({
+      bucket: Joi.string().required().max(255),
+      path: Joi.string().required().max(255),
+    }),
+  })
+
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
+
+  if (error) return res.status(400).json(error)
+
+  await createMainManifest(value.output.bucket, value.output.path, value.entityId)
+  return res.sendStatus(200)
 }
