@@ -25,6 +25,13 @@ export const transcodeQueue = new Queue('transcode', {
     host: process.env.REDIS_HOST,
     password: process.env.REDIS_PASSWORD,
   },
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: {
+      delay: 1000,
+      type: 'exponential',
+    },
+  },
 })
 
 export const transcodeQueueScheduler = new QueueScheduler(transcodeQueue.name, {

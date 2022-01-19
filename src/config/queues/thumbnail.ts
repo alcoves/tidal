@@ -17,6 +17,13 @@ export const thumbnailQueue = new Queue('thumbnail', {
     host: process.env.REDIS_HOST,
     password: process.env.REDIS_PASSWORD,
   },
+  defaultJobOptions: {
+    attempts: 4,
+    backoff: {
+      delay: 1000,
+      type: 'exponential',
+    },
+  },
 })
 
 export const thumbnailQueueScheduler = new QueueScheduler(thumbnailQueue.name, {

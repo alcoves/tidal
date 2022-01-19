@@ -30,6 +30,13 @@ export const webhookQueue = new Queue('webhook', {
     host: process.env.REDIS_HOST,
     password: process.env.REDIS_PASSWORD,
   },
+  defaultJobOptions: {
+    attempts: 5,
+    backoff: {
+      delay: 1000,
+      type: 'exponential',
+    },
+  },
 })
 
 export const webhookQueueScheduler = new QueueScheduler(webhookQueue.name, {

@@ -17,6 +17,13 @@ export const metadataQueue = new Queue('metadata', {
     host: process.env.REDIS_HOST,
     password: process.env.REDIS_PASSWORD,
   },
+  defaultJobOptions: {
+    attempts: 4,
+    backoff: {
+      delay: 1000,
+      type: 'exponential',
+    },
+  },
 })
 
 export const metadataQueueScheduler = new QueueScheduler(metadataQueue.name, {
