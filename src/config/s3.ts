@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
@@ -58,6 +59,32 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
 
 import * as path from 'path'
 
+export async function uploadFolder(localPath: string, remotePath: string) {
+  const BATCH_SIZE = 50
+
+  const files = await fs.readdir(localPath)
+  const batches = _.chunk(files, BATCH_SIZE)
+
+  for (const batch of batches) {
+    console.log(`Uploading ${batch.length} files`)
+    await Promise.all(
+      batch.map(filePath => {
+        const uploadKey = `${remotePath}/${path.relative(localPath, filePath)}`
+        console.log(`Uploading ${filePath} to ${uploadKey}`)
+        return s3
+          .upload({
+            Key: uploadKey,
+            Bucket: defaultBucket,
+            ContentType: mime.lookup(filePath),
+            Body: fs.createReadStream(filePath),
+          })
+          .promise()
+      })
+    )
+  }
+}
+
+// Kills the nodejs process when uploading over 1000 files
 export async function uploadDir(localPath: string, remotePath: string) {
   // Recursive getFiles from
   // https://stackoverflow.com/a/45130990/831465

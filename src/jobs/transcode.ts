@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-import { uploadDir } from '../config/s3'
+import { uploadFolder } from '../config/s3'
 import { Progress, TranscodeJobData } from '../types'
 import { generateFfmpegCommand, shouldProcess } from '../utils/video'
 
@@ -41,7 +41,7 @@ export async function transcode(job: Job) {
         })
         .on('end', async function () {
           console.log('Done')
-          await uploadDir(`${tmpDir}`, `v/${job.data.entityId}/hls/${job.data.resolution}`)
+          await uploadFolder(`${tmpDir}`, `v/${job.data.entityId}/hls/${job.data.resolution}`)
           await fs.remove(tmpDir)
           resolve('done')
         })

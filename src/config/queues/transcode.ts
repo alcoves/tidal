@@ -8,6 +8,9 @@ import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 const CPU_COUNT = os.cpus().length
 const concurrency = Math.ceil(CPU_COUNT / 4)
 
+// Increasing the lock duration attempts to avoid stalling jobs
+const lockDuration = 1000 * 240 // 4 minutes
+
 function queueSwitch(job: Job) {
   switch (job.name) {
     case 'package-hls':
@@ -49,6 +52,8 @@ if (!process.env.DISABLE_JOBS) {
       max: 1,
       duration: 1000,
     },
+    lockDuration: lockDuration,
+    lockRenewTime: lockDuration / 4,
     connection: {
       port: process.env.REDIS_PORT,
       host: process.env.REDIS_HOST,
