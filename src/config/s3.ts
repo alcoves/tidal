@@ -59,24 +59,25 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
 
 import * as path from 'path'
 
-export async function uploadFolder(localPath: string, remotePath: string) {
+export async function uploadFolder(directory: string, remotePath: string) {
   const BATCH_SIZE = 50
 
-  const files = await fs.readdir(localPath)
+  const files = await fs.readdir(directory)
   const batches = _.chunk(files, BATCH_SIZE)
 
   for (const batch of batches) {
     console.log(`Uploading ${batch.length} files`)
     await Promise.all(
-      batch.map(filePath => {
-        const uploadKey = `${remotePath}/${path.relative(localPath, filePath)}`
-        console.log(`Uploading ${filePath} to ${uploadKey}`)
+      batch.map(filename => {
+        const fullPath = `${directory}/${filename}`
+        const uploadKey = `${remotePath}/${filename}`
+        console.log(`Uploading ${fullPath} to ${uploadKey}`)
         return s3
           .upload({
             Key: uploadKey,
             Bucket: defaultBucket,
-            ContentType: mime.lookup(filePath),
-            Body: fs.createReadStream(filePath),
+            ContentType: mime.lookup(filename),
+            Body: fs.createReadStream(fullPath),
           })
           .promise()
       })

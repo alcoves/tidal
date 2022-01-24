@@ -13,6 +13,7 @@
     "start": "node ./dist/index.js"
   },
   "dependencies": {
+    "@bull-board/express": "^3.9.0",
     "aws-sdk": "^2.1061.0",
     "axios": "^0.25.0",
     "bullmq": "^1.65.0",
