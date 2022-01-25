@@ -1,6 +1,9 @@
+import { TidalWebhookBody } from '../../types'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { dispatchWebhook } from '../../jobs/dispatchWebhook'
-import { TidalWebhookBody } from '../../types'
+
+// Increasing the lock duration attempts to avoid stalling jobs
+const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
@@ -53,6 +56,8 @@ export const webhookWorker = new Worker(webhookQueue.name, async job => queueSwi
     max: 30,
     duration: 1000,
   },
+  lockDuration: lockDuration,
+  lockRenewTime: lockDuration / 4,
   connection: {
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
