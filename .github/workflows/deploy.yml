@@ -37,3 +37,4 @@ jobs:
             docker stop tidal
             docker rm tidal
             docker run -d --name tidal -p 80:5000 --env-file ./tidal.env registry.digitalocean.com/bken/tidal:latest
+            docker image prune -f
