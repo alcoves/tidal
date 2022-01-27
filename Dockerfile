@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:17-bullseye-slim
 RUN apt update
 RUN apt install ffmpeg wget unzip python3 -y
 
