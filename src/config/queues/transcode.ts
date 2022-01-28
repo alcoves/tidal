@@ -1,12 +1,12 @@
-import os from 'os'
 import { enqueueWebhook } from './webhook'
 import { hlsFlowProducer } from '../flows/hls'
 import { packageHls } from '../../jobs/package'
 import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 
-const CPU_COUNT = os.cpus().length
-const concurrency = Math.ceil(CPU_COUNT / 4)
+const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
+  ? parseInt(process.env.CONCURRENT_TRANSCODE_JOBS)
+  : 1
 
 // Increasing the lock duration attempts to avoid stalling jobs
 const lockDuration = 1000 * 240 // 4 minutes
