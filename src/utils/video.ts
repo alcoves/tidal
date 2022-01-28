@@ -68,9 +68,9 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
     'expr:gte(t,n_forced*2)',
     // HLS Defaults
     '-hls_flags',
-    'independent_segments',
+    'single_file',
     '-hls_segment_type',
-    'mpegts',
+    'fmp4',
     '-hls_playlist_type',
     'vod',
     '-hls_time',
