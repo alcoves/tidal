@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@bull-board/express": "^3.9.1",
-    "aws-sdk": "^2.1066.0",
+    "aws-sdk": "^2.1068.0",
     "axios": "^0.25.0",
     "bullmq": "^1.68.2",
     "cors": "^2.8.5",
