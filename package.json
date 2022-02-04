@@ -18,7 +18,7 @@
     "axios": "^0.25.0",
     "bullmq": "^1.68.2",
     "cors": "^2.8.5",
-    "dotenv": "^14.3.2",
+    "dotenv": "^16.0.0",
     "express": "^5.0.0-alpha.8",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^10.0.0",
