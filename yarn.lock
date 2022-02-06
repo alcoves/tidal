@@ -2,29 +2,29 @@
 # yarn lockfile v1
 
 
-"@bull-board/api@3.9.1":
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/@bull-board/api/-/api-3.9.1.tgz#814eccf43aa42ca23a93ab2b5a65ac1c16f8e952"
-  integrity sha512-PgemIY19P8X4jAutfFL/9UCFJEF7NdWqD4kDHhrodH0Fe2EiY1tIM9CKtfWnpoO945GtN5sU+rE1fDpPlhA91A==
+"@bull-board/api@3.9.2":
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/@bull-board/api/-/api-3.9.2.tgz#96f04ae1e0a080e3c6ca33b4b129a35ce1de5289"
+  integrity sha512-pU3YlEqB7MyTY1gTAgrVpLo+JWDekbsSYJqr8PUcjrh+wxTBuzL9Qd6zqFgyXr3izUAKr8OlA47axTg2lUUTmg==
   dependencies:
     redis-info "^3.0.8"
 
-"@bull-board/express@^3.9.1":
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/@bull-board/express/-/express-3.9.1.tgz#28ba256719ddaec17cd78abe65cabf2a973f4b9a"
-  integrity sha512-BmRrEMH+jeqVkdCTGuebCovMFeO040qmeQ5Vbs6RmNVKWgK2FeqWITV4P09n0TwOk+xSuZ9Vvh6M/qqh4YkgCA==
+"@bull-board/express@^3.9.2":
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/@bull-board/express/-/express-3.9.2.tgz#6ccdca85aac27ccaeaf29e80036dcb94788e0d49"
+  integrity sha512-N5wU3ifpw4W1brlGcYLQe7fm/PTAHxi+syp+xUx1c/TcMT9Uexy5y2WXk4Quy823cm0dzwKwF9oKbLvqpcOaNg==
   dependencies:
-    "@bull-board/api" "3.9.1"
-    "@bull-board/ui" "3.9.1"
+    "@bull-board/api" "3.9.2"
+    "@bull-board/ui" "3.9.2"
     ejs "3.1.6"
     express "4.17.2"
 
-"@bull-board/ui@3.9.1":
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/@bull-board/ui/-/ui-3.9.1.tgz#cce6add1b8b1720513fa9830043ad3ae97227eb7"
-  integrity sha512-SnNb042pRwzkTRKAUuWg03b8p2naMyk6qCSUK8rXaxjrSLDJ9eZRl1DmL1zGXvO+kx0ieeEc+3icdUgxk7O1Xw==
+"@bull-board/ui@3.9.2":
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/@bull-board/ui/-/ui-3.9.2.tgz#eeab9f1ac992f5a279498ace01c664caf8f77dac"
+  integrity sha512-J4Luj7twsDUC44xw66/XhoQn6cq5JzpCf8lYCBRolr/AhNESLMzHz7OpWFyz+f7/wf8p+XejsV0XGQeMBMtk1Q==
   dependencies:
-    "@bull-board/api" "3.9.1"
+    "@bull-board/api" "3.9.2"
 
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
@@ -166,10 +166,10 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/node@*", "@types/node@^17.0.13":
-  version "17.0.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.14.tgz#33b9b94f789a8fedd30a68efdbca4dbb06b61f20"
-  integrity sha512-SbjLmERksKOGzWzPNuW7fJM7fk3YXVTFiZWB/Hs99gwhk+/dnrQRPBQjPW9aO+fi1tAffi9PrwFvsmOKmDTyng==
+"@types/node@*", "@types/node@^17.0.15":
+  version "17.0.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.15.tgz#97779282c09c09577120a2162e71d8380003590a"
+  integrity sha512-zWt4SDDv1S9WRBNxLFxFRHxdD9tvH8f5/kg5/IaLFdnSNXsDY4eL3Q3XXN+VxUnWIhyVFDwcsmAprvwXoM/ClA==
 
 "@typescript-eslint/eslint-plugin@^5.10.1":
   version "5.10.2"
@@ -396,10 +396,10 @@ async@>=0.2.9:
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.3.tgz#ac53dafd3f4720ee9e8a160628f18ea91df196c9"
   integrity sha512-spZRyzKL5l5BZQrr/6m/SqFdBN0q3OCI0f9rjfBzCMBIP4p75P620rR3gTmaksNOhmzgdxcaxdNfMy6anrbM0g==
 
-aws-sdk@^2.1068.0:
-  version "2.1068.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1068.0.tgz#1f5f866eab01ab31af9375177aa20a30b8a5af2f"
-  integrity sha512-lD8JaEVSDueoTdhwxYinkZKuCzsqCE1L6+NZhO1AVdwgtK62pzjU20VHX2K39+Y2XebeAO2QzD+32m0ROHAeZg==
+aws-sdk@^2.1069.0:
+  version "2.1069.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1069.0.tgz#85c8005a61b4a42b08dc1f41e312e9bac4e411ad"
+  integrity sha512-AF7/5JotrVd8g/D3WWHgQto+IryB1V7iudIYm+H+qxmkGOU3xvL63ChhEoLTY/CxuK/diayg0oWILEsXUn3dfw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -527,10 +527,10 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
-bullmq@^1.68.2:
-  version "1.68.3"
-  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.68.3.tgz#c25c2d6b0c254dee69b9c673a2aa48deb1dcc6eb"
-  integrity sha512-3xRZKNnNJgNqfdfGqXSMI1scHSYmuAY8RBAarZ97opPDVKGa78jMY5nlJaDwitMLq6yNO2s5VDgAu0maSU/pwQ==
+bullmq@^1.68.4:
+  version "1.68.4"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.68.4.tgz#785b25e8016065b38f5d0740fa1a2cf92d6f8737"
+  integrity sha512-I0BYxhRocWHcNpzdXX5jR8DwKG1PkGJ8KUt9SJhWCCWd4sYvsMl6KV6J35ZfigGydXuAja19tbEefTUxdVv/sw==
   dependencies:
     cron-parser "^2.18.0"
     get-port "^5.1.1"
@@ -1699,9 +1699,9 @@ internal-slot@^1.0.3:
     side-channel "^1.0.4"
 
 ioredis@^4.28.2:
-  version "4.28.4"
-  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.28.4.tgz#de62dee96159a97b37f75d91318f2c6dbfe63c15"
-  integrity sha512-KmG3FDd1pKZcWQ7/fIbwzvpkZ50NwRJ3RBK9dpetJrNfC+sxhK6TzaVkExvh9AiF+rAVSUmvqfHyQp5U418aDw==
+  version "4.28.5"
+  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.28.5.tgz#5c149e6a8d76a7f8fa8a504ffc85b7d5b6797f9f"
+  integrity sha512-3GYo0GJtLqgNXj4YhrisLaNNvWSNwSS2wS4OELGfGxH8I69+XfNdnmV1AyN+ZqMh0i7eX+SWjrwFKDBDgfBC1A==
   dependencies:
     cluster-key-slot "^1.1.0"
     debug "^4.3.1"
