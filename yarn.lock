@@ -527,10 +527,10 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
-bullmq@^1.68.4:
-  version "1.68.4"
-  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.68.4.tgz#785b25e8016065b38f5d0740fa1a2cf92d6f8737"
-  integrity sha512-I0BYxhRocWHcNpzdXX5jR8DwKG1PkGJ8KUt9SJhWCCWd4sYvsMl6KV6J35ZfigGydXuAja19tbEefTUxdVv/sw==
+bullmq@^1.69.1:
+  version "1.69.1"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.69.1.tgz#01452b0d4877124ce95ed996152ccd7d32a1f215"
+  integrity sha512-nWbAZf7+jBaXHpRNigVBzJn1xszu2EWvnvIhloFleoygTs2GucXHmh56wrcrumf8EYsN3rPQ1+RPmw6hbyPpqQ==
   dependencies:
     cron-parser "^2.18.0"
     get-port "^5.1.1"
