@@ -2,29 +2,29 @@
 # yarn lockfile v1
 
 
-"@bull-board/api@3.9.4":
-  version "3.9.4"
-  resolved "https://registry.yarnpkg.com/@bull-board/api/-/api-3.9.4.tgz#984f25e6d5501d97152d81184968ff135757b57a"
-  integrity sha512-1X1YCqPEID2kKwq+g4aEspZm2j+vUgEYDlqINCLztThBXWbzJhI1vqwktVGJF9DAe98Jl6R84vb7cO/AgjaKMA==
+"@bull-board/api@3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@bull-board/api/-/api-3.10.0.tgz#036cb0daed908920acd356c8addc19bcaabda5f2"
+  integrity sha512-VAoTkb7hflJ1lYHGCMyhpZtUK7sqQqpTqqDU/yqn5+BpyVoPdQ+ULsyEuDotbthWLeegSJZ1gN35jLg/NTV71g==
   dependencies:
     redis-info "^3.0.8"
 
-"@bull-board/express@^3.9.4":
-  version "3.9.4"
-  resolved "https://registry.yarnpkg.com/@bull-board/express/-/express-3.9.4.tgz#5dc7b0ef951e9cb86c656f9647b77f0b8ebf90cc"
-  integrity sha512-/+7tWFIa4S1nmHhczzv4cg7ShjZi7mASEd1GThi0jXWn8NejxNInD+ajJpMBzkNBDvw6aBfd9PEDtPyUiEGrFw==
+"@bull-board/express@^3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@bull-board/express/-/express-3.10.0.tgz#ace04eaa83726f7b50d0a635aa0469a37814aa57"
+  integrity sha512-DLsrSCPNPL1TGsduGQHPnlrF/Vo9xL/7P145I43P1P6kZIvKT+tfi/6bh//MxvSBxKnJQFCH6BgPGZHtz1puUA==
   dependencies:
-    "@bull-board/api" "3.9.4"
-    "@bull-board/ui" "3.9.4"
+    "@bull-board/api" "3.10.0"
+    "@bull-board/ui" "3.10.0"
     ejs "3.1.6"
     express "4.17.2"
 
-"@bull-board/ui@3.9.4":
-  version "3.9.4"
-  resolved "https://registry.yarnpkg.com/@bull-board/ui/-/ui-3.9.4.tgz#3a58c2903c91048c9f200f2d7525847a6a84a78c"
-  integrity sha512-FjKmoEWerJmqh3mSx9wltVZvjNuBpux17CPQpI/nWJCtWzCQp0icxbJ8VBb6LP97xl8puDZ+na3zm89TdOPM9g==
+"@bull-board/ui@3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@bull-board/ui/-/ui-3.10.0.tgz#5217a265e11bc3cfe41ae662fc9434a7769528af"
+  integrity sha512-0TkrMAe6p/j/Zy//YRUzFXW0jlAmBNzX8hVx9nQIYZm+o/gkk6a9PgVkhLsQS7AdWLzSKqB8YTRhkxm/8MjGqw==
   dependencies:
-    "@bull-board/api" "3.9.4"
+    "@bull-board/api" "3.10.0"
 
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
