@@ -16,7 +16,7 @@
     "@bull-board/express": "^3.9.4",
     "aws-sdk": "^2.1076.0",
     "axios": "^0.26.0",
-    "bullmq": "^1.73.0",
+    "bullmq": "^1.75.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^5.0.0-beta.1",
