@@ -7,6 +7,7 @@ import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { transcodeQueue } from '../config/queues/transcode'
 import { createMainManifest } from '../jobs/package'
+import { TranscodeJobData } from '../types'
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
@@ -34,15 +35,21 @@ export async function transcodeHlsController(req, res) {
   function childJobs(parentJobId: string): any[] {
     const resolutions = ['240p', '360p', '480p', '720p', '1080p'] //  '1440p', '2160p'
     return resolutions.map((r: string) => {
+      const jobData: TranscodeJobData = {
+        resolution: r,
+        inputURL: signedUrl,
+        output: {
+          bucket: value.output.bucket,
+          key: `v/${value.entityId}/hls/${r}`,
+        },
+        parentId: parentJobId,
+        entityId: value.entityId,
+      }
+
       const job: FlowJob = {
+        data: jobData,
         name: 'transcode',
         queueName: 'transcode',
-        data: {
-          resolution: r,
-          input: signedUrl,
-          parentId: parentJobId,
-          entityId: value.entityId,
-        },
       }
       return job
     })

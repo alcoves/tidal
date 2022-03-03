@@ -6,11 +6,11 @@ import { Progress, TranscodeJobData } from '../types'
 import { generateFfmpegCommand, shouldProcess } from '../utils/video'
 
 export async function transcode(job: Job) {
-  const { input }: TranscodeJobData = job.data
+  const { inputURL, output }: TranscodeJobData = job.data
 
   // Make 240p process regardless of weather the video is big enough
   if (job.data.resolution !== '240p') {
-    if (await !shouldProcess(input, job.data.resolution)) return 'skipped resolution'
+    if (await !shouldProcess(inputURL, job.data.resolution)) return 'skipped resolution'
   }
 
   let lastProgressInt = 0
@@ -20,7 +20,7 @@ export async function transcode(job: Job) {
 
   try {
     return new Promise((resolve, reject) => {
-      ffmpeg(input)
+      ffmpeg(inputURL)
         .outputOptions(ffmpegCommands)
         .output(outputPath)
         .on('start', function (commandLine) {
@@ -41,7 +41,7 @@ export async function transcode(job: Job) {
         })
         .on('end', async function () {
           console.log('Done')
-          await uploadFolder(`${tmpDir}`, `v/${job.data.entityId}/hls/${job.data.resolution}`)
+          await uploadFolder(`${tmpDir}`, { Bucket: output.bucket, Key: output.key })
           await fs.remove(tmpDir)
           resolve('done')
         })

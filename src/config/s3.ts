@@ -19,8 +19,6 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
 })
 
-export const defaultBucket = process.env.DEFAULT_BUCKET as string
-
 export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
   return s3.getSignedUrlPromise('getObject', {
     Key: urlParams.Key,
@@ -39,7 +37,10 @@ export function getUrlParamsFromS3Uri(s3Uri: string) {
 
 export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix: string }) {
   // TODO :: Make this work for more than 1000 keys
-  // TODO :: Add check to make sure it will never delete an entire pod
+  if (Prefix.length < 1) {
+    throw new Error('Prefix length must be greater than 0')
+  }
+
   const { Contents } = await s3.listObjectsV2({ Bucket, Prefix }).promise()
   const deleteObjects: any =
     Contents?.map(({ Key }) => {
@@ -57,9 +58,10 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
     .promise()
 }
 
-import * as path from 'path'
-
-export async function uploadFolder(directory: string, remotePath: string) {
+export async function uploadFolder(
+  directory: string,
+  { Bucket, Key }: { Bucket: string; Key: string }
+) {
   const BATCH_SIZE = 50
 
   const files = await fs.readdir(directory)
@@ -70,12 +72,12 @@ export async function uploadFolder(directory: string, remotePath: string) {
     await Promise.all(
       batch.map(filename => {
         const fullPath = `${directory}/${filename}`
-        const uploadKey = `${remotePath}/${filename}`
+        const uploadKey = `${Key}/${filename}`
         console.log(`Uploading ${fullPath} to ${uploadKey}`)
         return s3
           .upload({
+            Bucket,
             Key: uploadKey,
-            Bucket: defaultBucket,
             ContentType: mime.lookup(filename),
             Body: fs.createReadStream(fullPath),
           })
@@ -83,37 +85,6 @@ export async function uploadFolder(directory: string, remotePath: string) {
       })
     )
   }
-}
-
-// Kills the nodejs process when uploading over 1000 files
-export async function uploadDir(localPath: string, remotePath: string) {
-  // Recursive getFiles from
-  // https://stackoverflow.com/a/45130990/831465
-  async function getFiles(dir: string): Promise<string | string[]> {
-    const dirents = await fs.readdir(dir, { withFileTypes: true })
-    const files = await Promise.all(
-      dirents.map(dirent => {
-        const res = path.resolve(dir, dirent.name)
-        return dirent.isDirectory() ? getFiles(res) : res
-      })
-    )
-    return Array.prototype.concat(...files)
-  }
-
-  const files = (await getFiles(localPath)) as string[]
-  const uploads = files.map(filePath => {
-    const uploadKey = `${remotePath}/${path.relative(localPath, filePath)}`
-    console.log(`Uploading ${filePath} to ${uploadKey}`)
-    return s3
-      .upload({
-        Key: uploadKey,
-        Bucket: defaultBucket,
-        ContentType: mime.lookup(filePath),
-        Body: fs.createReadStream(filePath),
-      })
-      .promise()
-  })
-  return Promise.all(uploads)
 }
 
 export default s3

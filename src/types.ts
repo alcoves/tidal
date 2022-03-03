@@ -26,7 +26,11 @@ export interface S3PathParameters {
 }
 
 export interface TranscodeJobData {
-  input: string
+  inputURL: string
+  parentId: string
+  entityId: string
+  resolution: string
+  output: S3KeyParameters
 }
 
 export interface ThumbnailJobData {

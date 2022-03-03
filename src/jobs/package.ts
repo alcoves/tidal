@@ -77,7 +77,7 @@ export async function createMainManifest(bucket: string, path: string, entityId:
     })
     .promise()
 
-  await purgeURL(`https://cdn.bken.io/v/${entityId}/*`)
+  await purgeURL(`https://${process.env.CDN_HOSTNAME}/v/${entityId}/*`)
 }
 
 export async function packageHls(job: Job) {
