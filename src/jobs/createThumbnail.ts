@@ -5,6 +5,7 @@ import { Job } from 'bullmq'
 import s3, { getSignedURL } from '../config/s3'
 import { Progress, ThumbnailJobData } from '../types'
 import path from 'path'
+import { purgeURL } from '../utils/bunny'
 
 export async function createThumbnail(job: Job): Promise<any> {
   const { input, output }: ThumbnailJobData = job.data
@@ -53,7 +54,14 @@ export async function createThumbnail(job: Job): Promise<any> {
             .promise()
             .then(() => {
               fs.removeSync(tmpDir)
-              resolve({ thumbnailFilename: filename })
+              purgeURL(`https://${process.env.CDN_HOSTNAME}/${output.key}`)
+                .then(() => {
+                  resolve({ thumbnailFilename: filename })
+                })
+                .catch(() => {
+                  console.error('Failed to purge thumbnail')
+                  reject()
+                })
             })
             .catch(() => {
               fs.removeSync(tmpDir)
