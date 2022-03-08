@@ -2,6 +2,7 @@ import axios from 'axios'
 
 export async function purgeURL(url: string) {
   try {
+    console.log(`Purging URL ${url} from cdn`)
     await axios.post(
       `https://api.bunny.net/purge?url=${url}`,
       {},
