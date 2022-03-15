@@ -1,4 +1,5 @@
 import { enqueueWebhook } from './webhook'
+import { defaultConnection } from '../redis'
 import { hlsFlowProducer } from '../flows/hls'
 import { packageHls } from '../../jobs/package'
 import { transcode } from '../../jobs/transcode'
@@ -23,11 +24,7 @@ function queueSwitch(job: Job) {
 }
 
 export const transcodeQueue = new Queue('transcode', {
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: defaultConnection,
   defaultJobOptions: {
     attempts: 2,
     backoff: {
@@ -38,11 +35,7 @@ export const transcodeQueue = new Queue('transcode', {
 })
 
 export const transcodeQueueScheduler = new QueueScheduler(transcodeQueue.name, {
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: defaultConnection,
 })
 
 if (!process.env.DISABLE_JOBS) {
@@ -54,11 +47,7 @@ if (!process.env.DISABLE_JOBS) {
     },
     lockDuration: lockDuration,
     lockRenewTime: lockDuration / 4,
-    connection: {
-      port: process.env.REDIS_PORT,
-      host: process.env.REDIS_HOST,
-      password: process.env.REDIS_PASSWORD,
-    },
+    connection: defaultConnection,
   })
 
   transcodeWorker.on('completed', async job => {

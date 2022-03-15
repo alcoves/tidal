@@ -1,3 +1,4 @@
+import { defaultConnection } from '../redis'
 import { TidalWebhookBody } from '../../types'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { dispatchWebhook } from '../../jobs/dispatchWebhook'
@@ -28,11 +29,7 @@ export async function enqueueWebhook(job: Job) {
 }
 
 export const webhookQueue = new Queue('webhook', {
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: defaultConnection,
   defaultJobOptions: {
     attempts: 5,
     backoff: {
@@ -43,11 +40,7 @@ export const webhookQueue = new Queue('webhook', {
 })
 
 export const webhookQueueScheduler = new QueueScheduler(webhookQueue.name, {
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: defaultConnection,
 })
 
 export const webhookWorker = new Worker(webhookQueue.name, async job => queueSwitch(job), {
@@ -58,11 +51,7 @@ export const webhookWorker = new Worker(webhookQueue.name, async job => queueSwi
   },
   lockDuration: lockDuration,
   lockRenewTime: lockDuration / 4,
-  connection: {
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: defaultConnection,
 })
 
 webhookWorker.on('completed', job => {

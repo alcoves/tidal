@@ -8,33 +8,34 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     env:
+      CLUSTER: bken
+      DEPLOYMENT: tidal
+      CONTAINER_NAME: tidal
+      GITHUB_SHA: ${{ github.sha }}
       DO_API_KEY: ${{ secrets.DO_API_KEY }}
+      REGISTRY: registry.digitalocean.com/bken/tidal
     steps:
       - uses: actions/checkout@v2
+
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_API_KEY }}
+
       - name: Build container image
-        env:
-          GITHUB_SHA: ${{ github.sha }}
         run: docker build
-          -t registry.digitalocean.com/bken/tidal:latest
-          -t registry.digitalocean.com/bken/tidal:$GITHUB_SHA .
+          --build-arg NEXT_PUBLIC_GIT_SHA=$GITHUB_SHA
+          -t $REGISTRY:latest
+          -t $REGISTRY:$GITHUB_SHA .
+
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
+
       - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/bken/tidal --all-tags
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          key: ${{ secrets.SSH_KEY }}
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          script: |
-            doctl registry login --expiry-seconds 600
-            docker pull registry.digitalocean.com/bken/tidal:latest
-            docker stop tidal
-            docker rm tidal
-            docker run -d --name tidal -p 80:5000 --env-file ./tidal.env registry.digitalocean.com/bken/tidal:latest
-            docker image prune -f
+        run: docker push $REGISTRY --all-tags
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 $CLUSTER
+
+      - name: Update cluster image
+        run: kubectl set image deployment/$DEPLOYMENT $CONTAINER_NAME=$REGISTRY:$GITHUB_SHA
