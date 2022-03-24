@@ -520,12 +520,12 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
-bullmq@^1.77.2:
-  version "1.77.2"
-  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.77.2.tgz#f6aa5505fbd5179b448d39a12bd4c9ad7b6c0d2a"
-  integrity sha512-q2Y2VxfcRQnoM2lp+qsmbnijqayibXeu+FeRKbGZxRNUF3bHQJKM30/2yJaoFBhHNISmC7JQZWG1MizdKUa4hw==
+bullmq@^1.78.1:
+  version "1.78.1"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-1.78.1.tgz#f3cabf84be8d69cc562d0e87c68302885bd49e8a"
+  integrity sha512-er45mM8nGhgA83EVCJ4PNxPyDSzakvoxeFGU4vdSgYeB+SbeFQAlJYmAC50Ms7YFPstm1LeinbVZ+oX/BmBzOg==
   dependencies:
-    cron-parser "^2.18.0"
+    cron-parser "^4.2.1"
     get-port "^5.1.1"
     glob "^7.2.0"
     ioredis "^4.28.2"
@@ -716,13 +716,12 @@ create-require@^1.1.0:
   resolved "https://registry.yarnpkg.com/create-require/-/create-require-1.1.1.tgz#c1d7e8f1e5f6cfc9ff65f9cd352d37348756c333"
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
 
-cron-parser@^2.18.0:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/cron-parser/-/cron-parser-2.18.0.tgz#de1bb0ad528c815548371993f81a54e5a089edcf"
-  integrity sha512-s4odpheTyydAbTBQepsqd2rNWGa2iV3cyo8g7zbI2QQYGLVsfbhmwukayS1XHppe02Oy1fg7mg6xoaraVJeEcg==
+cron-parser@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/cron-parser/-/cron-parser-4.2.1.tgz#b43205d05ccd5c93b097dae64f3bd811f5993af3"
+  integrity sha512-5sJBwDYyCp+0vU5b7POl8zLWfgV5fOHxlc45FWoWdHecGC7MQHCjx0CHivCMRnGFovghKhhyYM+Zm9DcY5qcHg==
   dependencies:
-    is-nan "^1.3.0"
-    moment-timezone "^0.5.31"
+    luxon "^1.28.0"
 
 cross-spawn@^7.0.2:
   version "7.0.3"
@@ -1724,14 +1723,6 @@ is-installed-globally@^0.4.0:
     global-dirs "^3.0.0"
     is-path-inside "^3.0.2"
 
-is-nan@^1.3.0:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/is-nan/-/is-nan-1.3.2.tgz#043a54adea31748b55b6cd4e09aadafa69bd9e1d"
-  integrity sha512-E+zBKpQ2t6MEo1VsonYmluk9NxGrbzpeeLC2xIViuO2EjU2xsXsBPwTr3Ykv9l08UYEVEdWeRZNouaZqF6RN0w==
-  dependencies:
-    call-bind "^1.0.0"
-    define-properties "^1.1.3"
-
 is-negative-zero@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/is-negative-zero/-/is-negative-zero-2.0.2.tgz#7bf6f03a28003b8b3965de3ac26f664d765f3150"
@@ -1954,6 +1945,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+luxon@^1.28.0:
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-1.28.0.tgz#e7f96daad3938c06a62de0fb027115d251251fbf"
+  integrity sha512-TfTiyvZhwBYM/7QdAVDh+7dBTBA29v4ik0Ce9zda3Mnf8on1S5KJI8P2jKFZ8+5C0jhmr0KwJEO/Wdpm0VeWJQ==
+
 make-dir@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-3.1.0.tgz#415e967046b3a7f1d185277d84aa58203726a13f"
@@ -2037,18 +2033,6 @@ mkdirp-classic@^0.5.2, mkdirp-classic@^0.5.3:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/mkdirp-classic/-/mkdirp-classic-0.5.3.tgz#fa10c9115cc6d8865be221ba47ee9bed78601113"
   integrity sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==
-
-moment-timezone@^0.5.31:
-  version "0.5.34"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.34.tgz#a75938f7476b88f155d3504a9343f7519d9a405c"
-  integrity sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==
-  dependencies:
-    moment ">= 2.9.0"
-
-"moment@>= 2.9.0":
-  version "2.29.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
-  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
 morgan@^1.10.0:
   version "1.10.0"
