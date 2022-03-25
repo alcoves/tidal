@@ -9,6 +9,8 @@ import {
 
 const router = express.Router()
 
+// TODO :: Add Auth
+
 router.post('/manifest', createManifest)
 router.post('/metadata', metadataController)
 router.post('/thumbnail', thumbnailController)

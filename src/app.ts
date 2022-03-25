@@ -5,6 +5,7 @@ import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
 
 // bullmq ui
+import { basicAuth } from './middlewares/auth'
 import { createBullBoard } from '@bull-board/api'
 import { ExpressAdapter } from '@bull-board/express'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
@@ -28,7 +29,7 @@ createBullBoard({
 const app = express()
 
 serverAdapter.setBasePath('/admin/queues')
-app.use('/admin/queues', serverAdapter.getRouter())
+app.use('/admin/queues', basicAuth, serverAdapter.getRouter())
 
 app.use(cors())
 app.use(express.json())
