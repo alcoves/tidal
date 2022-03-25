@@ -6,15 +6,14 @@ import {
   transcodeHlsController,
   // transcodeProgressiveController,
 } from '../controllers/jobs'
+import { apiKeyAuth } from '../middlewares/auth'
 
 const router = express.Router()
 
-// TODO :: Add Auth
-
-router.post('/manifest', createManifest)
-router.post('/metadata', metadataController)
-router.post('/thumbnail', thumbnailController)
-router.post('/transcode/hls', transcodeHlsController)
+router.post('/manifest', apiKeyAuth, createManifest)
+router.post('/metadata', apiKeyAuth, metadataController)
+router.post('/thumbnail', apiKeyAuth, thumbnailController)
+router.post('/transcode/hls', apiKeyAuth, transcodeHlsController)
 
 // router.post('/transcode/progressive', transcodeProgressiveController)
 

@@ -7,15 +7,27 @@
 ### ENV
 
 ```sh
-DEFAULT_BUCKET="my-bucket"
-S3_ENDPOINT=https://my.s3.endpoint
-S3_ACCESS_KEY_ID=access_key
-S3_SECRET_ACCESS_KEY=secret_access_key
+CDN_HOSTNAME=
+DEFAULT_BUCKET=
 
-WEBHOOK_URL="http://the-delivery-address-to-recieve-post-requests"
+S3_ENDPOINT=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
 
-AUTH_KEY="" # Requests must include the header "X-API-Key" which should contain the value of AUTH_KEY. This is our basic authentication method.
-BUNNY_ACCESS_KEY=""
+WEBHOOK_URL=
+
+API_KEY=
+
+REDIS_PORT=
+REDIS_HOST=
+REDIS_PASSWORD=
+
+BULL_DASHBOARD_USERNAME=
+BULL_DASHBOARD_PASSWORD=
+
+CONCURRENT_TRANSCODE_JOBS=
+
+BUNNY_ACCESS_KEY=
 ```
 
 # Redis

@@ -1,6 +1,6 @@
-export function tokenAuth(req, res, next) {
+export function apiKeyAuth(req, res, next) {
   const apiKey = req.headers['x-api-key']
-  if (apiKey !== process.env.AUTH_KEY) return res.sendStatus(403)
+  if (apiKey !== process.env.API_KEY) return res.sendStatus(403)
   next()
 }
 
