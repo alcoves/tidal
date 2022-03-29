@@ -13,7 +13,7 @@ export async function transcode(job: Job) {
     if (await !shouldProcess(inputURL, job.data.resolution)) return 'skipped resolution'
   }
 
-  let lastProgressInt = 0
+  let lastProgress = 0
   const tmpDir = await fs.mkdtemp('/tmp/bken-transcode')
   const outputPath = `${tmpDir}/stream.m3u8`
   const ffmpegCommands = generateFfmpegCommand(job.data.resolution)
@@ -28,11 +28,11 @@ export async function transcode(job: Job) {
         })
         .on('progress', async function (progress: Progress) {
           if (progress.percent >= 0) {
-            const currentProgressInt = Math.ceil(progress.percent)
-            if (lastProgressInt !== currentProgressInt) {
-              await job.updateProgress(currentProgressInt)
+            const currentProgress = Math.ceil(progress.percent)
+            if (lastProgress !== currentProgress) {
+              await job.updateProgress(currentProgress)
             }
-            lastProgressInt = Math.ceil(progress.percent)
+            lastProgress = Math.ceil(progress.percent)
           }
         })
         .on('error', function (err) {
