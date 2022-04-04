@@ -1,26 +1,20 @@
-import { Box, Flex, Heading } from '@chakra-ui/react'
+import Home from './components/Home'
+import Jobs from './components/Jobs'
+import Layout from './components/Layout'
+import Presets from './components/Presets'
+import Settings from './components/Settings'
+
+import { Route, Routes } from 'react-router-dom'
 
 export function App() {
   return (
-    <Box>
-      <Flex p='2' h='50px' align='center' bg='brand.yellow'>
-        <Heading size='md' color='brand.gray'>
-          Tidal UI
-        </Heading>
-      </Flex>
-      <Flex>
-        <Box
-          p='2'
-          w='200px'
-          h='calc(100vh - 50px)'
-          borderRightWidth='1px'
-          borderRightStyle='solid'
-          borderRightColor='gray.700'
-        >
-          sidebar
-        </Box>
-        <Box p='2'>Content</Box>
-      </Flex>
-    </Box>
+    <Layout>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/jobs' element={<Jobs />} />
+        <Route path='/presets' element={<Presets />} />
+        <Route path='/settings' element={<Settings />} />
+      </Routes>
+    </Layout>
   )
 }
