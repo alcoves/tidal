@@ -1,0 +1,28 @@
+{
+  "name": "tidal-ui",
+  "version": "0.0.0",
+  "description": "The web ui for tidal, by bken.",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "private": false,
+  "dependencies": {
+    "@chakra-ui/react": "^1.8.7",
+    "@emotion/react": "^11.8.2",
+    "@emotion/styled": "^11.8.1",
+    "@fontsource/pt-mono": "^4.5.5",
+    "framer-motion": "^6.2.8",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-icons": "^4.3.1",
+    "react-router-dom": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.43",
+    "@types/react-dom": "^17.0.14",
+    "parcel": "^2.4.1",
+    "process": "^0.11.10"
+  },
+  "scripts": {
+    "dev": "parcel src/index.html"
+  }
+}

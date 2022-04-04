@@ -9,8 +9,10 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "dev": "nodemon",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "dev:api": "nodemon",
+    "dev:ui": "cd ui && yarn dev",
+    "dev": "concurrently yarn:dev:api yarn:dev:ui"
   },
   "dependencies": {
     "@bull-board/express": "^3.10.0",
@@ -34,6 +36,7 @@
     "@types/node": "^17.0.22",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
+    "concurrently": "^7.1.0",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
