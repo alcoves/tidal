@@ -1,4 +1,4 @@
-import '@fontsource/pt-mono'
+import '@fontsource/fira-sans'
 
 import ReactDOM from 'react-dom/client'
 

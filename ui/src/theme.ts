@@ -11,13 +11,33 @@ export const theme = extendTheme({
     },
   },
   fonts: {
-    heading: 'PT Mono, monospace',
-    body: 'PT Mono, monospace',
+    heading: 'Fira Sans, sans-serif',
+    body: 'Fira Sans, sans-serif',
   },
   colors: {
-    brand: {
-      yellow: '#ffcc00',
-      gray: '#212c34',
+    yellow: {
+      50: '#ffcc00',
+      100: '#ffcc00',
+      200: '#ffcc00',
+      300: '#ffcc00',
+      400: '#ffcc00',
+      500: '#ffcc00',
+      600: '#ffcc00',
+      700: '#ffcc00',
+      800: '#ffcc00',
+      900: '#ffcc00',
+    },
+    red: {
+      50: '#bf1e2e',
+      100: '#bf1e2e',
+      200: '#bf1e2e',
+      300: '#bf1e2e',
+      400: '#bf1e2e',
+      500: '#bf1e2e',
+      600: '#bf1e2e',
+      700: '#bf1e2e',
+      800: '#bf1e2e',
+      900: '#bf1e2e',
     },
     gray: {
       50: '#f7f9fa',
@@ -30,6 +50,13 @@ export const theme = extendTheme({
       700: '#30404c',
       800: '#212c34',
       900: '#12181c',
+    },
+  },
+  components: {
+    Button: {
+      baseStyle: {
+        letterSpacing: '.08rem',
+      },
     },
   },
 })

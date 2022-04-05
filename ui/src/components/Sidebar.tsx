@@ -25,6 +25,7 @@ export default function Sidebar() {
     <Box
       p='2'
       w='200px'
+      minW='200px'
       h='calc(100vh - 50px)'
       borderRightWidth='1px'
       borderRightStyle='solid'

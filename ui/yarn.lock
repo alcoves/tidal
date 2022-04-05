@@ -725,10 +725,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.2.5.tgz#8eed982e2ee6f7f4e44c253e12962980791efd46"
   integrity sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==
 
-"@fontsource/pt-mono@^4.5.5":
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/@fontsource/pt-mono/-/pt-mono-4.5.5.tgz#f59fe0096ae33a78af8decb9f12a2e7d857cdecc"
-  integrity sha512-fHJlJBQJhWcDtxTriP/9UmR4jwj725pWqda6rXJAJkfY/ybgn7o5l92Bpy2gDfxSMGbLDgFCPGALJQIjIYjCMA==
+"@fontsource/fira-sans@^4.5.7":
+  version "4.5.7"
+  resolved "https://registry.yarnpkg.com/@fontsource/fira-sans/-/fira-sans-4.5.7.tgz#73ebc6a12c2c9f41f5924f213619fb15a1838d29"
+  integrity sha512-tURGr1HkN9T+qCcGzkrv7aVxc9p+/PRKDYhTOY3dZ9+fSKhX5gflmppNCjgFsdJ8s7jz/sqT6rmwyBmI2AJm4g==
 
 "@parcel/bundler-default@2.4.1":
   version "2.4.1"

@@ -9,7 +9,7 @@
     "@chakra-ui/react": "^1.8.7",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-    "@fontsource/pt-mono": "^4.5.5",
+    "@fontsource/fira-sans": "^4.5.7",
     "framer-motion": "^6.2.8",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
