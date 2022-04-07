@@ -1,9 +1,12 @@
-import { Box } from '@chakra-ui/react'
+import { Flex, VStack } from '@chakra-ui/react'
+import TranscodeHLS from './Workflows/TranscodeHLS'
 
 export default function Home() {
   return (
-    <Box>
-      <Box>Home</Box>
-    </Box>
+    <Flex>
+      <VStack>
+        <TranscodeHLS />
+      </VStack>
+    </Flex>
   )
 }

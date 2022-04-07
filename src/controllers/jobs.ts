@@ -5,12 +5,12 @@ import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
-import { transcodeQueue } from '../config/queues/transcode'
 import { createMainManifest } from '../jobs/package'
 import { TranscodeJobData } from '../types'
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
+    dispatchWebhook: Joi.bool().required().default(true),
     entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
@@ -44,6 +44,7 @@ export async function transcodeHlsController(req, res) {
         },
         parentId: parentJobId,
         entityId: value.entityId,
+        dispatchWebhook: value.dispatchWebhook,
       }
 
       const job: FlowJob = {
@@ -65,31 +66,6 @@ export async function transcodeHlsController(req, res) {
     opts: { jobId: parentJobId, priority: 1 },
   })
 
-  return res.sendStatus(202)
-}
-
-export async function transcodeProgressiveController(req, res) {
-  const schema = Joi.object({
-    entityId: Joi.string().required().max(50),
-    input: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
-    output: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
-  })
-
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false, // include all errors
-    allowUnknown: true, // ignore unknown props
-    stripUnknown: true, // remove unknown props
-  })
-
-  if (error) return res.status(400).json(error)
-
-  await transcodeQueue.add('transcode', value)
   return res.sendStatus(202)
 }
 

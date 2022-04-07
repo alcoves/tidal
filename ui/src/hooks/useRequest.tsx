@@ -9,9 +9,10 @@ export function useLazyRequest(url: string, props: UseRequestConfig = { method: 
 
   const [data, setData] = useState<any>({})
   const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   function call(overrides: any) {
+    setLoading(true)
     axios({
       url: `${API_URL}${url}`,
       method: props.method,

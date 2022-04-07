@@ -7,8 +7,7 @@ import { theme } from './theme'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 
-const app = document.getElementById('app') as Element | DocumentFragment
-const root = ReactDOM.createRoot(app)
+const root = ReactDOM.createRoot(document.getElementById('app') as Element | DocumentFragment)
 root.render(
   <>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />

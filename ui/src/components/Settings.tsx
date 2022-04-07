@@ -17,7 +17,7 @@ import { TidalSettings } from '../../../src/types'
 function Settings(props: SettingsProps) {
   const initialSettingsHash = props.settings_b64
 
-  const [saveSettings, { data, loading, error }] = useLazyRequest('/settings', { method: 'PUT' })
+  const [saveSettings] = useLazyRequest('/settings', { method: 'PUT' })
 
   const [showSecrets, setShowSecrets] = useState(false)
   const [settings, setSetting] = useState<TidalSettings>(props.settings)

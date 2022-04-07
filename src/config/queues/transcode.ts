@@ -51,16 +51,20 @@ if (!process.env.DISABLE_JOBS) {
   })
 
   transcodeWorker.on('completed', async job => {
+    if (!job.data?.dispatchWebhook) return
     console.log(`${job.queueName} :: ${job.id} has completed!`)
     if (job.name !== 'transcode') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('failed', async (job, err) => {
+    if (!job.data?.dispatchWebhook) return
     console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
     if (job.name !== 'transcode') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('progress', async job => {
+    if (!job.data?.dispatchWebhook) return
+
     if (job.name === 'transcode') {
       if (job.data.parentId) {
         const tree = await hlsFlowProducer.getFlow({

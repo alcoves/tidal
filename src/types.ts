@@ -31,6 +31,7 @@ export interface TranscodeJobData {
   entityId: string
   resolution: string
   output: S3KeyParameters
+  dispatchWebhook: boolean
 }
 
 export interface ThumbnailJobData {
