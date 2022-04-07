@@ -7,7 +7,7 @@ import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
 import settingsRoutes from './routes/settings'
 
-const uiDistDir = path.join(__dirname, '../ui/build')
+const uiDistDir = path.join(__dirname, '../../dist/ui')
 
 const app = express()
 
@@ -20,7 +20,7 @@ app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
 app.use('/settings', settingsRoutes)
 
-app.use('/ui/static', express.static(`${uiDistDir}/static`))
+app.use('/ui', express.static(`${uiDistDir}`))
 app.get('/ui(.*)', function (req, res) {
   res.sendFile('index.html', { root: uiDistDir })
 })

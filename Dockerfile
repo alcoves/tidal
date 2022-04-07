@@ -9,11 +9,6 @@ RUN cp Bento4-SDK-1-6-0-639.x86_64-unknown-linux/* /usr/local/ -r
 WORKDIR /app
 COPY . .
 
-WORKDIR /app/ui
-RUN yarn
-RUN yarn build
-
-WORKDIR /app
 RUN yarn
 RUN yarn build
 

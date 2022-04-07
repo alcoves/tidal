@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { SettingsProps } from '../types'
 import { useLazyRequest, useRequest } from '../hooks/useRequest'
-import { TidalSettings } from '../../../src/types'
+import { TidalSettings } from '../../../api/src/types'
 
 function Settings(props: SettingsProps) {
   const initialSettingsHash = props.settings_b64

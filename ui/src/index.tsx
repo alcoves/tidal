@@ -1,5 +1,4 @@
-import './index.css';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
 
 import { App } from './App'
 import { theme } from './theme'
@@ -16,4 +15,4 @@ ReactDOM.render(
     </ChakraProvider>
   </>,
   document.getElementById('root')
-);
+)

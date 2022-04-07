@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2021",
     "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -11,9 +12,8 @@
     "skipLibCheck": true,
     "strict": true,
     "experimentalDecorators": true,
-    "jsxImportSource": "preact",
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
+    "outDir": "dist/api",
     "noImplicitAny": false,
     "typeRoots": [
       "@types",
