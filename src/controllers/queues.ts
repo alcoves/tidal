@@ -33,3 +33,17 @@ export async function getQueues(req, res) {
     ],
   })
 }
+
+export async function cleanQueues(req, res) {
+  await metadataQueue.clean(1, 1000, 'failed')
+  await transcodeQueue.clean(1, 1000, 'failed')
+  await webhookQueue.clean(1, 1000, 'failed')
+  await thumbnailQueue.clean(1, 1000, 'failed')
+
+  await metadataQueue.clean(1, 1000, 'completed')
+  await transcodeQueue.clean(1, 1000, 'completed')
+  await webhookQueue.clean(1, 1000, 'completed')
+  await thumbnailQueue.clean(1, 1000, 'completed')
+
+  return res.sendStatus(200)
+}
