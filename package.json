@@ -15,7 +15,7 @@
     "dev": "concurrently yarn:dev:api yarn:dev:ui"
   },
   "dependencies": {
-    "aws-sdk": "^2.1099.0",
+    "aws-sdk": "^2.1109.0",
     "axios": "^0.26.1",
     "bullmq": "^1.78.1",
     "cors": "^2.8.5",
