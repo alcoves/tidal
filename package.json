@@ -7,7 +7,7 @@
   "private": false,
   "scripts": {
     "test": "jest",
-    "start": "node api/dist/index.js",
+    "start": "node dist/api/index.js",
     "build": "yarn build:api && yarn build:ui",
     "dev": "concurrently yarn:dev:api yarn:dev:ui",
     "dev:api": "nodemon",
