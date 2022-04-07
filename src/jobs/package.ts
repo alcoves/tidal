@@ -1,11 +1,13 @@
 import path from 'path'
-import s3 from '../config/s3'
+import { getS3Config } from '../config/s3'
 import { Job } from 'bullmq'
 import { purgeURL } from '../utils/bunny'
 import { PackageJobData } from '../types'
 import { getSettings } from '../utils/redis'
 
 async function fetchHlsStreams(bucket: string, prefix: string) {
+  const s3 = await getS3Config()
+
   // Adds a trailing slash if needed
   prefix.charAt(prefix.length - 1) === '/' ? null : (prefix += '/')
 
@@ -66,6 +68,7 @@ function createMainPlaylist(hlsStreams) {
 }
 
 export async function createMainManifest(bucket: string, path: string, entityId: string) {
+  const s3 = await getS3Config()
   const hlsStreams = await fetchHlsStreams(bucket, path)
   const mainPlaylist = createMainPlaylist(hlsStreams)
 

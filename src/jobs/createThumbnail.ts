@@ -1,12 +1,12 @@
+import path from 'path'
 import fs from 'fs-extra'
 import mime from 'mime-types'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-import s3, { getSignedURL } from '../config/s3'
-import { Progress, ThumbnailJobData } from '../types'
-import path from 'path'
 import { purgeURL } from '../utils/bunny'
 import { getSettings } from '../utils/redis'
+import { getS3Config, getSignedURL } from '../config/s3'
+import { Progress, ThumbnailJobData } from '../types'
 
 export async function createThumbnail(job: Job): Promise<any> {
   const { input, output }: ThumbnailJobData = job.data
@@ -47,29 +47,31 @@ export async function createThumbnail(job: Job): Promise<any> {
           reject(err.message)
         })
         .on('end', function () {
-          s3.upload({
-            Key: output.key,
-            Bucket: output.bucket,
-            ContentType: mime.lookup(filename),
-            Body: fs.createReadStream(ffOutputPath),
+          getS3Config().then(s3 => {
+            s3.upload({
+              Key: output.key,
+              Bucket: output.bucket,
+              ContentType: mime.lookup(filename),
+              Body: fs.createReadStream(ffOutputPath),
+            })
+              .promise()
+              .then(() => {
+                fs.removeSync(tmpDir)
+                purgeURL(`https://${settings.cdnHostname}/${output.key}`)
+                  .then(() => {
+                    resolve({ thumbnailFilename: filename })
+                  })
+                  .catch(() => {
+                    console.error('Failed to purge thumbnail')
+                    reject()
+                  })
+              })
+              .catch(() => {
+                fs.removeSync(tmpDir)
+                console.error('Failed to upload thumbnail')
+                reject()
+              })
           })
-            .promise()
-            .then(() => {
-              fs.removeSync(tmpDir)
-              purgeURL(`https://${settings.cdnHostname}/${output.key}`)
-                .then(() => {
-                  resolve({ thumbnailFilename: filename })
-                })
-                .catch(() => {
-                  console.error('Failed to purge thumbnail')
-                  reject()
-                })
-            })
-            .catch(() => {
-              fs.removeSync(tmpDir)
-              console.error('Failed to upload thumbnail')
-              reject()
-            })
         })
         .run()
     })
