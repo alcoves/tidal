@@ -46,13 +46,13 @@ export function getMetadataFromURL(url: string): Promise<Metadata> {
 export async function shouldProcess(input: string, resolution: string): Promise<boolean> {
   const resolutionWidth = parseInt(resolution.split('p')[0])
   const metadata = await getMetadataFromURL(input)
-  if (metadata?.video?.width >= resolutionWidth) {
+  if (metadata.video.width && metadata.video.width >= resolutionWidth) {
     return true
   }
   return false
 }
 
-export function generateFfmpegCommand(resolution: string): string[] | null {
+export function generateFfmpegCommand(resolution: string): string[] {
   const defaults = [
     '-c:a',
     'aac',
@@ -169,6 +169,6 @@ export function generateFfmpegCommand(resolution: string): string[] | null {
         scaleFilter(3840),
       ]
     default:
-      return null
+      return []
   }
 }

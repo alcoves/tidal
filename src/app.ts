@@ -20,9 +20,9 @@ app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
 app.use('/settings', settingsRoutes)
 
-app.use(express.static(uiDistDir))
-app.get('/ui', function (req, res) {
-  res.sendFile(path.join(uiDistDir, 'index.html'))
+app.use('/ui/static', express.static(`${uiDistDir}/static`))
+app.get('/ui(.*)', function (req, res) {
+  res.sendFile('index.html', { root: uiDistDir })
 })
 
 export default app
