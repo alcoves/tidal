@@ -1,12 +1,12 @@
 import express from 'express'
+import { apiKeyAuth } from '../middlewares/auth'
 import {
   createManifest,
   metadataController,
   thumbnailController,
   transcodeHlsController,
-  // transcodeProgressiveController,
+  transcodeProgressiveController,
 } from '../controllers/jobs'
-import { apiKeyAuth } from '../middlewares/auth'
 
 const router = express.Router()
 
@@ -14,7 +14,6 @@ router.post('/manifest', apiKeyAuth, createManifest)
 router.post('/metadata', apiKeyAuth, metadataController)
 router.post('/thumbnail', apiKeyAuth, thumbnailController)
 router.post('/transcode/hls', apiKeyAuth, transcodeHlsController)
-
-// router.post('/transcode/progressive', transcodeProgressiveController)
+router.post('/transcode/progressive', transcodeProgressiveController)
 
 export default router
