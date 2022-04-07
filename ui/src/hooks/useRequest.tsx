@@ -2,7 +2,13 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { UseRequestConfig } from '../types'
 
-const API_URL = 'http://localhost:5000'
+function getApiUrl() {
+  const origin = window.location.origin
+  if (origin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  return window.location.origin
+}
 
 export function useLazyRequest(url: string, props: UseRequestConfig = { method: 'GET' }): any {
   const apiKey = localStorage.getItem('apiKey')
@@ -14,7 +20,7 @@ export function useLazyRequest(url: string, props: UseRequestConfig = { method: 
   function call(overrides: any) {
     setLoading(true)
     axios({
-      url: `${API_URL}${url}`,
+      url: `${getApiUrl()}${url}`,
       method: props.method,
       ...overrides,
       headers: { 'x-api-key': apiKey },
