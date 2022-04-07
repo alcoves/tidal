@@ -1,25 +1,24 @@
 import axios from 'axios'
 import { Job } from 'bullmq'
-import { TidalWebhookBody } from '../types'
-
-const API_KEY = process.env.API_KEY
-const WEBHOOK_URL = process.env.WEBHOOK_URL
+import { db } from '../utils/redis'
+import { TidalSettings, TidalWebhookBody } from '../types'
 
 export async function dispatchWebhook(job: Job) {
-  if (!WEBHOOK_URL) {
-    throw new Error(`Invalid webhook URL: ${WEBHOOK_URL}`)
+  const settings: TidalSettings = JSON.parse((await db.get('tidal:settings')) || '')
+
+  if (!settings.webhookUrl) {
+    throw new Error(`Invalid webhook URL: ${settings.webhookUrl}`)
   }
-  if (!API_KEY) {
+  if (!settings.apiKey) {
     throw new Error(`Invalid API_KEY`)
   }
+
   const webhookJob: TidalWebhookBody = job.data
   const res = await axios({
     method: 'POST',
-    url: WEBHOOK_URL,
     data: webhookJob,
-    headers: {
-      'x-api-key': API_KEY,
-    },
+    url: settings.webhookUrl,
+    headers: { 'x-api-key': settings.apiKey },
   })
 
   return {

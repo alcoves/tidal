@@ -58,3 +58,14 @@ export interface PackageJobData {
   input: S3KeyParameters
   output: S3PathParameters
 }
+
+export interface TidalSettings {
+  apiKey: string
+  webhookUrl: string
+  cdnHostname: string
+  bunnyAccessKey: string
+  s3Endpoint: string
+  s3AccessKeyId: string
+  s3DefaultBucket: string
+  s3SecretAccessKey: string
+}

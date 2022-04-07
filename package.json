@@ -15,7 +15,6 @@
     "dev": "concurrently yarn:dev:api yarn:dev:ui"
   },
   "dependencies": {
-    "@bull-board/express": "^3.10.0",
     "aws-sdk": "^2.1099.0",
     "axios": "^0.26.1",
     "bullmq": "^1.78.1",
@@ -28,6 +27,7 @@
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
     "morgan": "^1.10.0",
+    "redis": "^4.0.6",
     "sharp": "^0.30.3",
     "uuid": "^8.3.2"
   },

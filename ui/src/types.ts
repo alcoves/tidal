@@ -16,3 +16,8 @@ export interface Queue {
 export interface UseRequestConfig {
   method?: string
 }
+
+export interface SettingsProps {
+  settings: any
+  settings_b64: string
+}

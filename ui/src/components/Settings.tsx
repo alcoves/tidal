@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  Box,
   Flex,
   Stack,
   Input,
@@ -8,33 +7,20 @@ import {
   Heading,
   InputGroup,
   InputLeftAddon,
+  HStack,
+  Spinner,
 } from '@chakra-ui/react'
+import { SettingsProps } from '../types'
+import { useLazyRequest, useRequest } from '../hooks/useRequest'
+import { TidalSettings } from '../../../src/types'
 
-const settings = {
-  api_key: '',
-  webhook_url: 'https://example.com/webhook',
-  bunny_access_key: 'bunny-key',
-  concurrent_transcode_jobs: 10,
-  cdn_hostname: 'dev-cdn.bken.io',
-  default_bucket: 'dev-cdn-bken-io',
-  aws_access_key: 'test-key',
-  aws_secret_access_key: 'test-key',
-  aws_endpoint: 'https://test.aws.com',
-  redis_port: '6379',
-  redis_host: 'localhost',
-  redis_password: 'test',
-}
-
-const props = {
-  settings: settings,
-  settings_b64: window.btoa(JSON.stringify(settings)),
-}
-
-export default function Settings() {
+function Settings(props: SettingsProps) {
   const initialSettingsHash = props.settings_b64
 
+  const [saveSettings, { data, loading, error }] = useLazyRequest('/settings', { method: 'PUT' })
+
   const [showSecrets, setShowSecrets] = useState(false)
-  const [settings, setSetting] = useState(props.settings)
+  const [settings, setSetting] = useState<TidalSettings>(props.settings)
   const [settingsHash, setSettingHash] = useState(props.settings_b64)
 
   useEffect(() => {
@@ -43,6 +29,17 @@ export default function Settings() {
 
   function handleShowSecrets() {
     setShowSecrets(!showSecrets)
+  }
+
+  function logOut() {
+    localStorage.removeItem('apiKey')
+    window.location.reload()
+  }
+
+  function handleSave() {
+    saveSettings({
+      data: settings,
+    })
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -57,43 +54,35 @@ export default function Settings() {
   return (
     <Flex direction='column'>
       <Heading size='lg'>Settings</Heading>
-      <Box py='2'>
+      <HStack py='2'>
         <Button onClick={handleShowSecrets} size='xs' colorScheme='yellow'>
           {showSecrets ? 'Hide' : 'Show'} Secrets
         </Button>
-      </Box>
+        <Button onClick={logOut} size='xs' colorScheme='yellow'>
+          Log Out
+        </Button>
+      </HStack>
       <Stack mt='3'>
         <Stack>
           <Heading size='sm'>CDN Hostname</Heading>
           <Input
             w='100%'
-            name='cdn_hostname'
+            name='cdnHostname'
             variant='filled'
             placeholder='CDN Hostname'
             onChange={handleChange}
-            defaultValue={settings.cdn_hostname}
-          />
-        </Stack>
-        <Stack>
-          <Heading size='sm'>Concurrent Transcode Jobs</Heading>
-          <Input
-            w='100%'
-            name='concurrent_transcode_jobs'
-            variant='filled'
-            placeholder='Concurrent Transcode Jobs'
-            onChange={handleChange}
-            defaultValue={settings.concurrent_transcode_jobs}
+            defaultValue={settings.cdnHostname}
           />
         </Stack>
         <Stack>
           <Heading size='sm'>Webhook URL</Heading>
           <Input
             w='100%'
-            name='webhook_url'
+            name='webhookUrl'
             variant='filled'
             placeholder='Webhook URL'
             onChange={handleChange}
-            defaultValue={settings.webhook_url}
+            defaultValue={settings.webhookUrl}
           />
         </Stack>
         <Stack>
@@ -104,7 +93,7 @@ export default function Settings() {
             variant='filled'
             placeholder='API Key'
             onChange={handleChange}
-            defaultValue={settings.api_key}
+            defaultValue={settings.apiKey}
             type={showSecrets ? 'text' : 'password'}
           />
         </Stack>
@@ -112,11 +101,12 @@ export default function Settings() {
           <Heading size='sm'>Bunny CDN Access Key</Heading>
           <Input
             w='100%'
-            name='bunny_access_key'
+            name='bunnyAccessKey'
             variant='filled'
             placeholder='Bunny CDN Access Key'
             onChange={handleChange}
-            defaultValue={settings.bunny_access_key}
+            defaultValue={settings.bunnyAccessKey}
+            type={showSecrets ? 'text' : 'password'}
           />
         </Stack>
         <Stack>
@@ -126,10 +116,10 @@ export default function Settings() {
             <Input
               w='100%'
               variant='filled'
-              name='default_bucket'
+              name='s3DefaultBucket'
               placeholder='Default Bucket'
               onChange={handleChange}
-              defaultValue={settings.default_bucket}
+              defaultValue={settings.s3DefaultBucket}
             />
           </InputGroup>
           <InputGroup>
@@ -137,10 +127,10 @@ export default function Settings() {
             <Input
               w='100%'
               variant='filled'
-              name='aws_access_key'
-              placeholder='Access Key'
+              name='s3AccessKeyId'
+              placeholder='Access Key ID'
               onChange={handleChange}
-              defaultValue={settings.aws_access_key}
+              defaultValue={settings.s3AccessKeyId}
             />
           </InputGroup>
           <InputGroup>
@@ -149,9 +139,9 @@ export default function Settings() {
               w='100%'
               variant='filled'
               onChange={handleChange}
-              name='aws_secret_access_key'
-              placeholder='Access Secret Access Key'
-              defaultValue={settings.aws_secret_access_key}
+              name='s3SecretAccessKey'
+              placeholder='Secret Access Key'
+              defaultValue={settings.s3SecretAccessKey}
               type={showSecrets ? 'text' : 'password'}
             />
           </InputGroup>
@@ -160,56 +150,29 @@ export default function Settings() {
             <Input
               w='100%'
               variant='filled'
-              name='aws_endpoint'
+              name='s3Endpoint'
               placeholder='Endpoint'
               onChange={handleChange}
-              defaultValue={settings.aws_endpoint}
-            />
-          </InputGroup>
-        </Stack>
-        <Stack>
-          <Heading size='sm'>Redis</Heading>
-          <InputGroup>
-            <InputLeftAddon w='200px' children='Redis Port' />
-            <Input
-              w='100%'
-              variant='filled'
-              name='redis_port'
-              placeholder='Redis Port'
-              onChange={handleChange}
-              defaultValue={settings.redis_port}
-            />
-          </InputGroup>
-          <InputGroup>
-            <InputLeftAddon w='200px' children='Redis Host' />
-            <Input
-              w='100%'
-              variant='filled'
-              onChange={handleChange}
-              name='redis_host'
-              placeholder='Redis Host'
-              defaultValue={settings.redis_host}
-            />
-          </InputGroup>
-          <InputGroup>
-            <InputLeftAddon w='200px' children='Redis Password' />
-            <Input
-              w='100%'
-              variant='filled'
-              name='redis_password'
-              placeholder='Redis Password'
-              onChange={handleChange}
-              defaultValue={settings.redis_password}
-              type={showSecrets ? 'text' : 'password'}
+              defaultValue={settings.s3Endpoint}
             />
           </InputGroup>
         </Stack>
       </Stack>
       <Flex mt='2' w='100%' justify='end'>
-        <Button colorScheme='yellow' isDisabled={initialSettingsHash === settingsHash}>
+        <Button
+          onClick={handleSave}
+          colorScheme='yellow'
+          isDisabled={initialSettingsHash === settingsHash}
+        >
           Save
         </Button>
       </Flex>
     </Flex>
   )
+}
+
+export default function SettingsWrapper() {
+  const { loading, data } = useRequest('/settings')
+  if (loading) return <Spinner />
+  return <Settings settings={data} settings_b64={window.btoa(JSON.stringify(data))} />
 }

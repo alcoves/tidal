@@ -3,6 +3,7 @@ import s3 from '../config/s3'
 import { Job } from 'bullmq'
 import { purgeURL } from '../utils/bunny'
 import { PackageJobData } from '../types'
+import { getSettings } from '../utils/redis'
 
 async function fetchHlsStreams(bucket: string, prefix: string) {
   // Adds a trailing slash if needed
@@ -77,7 +78,8 @@ export async function createMainManifest(bucket: string, path: string, entityId:
     })
     .promise()
 
-  await purgeURL(`https://${process.env.CDN_HOSTNAME}/v/${entityId}/*`)
+  const settings = await getSettings()
+  await purgeURL(`https://${settings.cdnHostname}/v/${entityId}/*`)
 }
 
 export async function packageHls(job: Job) {

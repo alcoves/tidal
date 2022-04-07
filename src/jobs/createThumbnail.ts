@@ -6,6 +6,7 @@ import s3, { getSignedURL } from '../config/s3'
 import { Progress, ThumbnailJobData } from '../types'
 import path from 'path'
 import { purgeURL } from '../utils/bunny'
+import { getSettings } from '../utils/redis'
 
 export async function createThumbnail(job: Job): Promise<any> {
   const { input, output }: ThumbnailJobData = job.data
@@ -27,6 +28,7 @@ export async function createThumbnail(job: Job): Promise<any> {
 
   try {
     const signedUrl = await getSignedURL({ Bucket: input.bucket, Key: input.key })
+    const settings = await getSettings()
 
     return new Promise((resolve, reject) => {
       ffmpeg(signedUrl)
@@ -54,7 +56,7 @@ export async function createThumbnail(job: Job): Promise<any> {
             .promise()
             .then(() => {
               fs.removeSync(tmpDir)
-              purgeURL(`https://${process.env.CDN_HOSTNAME}/${output.key}`)
+              purgeURL(`https://${settings.cdnHostname}/${output.key}`)
                 .then(() => {
                   resolve({ thumbnailFilename: filename })
                 })

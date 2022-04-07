@@ -5,8 +5,39 @@ import Presets from './components/Presets'
 import Settings from './components/Settings'
 
 import { Route, Routes } from 'react-router-dom'
+import { useState } from 'react'
+import { Button, Flex, Heading, Input } from '@chakra-ui/react'
 
 export function App() {
+  const localStorageKey = localStorage.getItem('apiKey') || ''
+  const [apiKey, setApiKey] = useState(localStorageKey)
+
+  function handleChange(e) {
+    setApiKey(e.target.value)
+  }
+
+  function handleSubmit() {
+    localStorage.setItem('apiKey', apiKey || '')
+    window.location.reload()
+    // TODO :: Make request to api to see if api key is valid
+  }
+
+  if (!localStorageKey) {
+    return (
+      <Layout>
+        <Flex direction='column' maxW='500px'>
+          <Heading size='md'> Please Set Your API Key </Heading>
+          <Flex mt='2' align='start'>
+            <Input onChange={handleChange} defaultValue={apiKey} placeholder='API Key' />
+            <Button onClick={handleSubmit} colorScheme='yellow' ml='2'>
+              Set
+            </Button>
+          </Flex>
+        </Flex>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
       <Routes>

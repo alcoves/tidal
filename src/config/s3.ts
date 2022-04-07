@@ -2,6 +2,7 @@ import _ from 'lodash'
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
+import { getSettings } from '../utils/redis'
 
 AWS.config.update({
   maxRetries: 8,
@@ -11,13 +12,21 @@ AWS.config.update({
   },
 })
 
-const s3 = new AWS.S3({
-  signatureVersion: 'v4',
-  region: 'us-east-1',
-  endpoint: process.env.S3_ENDPOINT,
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-})
+let s3
+
+getSettings()
+  .then(settings => {
+    s3 = new AWS.S3({
+      signatureVersion: 'v4',
+      region: 'us-east-1',
+      endpoint: settings.s3Endpoint,
+      accessKeyId: settings.s3AccessKeyId,
+      secretAccessKey: settings.s3SecretAccessKey,
+    })
+  })
+  .catch(error => {
+    console.error('Failed to get gettings from Redis', error)
+  })
 
 export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
   return s3.getSignedUrlPromise('getObject', {
