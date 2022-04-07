@@ -112,17 +112,6 @@ function Settings(props: SettingsProps) {
         <Stack>
           <Heading size='sm'>S3 Object Storage</Heading>
           <InputGroup>
-            <InputLeftAddon w='200px' children='Default Bucket' />
-            <Input
-              w='100%'
-              variant='filled'
-              name='s3DefaultBucket'
-              placeholder='Default Bucket'
-              onChange={handleChange}
-              defaultValue={settings.s3DefaultBucket}
-            />
-          </InputGroup>
-          <InputGroup>
             <InputLeftAddon w='200px' children='Access Key' />
             <Input
               w='100%'

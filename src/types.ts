@@ -66,6 +66,5 @@ export interface TidalSettings {
   bunnyAccessKey: string
   s3Endpoint: string
   s3AccessKeyId: string
-  s3DefaultBucket: string
   s3SecretAccessKey: string
 }
