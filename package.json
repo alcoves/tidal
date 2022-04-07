@@ -1,6 +1,6 @@
 {
   "name": "tidal",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "repository": "git@github.com:bkenio/tidal.git",
   "author": "Brendan Kennedy <brendan@bken.io>",
   "license": "UNLICENSED",
