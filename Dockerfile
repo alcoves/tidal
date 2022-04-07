@@ -4,7 +4,7 @@ RUN apk add --no-cache ffmpeg
 WORKDIR /app
 COPY ui ui
 COPY api api
-COPY package.json yarn.lock tsconfig.json .
+COPY package.json yarn.lock tsconfig.json ./
 
 RUN yarn --frozen-lockfile
 RUN yarn build
