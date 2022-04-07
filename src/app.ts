@@ -3,6 +3,7 @@ import morgan from 'morgan'
 import express from 'express'
 import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
+import queueRoutes from './routes/queues'
 
 // bullmq ui
 import { basicAuth } from './middlewares/auth'
@@ -37,5 +38,6 @@ app.use(morgan('tiny'))
 
 app.use(rootRoutes)
 app.use('/jobs', jobRoutes)
+app.use('/queues', queueRoutes)
 
 export default app

@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 
 const settings = {
-  api_key: 'secret',
+  api_key: '',
   webhook_url: 'https://example.com/webhook',
   bunny_access_key: 'bunny-key',
   concurrent_transcode_jobs: 10,

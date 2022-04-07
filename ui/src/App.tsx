@@ -1,5 +1,5 @@
 import Home from './components/Home'
-import Jobs from './components/Jobs'
+import Queues from './components/Queues'
 import Layout from './components/Layout'
 import Presets from './components/Presets'
 import Settings from './components/Settings'
@@ -11,7 +11,7 @@ export function App() {
     <Layout>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/jobs' element={<Jobs />} />
+        <Route path='/queues' element={<Queues />} />
         <Route path='/presets' element={<Presets />} />
         <Route path='/settings' element={<Settings />} />
       </Routes>
