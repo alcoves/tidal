@@ -23,7 +23,7 @@ export default function TranscodeHLS() {
   })
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  function handleSubmit(event) {
+  function handleSubmit(event: any) {
     event.preventDefault()
     console.log(event.target.dispatchWebhook)
     transcodeHLS({

@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import Home from './components/Home'
 import Queues from './components/Queues'
 import Layout from './components/Layout'
@@ -5,14 +6,13 @@ import Presets from './components/Presets'
 import Settings from './components/Settings'
 
 import { Route, Routes } from 'react-router-dom'
-import { useState } from 'react'
 import { Button, Flex, Heading, Input } from '@chakra-ui/react'
 
 export function App() {
   const localStorageKey = localStorage.getItem('apiKey') || ''
   const [apiKey, setApiKey] = useState(localStorageKey)
 
-  function handleChange(e) {
+  function handleChange(e: any) {
     setApiKey(e.target.value)
   }
 

@@ -35,4 +35,5 @@ yarn-error.log*
 
 .tmp
 
-/dist
+dist
+build

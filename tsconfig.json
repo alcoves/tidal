@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2021",
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "module": "commonjs",
@@ -10,6 +10,8 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "experimentalDecorators": true,
+    "jsxImportSource": "preact",
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "noImplicitAny": false,
