@@ -10,7 +10,7 @@ import { TranscodeJobData } from '../types'
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
-    dispatchWebhook: Joi.bool().required().default(true),
+    dispatchWebhook: Joi.bool().default(true),
     entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
