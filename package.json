@@ -20,7 +20,7 @@
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@fontsource/fira-sans": "^4.5.7",
-    "aws-sdk": "^2.1111.0",
+    "aws-sdk": "^2.1112.0",
     "axios": "^0.26.1",
     "bullmq": "^1.79.0",
     "cors": "^2.8.5",
