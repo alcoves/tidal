@@ -2,25 +2,34 @@
 
 ### Running Locally
 
-. ./.env && docker-compose up
+.env
 
-### ENV
+```
+REDIS_PORT=6379
+REDIS_HOST=localhost
+REDIS_PASSWORD=test
 
-```sh
-REDIS_PORT=
-REDIS_HOST=
-REDIS_PASSWORD=
+--- Optional
+
+API_PORT=5001
+API_URL=http://localhost:5001
+DISABLE_JOBS=true
+CONCURRENT_JOBS=1
 ```
 
-### Settings
-
-Other settings must be defined in the Tidal UI. More to come on this
+- Create the `.env` file as described above
+- Run redis database `docker compose up -d`
+- Run `yarn && yarn dev`
+- The API will run on `http://localhost:5000` and the UI on `http://localhost:1234/ui` with hot reloading enabled
+  - In a deployed environment, the UI is built and hosted statically at `http://localhost:5000/ui`
+- Create a record in Redis like this `SET tidal:settings '{"apiKey":"test"}'`
+- Now use the UI to add enter the required configuration on the via the Settings tab
 
 # Redis
 
 Tidal uses Redis and bullmq to process jobs.
 
-<!-- Since encoding is a very CPU intensive task, you can run in API only mode (job processing will be skipped) by setting the env `WORKER_NODE` to `false` -->
+<!-- Since encoding is a very CPU intensive task, you can run in API only mode (job processing will be skipped) by setting the env `DISABLE_JOBS` to any value -->
 
 ### Development
 

@@ -7,7 +7,7 @@ import './config/queues/transcode'
 
 import app from './app'
 
-const port = 5000
+const port = process.env.API_PORT || 5000
 
 app.listen(port, () => {
   console.log(`listening on *:${port}`)

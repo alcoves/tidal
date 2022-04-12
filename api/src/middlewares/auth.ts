@@ -1,9 +1,8 @@
-import { db } from '../utils/redis'
-import { TidalSettings } from '../types'
+import { getSettings } from '../utils/redis'
 
 export async function apiKeyAuth(req, res, next) {
   const apiKey = req.headers['x-api-key']
-  const settings: TidalSettings = JSON.parse((await db.get('tidal:settings')) || '')
+  const settings = await getSettings()
   if (apiKey !== settings.apiKey) return res.sendStatus(403)
   next()
 }

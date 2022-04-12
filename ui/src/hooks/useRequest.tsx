@@ -5,7 +5,8 @@ import { UseRequestConfig } from '../types'
 function getApiUrl() {
   const origin = window.location.origin
   if (origin.includes('localhost')) {
-    return 'http://localhost:5000'
+    console.log(process.env.API_URL)
+    return process.env.API_URL || 'http://localhost:500'
   }
   return window.location.origin
 }
