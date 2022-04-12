@@ -18,14 +18,13 @@ import { useEffect } from 'react'
 import { useLazyRequest } from '../../hooks/useRequest'
 
 export default function TranscodeHLS() {
-  const [transcodeHLS, { data, loading, error }] = useLazyRequest('/jobs/transcode/hls', {
+  const [transcodeHLS, { data, loading }] = useLazyRequest('/jobs/transcode/hls', {
     method: 'POST',
   })
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   function handleSubmit(event: any) {
     event.preventDefault()
-    console.log(event.target.dispatchWebhook)
     transcodeHLS({
       data: {
         dispatchWebhook: event.target.dispatchWebhook.checked,
