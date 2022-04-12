@@ -1,3 +1,4 @@
+import useSWR from 'swr'
 import { useEffect, useState } from 'react'
 import {
   Flex,
@@ -11,8 +12,9 @@ import {
   Spinner,
 } from '@chakra-ui/react'
 import { SettingsProps } from '../types'
-import { useLazyRequest, useRequest } from '../hooks/useRequest'
+import { useLazyRequest } from '../hooks/useRequest'
 import { TidalSettings } from '../../../api/src/types'
+import { fetcher } from '../utils/fetcher'
 
 function Settings(props: SettingsProps) {
   const initialSettingsHash = props.settings_b64
@@ -161,7 +163,7 @@ function Settings(props: SettingsProps) {
 }
 
 export default function SettingsWrapper() {
-  const { loading, data } = useRequest('/settings')
-  if (loading) return <Spinner />
+  const { data, error } = useSWR(`/settings`, fetcher)
+  if (!data && !error) return <Spinner />
   return <Settings settings={data} settings_b64={window.btoa(JSON.stringify(data))} />
 }
