@@ -1,6 +1,7 @@
-import { useRequest } from './useRequest'
+import useSWR from 'swr'
+import { fetcher } from '../utils/fetcher'
 
 export function useSettings() {
-  const { data, loading, error } = useRequest('/settings')
-  return { loading, settings: data, error }
+  const { data, error } = useSWR(`/settings`, fetcher)
+  return { settings: data, error }
 }
