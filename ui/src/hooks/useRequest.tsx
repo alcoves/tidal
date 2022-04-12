@@ -1,14 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { UseRequestConfig } from '../types'
-
-function getApiUrl() {
-  const origin = window.location.origin
-  if (origin.includes('localhost')) {
-    return process.env.API_URL || 'http://localhost:5000'
-  }
-  return window.location.origin
-}
+import { getApiUrl } from '../utils/fetcher'
 
 export function useLazyRequest(url: string, props: UseRequestConfig = { method: 'GET' }): any {
   const apiKey = localStorage.getItem('apiKey')
