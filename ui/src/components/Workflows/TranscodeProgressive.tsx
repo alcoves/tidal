@@ -27,7 +27,7 @@ export default function TranscodeProgressive() {
     event.preventDefault()
     transcodeProgressive({
       data: {
-        dispatchWebhook: event.target.dispatchWebhook.checked,
+        webhooks: event.target.webhooks.checked,
         input: {
           bucket: event.target.inputBucket.value,
           key: event.target.inputKey.value,
@@ -81,7 +81,7 @@ export default function TranscodeProgressive() {
               </FormControl>
               <FormControl>
                 <FormLabel>Dispatch Webhooks</FormLabel>
-                <Switch id='dispatchWebhook' />
+                <Switch id='webhooks' />
               </FormControl>
             </ModalBody>
             <ModalFooter>

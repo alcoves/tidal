@@ -2,7 +2,7 @@ import { enqueueWebhook } from './webhook'
 import { defaultConnection } from '../redis'
 import { hlsFlowProducer } from '../flows/hls'
 import { packageHls } from '../../jobs/package'
-import { transcode } from '../../jobs/transcode'
+import { transcodeHLS } from '../../jobs/transcodeHLS'
 import { transcodeProgressive } from '../../jobs/transcodeProgressive'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 
@@ -15,10 +15,10 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
-    case 'package-hls':
+    case 'packageHLS':
       return packageHls(job)
-    case 'transcode':
-      return transcode(job)
+    case 'transcodeHLS':
+      return transcodeHLS(job)
     case 'transcodeProgressive':
       return transcodeProgressive(job)
     default:
@@ -54,21 +54,21 @@ if (!process.env.DISABLE_JOBS) {
   })
 
   transcodeWorker.on('completed', async job => {
-    if (!job.data?.dispatchWebhook) return
+    if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has completed!`)
-    if (job.name !== 'transcode') await enqueueWebhook(job)
+    if (job.name !== 'transcodeHLS') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('failed', async (job, err) => {
-    if (!job.data?.dispatchWebhook) return
+    if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-    if (job.name !== 'transcode') await enqueueWebhook(job)
+    if (job.name !== 'transcodeHLS') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('progress', async job => {
-    if (!job.data?.dispatchWebhook) return
+    if (!job.data?.webhooks) return
 
-    if (job.name === 'transcode') {
+    if (job.name === 'transcodeHLS') {
       if (job.data.parentId) {
         const tree = await hlsFlowProducer.getFlow({
           id: job.data.parentId,

@@ -27,7 +27,7 @@ export default function TranscodeHLS() {
     event.preventDefault()
     transcodeHLS({
       data: {
-        dispatchWebhook: event.target.dispatchWebhook.checked,
+        webhooks: event.target.webhooks.checked,
         input: {
           bucket: event.target.inputBucket.value,
           key: event.target.inputKey.value,
@@ -84,7 +84,7 @@ export default function TranscodeHLS() {
               </FormControl>
               <FormControl>
                 <FormLabel>Dispatch Webhooks</FormLabel>
-                <Switch id='dispatchWebhook' defaultChecked />
+                <Switch id='webhooks' defaultChecked />
               </FormControl>
             </ModalBody>
             <ModalFooter>

@@ -2,11 +2,11 @@ import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { uploadFolder } from '../config/s3'
-import { Progress, TranscodeJobData } from '../types'
+import { Progress, TranscodeHLSJobData } from '../types'
 import { generateFfmpegCommand, shouldProcess } from '../utils/video'
 
-export async function transcode(job: Job) {
-  const { inputURL, output }: TranscodeJobData = job.data
+export async function transcodeHLS(job: Job) {
+  const { inputURL, output }: TranscodeHLSJobData = job.data
 
   // Make 240p process regardless of weather the video is big enough
   if (job.data.resolution !== '240p') {

@@ -25,20 +25,20 @@ export interface S3PathParameters {
   bucket: string
 }
 
-export interface TranscodeJobData {
+export interface TranscodeHLSJobData {
   inputURL: string
   parentId: string
   entityId: string
   resolution: string
   output: S3KeyParameters
-  dispatchWebhook: boolean
+  webhooks: boolean
 }
 
 export interface TranscodeProgressiveJobData {
   cmd: string
   inputURL: string
   output: S3KeyParameters
-  dispatchWebhook: boolean
+  webhooks: boolean
 }
 
 export interface ThumbnailJobData {

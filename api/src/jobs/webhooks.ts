@@ -3,7 +3,7 @@ import { Job } from 'bullmq'
 import { db } from '../utils/redis'
 import { TidalSettings, TidalWebhookBody } from '../types'
 
-export async function dispatchWebhook(job: Job) {
+export async function webhooks(job: Job) {
   const settings: TidalSettings = JSON.parse((await db.get('tidal:settings')) || '')
 
   if (!settings.webhookUrl) {

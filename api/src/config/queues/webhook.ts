@@ -1,7 +1,7 @@
 import { defaultConnection } from '../redis'
 import { TidalWebhookBody } from '../../types'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { dispatchWebhook } from '../../jobs/dispatchWebhook'
+import { webhooks } from '../../jobs/webhooks'
 
 // Increasing the lock duration attempts to avoid stalling jobs
 const lockDuration = 1000 * 240 // 4 minutes
@@ -9,7 +9,7 @@ const lockDuration = 1000 * 240 // 4 minutes
 function queueSwitch(job: Job) {
   switch (job.name) {
     case 'dispatch':
-      return dispatchWebhook(job)
+      return webhooks(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }

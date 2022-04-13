@@ -6,13 +6,13 @@ import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { createMainManifest } from '../jobs/package'
-import { TranscodeJobData, TranscodeProgressiveJobData } from '../types'
+import { TranscodeHLSJobData, TranscodeProgressiveJobData } from '../types'
 import { transcodeQueue } from '../config/queues/transcode'
 
 export async function transcodeProgressiveController(req, res) {
   const schema = Joi.object({
     cmd: Joi.string().required().max(1024),
-    dispatchWebhook: Joi.bool().default(true),
+    webhooks: Joi.bool().default(true),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
       key: Joi.string().required().max(255),
@@ -35,7 +35,7 @@ export async function transcodeProgressiveController(req, res) {
   const job: TranscodeProgressiveJobData = {
     cmd: value.cmd,
     inputURL: signedUrl,
-    dispatchWebhook: value.dispatchWebhook,
+    webhooks: value.webhooks,
     output: {
       key: value.output.key,
       bucket: value.output.bucket,
@@ -48,7 +48,7 @@ export async function transcodeProgressiveController(req, res) {
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
-    dispatchWebhook: Joi.bool().default(true),
+    webhooks: Joi.bool().default(true),
     entityId: Joi.string().required().max(50),
     input: Joi.object({
       bucket: Joi.string().required().max(255),
@@ -73,7 +73,7 @@ export async function transcodeHlsController(req, res) {
   function childJobs(parentJobId: string): any[] {
     const resolutions = ['240p', '360p', '480p', '720p', '1080p'] //  '1440p', '2160p'
     return resolutions.map((r: string) => {
-      const jobData: TranscodeJobData = {
+      const jobData: TranscodeHLSJobData = {
         resolution: r,
         inputURL: signedUrl,
         output: {
@@ -82,12 +82,12 @@ export async function transcodeHlsController(req, res) {
         },
         parentId: parentJobId,
         entityId: value.entityId,
-        dispatchWebhook: value.dispatchWebhook,
+        webhooks: value.webhooks,
       }
 
       const job: FlowJob = {
         data: jobData,
-        name: 'transcode',
+        name: 'transcodeHLS',
         queueName: 'transcode',
       }
       return job
@@ -97,7 +97,7 @@ export async function transcodeHlsController(req, res) {
   const parentJobId: string = uuidv4()
 
   await hlsFlowProducer.add({
-    name: 'package-hls',
+    name: 'packageHLS',
     queueName: 'transcode',
     data: { ...value },
     children: childJobs(parentJobId),
