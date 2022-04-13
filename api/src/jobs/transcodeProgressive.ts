@@ -1,27 +1,20 @@
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-import { uploadFolder } from '../config/s3'
-import { Progress, TranscodeJobData } from '../types'
-import { generateFfmpegCommand, shouldProcess } from '../utils/video'
+import { uploadFile } from '../config/s3'
+import { Progress, TranscodeProgressiveJobData } from '../types'
 
-export async function transcode(job: Job) {
-  const { inputURL, output }: TranscodeJobData = job.data
-
-  // Make 240p process regardless of weather the video is big enough
-  if (job.data.resolution !== '240p') {
-    if (await !shouldProcess(inputURL, job.data.resolution)) return 'skipped resolution'
-  }
+export async function transcodeProgressive(job: Job) {
+  const { inputURL, output, cmd }: TranscodeProgressiveJobData = job.data
 
   let lastProgress = 0
-  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode')
-  const outputPath = `${tmpDir}/stream.m3u8`
-  const ffmpegCommands = generateFfmpegCommand(job.data.resolution)
+  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode-progressive-')
+  const outputPath = `${tmpDir}/output.${output.key.split('.').pop()}` // Better way to get file ext?
 
   try {
     return new Promise((resolve, reject) => {
       ffmpeg(inputURL)
-        .outputOptions(ffmpegCommands)
+        .outputOptions(cmd.split(' '))
         .output(outputPath)
         .on('start', function (commandLine) {
           console.log('Spawned ffmpeg with command: ' + commandLine)
@@ -41,7 +34,7 @@ export async function transcode(job: Job) {
         })
         .on('end', async function () {
           console.log('Done')
-          await uploadFolder(tmpDir, { Bucket: output.bucket, Key: output.key })
+          await uploadFile(outputPath, { Bucket: output.bucket, Key: output.key })
           await fs.remove(tmpDir)
           resolve('done')
         })
@@ -49,6 +42,7 @@ export async function transcode(job: Job) {
     })
   } catch (error) {
     console.error(error)
+    await fs.remove(tmpDir)
     throw error
   }
 }

@@ -3,6 +3,7 @@ import { defaultConnection } from '../redis'
 import { hlsFlowProducer } from '../flows/hls'
 import { packageHls } from '../../jobs/package'
 import { transcode } from '../../jobs/transcode'
+import { transcodeProgressive } from '../../jobs/transcodeProgressive'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
@@ -18,6 +19,8 @@ function queueSwitch(job: Job) {
       return packageHls(job)
     case 'transcode':
       return transcode(job)
+    case 'transcodeProgressive':
+      return transcodeProgressive(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }

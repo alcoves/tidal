@@ -66,6 +66,21 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
     .promise()
 }
 
+export async function uploadFile(
+  filePath: string,
+  { Bucket, Key }: { Bucket: string; Key: string }
+) {
+  const s3 = await getS3Config()
+  const fileStream = fs.createReadStream(filePath)
+  const params = {
+    Bucket,
+    Key,
+    Body: fileStream,
+    ContentType: mime.lookup(filePath),
+  }
+  return s3.upload(params).promise()
+}
+
 export async function uploadFolder(
   directory: string,
   { Bucket, Key }: { Bucket: string; Key: string }

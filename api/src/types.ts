@@ -34,6 +34,13 @@ export interface TranscodeJobData {
   dispatchWebhook: boolean
 }
 
+export interface TranscodeProgressiveJobData {
+  cmd: string
+  inputURL: string
+  output: S3KeyParameters
+  dispatchWebhook: boolean
+}
+
 export interface ThumbnailJobData {
   input: S3KeyParameters
   output: S3KeyParameters

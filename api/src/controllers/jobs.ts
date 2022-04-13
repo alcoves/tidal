@@ -6,7 +6,45 @@ import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { createMainManifest } from '../jobs/package'
-import { TranscodeJobData } from '../types'
+import { TranscodeJobData, TranscodeProgressiveJobData } from '../types'
+import { transcodeQueue } from '../config/queues/transcode'
+
+export async function transcodeProgressiveController(req, res) {
+  const schema = Joi.object({
+    cmd: Joi.string().required().max(1024),
+    dispatchWebhook: Joi.bool().default(true),
+    input: Joi.object({
+      bucket: Joi.string().required().max(255),
+      key: Joi.string().required().max(255),
+    }),
+    output: Joi.object({
+      bucket: Joi.string().required().max(255),
+      key: Joi.string().required().max(255),
+    }),
+  })
+
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
+
+  if (error) return res.status(400).json(error)
+  const signedUrl = await getSignedURL({ Bucket: value.input.bucket, Key: value.input.key })
+
+  const job: TranscodeProgressiveJobData = {
+    cmd: value.cmd,
+    inputURL: signedUrl,
+    dispatchWebhook: value.dispatchWebhook,
+    output: {
+      key: value.output.key,
+      bucket: value.output.bucket,
+    },
+  }
+
+  await transcodeQueue.add('transcodeProgressive', job)
+  return res.sendStatus(202)
+}
 
 export async function transcodeHlsController(req, res) {
   const schema = Joi.object({
