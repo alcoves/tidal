@@ -15,8 +15,9 @@ AWS.config.update({
 export async function getS3Config() {
   const settings = await getSettings()
   return new AWS.S3({
-    signatureVersion: 'v4',
     region: 'us-east-1',
+    signatureVersion: 'v4',
+    s3ForcePathStyle: true,
     endpoint: settings.s3Endpoint,
     accessKeyId: settings.s3AccessKeyId,
     secretAccessKey: settings.s3SecretAccessKey,
