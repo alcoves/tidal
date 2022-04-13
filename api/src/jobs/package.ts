@@ -82,7 +82,9 @@ export async function createMainManifest(bucket: string, path: string, entityId:
     .promise()
 
   const settings = await getSettings()
-  await purgeURL(`https://${settings.cdnHostname}/v/${entityId}/*`)
+  if (settings.cdnHostname && settings.bunnyAccessKey) {
+    await purgeURL(`https://${settings.cdnHostname}/v/${entityId}/*`, settings.bunnyAccessKey)
+  }
 }
 
 export async function packageHls(job: Job) {

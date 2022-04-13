@@ -46,32 +46,27 @@ export async function createThumbnail(job: Job): Promise<any> {
           console.log('An error occurred: ' + err.message)
           reject(err.message)
         })
-        .on('end', function () {
-          getS3Config().then(s3 => {
-            s3.upload({
+        .on('end', async function () {
+          try {
+            const s3 = await getS3Config()
+            await s3.upload({
               Key: output.key,
               Bucket: output.bucket,
               ContentType: mime.lookup(filename),
               Body: fs.createReadStream(ffOutputPath),
             })
-              .promise()
-              .then(() => {
-                fs.removeSync(tmpDir)
-                purgeURL(`https://${settings.cdnHostname}/${output.key}`)
-                  .then(() => {
-                    resolve({ thumbnailFilename: filename })
-                  })
-                  .catch(() => {
-                    console.error('Failed to purge thumbnail')
-                    reject()
-                  })
-              })
-              .catch(() => {
-                fs.removeSync(tmpDir)
-                console.error('Failed to upload thumbnail')
-                reject()
-              })
-          })
+
+            await fs.remove(tmpDir)
+            if (settings.cdnHostname && settings.bunnyAccessKey) {
+              await purgeURL(`${settings.cdnHostname}/${output.key}`, settings.bunnyAccessKey)
+            }
+
+            resolve({ thumbnailFilename: filename })
+          } catch (error) {
+            console.error('Failure in createThumbnail on end', error)
+            await fs.remove(tmpDir)
+            reject(error)
+          }
         })
         .run()
     })

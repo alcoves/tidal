@@ -66,14 +66,15 @@ function Settings(props: SettingsProps) {
       </HStack>
       <Stack mt='3'>
         <Stack>
-          <Heading size='sm'>CDN Hostname</Heading>
+          <Heading size='sm'>API Key</Heading>
           <Input
             w='100%'
-            name='cdnHostname'
+            name='api_key'
             variant='filled'
-            placeholder='CDN Hostname'
+            placeholder='API Key'
             onChange={handleChange}
-            defaultValue={settings.cdnHostname}
+            defaultValue={settings.apiKey}
+            type={showSecrets ? 'text' : 'password'}
           />
         </Stack>
         <Stack>
@@ -88,24 +89,20 @@ function Settings(props: SettingsProps) {
           />
         </Stack>
         <Stack>
-          <Heading size='sm'>API Key</Heading>
+          <Heading size='sm'>Bunny CDN</Heading>
           <Input
             w='100%'
-            name='api_key'
+            name='cdnHostname'
             variant='filled'
-            placeholder='API Key'
+            placeholder='CDN Hostname (optional)'
             onChange={handleChange}
-            defaultValue={settings.apiKey}
-            type={showSecrets ? 'text' : 'password'}
+            defaultValue={settings.cdnHostname}
           />
-        </Stack>
-        <Stack>
-          <Heading size='sm'>Bunny CDN Access Key</Heading>
           <Input
             w='100%'
             name='bunnyAccessKey'
             variant='filled'
-            placeholder='Bunny CDN Access Key'
+            placeholder='Bunny CDN Access Key (optional)'
             onChange={handleChange}
             defaultValue={settings.bunnyAccessKey}
             type={showSecrets ? 'text' : 'password'}
