@@ -1,6 +1,18 @@
-# Tidal Overview
+# Overview
 
-### Running Locally
+Tidal is a video transcoding engine that aims to simplify multi-node video coding. Tidal scales horizontally and vertically to meet the demands of your workloads. Video codecs are only getting more intensive. Tidal aims to simply the complex task of distributed video coding.
+
+I'm not accepting pull requests right now. Tidal is changing rapidly.
+
+## Architecture
+
+Tidal relies heavily on Redis and bullmq to orchestrate jobs. We recommend using a container orchestrator like swarm, nomad, or k8s to scale out. As long as your containers connect to redis, they will start processing jobs.
+
+We highly recommend running the API server on a different node than the workers. Worker nodes will regularly hit 100% CPU usage which will degrade the responsiveness of the API. To run an API only server, simply set `DISABLE_JOBS=true`
+
+We recommend using minio for s3 compatible storage. We only support object storage at this moment. Beware the cost of egress bandiwdth if your nodes are outside of your cloud provider.
+
+## Local development
 
 .env
 
@@ -25,22 +37,6 @@ CONCURRENT_JOBS=1
 - Create a record in Redis like this `SET tidal:settings '{"apiKey":"test"}'`
 - Now use the UI to add enter the required configuration on the via the Settings tab
 
-# Redis
+## Techniques
 
-Tidal uses Redis and bullmq to process jobs.
-
-<!-- Since encoding is a very CPU intensive task, you can run in API only mode (job processing will be skipped) by setting the env `DISABLE_JOBS` to any value -->
-
-### Development
-
-I'm not accepting pull requests right now. Tidal is still just an experimental idea.
-
-### Brief History
-
-In 2019, I set off on a journey to build a chunked-based distributed video transcoder. TLDR: Chunk-based transcoders are stupidly fast and stupidly complex.
-
-Everything becomes more complicated as the traditional single-node video processing pipeline is broken apart and distributed. Early versions of Tidal ran on AWS Lambda and AWS EC2 spot instances. These versions we're incredibly fast at the expense of brittle behavior and high fiscal cost. The AWS Lambda version, for example, could transcode a full-length feature film at multiple bitrates in under 5 minutes.
-
-It's easy to see the benefits of a chunk-based approach. Netflix and Bitmovin have good reasons to pursue chunk-based or scene-based transcoding. Though, under the surface probably lies a heap of complexity that we don't see. For those who deal with processing heaps of video, it's incredible to see the process become _network_ limited as opposed to computing power limited. I found that stitching segments back together and packaging content for delivery took longer than transcoding each chunk (assuming an adequately sized infrastructure).
-
-I eventually gave up on the idea of an open-source chunk-based transcoder because of the ballooning complexity. Every link in the chain needed error handling, retries, rate limiting, health checking, etc... Maybe one day, but for now, bken.io needs a simple transcoder. It doesn't need to be _that_ fast.
+Tidal will support creating dyamic `workflows`. A workflow is a series of steps that take an input file all the way to the desired end state. An example would be `given this input file...transcode resolutions 720p, 1080p, and 1440p...then package to the HLS format`. Another workflow might be `given this input file...segment into 10 second chunks...transcode each chunk to x265...recombine...publish to s3`
