@@ -1,20 +1,17 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     labels:
-      - "Priority: Medium"
-      - "Type: Maintenance"
+      - dependencies
     ignore:
-      - dependency-name: "*"
-        update-types:
-          ["version-update:semver-patch"]
-  - package-ecosystem: "docker"
-    directory: "/"
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     labels:
-      - "Priority: Medium"
-      - "Type: Maintenance"
+      - dependencies
