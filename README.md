@@ -34,8 +34,8 @@ CONCURRENT_JOBS=1
 - Run `yarn && yarn dev`
 - The API will run on `http://localhost:5000` and the UI on `http://localhost:1234/ui` with hot reloading enabled
   - In a deployed environment, the UI is built and hosted statically at `http://localhost:5000/ui`
-- Create a record in Redis like this `SET tidal:settings '{"apiKey":"test"}'`
 - Now use the UI to add enter the required configuration on the via the Settings tab
+  - The default API key is `tidal` if one is not provided
 
 ## Techniques
 

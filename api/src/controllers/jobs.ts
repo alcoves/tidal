@@ -1,26 +1,21 @@
 import Joi from 'joi'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
+import { parseInput, parseOutput } from '../utils/utils'
 import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { createMainManifest } from '../jobs/package'
-import { TranscodeHLSJobData, TranscodeProgressiveJobData } from '../types'
 import { transcodeQueue } from '../config/queues/transcode'
+import { TranscodeHLSJobData, TranscodeProgressiveJobData } from '../types'
 
 export async function transcodeProgressiveController(req, res) {
   const schema = Joi.object({
-    cmd: Joi.string().required().max(1024),
     webhooks: Joi.bool().default(true),
-    input: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
-    output: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
+    cmd: Joi.string().required().max(1024),
+    input: Joi.string().required().max(1024),
+    output: Joi.string().required().max(1024),
   })
 
   const { error, value } = schema.validate(req.body, {
@@ -30,16 +25,12 @@ export async function transcodeProgressiveController(req, res) {
   })
 
   if (error) return res.status(400).json(error)
-  const signedUrl = await getSignedURL({ Bucket: value.input.bucket, Key: value.input.key })
 
   const job: TranscodeProgressiveJobData = {
     cmd: value.cmd,
-    inputURL: signedUrl,
     webhooks: value.webhooks,
-    output: {
-      key: value.output.key,
-      bucket: value.output.bucket,
-    },
+    input: await parseInput(value.input),
+    output: await parseOutput(value.output),
   }
 
   await transcodeQueue.add('transcodeProgressive', job)

@@ -109,6 +109,17 @@ function Settings(props: SettingsProps) {
           />
         </Stack>
         <Stack>
+          <Heading size='sm'>NFS Mount Path</Heading>
+          <Input
+            w='100%'
+            name='nfsMountPath'
+            variant='filled'
+            placeholder='NFS Mount Path'
+            onChange={handleChange}
+            defaultValue={settings.nfsMountPath}
+          />
+        </Stack>
+        <Stack>
           <Heading size='sm'>S3 Object Storage</Heading>
           <InputGroup>
             <InputLeftAddon w='200px' children='Access Key' />

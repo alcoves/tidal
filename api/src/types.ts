@@ -36,8 +36,8 @@ export interface TranscodeHLSJobData {
 
 export interface TranscodeProgressiveJobData {
   cmd: string
-  inputURL: string
-  output: S3KeyParameters
+  input: string
+  output: string
   webhooks: boolean
 }
 
@@ -74,5 +74,6 @@ export interface TidalSettings {
   bunnyAccessKey: string
   s3Endpoint: string
   s3AccessKeyId: string
+  nfsMountPath: string
   s3SecretAccessKey: string
 }

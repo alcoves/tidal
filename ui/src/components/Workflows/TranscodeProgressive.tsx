@@ -27,16 +27,11 @@ export default function TranscodeProgressive() {
     event.preventDefault()
     transcodeProgressive({
       data: {
-        webhooks: event.target.webhooks.checked,
-        input: {
-          bucket: event.target.inputBucket.value,
-          key: event.target.inputKey.value,
-        },
-        output: {
-          bucket: event.target.outputBucket.value,
-          path: event.target.outputPath.value,
-        },
+        cmd: event.target.cmd.value,
+        input: event.target.input.value,
+        output: event.target.output.value,
         entityId: event.target.entityId.value,
+        webhooks: event.target.webhooks.checked,
       },
     })
   }
@@ -60,20 +55,21 @@ export default function TranscodeProgressive() {
             <ModalBody>
               <Text mb='2'>Given an input file, Tidal will transcode the file.</Text>
               <FormControl isRequired>
-                <FormLabel>Input Bucket</FormLabel>
-                <Input id='inputBucket' size='sm' variant='filled' placeholder='input-bucket' />
+                <FormLabel>Input</FormLabel>
+                <Input id='input' size='sm' variant='filled' placeholder='input' />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Input Key</FormLabel>
-                <Input id='inputKey' size='sm' variant='filled' placeholder='input-key' />
+                <FormLabel>Command</FormLabel>
+                <Input
+                  id='cmd'
+                  size='sm'
+                  variant='filled'
+                  placeholder='-c:v libx265 -crf 23 -preset fast'
+                />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Output Bucket</FormLabel>
-                <Input id='outputBucket' size='sm' variant='filled' placeholder='output-bucket' />
-              </FormControl>
-              <FormControl isRequired>
-                <FormLabel>Output Path</FormLabel>
-                <Input id='outputPath' size='sm' variant='filled' placeholder='output-path' />
+                <FormLabel>Output</FormLabel>
+                <Input id='output' size='sm' variant='filled' placeholder='output' />
               </FormControl>
               <FormControl isRequired>
                 <FormLabel>Entity Id</FormLabel>

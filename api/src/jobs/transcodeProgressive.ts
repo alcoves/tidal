@@ -3,19 +3,20 @@ import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { uploadFile } from '../config/s3'
 import { Progress, TranscodeProgressiveJobData } from '../types'
+import path from 'path'
 
 export async function transcodeProgressive(job: Job) {
-  const { inputURL, output, cmd }: TranscodeProgressiveJobData = job.data
+  const { input, output, cmd }: TranscodeProgressiveJobData = job.data
 
   let lastProgress = 0
   const tmpDir = await fs.mkdtemp('/tmp/bken-transcode-progressive-')
-  const outputPath = `${tmpDir}/output.${output.key.split('.').pop()}` // Better way to get file ext?
+  const tmpOutput = `${tmpDir}/output${path.extname(output)}`
 
   try {
     return new Promise((resolve, reject) => {
-      ffmpeg(inputURL)
+      ffmpeg(input)
         .outputOptions(cmd.split(' '))
-        .output(outputPath)
+        .output(tmpOutput)
         .on('start', function (commandLine) {
           console.log('Spawned ffmpeg with command: ' + commandLine)
         })
@@ -33,9 +34,17 @@ export async function transcodeProgressive(job: Job) {
           reject(err.message)
         })
         .on('end', async function () {
-          console.log('Done')
-          await uploadFile(outputPath, { Bucket: output.bucket, Key: output.key })
+          if (output.includes('s3://')) {
+            console.log(`Uploading to ${output}`)
+            const [Bucket, Key] = output.split('s3://')[1].split('/')
+            await uploadFile(tmpOutput, { Bucket, Key })
+          } else {
+            console.log(`Copying ${tmpOutput} to ${output}`)
+            await fs.copy(tmpOutput, output)
+          }
+
           await fs.remove(tmpDir)
+          console.log('Done')
           resolve('done')
         })
         .run()
