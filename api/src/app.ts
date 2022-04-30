@@ -5,6 +5,7 @@ import express from 'express'
 import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
+import presetRoutes from './routes/presets'
 import settingsRoutes from './routes/settings'
 
 const uiDistDir = path.join(__dirname, '../../dist/ui')
@@ -18,6 +19,7 @@ app.use(morgan('tiny'))
 app.use(rootRoutes)
 app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
+app.use('/presets', presetRoutes)
 app.use('/settings', settingsRoutes)
 
 app.use('/ui', express.static(`${uiDistDir}`))
