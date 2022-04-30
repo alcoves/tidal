@@ -10,10 +10,9 @@ import { createMainManifest } from '../jobs/package'
 import { transcodeQueue } from '../config/queues/transcode'
 import { TranscodeHLSJobData, TranscodeProgressiveJobData } from '../types'
 
-export async function transcodeProgressiveController(req, res) {
+export async function transcodeController(req, res) {
   const schema = Joi.object({
-    webhooks: Joi.bool().default(true),
-    cmd: Joi.string().required().max(1024),
+    preset: Joi.string().required().max(255),
     input: Joi.string().required().max(1024),
     output: Joi.string().required().max(1024),
   })
@@ -26,14 +25,16 @@ export async function transcodeProgressiveController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  const job: TranscodeProgressiveJobData = {
-    cmd: value.cmd,
-    webhooks: value.webhooks,
-    input: await parseInput(value.input),
-    output: await parseOutput(value.output),
-  }
+  // parse the preset renditions and turn them into transcode jobs
+  //
 
-  await transcodeQueue.add('transcodeProgressive', job)
+  // const job: TranscodeProgressiveJobData = {
+  //   preset: value.preset,
+  //   input: await parseInput(value.input),
+  //   output: await parseOutput(value.output),
+  // }
+
+  // await transcodeQueue.add('transcodeProgressive', job)
   return res.sendStatus(202)
 }
 

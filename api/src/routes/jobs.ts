@@ -4,8 +4,7 @@ import {
   createManifest,
   metadataController,
   thumbnailController,
-  transcodeHlsController,
-  transcodeProgressiveController,
+  transcodeController,
 } from '../controllers/jobs'
 
 const router = express.Router()
@@ -13,7 +12,6 @@ const router = express.Router()
 router.post('/manifest', apiKeyAuth, createManifest)
 router.post('/metadata', apiKeyAuth, metadataController)
 router.post('/thumbnail', apiKeyAuth, thumbnailController)
-router.post('/transcode/hls', apiKeyAuth, transcodeHlsController)
-router.post('/transcode/progressive', apiKeyAuth, transcodeProgressiveController)
+router.post('/transcode', apiKeyAuth, transcodeController)
 
 export default router
