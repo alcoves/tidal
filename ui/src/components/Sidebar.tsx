@@ -2,7 +2,7 @@ import { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import { IconType } from 'react-icons/lib'
 import { Button, Box, VStack } from '@chakra-ui/react'
-import { IoAlbums, IoCodeSlash, IoHome, IoSettings } from 'react-icons/io5'
+import { IoAlbums, IoCodeSlash, IoFilm, IoHome, IoSettings } from 'react-icons/io5'
 
 function SidebarButton({
   to,
@@ -40,6 +40,9 @@ export default function Sidebar() {
         </SidebarButton>
         <SidebarButton to='/presets' icon={<IoCodeSlash />}>
           Presets
+        </SidebarButton>
+        <SidebarButton to='/renditions' icon={<IoFilm />}>
+          Renditions
         </SidebarButton>
         <SidebarButton to='/settings' icon={<IoSettings />}>
           Settings

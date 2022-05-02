@@ -7,6 +7,7 @@ import Settings from './components/Settings'
 
 import { Route, Routes } from 'react-router-dom'
 import { Button, Flex, Heading, Input } from '@chakra-ui/react'
+import Renditions from './components/Renditions'
 
 export function App() {
   const localStorageKey = localStorage.getItem('apiKey') || ''
@@ -45,6 +46,7 @@ export function App() {
         <Route path='/queues' element={<Queues />} />
         <Route path='/presets' element={<Presets />} />
         <Route path='/settings' element={<Settings />} />
+        <Route path='/renditions' element={<Renditions />} />
       </Routes>
     </Layout>
   )
