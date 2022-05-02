@@ -9,6 +9,7 @@ import {
   Button,
   useDisclosure,
 } from '@chakra-ui/react'
+import PutPreset from './PutPreset'
 
 export default function CreatePreset() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -21,7 +22,9 @@ export default function CreatePreset() {
         <ModalContent>
           <ModalHeader>Create Preset</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>Create the preset</ModalBody>
+          <ModalBody>
+            <PutPreset />
+          </ModalBody>
           <ModalFooter>
             <Button colorScheme='yellow'>Create</Button>
           </ModalFooter>
