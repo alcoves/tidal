@@ -55,7 +55,7 @@ function Settings(props: SettingsProps) {
 
   return (
     <Flex direction='column'>
-      <Heading size='lg'>Settings</Heading>
+      <Heading mb='2'>Settings</Heading>
       <HStack py='2'>
         <Button onClick={handleShowSecrets} size='xs' colorScheme='yellow'>
           {showSecrets ? 'Hide' : 'Show'} Secrets
