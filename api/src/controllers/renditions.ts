@@ -2,20 +2,17 @@ import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 
-export async function listRenditions(req, res) {
+export async function queryRenditions() {
   const keys = await db.keys('tidal:renditions:*')
   const dbRes = await Promise.all(keys.map(k => db.get(k) || ''))
-
-  return res.status(200).json({
-    renditions: dbRes.map((r, i) => {
-      if (r) {
-        return {
-          id: keys[i].split(':')[keys[i].split(':').length - 1],
-          ...JSON.parse(r),
-        }
-      }
-    }),
+  return dbRes.map(r => {
+    if (r) return JSON.parse(r)
   })
+}
+
+export async function listRenditions(req, res) {
+  const renditions = await queryRenditions()
+  return res.status(200).json({ renditions })
 }
 
 export async function createRendition(req, res) {
@@ -33,7 +30,7 @@ export async function createRendition(req, res) {
     stripUnknown: true, // remove unknown props
   })
   if (error) return res.status(400).json(error)
-  await db.set(`tidal:renditions:${value.id}`, JSON.stringify(req.body))
+  await db.set(`tidal:renditions:${value.id}`, JSON.stringify(value))
   return res.sendStatus(200)
 }
 

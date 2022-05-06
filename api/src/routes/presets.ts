@@ -1,10 +1,12 @@
 import express from 'express'
 import { apiKeyAuth } from '../middlewares/auth'
-import { putPreset, getPresets } from '../controllers/presets'
+import { createPreset, deletePreset, listPresets, updatePreset } from '../controllers/presets'
 
 const router = express.Router()
 
-router.get('/', apiKeyAuth, getPresets)
-router.put('/', apiKeyAuth, putPreset)
+router.get('/', apiKeyAuth, listPresets)
+router.post('/', apiKeyAuth, createPreset)
+router.patch('/:presetId', apiKeyAuth, updatePreset)
+router.delete('/:presetId', apiKeyAuth, deletePreset)
 
 export default router
