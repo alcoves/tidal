@@ -4,13 +4,13 @@ import { useLazyRequest } from '../../hooks/useRequest'
 import { Button, HStack, IconButton, Input } from '@chakra-ui/react'
 
 export default function RenditionRow({ rendition = {}, mutate }: { rendition: any; mutate: any }) {
-  const [updateRendition, { loading: updateLoading }] = useLazyRequest(
+  const [updateRendition, { loading: updateLoading, error: updateError }] = useLazyRequest(
     `/renditions/${rendition?.id}`,
     {
       method: 'PATCH',
     }
   )
-  const [deleteRendition, { loading: deleteLoading }] = useLazyRequest(
+  const [deleteRendition, { loading: deleteLoading, error: deleteError }] = useLazyRequest(
     `/renditions/${rendition?.id}`,
     {
       method: 'DELETE',
@@ -24,8 +24,9 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
   })
 
   useEffect(() => {
-    mutate()
-  }, [updateLoading, deleteLoading])
+    if (updateLoading && !updateError) mutate()
+    if (deleteLoading && !deleteError) mutate()
+  }, [updateLoading, updateError, deleteLoading, deleteError])
 
   function handleInputChange(e) {
     setRenditionState({ ...renditionState, [e.target.name]: e.target.value })
