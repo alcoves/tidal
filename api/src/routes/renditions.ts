@@ -1,4 +1,5 @@
 import express from 'express'
+import { apiKeyAuth } from '../middlewares/auth'
 import {
   listRenditions,
   createRendition,
@@ -8,9 +9,9 @@ import {
 
 const router = express.Router()
 
-router.get('/', listRenditions)
-router.post('/', createRendition)
-router.patch('/:renditionId', updateRendition)
-router.delete('/:renditionId', deleteRendition)
+router.get('/', apiKeyAuth, listRenditions)
+router.post('/', apiKeyAuth, createRendition)
+router.patch('/:renditionId', apiKeyAuth, updateRendition)
+router.delete('/:renditionId', apiKeyAuth, deleteRendition)
 
 export default router
