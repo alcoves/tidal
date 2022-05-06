@@ -7,6 +7,7 @@ import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
 import presetRoutes from './routes/presets'
 import settingsRoutes from './routes/settings'
+import renditionsRoutes from './routes/renditions'
 
 const uiDistDir = path.join(__dirname, '../../dist/ui')
 
@@ -21,6 +22,7 @@ app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
 app.use('/presets', presetRoutes)
 app.use('/settings', settingsRoutes)
+app.use('/renditions', renditionsRoutes)
 
 app.use('/ui', express.static(`${uiDistDir}`))
 app.get('/ui(.*)', function (req, res) {
