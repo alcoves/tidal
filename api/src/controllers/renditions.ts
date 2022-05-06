@@ -10,6 +10,12 @@ export async function queryRenditions() {
   })
 }
 
+export async function getRendition(req, res) {
+  const { renditionId } = req.params
+  const rendition = await db.get(`tidal:renditions:${renditionId}`)
+  return res.status(200).json(JSON.parse(rendition || ''))
+}
+
 export async function listRenditions(req, res) {
   const renditions = await queryRenditions()
   return res.status(200).json({ renditions })
