@@ -1,7 +1,12 @@
-import { Box, Heading, HStack } from '@chakra-ui/react'
+import { Box, Heading, HStack, Stack } from '@chakra-ui/react'
+import useSWR from 'swr'
+import { fetcher } from '../utils/fetcher'
 import CreatePreset from './Presets/CreatePreset'
+import PresetRow from './Presets/PresetRow'
 
 export default function Presets() {
+  const { data } = useSWR('/presets', fetcher)
+
   return (
     <Box>
       <Box mb='2'>
@@ -9,6 +14,11 @@ export default function Presets() {
         <HStack justify='end'>
           <CreatePreset />
         </HStack>
+        <Stack>
+          {data?.presets.map(p => {
+            return <PresetRow key={p.id} preset={p} />
+          })}
+        </Stack>
       </Box>
     </Box>
   )

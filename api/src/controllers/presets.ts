@@ -1,7 +1,6 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
-import { queryRenditions } from './renditions'
 
 export async function queryPresets() {
   const keys = await db.keys('tidal:presets:*')
@@ -13,16 +12,7 @@ export async function queryPresets() {
 
 export async function listPresets(req, res) {
   const presets = await queryPresets()
-  const renditions = await queryRenditions()
-
-  const presetsWithRenditions = presets.map(p => {
-    return {
-      ...p,
-      renditions: p.renditions.map(r => renditions.find(rr => rr.id === r)),
-    }
-  })
-
-  return res.status(200).json({ presets: presetsWithRenditions })
+  return res.status(200).json({ presets })
 }
 
 export async function createPreset(req, res) {
