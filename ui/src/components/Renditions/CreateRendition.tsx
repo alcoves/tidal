@@ -46,7 +46,7 @@ export default function CreateRendition({ mutate }: { mutate: any }) {
         onChange={handleInputChange}
         placeholder='FFmpeg Command'
       />
-      <Button isLoading={loading} colorScheme='yellow' size='sm' onClick={handleCreate}>
+      <Button isLoading={loading} size='sm' onClick={handleCreate}>
         Create
       </Button>
     </HStack>

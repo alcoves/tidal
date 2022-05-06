@@ -1,35 +1,30 @@
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react'
-import PutPreset from './PutPreset'
+import { useSWRConfig } from 'swr'
+import { useEffect, useState } from 'react'
+import { Button, Flex, Input } from '@chakra-ui/react'
+import { useLazyRequest } from '../../hooks/useRequest'
 
 export default function CreatePreset() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  return (
-    <>
-      <Button onClick={onOpen}>Create</Button>
+  const { mutate } = useSWRConfig()
+  const [name, setName] = useState('')
+  const [createPreset, { data, loading }] = useLazyRequest('/presets', { method: 'POST' })
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create Preset</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <PutPreset />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='yellow'>Create</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+  useEffect(() => {
+    if (!loading && data) {
+      mutate(`/presets`)
+    }
+  }, [loading, data])
+
+  function handleSubmit() {
+    createPreset({ data: { name } })
+    setName('')
+  }
+
+  return (
+    <Flex>
+      <Input onChange={e => setName(e.target.value)} placeholder='New Preset' />
+      <Button ml='2' onClick={handleSubmit}>
+        Create
+      </Button>
+    </Flex>
   )
 }
