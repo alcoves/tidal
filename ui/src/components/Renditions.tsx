@@ -1,26 +1,21 @@
-import { Box, Button, Heading, HStack, Input, Stack } from '@chakra-ui/react'
+import useSWR from 'swr'
+import RenditionRow from './Renditions/RenditionRow'
+import CreateRendition from './Renditions/CreateRendition'
+import { fetcher } from '../utils/fetcher'
+import { Box, Heading, Stack } from '@chakra-ui/react'
 
 export default function Renditions() {
+  const { data, mutate } = useSWR('/renditions', fetcher)
+
   return (
     <Box>
       <Box mb='2'>
         <Heading mb='2'>Renditions</Heading>
         <Stack>
-          <HStack>
-            <Input variant='filled' size='sm' name='id' placeholder='Rendition Name' w='auto' />
-            <Input variant='filled' size='sm' name='cmd' placeholder='FFmpeg Command' w='100%' />
-            <Button colorScheme='yellow' size='sm'>
-              Create
-            </Button>
-          </HStack>
-
-          <HStack>
-            <Input variant='filled' size='sm' name='id' placeholder='Rendition Name' w='auto' />
-            <Input variant='filled' size='sm' name='cmd' placeholder='FFmpeg Command' w='100%' />
-            <Button colorScheme='yellow' size='sm'>
-              Save
-            </Button>
-          </HStack>
+          <CreateRendition mutate={mutate} />
+          {data?.renditions.map(rendition => {
+            return <RenditionRow key={rendition.id} rendition={rendition} mutate={mutate} />
+          })}
         </Stack>
       </Box>
     </Box>
