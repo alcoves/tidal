@@ -1,20 +1,37 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
+import { db } from '../utils/redis'
+import { queryRenditions } from './renditions'
 
-export function getPresets(req, res) {
-  return res.sendStatus(200)
+export async function queryPresets() {
+  const keys = await db.keys('tidal:presets:*')
+  const dbRes = await Promise.all(keys.map(k => db.get(k) || ''))
+  return dbRes.map(r => {
+    if (r) return JSON.parse(r)
+  })
 }
 
-export function putPreset(req, res) {
+export async function listPresets(req, res) {
+  const presets = await queryPresets()
+  const renditions = await queryRenditions()
+
+  const presetsWithRenditions = presets.map(p => {
+    return {
+      ...p,
+      renditions: p.renditions.map(r => renditions.find(rr => rr.id === r)),
+    }
+  })
+
+  return res.status(200).json({ presets: presetsWithRenditions })
+}
+
+export async function createPreset(req, res) {
   const schema = Joi.object({
     id: Joi.string()
       .max(36)
       .default(() => uuidv4()),
-    name: Joi.string().default('New Preset').max(255),
-    renditions: Joi.array().items({
-      name: Joi.string().required(),
-      cmd: Joi.string().required(),
-    }),
+    name: Joi.string().default('New Preset').max(512),
+    renditions: Joi.array().items(Joi.string()),
     webhookURL: Joi.string().uri(),
     chunked: Joi.boolean().default(false),
   })
@@ -24,8 +41,35 @@ export function putPreset(req, res) {
     allowUnknown: true, // ignore unknown props
     stripUnknown: true, // remove unknown props
   })
+  if (error) return res.status(400).json(error)
+  await db.set(`tidal:presets:${value.id}`, JSON.stringify(value))
+  return res.sendStatus(200)
+}
 
+export async function updatePreset(req, res) {
+  const { presetId } = req.params
+
+  const schema = Joi.object({
+    name: Joi.string().default('New Preset').max(512),
+    renditions: Joi.array().items(Joi.string()),
+    webhookURL: Joi.string().uri(),
+    chunked: Joi.boolean().default(false),
+  })
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
   if (error) return res.status(400).json(error)
 
+  const preset = (await db.get(`tidal:presets:${presetId}`)) || ''
+  const update = { ...JSON.parse(preset), ...value }
+  const updatedPreset = await db.set(`tidal:presets:${presetId}`, JSON.stringify(update))
+  return res.status(200).json(updatedPreset)
+}
+
+export async function deletePreset(req, res) {
+  const { presetId } = req.params
+  await db.del(`tidal:presets:${presetId}`)
   return res.sendStatus(200)
 }
