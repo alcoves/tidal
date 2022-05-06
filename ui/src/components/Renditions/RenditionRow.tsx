@@ -54,7 +54,6 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
       />
       <IconButton
         size='sm'
-        colorScheme='red'
         icon={<IoTrashBin />}
         aria-label='delete-rendition'
         onClick={() => {
@@ -66,7 +65,6 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
         }}
       />
       <Button
-        colorScheme='yellow'
         size='sm'
         onClick={() => {
           updateRendition({ data: renditionState })

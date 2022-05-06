@@ -11,10 +11,10 @@ export default function Presets() {
     <Box>
       <Box mb='2'>
         <Heading mb='2'>Presets</Heading>
-        <HStack justify='end'>
-          <CreatePreset />
-        </HStack>
         <Stack>
+          <HStack justify='end'>
+            <CreatePreset />
+          </HStack>
           {data?.presets.map(p => {
             return <PresetRow key={p.id} preset={p} />
           })}
