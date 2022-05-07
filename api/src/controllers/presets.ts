@@ -20,9 +20,9 @@ export async function createPreset(req, res) {
     id: Joi.string()
       .max(36)
       .default(() => uuidv4()),
-    name: Joi.string().default('New Preset').max(512),
-    renditions: Joi.array().items(Joi.string()),
-    webhookURL: Joi.string().uri(),
+    name: Joi.string().max(512).default('New Preset'),
+    renditions: Joi.array().items(Joi.string()).default([]),
+    webhookURL: Joi.string().uri().default('').allow(''),
     chunked: Joi.boolean().default(false),
   })
 
@@ -40,10 +40,10 @@ export async function updatePreset(req, res) {
   const { presetId } = req.params
 
   const schema = Joi.object({
-    name: Joi.string().default('New Preset').max(512),
-    renditions: Joi.array().items(Joi.string()),
-    webhookURL: Joi.string().uri(),
     chunked: Joi.boolean().default(false),
+    webhookURL: Joi.string().uri().default('').allow(''),
+    name: Joi.string().default('New Preset').max(512),
+    renditions: Joi.array().items(Joi.string()).default([]),
   })
   const { error, value } = schema.validate(req.body, {
     abortEarly: false, // include all errors

@@ -1,3 +1,4 @@
+import hash from 'object-hash'
 import {
   Box,
   Button,
@@ -19,20 +20,13 @@ import {
 } from '@chakra-ui/react'
 import useSWR, { useSWRConfig } from 'swr'
 import { useEffect, useState } from 'react'
-import { fetcher, getApiUrl } from '../../utils/fetcher'
+import { fetcher } from '../../utils/fetcher'
 import { useLazyRequest } from '../../hooks/useRequest'
 import { IoAddSharp, IoCloseSharp, IoTrashBin } from 'react-icons/io5'
 
-export default function PresetRow(props: any) {
-  const initialHash = Buffer.from(JSON.stringify(props.preset)).toString('base64')
-  const [preset, setPreset] = useState({
-    id: props?.preset?.id || '',
-    cmd: props?.preset?.cmd || '',
-    name: props?.preset?.name || '',
-    renditions: props?.preset?.renditions || [],
-  })
-
+export default function PresetRow(props: any = {}) {
   const { mutate } = useSWRConfig()
+  const [preset, setPreset] = useState(props.preset)
   const { data: renditionsData } = useSWR('/renditions', fetcher)
 
   const [updatePreset] = useLazyRequest(`/presets/${preset?.id}`, {
@@ -52,8 +46,10 @@ export default function PresetRow(props: any) {
   }
 
   useEffect(() => {
-    if (initialHash !== Buffer.from(JSON.stringify(props.preset)).toString('base64')) {
-      console.log('Preset has changed, updating...')
+    const initialHash = hash(props.preset)
+    const updatedHash = hash(preset)
+
+    if (initialHash !== updatedHash) {
       updatePreset({ data: preset })
       mutate('/presets')
     }
