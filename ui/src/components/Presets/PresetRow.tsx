@@ -68,7 +68,7 @@ export default function PresetRow(props: any = {}) {
         <Editable defaultValue={preset.name} fontSize='1.4rem' fontWeight='600'>
           <EditablePreview />
           <EditableInput
-            name='cmd'
+            name='name'
             value={preset.name}
             onChange={handleInputChange}
             placeholder='Preset Name'

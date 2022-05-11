@@ -1,14 +1,15 @@
 import Joi from 'joi'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
-import { parseInput, parseOutput } from '../utils/utils'
+import { db } from '../utils/redis'
+import { parseInput } from '../utils/utils'
 import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { createMainManifest } from '../jobs/package'
 import { transcodeQueue } from '../config/queues/transcode'
-import { TranscodeHLSJobData, TranscodeProgressiveJobData } from '../types'
+import { TranscodeHLSJobData, TranscodeJobData } from '../types'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -25,16 +26,31 @@ export async function transcodeController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  // parse the preset renditions and turn them into transcode jobs
-  //
+  const presetQuery = await db.get(`tidal:presets:${value.preset}`)
+  if (!presetQuery) return res.sendStatus(400)
+  const preset = JSON.parse(presetQuery)
 
-  // const job: TranscodeProgressiveJobData = {
-  //   preset: value.preset,
-  //   input: await parseInput(value.input),
-  //   output: await parseOutput(value.output),
-  // }
+  const renditions = await Promise.all(
+    preset.renditions.map(renditionId => {
+      return db.get(`tidal:renditions:${renditionId}`).then(rendition => {
+        return JSON.parse(rendition as string)
+      })
+    })
+  )
 
-  // await transcodeQueue.add('transcodeProgressive', job)
+  const input = await parseInput(value.input)
+
+  const jobs = renditions.map(rendition => {
+    const job: TranscodeJobData = {
+      input,
+      output: value.output,
+      cmd: rendition.cmd,
+    }
+    return job
+  })
+
+  console.log('Preset:', preset, renditions, jobs)
+  await Promise.all(jobs.map(job => transcodeQueue.add('transcode', job)))
   return res.sendStatus(202)
 }
 
