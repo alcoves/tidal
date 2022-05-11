@@ -16,8 +16,3 @@ export async function parseInput(input: string): Promise<string> {
     throw new Error('Failed to parse input')
   }
 }
-
-export async function parseOutput(output: string): Promise<string> {
-  const settings = await getSettings()
-  return path.normalize(`${settings.nfsMountPath}/${output}`)
-}

@@ -1,9 +1,7 @@
 import { enqueueWebhook } from './webhook'
 import { defaultConnection } from '../redis'
 import { hlsFlowProducer } from '../flows/hls'
-import { packageHls } from '../../jobs/package'
-import { transcodeHLS } from '../../jobs/transcodeHLS'
-import { transcodeProgressive } from '../../jobs/transcodeProgressive'
+import { transcode } from '../../jobs/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
@@ -15,12 +13,8 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
-    case 'packageHLS':
-      return packageHls(job)
-    case 'transcodeHLS':
-      return transcodeHLS(job)
-    case 'transcodeProgressive':
-      return transcodeProgressive(job)
+    case 'transcode':
+      return transcode(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }

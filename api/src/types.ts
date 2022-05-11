@@ -34,6 +34,12 @@ export interface TranscodeHLSJobData {
   webhooks: boolean
 }
 
+export interface TranscodeJobData {
+  cmd: string
+  input: string
+  output: string
+}
+
 export interface TranscodeProgressiveJobData {
   cmd: string
   input: string
