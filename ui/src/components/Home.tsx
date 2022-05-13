@@ -1,14 +1,10 @@
 import { Flex, VStack } from '@chakra-ui/react'
-import TranscodeHLS from './Workflows/TranscodeHLS'
-import TranscodeProgressive from './Workflows/TranscodeProgressive'
+import CreateJob from './Jobs/CreateJob'
 
 export default function Home() {
   return (
     <Flex>
-      <VStack>
-        <TranscodeHLS />
-        <TranscodeProgressive />
-      </VStack>
+      <CreateJob />
     </Flex>
   )
 }

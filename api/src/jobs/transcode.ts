@@ -1,25 +1,44 @@
-import path from 'path'
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { Progress, TranscodeJobData } from '../types'
-import { uploadFile, uploadFolder } from '../config/s3'
-import { getSettings } from '../utils/redis'
+import { getSignedURL, uploadFolder } from '../config/s3'
+import { getMetadata, skipResolution } from '../utils/video'
 
 export async function transcode(job: Job) {
-  const { input, cmd, output }: TranscodeJobData = job.data
+  const { input, cmd, output, constraints }: TranscodeJobData = job.data
 
+  let signedUrl = ''
   let lastProgress = 0
-  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode')
-  const outputFilename = path.basename(output)
-  const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
 
-  console.log('tmpOutputFilepath', tmpOutputFilepath)
+  const ffmpegCommandsSplit = cmd.split(' ')
+  const outputFilename = ffmpegCommandsSplit.pop()
+
+  if (input.includes('s3://')) {
+    const Bucket = input.split('s3://')[1].split('/')[0]
+    const Key = input.split('s3://')[1].split('/')[1]
+    signedUrl = await getSignedURL({ Bucket, Key })
+  }
+
+  const metadata = await getMetadata(signedUrl || input)
+  const shouldSkip = skipResolution({
+    sourceWidth: metadata.video?.width || 0,
+    sourceHeight: metadata.video?.height || 0,
+    maxWidth: constraints.width || 0,
+    maxHeight: constraints.height || 0,
+  })
+  if (shouldSkip) {
+    await job.updateProgress(100)
+    return
+  }
+
+  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode')
+  const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
 
   try {
     return new Promise((resolve, reject) => {
-      ffmpeg(input)
-        .outputOptions(cmd.split(' '))
+      ffmpeg(signedUrl || input)
+        .outputOptions(ffmpegCommandsSplit)
         .output(tmpOutputFilepath)
         .on('start', function (commandLine) {
           console.log('Spawned ffmpeg with command: ' + commandLine)
@@ -38,34 +57,19 @@ export async function transcode(job: Job) {
           reject(err.message)
         })
         .on('end', async function () {
-          const outputFileExt = path.extname(output)
-
           if (output.includes('s3://')) {
             console.log('output to s3')
             const outputKey = output.split('s3://')[1].split('/')[1]
             const outputBucket = output.split('s3://')[1].split('/')[0]
 
             // TODO :: Purge URLs from CDN?
-
-            if (outputFileExt) {
-              console.log('output is a file')
-              await uploadFile(tmpOutputFilepath, { Bucket: outputBucket, Key: outputKey })
-            } else {
-              console.log('output is a directory')
-              await uploadFolder(tmpDir, { Bucket: outputBucket, Key: outputKey })
-            }
+            await uploadFolder(tmpDir, { Bucket: outputBucket, Key: outputKey })
           } else {
-            console.log('output to NFS')
-            const settings = await getSettings()
-            const fullOutputPath = path.normalize(`${settings.nfsMountPath}/${output}`)
-
-            if (outputFileExt) {
-              console.log('output is a file')
-              await fs.move(tmpOutputFilepath, fullOutputPath, { overwrite: true })
-            } else {
-              console.log('output is a directory')
-              await fs.move(tmpDir, fullOutputPath, { overwrite: true })
-            }
+            const tmpFiles = await fs.readdir(tmpDir)
+            await fs.ensureDir(output)
+            await Promise.all(
+              tmpFiles.map(f => fs.move(`${tmpDir}/${f}`, `${output}/${f}`, { overwrite: true }))
+            )
           }
 
           console.log('Done')

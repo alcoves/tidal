@@ -27,9 +27,7 @@ export async function createPreset(req, res) {
       .max(36)
       .default(() => uuidv4()),
     name: Joi.string().default('new_preset').max(512),
-    cmd: Joi.string().required().max(8192),
   })
-
   const { error, value } = schema.validate(req.body, {
     abortEarly: false, // include all errors
     allowUnknown: true, // ignore unknown props
@@ -46,6 +44,10 @@ export async function updatePreset(req, res) {
   const schema = Joi.object({
     name: Joi.string().max(512),
     cmd: Joi.string().max(8192),
+    constraints: Joi.object({
+      width: Joi.number().max(10000),
+      height: Joi.number().max(10000),
+    }),
   })
   const { error, value } = schema.validate(req.body, {
     abortEarly: false, // include all errors

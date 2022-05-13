@@ -22,7 +22,7 @@ export default function CreateWorkflow() {
   return (
     <Flex>
       <Input onChange={e => setName(e.target.value)} placeholder='New Workflow' />
-      <Button ml='2' onClick={handleSubmit}>
+      <Button isLoading={loading} ml='2' onClick={handleSubmit}>
         Create
       </Button>
     </Flex>

@@ -31,9 +31,9 @@ function transformFfprobeToMetadata(rawMeta: FfprobeData): Metadata {
   return metadata
 }
 
-export function getMetadataFromURL(url: string): Promise<Metadata> {
+export function getMetadata(uri: string): Promise<Metadata> {
   return new Promise((resolve, reject) => {
-    ffprobe(url, async function (err, rawMetadata) {
+    ffprobe(uri, async function (err, rawMetadata) {
       if (err) return reject(err)
       if (!rawMetadata?.streams?.length) {
         return reject(new Error('Metadata did not contain any streams'))
@@ -45,7 +45,7 @@ export function getMetadataFromURL(url: string): Promise<Metadata> {
 
 export async function shouldProcess(input: string, resolution: string): Promise<boolean> {
   const resolutionWidth = parseInt(resolution.split('p')[0])
-  const metadata = await getMetadataFromURL(input)
+  const metadata = await getMetadata(input)
   if (metadata.video.width && metadata.video.width >= resolutionWidth) {
     return true
   }
@@ -171,4 +171,22 @@ export function generateFfmpegCommand(resolution: string): string[] {
     default:
       return []
   }
+}
+
+export function skipResolution({
+  sourceWidth = 0,
+  sourceHeight = 0,
+  maxWidth = 0,
+  maxHeight = 0,
+}: {
+  sourceWidth: number
+  sourceHeight: number
+  maxWidth: number
+  maxHeight: number
+}): boolean {
+  if (maxHeight === 0 || maxWidth === 0 || sourceWidth === 0 || sourceHeight === 0) return false
+  const maxPixels = maxWidth * maxHeight
+  const sourcePixels = sourceWidth * sourceHeight
+  if (maxPixels > sourcePixels) return true
+  return false
 }

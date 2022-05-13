@@ -2,14 +2,13 @@ import Joi from 'joi'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
-import { parseInput } from '../utils/utils'
 import { getSignedURL } from '../config/s3'
 import { hlsFlowProducer } from '../config/flows/hls'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
 import { createMainManifest } from '../jobs/package'
 import { transcodeQueue } from '../config/queues/transcode'
-import { TranscodeHLSJobData, TranscodeJobData } from '../types'
+import { Preset, TranscodeHLSJobData, TranscodeJobData } from '../types'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -30,24 +29,28 @@ export async function transcodeController(req, res) {
   if (!workflowQuery) return res.sendStatus(400)
   const workflow = JSON.parse(workflowQuery)
 
-  const presets = await Promise.all(
-    workflow.presets.map(presetId => {
+  const presets: Preset[] = await Promise.all(
+    workflow.presets.map((presetId: string) => {
       return db.get(`tidal:presets:${presetId}`).then(preset => {
         return JSON.parse(preset as string)
       })
     })
   )
 
-  const input = await parseInput(value.input)
-
-  const jobs = presets.map(preset => {
+  const jobs = presets.map((preset: Preset) => {
     const job: TranscodeJobData = {
-      input,
-      output: value.output,
       cmd: preset.cmd,
+      input: value.input,
+      output: value.output,
+      constraints: {
+        width: preset.constraints.width,
+        height: preset.constraints.height,
+      },
     }
     return job
   })
+
+  // Instead of enqueueing all jobs sperate, use the flow producer
 
   console.log('Workflow:', workflow, presets, jobs)
   await Promise.all(jobs.map(job => transcodeQueue.add('transcode', job)))

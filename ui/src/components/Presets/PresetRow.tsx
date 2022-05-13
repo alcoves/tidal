@@ -1,77 +1,125 @@
-import { useEffect, useState } from 'react'
+import hash from 'object-hash'
+import { useState } from 'react'
 import { IoTrashBin } from 'react-icons/io5'
+import { useSWRConfig } from 'swr'
 import { useLazyRequest } from '../../hooks/useRequest'
-import { Button, HStack, IconButton, Input } from '@chakra-ui/react'
+import {
+  Button,
+  Editable,
+  EditableInput,
+  EditablePreview,
+  Flex,
+  Heading,
+  HStack,
+  IconButton,
+  Input,
+  NumberInput,
+  NumberInputField,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
 
-export default function PresetRow({ preset = {}, mutate }: { preset: any; mutate: any }) {
-  const [updatePreset, { loading: updateLoading, error: updateError }] = useLazyRequest(
-    `/presets/${preset?.id}`,
-    {
-      method: 'PATCH',
-    }
-  )
-  const [deletePreset, { loading: deleteLoading, error: deleteError }] = useLazyRequest(
-    `/presets/${preset?.id}`,
-    {
-      method: 'DELETE',
-    }
-  )
+export default function PresetRow(props: any = {}) {
+  const { mutate } = useSWRConfig()
 
-  const [presetState, setPresetState] = useState({
-    id: preset?.id || '',
-    cmd: preset?.cmd || '',
-    name: preset?.name || '',
+  const [preset, setPreset] = useState(props.preset)
+  const initialHash = hash(props.preset)
+  const updatedHash = hash(preset)
+
+  const [updatePreset] = useLazyRequest(`/presets/${props.preset?.id}`, {
+    method: 'PATCH',
+  })
+  const [deletePreset] = useLazyRequest(`/presets/${props.preset?.id}`, {
+    method: 'DELETE',
   })
 
-  useEffect(() => {
-    if (updateLoading && !updateError) mutate()
-    if (deleteLoading && !deleteError) mutate()
-  }, [updateLoading, updateError, deleteLoading, deleteError])
+  async function handleDelete() {
+    await deletePreset({
+      data: {
+        id: preset.id,
+      },
+    })
+    mutate('/presets')
+  }
 
   function handleInputChange(e) {
-    setPresetState({ ...presetState, [e.target.name]: e.target.value })
+    setPreset({ ...preset, [e.target.name]: e.target.value })
+  }
+
+  function handleSave() {
+    updatePreset({ data: preset })
+    mutate('/presets')
   }
 
   return (
-    <HStack>
-      <Input
-        w='auto'
-        size='sm'
-        name='name'
-        variant='filled'
-        value={presetState.name}
-        onChange={handleInputChange}
-        placeholder='Preset Name'
-      />
-      <Input
-        w='100%'
-        size='sm'
-        name='cmd'
-        variant='filled'
-        value={presetState.cmd}
-        onChange={handleInputChange}
-        placeholder='FFmpeg Command'
-      />
-      <IconButton
-        size='sm'
-        icon={<IoTrashBin />}
-        aria-label='delete-preset'
-        onClick={() => {
-          deletePreset({
-            data: {
-              id: presetState.id,
-            },
-          })
-        }}
-      />
-      <Button
-        size='sm'
-        onClick={() => {
-          updatePreset({ data: presetState })
-        }}
-      >
-        Save
-      </Button>
-    </HStack>
+    <Flex direction='column' p='2' borderColor='gray.700' borderWidth='1px' rounded='md'>
+      <Flex justify='space-between'>
+        <Editable defaultValue={preset.name} fontSize='1.4rem' fontWeight='600'>
+          <EditablePreview />
+          <EditableInput
+            name='name'
+            value={preset.name}
+            onChange={handleInputChange}
+            placeholder='Preset Name'
+          />
+        </Editable>
+        <HStack align='center'>
+          <IconButton
+            size='sm'
+            icon={<IoTrashBin />}
+            onClick={handleDelete}
+            aria-label='delete-preset'
+          />
+          <Button isDisabled={initialHash === updatedHash} size='sm' onClick={handleSave}>
+            Save
+          </Button>
+        </HStack>
+      </Flex>
+      <Text fontFamily='mono' fontSize='.9rem' opacity='.6'>
+        ID: {preset.id}
+      </Text>
+      <VStack align='start' mt='2'>
+        <Heading size='xs'>FFmpeg Command</Heading>
+        <Input
+          w='100%'
+          size='sm'
+          name='cmd'
+          variant='filled'
+          value={preset.cmd}
+          onChange={handleInputChange}
+          placeholder='FFmpeg Command'
+        />
+        <Heading size='xs'>Constraints</Heading>
+        <HStack>
+          <NumberInput
+            size='xs'
+            maxW='75px'
+            max={10000}
+            variant='filled'
+            name='constraints.width'
+            value={preset?.constraints?.width}
+            onChange={v =>
+              setPreset({ ...preset, constraints: { ...preset.constraints, width: parseInt(v) } })
+            }
+          >
+            <NumberInputField />
+          </NumberInput>
+          <Text>x</Text>
+          <NumberInput
+            size='xs'
+            maxW='75px'
+            max={10000}
+            variant='filled'
+            name='constraints.height'
+            value={preset?.constraints?.height}
+            onChange={v =>
+              setPreset({ ...preset, constraints: { ...preset.constraints, height: parseInt(v) } })
+            }
+          >
+            <NumberInputField />
+          </NumberInput>
+        </HStack>
+      </VStack>
+    </Flex>
   )
 }
