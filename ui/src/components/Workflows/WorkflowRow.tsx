@@ -1,4 +1,9 @@
 import hash from 'object-hash'
+import { useState } from 'react'
+import useSWR, { useSWRConfig } from 'swr'
+import { fetcher } from '../../utils/fetcher'
+import { useLazyRequest } from '../../hooks/useRequest'
+import { IoAddSharp, IoCloseSharp, IoTrashBin } from 'react-icons/io5'
 import {
   Box,
   Button,
@@ -7,6 +12,7 @@ import {
   EditablePreview,
   Flex,
   Heading,
+  HStack,
   IconButton,
   Menu,
   MenuButton,
@@ -18,17 +24,15 @@ import {
   Text,
   Wrap,
 } from '@chakra-ui/react'
-import useSWR, { useSWRConfig } from 'swr'
-import { useEffect, useState } from 'react'
-import { fetcher } from '../../utils/fetcher'
-import { useLazyRequest } from '../../hooks/useRequest'
-import { IoAddSharp, IoCloseSharp, IoTrashBin } from 'react-icons/io5'
 
 export default function WorkflowRow(props: any = {}) {
   const { mutate } = useSWRConfig()
-  const [workflow, setWorkflow] = useState(props.workflow)
-  const { data: presetData } = useSWR('/presets', fetcher)
 
+  const [workflow, setWorkflow] = useState(props.workflow)
+  const initialHash = hash(props.workflow)
+  const updatedHash = hash(workflow)
+
+  const { data: presetData } = useSWR('/presets', fetcher)
   const [updateWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
     method: 'PATCH',
   })
@@ -45,21 +49,16 @@ export default function WorkflowRow(props: any = {}) {
     mutate('/workflows')
   }
 
-  useEffect(() => {
-    const initialHash = hash(props.workflow)
-    const updatedHash = hash(workflow)
-
-    if (initialHash !== updatedHash) {
-      updateWorkflow({ data: workflow })
-      mutate('/workflows')
-    }
-  }, [workflow])
-
-  const filteredPresets = presetData?.presets.filter(r => !workflow?.presets.includes(r.id)) || []
-
   function handleInputChange(e) {
     setWorkflow({ ...workflow, [e.target.name]: e.target.value })
   }
+
+  function handleSave() {
+    updateWorkflow({ data: workflow })
+    mutate('/workflows')
+  }
+
+  const filteredPresets = presetData?.presets.filter(r => !workflow?.presets.includes(r.id)) || []
 
   return (
     <Flex direction='column' p='2' borderColor='gray.700' borderWidth='1px' rounded='md'>
@@ -73,21 +72,24 @@ export default function WorkflowRow(props: any = {}) {
             placeholder='Workflow Name'
           />
         </Editable>
-        <IconButton
-          size='sm'
-          icon={<IoTrashBin />}
-          aria-label='delete-preset'
-          onClick={handleDelete}
-        />
+        <HStack align='center'>
+          <IconButton
+            size='sm'
+            icon={<IoTrashBin />}
+            aria-label='delete-preset'
+            onClick={handleDelete}
+          />
+          <Button isDisabled={initialHash === updatedHash} size='sm' onClick={handleSave}>
+            Save
+          </Button>
+        </HStack>
       </Flex>
-
       <Text fontFamily='mono' fontSize='.9rem' opacity='.6'>
         ID: {workflow.id}
       </Text>
       <Heading size='sm' my='2'>
         Presets
       </Heading>
-
       <Box mb='2'>
         <Menu>
           <MenuButton
@@ -117,7 +119,6 @@ export default function WorkflowRow(props: any = {}) {
           </MenuList>
         </Menu>
       </Box>
-
       <Wrap>
         {workflow?.presets.map(id => {
           const preset = presetData?.presets.find(r => r.id === id)

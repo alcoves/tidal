@@ -34,10 +34,23 @@ export interface TranscodeHLSJobData {
   webhooks: boolean
 }
 
+export interface Preset {
+  id: string
+  name: string
+  cmd: string
+  constraints: Constraints
+}
+
+interface Constraints {
+  width: number
+  height: number
+}
+
 export interface TranscodeJobData {
   cmd: string
   input: string
   output: string
+  constraints: Constraints
 }
 
 export interface TranscodeProgressiveJobData {

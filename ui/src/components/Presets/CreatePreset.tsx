@@ -1,54 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useSWRConfig } from 'swr'
+import { useEffect, useState } from 'react'
+import { Button, Flex, Input } from '@chakra-ui/react'
 import { useLazyRequest } from '../../hooks/useRequest'
-import { Button, HStack, Input } from '@chakra-ui/react'
 
-export default function CreatePreset({ mutate }: { mutate: any }) {
-  const [createPreset, { loading, error }] = useLazyRequest('/presets', { method: 'POST' })
-  const [preset, setPreset] = useState({
-    name: '',
-    cmd: '',
-  })
-
-  async function handleCreate() {
-    await createPreset({ data: preset })
-  }
+export default function CreatePreset() {
+  const { mutate } = useSWRConfig()
+  const [name, setName] = useState('')
+  const [createWorkflow, { data, loading }] = useLazyRequest('/presets', { method: 'POST' })
 
   useEffect(() => {
-    if (!loading && !error) {
-      setPreset({ name: '', cmd: '' })
-      mutate()
+    if (!loading && data) {
+      mutate(`/presets`)
     }
-  }, [loading, error])
+  }, [loading, data])
 
-  function handleInputChange(e) {
-    setPreset({ ...preset, [e.target.name]: e.target.value })
+  function handleSubmit() {
+    createWorkflow({ data: { name } })
+    setName('')
   }
 
   return (
-    <HStack>
-      <Input
-        w='auto'
-        size='sm'
-        name='name'
-        variant='filled'
-        isDisabled={loading}
-        value={preset.name}
-        onChange={handleInputChange}
-        placeholder='Preset Name'
-      />
-      <Input
-        w='100%'
-        size='sm'
-        name='cmd'
-        variant='filled'
-        isDisabled={loading}
-        value={preset.cmd}
-        onChange={handleInputChange}
-        placeholder='FFmpeg Command'
-      />
-      <Button isLoading={loading} size='sm' onClick={handleCreate}>
+    <Flex>
+      <Input onChange={e => setName(e.target.value)} placeholder='New Preset' />
+      <Button isLoading={loading} ml='2' onClick={handleSubmit}>
         Create
       </Button>
-    </HStack>
+    </Flex>
   )
 }
