@@ -13,7 +13,7 @@ import { TranscodeHLSJobData, TranscodeJobData } from '../types'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
-    preset: Joi.string().required().max(255),
+    workflow: Joi.string().required().max(255),
     input: Joi.string().required().max(1024),
     output: Joi.string().required().max(1024),
   })
@@ -26,12 +26,12 @@ export async function transcodeController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  const presetQuery = await db.get(`tidal:presets:${value.preset}`)
-  if (!presetQuery) return res.sendStatus(400)
-  const preset = JSON.parse(presetQuery)
+  const workflowQuery = await db.get(`tidal:workflows:${value.workflow}`)
+  if (!workflowQuery) return res.sendStatus(400)
+  const workflow = JSON.parse(workflowQuery)
 
   const renditions = await Promise.all(
-    preset.renditions.map(renditionId => {
+    workflow.renditions.map(renditionId => {
       return db.get(`tidal:renditions:${renditionId}`).then(rendition => {
         return JSON.parse(rendition as string)
       })
@@ -49,7 +49,7 @@ export async function transcodeController(req, res) {
     return job
   })
 
-  console.log('Preset:', preset, renditions, jobs)
+  console.log('Workflow:', workflow, renditions, jobs)
   await Promise.all(jobs.map(job => transcodeQueue.add('transcode', job)))
   return res.sendStatus(202)
 }
