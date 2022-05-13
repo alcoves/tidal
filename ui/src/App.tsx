@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Home from './components/Home'
 import Queues from './components/Queues'
 import Layout from './components/Layout'
-import Presets from './components/Presets'
+import Workflows from './components/Workflows'
 import Settings from './components/Settings'
 
 import { Route, Routes } from 'react-router-dom'
@@ -44,7 +44,7 @@ export function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/queues' element={<Queues />} />
-        <Route path='/presets' element={<Presets />} />
+        <Route path='/workflows' element={<Workflows />} />
         <Route path='/settings' element={<Settings />} />
         <Route path='/renditions' element={<Renditions />} />
       </Routes>

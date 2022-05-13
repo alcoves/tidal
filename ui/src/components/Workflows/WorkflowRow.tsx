@@ -24,54 +24,54 @@ import { fetcher } from '../../utils/fetcher'
 import { useLazyRequest } from '../../hooks/useRequest'
 import { IoAddSharp, IoCloseSharp, IoTrashBin } from 'react-icons/io5'
 
-export default function PresetRow(props: any = {}) {
+export default function WorkflowRow(props: any = {}) {
   const { mutate } = useSWRConfig()
-  const [preset, setPreset] = useState(props.preset)
+  const [workflow, setWorkflow] = useState(props.workflow)
   const { data: renditionsData } = useSWR('/renditions', fetcher)
 
-  const [updatePreset] = useLazyRequest(`/presets/${preset?.id}`, {
+  const [updateWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
     method: 'PATCH',
   })
-  const [deletePreset] = useLazyRequest(`/presets/${preset?.id}`, {
+  const [deleteWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
     method: 'DELETE',
   })
 
   async function handleDelete() {
-    await deletePreset({
+    await deleteWorkflow({
       data: {
-        id: preset.id,
+        id: workflow.id,
       },
     })
-    mutate('/presets')
+    mutate('/workflows')
   }
 
   useEffect(() => {
-    const initialHash = hash(props.preset)
-    const updatedHash = hash(preset)
+    const initialHash = hash(props.workflow)
+    const updatedHash = hash(workflow)
 
     if (initialHash !== updatedHash) {
-      updatePreset({ data: preset })
-      mutate('/presets')
+      updateWorkflow({ data: workflow })
+      mutate('/workflows')
     }
-  }, [preset])
+  }, [workflow])
 
   const filteredRenditions =
-    renditionsData?.renditions.filter(r => !preset?.renditions.includes(r.id)) || []
+    renditionsData?.renditions.filter(r => !workflow?.renditions.includes(r.id)) || []
 
   function handleInputChange(e) {
-    setPreset({ ...preset, [e.target.name]: e.target.value })
+    setWorkflow({ ...workflow, [e.target.name]: e.target.value })
   }
 
   return (
     <Flex direction='column' p='2' borderColor='gray.700' borderWidth='1px' rounded='md'>
       <Flex justify='space-between'>
-        <Editable defaultValue={preset.name} fontSize='1.4rem' fontWeight='600'>
+        <Editable defaultValue={workflow.name} fontSize='1.4rem' fontWeight='600'>
           <EditablePreview />
           <EditableInput
             name='name'
-            value={preset.name}
+            value={workflow.name}
             onChange={handleInputChange}
-            placeholder='Preset Name'
+            placeholder='Workflow Name'
           />
         </Editable>
         <IconButton
@@ -83,7 +83,7 @@ export default function PresetRow(props: any = {}) {
       </Flex>
 
       <Text fontFamily='mono' fontSize='.9rem' opacity='.6'>
-        ID: {preset.id}
+        ID: {workflow.id}
       </Text>
       <Heading size='sm' my='2'>
         Renditions
@@ -106,7 +106,7 @@ export default function PresetRow(props: any = {}) {
                   key={r.id}
                   name={r.id}
                   onClick={() => {
-                    setPreset(prev => {
+                    setWorkflow(prev => {
                       return { ...prev, renditions: [...prev.renditions, r.id] }
                     })
                   }}
@@ -120,7 +120,7 @@ export default function PresetRow(props: any = {}) {
       </Box>
 
       <Wrap>
-        {preset?.renditions.map(id => {
+        {workflow?.renditions.map(id => {
           const rendition = renditionsData?.renditions.find(r => r.id === id)
           if (!rendition) return null
           return (
@@ -130,7 +130,7 @@ export default function PresetRow(props: any = {}) {
                   as={IoCloseSharp}
                   cursor='pointer'
                   onClick={() => {
-                    setPreset(prev => {
+                    setWorkflow(prev => {
                       return {
                         ...prev,
                         renditions: prev.renditions.filter(r => r !== id),

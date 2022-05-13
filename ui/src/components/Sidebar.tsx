@@ -38,8 +38,8 @@ export default function Sidebar() {
         <SidebarButton to='/queues' icon={<IoAlbums />}>
           Queues
         </SidebarButton>
-        <SidebarButton to='/presets' icon={<IoCodeSlash />}>
-          Presets
+        <SidebarButton to='/workflows' icon={<IoCodeSlash />}>
+          Workflows
         </SidebarButton>
         <SidebarButton to='/renditions' icon={<IoFilm />}>
           Renditions

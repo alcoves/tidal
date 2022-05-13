@@ -2,25 +2,25 @@ import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 
-export async function queryPresets() {
-  const keys = await db.keys('tidal:presets:*')
+export async function queryWorkflows() {
+  const keys = await db.keys('tidal:workflows:*')
   const dbRes = await Promise.all(keys.map(k => db.get(k) || ''))
   return dbRes.map(r => {
     if (r) return JSON.parse(r)
   })
 }
 
-export async function listPresets(req, res) {
-  const presets = await queryPresets()
-  return res.status(200).json({ presets })
+export async function listWorkflows(req, res) {
+  const workflows = await queryWorkflows()
+  return res.status(200).json({ workflows })
 }
 
-export async function createPreset(req, res) {
+export async function createWorkflow(req, res) {
   const schema = Joi.object({
     id: Joi.string()
       .max(36)
       .default(() => uuidv4()),
-    name: Joi.string().max(512).default('New Preset'),
+    name: Joi.string().max(512).default('New Workflow'),
     renditions: Joi.array().items(Joi.string()).default([]),
     webhookURL: Joi.string().uri().default('').allow(''),
     chunked: Joi.boolean().default(false),
@@ -32,17 +32,17 @@ export async function createPreset(req, res) {
     stripUnknown: true, // remove unknown props
   })
   if (error) return res.status(400).json(error)
-  await db.set(`tidal:presets:${value.id}`, JSON.stringify(value))
+  await db.set(`tidal:workflows:${value.id}`, JSON.stringify(value))
   return res.sendStatus(200)
 }
 
-export async function updatePreset(req, res) {
-  const { presetId } = req.params
+export async function updateWorkflow(req, res) {
+  const { workflowId } = req.params
 
   const schema = Joi.object({
     chunked: Joi.boolean().default(false),
     webhookURL: Joi.string().uri().default('').allow(''),
-    name: Joi.string().default('New Preset').max(512),
+    name: Joi.string().default('New Workflow').max(512),
     renditions: Joi.array().items(Joi.string()).default([]),
   })
   const { error, value } = schema.validate(req.body, {
@@ -52,14 +52,14 @@ export async function updatePreset(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const preset = (await db.get(`tidal:presets:${presetId}`)) || ''
-  const update = { ...JSON.parse(preset), ...value }
-  const updatedPreset = await db.set(`tidal:presets:${presetId}`, JSON.stringify(update))
-  return res.status(200).json(updatedPreset)
+  const workflow = (await db.get(`tidal:workflows:${workflowId}`)) || ''
+  const update = { ...JSON.parse(workflow), ...value }
+  const updatedWorkflow = await db.set(`tidal:workflows:${workflowId}`, JSON.stringify(update))
+  return res.status(200).json(updatedWorkflow)
 }
 
-export async function deletePreset(req, res) {
-  const { presetId } = req.params
-  await db.del(`tidal:presets:${presetId}`)
+export async function deleteWorkflow(req, res) {
+  const { workflowId } = req.params
+  await db.del(`tidal:workflows:${workflowId}`)
   return res.sendStatus(200)
 }

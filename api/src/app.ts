@@ -5,7 +5,7 @@ import express from 'express'
 import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
-import presetRoutes from './routes/presets'
+import workflowRoutes from './routes/workflows'
 import settingsRoutes from './routes/settings'
 import renditionsRoutes from './routes/renditions'
 
@@ -20,7 +20,7 @@ app.use(morgan('tiny'))
 app.use(rootRoutes)
 app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
-app.use('/presets', presetRoutes)
+app.use('/workflows', workflowRoutes)
 app.use('/settings', settingsRoutes)
 app.use('/renditions', renditionsRoutes)
 
