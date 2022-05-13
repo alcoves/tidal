@@ -1,8 +1,8 @@
 import { enqueueWebhook } from './webhook'
 import { defaultConnection } from '../redis'
-import { hlsFlowProducer } from '../flows/hls'
-import { transcode } from '../../jobs/transcode'
+import { transcodeFlowProducer } from '../flows/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
+import { transcodePreset, completeTranscode } from '../../jobs/transcode'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
   ? parseInt(process.env.CONCURRENT_TRANSCODE_JOBS)
@@ -13,8 +13,10 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
-    case 'transcode':
-      return transcode(job)
+    case 'transcodePreset':
+      return transcodePreset(job)
+    case 'completeTranscode':
+      return completeTranscode(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }
@@ -50,21 +52,21 @@ if (!process.env.DISABLE_JOBS) {
   transcodeWorker.on('completed', async job => {
     if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has completed!`)
-    if (job.name !== 'transcodeHLS') await enqueueWebhook(job)
+    if (job.name !== 'transcodePreset') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('failed', async (job, err) => {
     if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-    if (job.name !== 'transcodeHLS') await enqueueWebhook(job)
+    if (job.name !== 'transcodePreset') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('progress', async job => {
     if (!job.data?.webhooks) return
 
-    if (job.name === 'transcodeHLS') {
+    if (job.name === 'transcodePreset') {
       if (job.data.parentId) {
-        const tree = await hlsFlowProducer.getFlow({
+        const tree = await transcodeFlowProducer.getFlow({
           id: job.data.parentId,
           queueName: 'transcode',
         })

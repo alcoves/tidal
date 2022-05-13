@@ -1,11 +1,14 @@
+import path from 'path'
 import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
+import { purgeURL } from '../utils/bunny'
+import { getSettings } from '../utils/redis'
 import { Progress, TranscodeJobData } from '../types'
-import { getSignedURL, uploadFolder } from '../config/s3'
 import { getMetadata, skipResolution } from '../utils/video'
+import { getS3Config, getSignedURL, uploadFolder } from '../config/s3'
 
-export async function transcode(job: Job) {
+export async function transcodePreset(job: Job) {
   const { input, cmd, output, constraints }: TranscodeJobData = job.data
 
   let signedUrl = ''
@@ -57,6 +60,9 @@ export async function transcode(job: Job) {
           reject(err.message)
         })
         .on('end', async function () {
+          const tmpFiles = await fs.readdir(tmpDir)
+          const m3u8File = tmpFiles.find(file => file.endsWith('master.m3u8'))
+
           if (output.includes('s3://')) {
             console.log('output to s3')
             const outputKey = output.split('s3://')[1].split('/')[1]
@@ -65,7 +71,6 @@ export async function transcode(job: Job) {
             // TODO :: Purge URLs from CDN?
             await uploadFolder(tmpDir, { Bucket: outputBucket, Key: outputKey })
           } else {
-            const tmpFiles = await fs.readdir(tmpDir)
             await fs.ensureDir(output)
             await Promise.all(
               tmpFiles.map(f => fs.move(`${tmpDir}/${f}`, `${output}/${f}`, { overwrite: true }))
@@ -82,4 +87,8 @@ export async function transcode(job: Job) {
     console.error(error)
     throw error
   }
+}
+
+export async function completeTranscode(job: Job) {
+  console.log('test')
 }

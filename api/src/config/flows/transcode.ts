@@ -1,6 +1,6 @@
 import { FlowProducer } from 'bullmq'
 import { defaultConnection } from '../redis'
 
-export const hlsFlowProducer = new FlowProducer({
+export const transcodeFlowProducer = new FlowProducer({
   connection: defaultConnection,
 })
