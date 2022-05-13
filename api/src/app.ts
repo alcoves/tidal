@@ -5,9 +5,9 @@ import express from 'express'
 import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
-import workflowRoutes from './routes/workflows'
+import presetRoutes from './routes/presets'
 import settingsRoutes from './routes/settings'
-import renditionsRoutes from './routes/renditions'
+import workflowRoutes from './routes/workflows'
 
 const uiDistDir = path.join(__dirname, '../../dist/ui')
 
@@ -20,9 +20,9 @@ app.use(morgan('tiny'))
 app.use(rootRoutes)
 app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
-app.use('/workflows', workflowRoutes)
+app.use('/presets', presetRoutes)
 app.use('/settings', settingsRoutes)
-app.use('/renditions', renditionsRoutes)
+app.use('/workflows', workflowRoutes)
 
 app.use('/ui', express.static(`${uiDistDir}`))
 app.get('/ui(.*)', function (req, res) {

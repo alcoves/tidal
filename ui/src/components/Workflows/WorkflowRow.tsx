@@ -27,7 +27,7 @@ import { IoAddSharp, IoCloseSharp, IoTrashBin } from 'react-icons/io5'
 export default function WorkflowRow(props: any = {}) {
   const { mutate } = useSWRConfig()
   const [workflow, setWorkflow] = useState(props.workflow)
-  const { data: renditionsData } = useSWR('/renditions', fetcher)
+  const { data: presetData } = useSWR('/presets', fetcher)
 
   const [updateWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
     method: 'PATCH',
@@ -55,8 +55,7 @@ export default function WorkflowRow(props: any = {}) {
     }
   }, [workflow])
 
-  const filteredRenditions =
-    renditionsData?.renditions.filter(r => !workflow?.renditions.includes(r.id)) || []
+  const filteredPresets = presetData?.presets.filter(r => !workflow?.presets.includes(r.id)) || []
 
   function handleInputChange(e) {
     setWorkflow({ ...workflow, [e.target.name]: e.target.value })
@@ -77,7 +76,7 @@ export default function WorkflowRow(props: any = {}) {
         <IconButton
           size='sm'
           icon={<IoTrashBin />}
-          aria-label='delete-rendition'
+          aria-label='delete-preset'
           onClick={handleDelete}
         />
       </Flex>
@@ -86,7 +85,7 @@ export default function WorkflowRow(props: any = {}) {
         ID: {workflow.id}
       </Text>
       <Heading size='sm' my='2'>
-        Renditions
+        Presets
       </Heading>
 
       <Box mb='2'>
@@ -95,19 +94,19 @@ export default function WorkflowRow(props: any = {}) {
             size='xs'
             as={Button}
             leftIcon={<IoAddSharp />}
-            isDisabled={!filteredRenditions.length}
+            isDisabled={!filteredPresets.length}
           >
-            Rendition
+            Preset
           </MenuButton>
           <MenuList>
-            {filteredRenditions.map(r => {
+            {filteredPresets.map(r => {
               return (
                 <MenuItem
                   key={r.id}
                   name={r.id}
                   onClick={() => {
                     setWorkflow(prev => {
-                      return { ...prev, renditions: [...prev.renditions, r.id] }
+                      return { ...prev, presets: [...prev.presets, r.id] }
                     })
                   }}
                 >
@@ -120,9 +119,9 @@ export default function WorkflowRow(props: any = {}) {
       </Box>
 
       <Wrap>
-        {workflow?.renditions.map(id => {
-          const rendition = renditionsData?.renditions.find(r => r.id === id)
-          if (!rendition) return null
+        {workflow?.presets.map(id => {
+          const preset = presetData?.presets.find(r => r.id === id)
+          if (!preset) return null
           return (
             <Box key={id}>
               <Tag variant='subtle' colorScheme='yellow'>
@@ -133,12 +132,12 @@ export default function WorkflowRow(props: any = {}) {
                     setWorkflow(prev => {
                       return {
                         ...prev,
-                        renditions: prev.renditions.filter(r => r !== id),
+                        presets: prev.presets.filter(r => r !== id),
                       }
                     })
                   }}
                 />
-                <TagLabel>{rendition.name}</TagLabel>
+                <TagLabel>{preset.name}</TagLabel>
               </Tag>
             </Box>
           )

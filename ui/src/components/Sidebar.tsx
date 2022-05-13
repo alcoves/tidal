@@ -41,8 +41,8 @@ export default function Sidebar() {
         <SidebarButton to='/workflows' icon={<IoCodeSlash />}>
           Workflows
         </SidebarButton>
-        <SidebarButton to='/renditions' icon={<IoFilm />}>
-          Renditions
+        <SidebarButton to='/presets' icon={<IoFilm />}>
+          Presets
         </SidebarButton>
         <SidebarButton to='/settings' icon={<IoSettings />}>
           Settings

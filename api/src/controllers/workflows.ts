@@ -21,7 +21,7 @@ export async function createWorkflow(req, res) {
       .max(36)
       .default(() => uuidv4()),
     name: Joi.string().max(512).default('New Workflow'),
-    renditions: Joi.array().items(Joi.string()).default([]),
+    presets: Joi.array().items(Joi.string()).default([]),
     webhookURL: Joi.string().uri().default('').allow(''),
     chunked: Joi.boolean().default(false),
   })
@@ -43,7 +43,7 @@ export async function updateWorkflow(req, res) {
     chunked: Joi.boolean().default(false),
     webhookURL: Joi.string().uri().default('').allow(''),
     name: Joi.string().default('New Workflow').max(512),
-    renditions: Joi.array().items(Joi.string()).default([]),
+    presets: Joi.array().items(Joi.string()).default([]),
   })
   const { error, value } = schema.validate(req.body, {
     abortEarly: false, // include all errors

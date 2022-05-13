@@ -2,26 +2,26 @@ import { useState, useEffect } from 'react'
 import { useLazyRequest } from '../../hooks/useRequest'
 import { Button, HStack, Input } from '@chakra-ui/react'
 
-export default function CreateRendition({ mutate }: { mutate: any }) {
-  const [createRendition, { loading, error }] = useLazyRequest('/renditions', { method: 'POST' })
-  const [rendition, setRendition] = useState({
+export default function CreatePreset({ mutate }: { mutate: any }) {
+  const [createPreset, { loading, error }] = useLazyRequest('/presets', { method: 'POST' })
+  const [preset, setPreset] = useState({
     name: '',
     cmd: '',
   })
 
   async function handleCreate() {
-    await createRendition({ data: rendition })
+    await createPreset({ data: preset })
   }
 
   useEffect(() => {
     if (!loading && !error) {
-      setRendition({ name: '', cmd: '' })
+      setPreset({ name: '', cmd: '' })
       mutate()
     }
   }, [loading, error])
 
   function handleInputChange(e) {
-    setRendition({ ...rendition, [e.target.name]: e.target.value })
+    setPreset({ ...preset, [e.target.name]: e.target.value })
   }
 
   return (
@@ -32,9 +32,9 @@ export default function CreateRendition({ mutate }: { mutate: any }) {
         name='name'
         variant='filled'
         isDisabled={loading}
-        value={rendition.name}
+        value={preset.name}
         onChange={handleInputChange}
-        placeholder='Rendition Name'
+        placeholder='Preset Name'
       />
       <Input
         w='100%'
@@ -42,7 +42,7 @@ export default function CreateRendition({ mutate }: { mutate: any }) {
         name='cmd'
         variant='filled'
         isDisabled={loading}
-        value={rendition.cmd}
+        value={preset.cmd}
         onChange={handleInputChange}
         placeholder='FFmpeg Command'
       />

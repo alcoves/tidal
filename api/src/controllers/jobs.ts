@@ -30,26 +30,26 @@ export async function transcodeController(req, res) {
   if (!workflowQuery) return res.sendStatus(400)
   const workflow = JSON.parse(workflowQuery)
 
-  const renditions = await Promise.all(
-    workflow.renditions.map(renditionId => {
-      return db.get(`tidal:renditions:${renditionId}`).then(rendition => {
-        return JSON.parse(rendition as string)
+  const presets = await Promise.all(
+    workflow.presets.map(presetId => {
+      return db.get(`tidal:presets:${presetId}`).then(preset => {
+        return JSON.parse(preset as string)
       })
     })
   )
 
   const input = await parseInput(value.input)
 
-  const jobs = renditions.map(rendition => {
+  const jobs = presets.map(preset => {
     const job: TranscodeJobData = {
       input,
       output: value.output,
-      cmd: rendition.cmd,
+      cmd: preset.cmd,
     }
     return job
   })
 
-  console.log('Workflow:', workflow, renditions, jobs)
+  console.log('Workflow:', workflow, presets, jobs)
   await Promise.all(jobs.map(job => transcodeQueue.add('transcode', job)))
   return res.sendStatus(202)
 }

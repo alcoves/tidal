@@ -3,24 +3,24 @@ import { IoTrashBin } from 'react-icons/io5'
 import { useLazyRequest } from '../../hooks/useRequest'
 import { Button, HStack, IconButton, Input } from '@chakra-ui/react'
 
-export default function RenditionRow({ rendition = {}, mutate }: { rendition: any; mutate: any }) {
-  const [updateRendition, { loading: updateLoading, error: updateError }] = useLazyRequest(
-    `/renditions/${rendition?.id}`,
+export default function PresetRow({ preset = {}, mutate }: { preset: any; mutate: any }) {
+  const [updatePreset, { loading: updateLoading, error: updateError }] = useLazyRequest(
+    `/presets/${preset?.id}`,
     {
       method: 'PATCH',
     }
   )
-  const [deleteRendition, { loading: deleteLoading, error: deleteError }] = useLazyRequest(
-    `/renditions/${rendition?.id}`,
+  const [deletePreset, { loading: deleteLoading, error: deleteError }] = useLazyRequest(
+    `/presets/${preset?.id}`,
     {
       method: 'DELETE',
     }
   )
 
-  const [renditionState, setRenditionState] = useState({
-    id: rendition?.id || '',
-    cmd: rendition?.cmd || '',
-    name: rendition?.name || '',
+  const [presetState, setPresetState] = useState({
+    id: preset?.id || '',
+    cmd: preset?.cmd || '',
+    name: preset?.name || '',
   })
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
   }, [updateLoading, updateError, deleteLoading, deleteError])
 
   function handleInputChange(e) {
-    setRenditionState({ ...renditionState, [e.target.name]: e.target.value })
+    setPresetState({ ...presetState, [e.target.name]: e.target.value })
   }
 
   return (
@@ -39,27 +39,27 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
         size='sm'
         name='name'
         variant='filled'
-        value={renditionState.name}
+        value={presetState.name}
         onChange={handleInputChange}
-        placeholder='Rendition Name'
+        placeholder='Preset Name'
       />
       <Input
         w='100%'
         size='sm'
         name='cmd'
         variant='filled'
-        value={renditionState.cmd}
+        value={presetState.cmd}
         onChange={handleInputChange}
         placeholder='FFmpeg Command'
       />
       <IconButton
         size='sm'
         icon={<IoTrashBin />}
-        aria-label='delete-rendition'
+        aria-label='delete-preset'
         onClick={() => {
-          deleteRendition({
+          deletePreset({
             data: {
-              id: renditionState.id,
+              id: presetState.id,
             },
           })
         }}
@@ -67,7 +67,7 @@ export default function RenditionRow({ rendition = {}, mutate }: { rendition: an
       <Button
         size='sm'
         onClick={() => {
-          updateRendition({ data: renditionState })
+          updatePreset({ data: presetState })
         }}
       >
         Save
