@@ -25,15 +25,6 @@ export interface S3PathParameters {
   bucket: string
 }
 
-export interface TranscodeHLSJobData {
-  inputURL: string
-  parentId: string
-  entityId: string
-  resolution: string
-  output: S3KeyParameters
-  webhooks: boolean
-}
-
 export interface Preset {
   id: string
   name: string
@@ -50,6 +41,8 @@ export interface TranscodeJobData {
   cmd: string
   input: string
   output: string
+  parentId: string
+  webhooks: boolean
   constraints: Constraints
 }
 
