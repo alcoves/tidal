@@ -51,6 +51,8 @@ export default function PresetRow(props: any = {}) {
     mutate('/presets')
   }
 
+  const isSaveDisabled = initialHash === updatedHash
+
   return (
     <Flex direction='column' p='2' borderColor='gray.700' borderWidth='1px' rounded='md'>
       <Flex justify='space-between'>
@@ -70,7 +72,12 @@ export default function PresetRow(props: any = {}) {
             onClick={handleDelete}
             aria-label='delete-preset'
           />
-          <Button isDisabled={initialHash === updatedHash} size='sm' onClick={handleSave}>
+          <Button
+            size='sm'
+            onClick={handleSave}
+            isDisabled={isSaveDisabled}
+            colorScheme={!isSaveDisabled ? 'yellow' : null}
+          >
             Save
           </Button>
         </HStack>

@@ -58,6 +58,7 @@ export default function WorkflowRow(props: any = {}) {
     mutate('/workflows')
   }
 
+  const isSaveDisabled = initialHash === updatedHash
   const filteredPresets = presetData?.presets.filter(r => !workflow?.presets.includes(r.id)) || []
 
   return (
@@ -79,7 +80,12 @@ export default function WorkflowRow(props: any = {}) {
             aria-label='delete-preset'
             onClick={handleDelete}
           />
-          <Button isDisabled={initialHash === updatedHash} size='sm' onClick={handleSave}>
+          <Button
+            size='sm'
+            onClick={handleSave}
+            isDisabled={isSaveDisabled}
+            colorScheme={!isSaveDisabled ? 'yellow' : null}
+          >
             Save
           </Button>
         </HStack>
