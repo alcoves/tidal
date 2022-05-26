@@ -1,4 +1,4 @@
-import { Metadata } from '../types'
+import { Metadata, Preset } from '../types'
 import { ffprobe, FfprobeData } from 'fluent-ffmpeg'
 
 function transformFfprobeToMetadata(rawMeta: FfprobeData): Metadata {
@@ -33,20 +33,20 @@ export function getMetadata(uri: string): Promise<Metadata> {
   })
 }
 
-export function skipResolution({
+export function checkDimensionContraints({
   sourceWidth = 0,
   sourceHeight = 0,
   maxWidth = 0,
   maxHeight = 0,
 }: {
-  sourceWidth: number
-  sourceHeight: number
-  maxWidth: number
-  maxHeight: number
+  sourceWidth: number | undefined
+  sourceHeight: number | undefined
+  maxWidth: number | undefined
+  maxHeight: number | undefined
 }): boolean {
-  if (maxHeight === 0 || maxWidth === 0 || sourceWidth === 0 || sourceHeight === 0) return false
+  if (maxHeight === 0 || maxWidth === 0 || sourceWidth === 0 || sourceHeight === 0) return true
   const maxPixels = maxWidth * maxHeight
   const sourcePixels = sourceWidth * sourceHeight
-  if (maxPixels > sourcePixels) return true
-  return false
+  if (maxPixels > sourcePixels) return false
+  return true
 }

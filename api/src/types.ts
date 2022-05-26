@@ -43,7 +43,6 @@ export interface TranscodeJobData {
   output: string
   parentId: string
   webhooks: boolean
-  constraints: Constraints
 }
 
 export interface TranscodeProgressiveJobData {
