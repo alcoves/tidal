@@ -5,11 +5,10 @@ import { Job } from 'bullmq'
 import { purgeURL } from '../utils/bunny'
 import { getSettings } from '../utils/redis'
 import { Progress, TranscodeJobData } from '../types'
-import { getMetadata, skipResolution } from '../utils/video'
 import { getS3Config, getSignedURL, uploadFolder } from '../config/s3'
 
 export async function transcodePreset(job: Job) {
-  const { input, cmd, output, constraints }: TranscodeJobData = job.data
+  const { input, cmd, output }: TranscodeJobData = job.data
 
   let signedUrl = ''
   let lastProgress = 0
@@ -23,19 +22,7 @@ export async function transcodePreset(job: Job) {
     signedUrl = await getSignedURL({ Bucket, Key })
   }
 
-  const metadata = await getMetadata(signedUrl || input)
-  const shouldSkip = skipResolution({
-    sourceWidth: metadata.video?.width || 0,
-    sourceHeight: metadata.video?.height || 0,
-    maxWidth: constraints.width || 0,
-    maxHeight: constraints.height || 0,
-  })
-  if (shouldSkip) {
-    await job.updateProgress(100)
-    return
-  }
-
-  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode')
+  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode-')
   const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
 
   try {
@@ -89,6 +76,7 @@ export async function transcodePreset(job: Job) {
   }
 }
 
-export async function completeTranscode(job: Job) {
+export async function outputTranscode(job: Job) {
   console.log('test')
+  // Sync all the files from the tmp folder to the output folder/remote
 }

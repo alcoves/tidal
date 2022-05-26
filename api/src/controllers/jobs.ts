@@ -7,6 +7,8 @@ import { thumbnailQueue } from '../config/queues/thumbnail'
 // import { createMainManifest } from '../jobs/package'
 import { Preset, TranscodeJobData } from '../types'
 import { transcodeFlowProducer } from '../config/flows/transcode'
+import { checkDimensionContraints, getMetadata } from '../utils/video'
+import { getSignedURL } from '../config/s3'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -36,38 +38,51 @@ export async function transcodeController(req, res) {
     })
   )
 
+  let signedUrl = ''
+  if (value.input.includes('s3://')) {
+    const Bucket = value.input.split('s3://')[1].split('/')[0]
+    const Key = value.input.split('s3://')[1].split('/')[1]
+    signedUrl = await getSignedURL({ Bucket, Key })
+  }
+  const metadata = await getMetadata(signedUrl || value.input)
+
+  const filteredPresets: Preset[] = presets.filter(preset => {
+    return checkDimensionContraints({
+      sourceWidth: metadata?.video?.width,
+      sourceHeight: metadata?.video?.height,
+      maxWidth: preset?.constraints?.width,
+      maxHeight: preset?.constraints?.height,
+    })
+  })
+
   function childJobs(parentJobId: string): FlowJob[] {
-    return presets.map((preset: Preset) => {
+    return filteredPresets.map((preset: Preset) => {
       const jobData: TranscodeJobData = {
         cmd: preset.cmd,
         input: value.input,
         output: value.output,
         parentId: parentJobId,
         webhooks: value.webhooks,
-        constraints: {
-          width: preset.constraints.width,
-          height: preset.constraints.height,
-        },
       }
       const job: FlowJob = {
         data: jobData,
-        name: 'transcodePreset',
+        name: 'preset',
         queueName: 'transcode',
       }
       return job
     })
   }
-  const parentJobId: string = uuidv4()
 
-  await transcodeFlowProducer.add({
-    data: { ...value },
+  const parentJobId: string = uuidv4()
+  const job = {
+    name: 'output',
     queueName: 'transcode',
-    name: 'completeTranscode',
+    data: { ...value },
     children: childJobs(parentJobId),
     opts: { jobId: parentJobId, priority: 1 },
-  })
-
-  return res.sendStatus(202)
+  }
+  await transcodeFlowProducer.add(job)
+  return res.json(job)
 }
 
 export async function metadataController(req, res) {
