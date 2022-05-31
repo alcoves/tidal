@@ -2,13 +2,12 @@ import Joi from 'joi'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
+import { getSignedURL } from '../config/s3'
 import { metadataQueue } from '../config/queues/metadata'
 import { thumbnailQueue } from '../config/queues/thumbnail'
-// import { createMainManifest } from '../jobs/package'
-import { Preset, TranscodeJobData } from '../types'
 import { transcodeFlowProducer } from '../config/flows/transcode'
+import { OutputJobData, Preset, TranscodeJobData } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
-import { getSignedURL } from '../config/s3'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -55,6 +54,14 @@ export async function transcodeController(req, res) {
     })
   })
 
+  const pacakageCommands: string[] = filteredPresets
+    .filter(preset => {
+      return preset.package_cmd
+    })
+    .map(preset => {
+      return preset.package_cmd
+    })
+
   function childJobs(parentJobId: string): FlowJob[] {
     return filteredPresets.map((preset: Preset) => {
       const jobData: TranscodeJobData = {
@@ -74,10 +81,16 @@ export async function transcodeController(req, res) {
   }
 
   const parentJobId: string = uuidv4()
+
+  const outputJobData: OutputJobData = {
+    input: value.input,
+    output: value.output,
+    package_cmds: pacakageCommands,
+  }
   const job = {
     name: 'output',
+    data: outputJobData,
     queueName: 'transcode',
-    data: { ...value },
     children: childJobs(parentJobId),
     opts: { jobId: parentJobId, priority: 1 },
   }

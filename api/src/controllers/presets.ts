@@ -44,11 +44,13 @@ export async function updatePreset(req, res) {
   const schema = Joi.object({
     name: Joi.string().max(512),
     cmd: Joi.string().max(8192),
+    package_cmd: Joi.string().max(8192),
     constraints: Joi.object({
-      width: Joi.number().max(10000),
-      height: Joi.number().max(10000),
+      width: Joi.number().default(0).max(10000),
+      height: Joi.number().default(0).max(10000),
     }),
   })
+
   const { error, value } = schema.validate(req.body, {
     abortEarly: false, // include all errors
     allowUnknown: true, // ignore unknown props

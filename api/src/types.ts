@@ -29,6 +29,7 @@ export interface Preset {
   id: string
   name: string
   cmd: string
+  package_cmd: string
   constraints: Constraints
 }
 
@@ -71,9 +72,8 @@ export interface TidalWebhookBody {
   queueName: string | undefined
 }
 
-export interface PackageJobData {
-  tmpDir: string
-  entityId: string
+export interface OutputJobData {
+  package_cmds: string[]
   input: S3KeyParameters
   output: S3PathParameters
 }

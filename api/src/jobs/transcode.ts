@@ -4,8 +4,9 @@ import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { purgeURL } from '../utils/bunny'
 import { getSettings } from '../utils/redis'
-import { Progress, TranscodeJobData } from '../types'
+import { OutputJobData, Progress, TranscodeJobData } from '../types'
 import { getS3Config, getSignedURL, uploadFolder } from '../config/s3'
+import { execProm } from '../utils/utils'
 
 export async function transcodePreset(job: Job) {
   const { input, cmd, output }: TranscodeJobData = job.data
@@ -74,9 +75,4 @@ export async function transcodePreset(job: Job) {
     console.error(error)
     throw error
   }
-}
-
-export async function outputTranscode(job: Job) {
-  console.log('test')
-  // Sync all the files from the tmp folder to the output folder/remote
 }

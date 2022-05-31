@@ -2,7 +2,8 @@ import { enqueueWebhook } from './webhook'
 import { defaultConnection } from '../redis'
 import { transcodeFlowProducer } from '../flows/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { transcodePreset, outputTranscode } from '../../jobs/transcode'
+import { transcodePreset } from '../../jobs/transcode'
+import { outputJob } from '../../jobs/output'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
   ? parseInt(process.env.CONCURRENT_TRANSCODE_JOBS)
@@ -16,7 +17,7 @@ function queueSwitch(job: Job) {
     case 'preset':
       return transcodePreset(job)
     case 'output':
-      return outputTranscode(job)
+      return outputJob(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }
