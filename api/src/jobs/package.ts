@@ -95,14 +95,11 @@
 //   return 'done'
 // }
 
-// packager \
-//   in=h264_baseline_360p_600.mp4,stream=audio,output=audio.mp4,playlist_name=audio.m3u8,hls_group_id=audio,hls_name=ENGLISH \
-//   in=h264_baseline_360p_600.mp4,stream=video,output=h264_360p.mp4,playlist_name=h264_360p.m3u8,iframe_playlist_name=h264_360p_iframe.m3u8 \
-//   in=h264_main_480p_1000.mp4,stream=video,output=h264_480p.mp4,playlist_name=h264_480p.m3u8,iframe_playlist_name=h264_480p_iframe.m3u8 \
-//   in=h264_main_720p_3000.mp4,stream=video,output=h264_720p.mp4,playlist_name=h264_720p.m3u8,iframe_playlist_name=h264_720p_iframe.m3u8 \
-//   in=h264_high_1080p_6000.mp4,stream=video,output=h264_1080p.mp4,playlist_name=h264_1080p.m3u8,iframe_playlist_name=h264_1080p_iframe.m3u8 \
-//   --hls_master_playlist_output h264_master.m3u8 \
-//   --mpd_output h264.mpd
+// export async function packageJob(job: Job) {
+//   const { package_cmds }: PackageJobData = job.data
+
+//   return 'done'
+// }
 
 // ./packager \
 //   in=128k_opus.mp4,stream=audio,output="hls/audio/audio.mp4",playlist_name="hls/audio/audio.m3u8",hls_group_id=audio,hls_name="ENGLISH" \
@@ -111,5 +108,6 @@
 //   in=720p.mp4,stream=video,output="hls/720p/720p.mp4",playlist_name="hls/720p/playlist.m3u8",iframe_playlist_name="hls/720p/iframes.m3u8" \
 //   in=1080p.mp4,stream=video,output="hls/1080p/1080p.mp4",playlist_name="hls/1080p/playlist.m3u8",iframe_playlist_name="hls/1080p/iframes.m3u8" \
 //   in=1440p.mp4,stream=video,output="hls/1440p/1440p.mp4",playlist_name="hls/1440p/playlist.m3u8",iframe_playlist_name="hls/1440p/iframes.m3u8" \
+//   in=2160p.mp4,stream=video,output="hls/2160p/2160p.mp4",playlist_name="hls/2160p/playlist.m3u8",iframe_playlist_name="hls/2160p/iframes.m3u8" \
 //   --hls_master_playlist_output "master.m3u8" \
 //   --mpd_output "master.mpd"

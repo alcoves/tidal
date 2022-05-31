@@ -96,6 +96,16 @@ export default function PresetRow(props: any = {}) {
           onChange={handleInputChange}
           placeholder='FFmpeg Command'
         />
+        <Heading size='xs'>Package Command</Heading>
+        <Input
+          w='100%'
+          size='sm'
+          name='package_cmd'
+          variant='filled'
+          value={preset.package_cmd}
+          onChange={handleInputChange}
+          placeholder='Package Command'
+        />
         <Heading size='xs'>Constraints</Heading>
         <HStack>
           <NumberInput
