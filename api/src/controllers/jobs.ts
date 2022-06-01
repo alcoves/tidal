@@ -4,10 +4,10 @@ import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 import { getSignedURL } from '../config/s3'
-import { metadataQueue } from '../config/queues/metadata'
 import { transcodeFlowProducer } from '../config/flows/transcode'
-import { OutputJobData, PackageJobData, Preset, TranscodeJobData } from '../types'
+import { OutputJobData, PackageJobData, Preset, FFmpegJobData } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
+import { transcodeQueue } from '../config/queues/transcode'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -66,7 +66,7 @@ export async function transcodeController(req, res) {
 
   function childJobs(parentJobId: string): FlowJob[] {
     return filteredPresets.map((preset: Preset) => {
-      const jobData: TranscodeJobData = {
+      const jobData: FFmpegJobData = {
         tmpDir,
         cmd: preset.cmd,
         input: value.input,
@@ -75,7 +75,7 @@ export async function transcodeController(req, res) {
       }
       const job: FlowJob = {
         data: jobData,
-        name: 'preset',
+        name: 'ffmpeg',
         queueName: 'transcode',
       }
       return job
@@ -112,7 +112,7 @@ export async function transcodeController(req, res) {
   return res.json(job)
 }
 
-export async function metadataController(req, res) {
+export async function ffprobeController(req, res) {
   const schema = Joi.object({
     entityId: Joi.string().required().max(50),
     input: Joi.object({
@@ -129,6 +129,6 @@ export async function metadataController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  await metadataQueue.add('metadata', value)
+  await transcodeQueue.add('metadata', value)
   return res.sendStatus(202)
 }

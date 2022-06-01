@@ -39,7 +39,7 @@ interface Constraints {
 }
 
 export interface MetadataJobData {
-  input: S3KeyParameters
+  input: string
 }
 
 export interface TidalWebhookBody {
@@ -52,7 +52,7 @@ export interface TidalWebhookBody {
   queueName: string | undefined
 }
 
-export interface TranscodeJobData {
+export interface FFmpegJobData {
   cmd: string
   input: string
   tmpDir: string
