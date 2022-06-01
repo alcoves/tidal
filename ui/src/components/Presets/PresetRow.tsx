@@ -1,5 +1,5 @@
 import hash from 'object-hash'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoTrashBin } from 'react-icons/io5'
 import { useSWRConfig } from 'swr'
 import { useLazyRequest } from '../../hooks/useRequest'
@@ -21,17 +21,28 @@ import {
 
 export default function PresetRow(props: any = {}) {
   const { mutate } = useSWRConfig()
-
   const [preset, setPreset] = useState(props.preset)
-  const initialHash = hash(props.preset)
-  const updatedHash = hash(preset)
 
-  const [updatePreset] = useLazyRequest(`/presets/${props.preset?.id}`, {
-    method: 'PATCH',
-  })
-  const [deletePreset] = useLazyRequest(`/presets/${props.preset?.id}`, {
-    method: 'DELETE',
-  })
+  const [initialHash, setInitialHash] = useState(hash(props.preset))
+  const [updatedHash, setUpdatedHash] = useState(hash(preset))
+
+  useEffect(() => {
+    setInitialHash(hash(props.preset))
+    setUpdatedHash(hash(preset))
+  }, [props.preset, preset])
+
+  const [updatePreset, { loading: updatePresetLoading }] = useLazyRequest(
+    `/presets/${props.preset?.id}`,
+    {
+      method: 'PATCH',
+    }
+  )
+  const [deletePreset, { loading: deletePresetLoading }] = useLazyRequest(
+    `/presets/${props.preset?.id}`,
+    {
+      method: 'DELETE',
+    }
+  )
 
   async function handleDelete() {
     await deletePreset({
@@ -48,7 +59,7 @@ export default function PresetRow(props: any = {}) {
 
   function handleSave() {
     updatePreset({ data: preset })
-    mutate('/presets')
+    setInitialHash(updatedHash) // reset hash
   }
 
   const isSaveDisabled = initialHash === updatedHash
@@ -77,6 +88,7 @@ export default function PresetRow(props: any = {}) {
             onClick={handleSave}
             isDisabled={isSaveDisabled}
             colorScheme={!isSaveDisabled ? 'yellow' : null}
+            isLoading={updatePresetLoading || deletePresetLoading}
           >
             Save
           </Button>

@@ -1,5 +1,5 @@
 import hash from 'object-hash'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR, { useSWRConfig } from 'swr'
 import { fetcher } from '../../utils/fetcher'
 import { useLazyRequest } from '../../hooks/useRequest'
@@ -27,18 +27,29 @@ import {
 
 export default function WorkflowRow(props: any = {}) {
   const { mutate } = useSWRConfig()
-
   const [workflow, setWorkflow] = useState(props.workflow)
-  const initialHash = hash(props.workflow)
-  const updatedHash = hash(workflow)
+
+  const [initialHash, setInitialHash] = useState(hash(props.workflow))
+  const [updatedHash, setUpdatedHash] = useState(hash(workflow))
+
+  useEffect(() => {
+    setInitialHash(hash(props.workflow))
+    setUpdatedHash(hash(workflow))
+  }, [props.workflow, workflow])
 
   const { data: presetData } = useSWR('/presets', fetcher)
-  const [updateWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
-    method: 'PATCH',
-  })
-  const [deleteWorkflow] = useLazyRequest(`/workflows/${workflow?.id}`, {
-    method: 'DELETE',
-  })
+  const [updateWorkflow, { loading: updateWorkflowLoading }] = useLazyRequest(
+    `/workflows/${workflow?.id}`,
+    {
+      method: 'PATCH',
+    }
+  )
+  const [deleteWorkflow, { loading: deleteWorkflowLoading }] = useLazyRequest(
+    `/workflows/${workflow?.id}`,
+    {
+      method: 'DELETE',
+    }
+  )
 
   async function handleDelete() {
     await deleteWorkflow({
@@ -55,7 +66,7 @@ export default function WorkflowRow(props: any = {}) {
 
   function handleSave() {
     updateWorkflow({ data: workflow })
-    mutate('/workflows')
+    setInitialHash(updatedHash) // reset hash
   }
 
   const isSaveDisabled = initialHash === updatedHash
@@ -85,6 +96,7 @@ export default function WorkflowRow(props: any = {}) {
             onClick={handleSave}
             isDisabled={isSaveDisabled}
             colorScheme={!isSaveDisabled ? 'yellow' : null}
+            isLoading={updateWorkflowLoading || deleteWorkflowLoading}
           >
             Save
           </Button>
