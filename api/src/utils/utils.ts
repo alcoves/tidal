@@ -9,7 +9,11 @@ export function execProm(command: string, directory: string) {
       }
       if (stderr) {
         console.log(`stderr: ${stderr}`)
-        reject(stderr)
+        if (command.includes('packager') || command.includes('ffmpeg')) {
+          resolve(stderr)
+        } else {
+          reject(stderr)
+        }
       }
       console.log(`stdout: ${stdout}`)
       resolve(stdout)

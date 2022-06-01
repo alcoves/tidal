@@ -1,15 +1,11 @@
-import path from 'path'
-import fs from 'fs-extra'
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
-import { purgeURL } from '../utils/bunny'
-import { getSettings } from '../utils/redis'
-import { OutputJobData, Progress, TranscodeJobData } from '../types'
-import { getS3Config, getSignedURL, uploadFolder } from '../config/s3'
-import { execProm } from '../utils/utils'
+import { getSignedURL } from '../config/s3'
+import { Progress, TranscodeJobData } from '../types'
 
 export async function transcodePreset(job: Job) {
-  const { input, cmd, output }: TranscodeJobData = job.data
+  console.log('Transcode job starting...')
+  const { input, cmd, tmpDir }: TranscodeJobData = job.data
 
   let signedUrl = ''
   let lastProgress = 0
@@ -23,7 +19,6 @@ export async function transcodePreset(job: Job) {
     signedUrl = await getSignedURL({ Bucket, Key })
   }
 
-  const tmpDir = await fs.mkdtemp('/tmp/bken-transcode-')
   const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
 
   try {
@@ -48,25 +43,7 @@ export async function transcodePreset(job: Job) {
           reject(err.message)
         })
         .on('end', async function () {
-          const tmpFiles = await fs.readdir(tmpDir)
-          const m3u8File = tmpFiles.find(file => file.endsWith('master.m3u8'))
-
-          if (output.includes('s3://')) {
-            console.log('output to s3')
-            const outputKey = output.split('s3://')[1].split('/')[1]
-            const outputBucket = output.split('s3://')[1].split('/')[0]
-
-            // TODO :: Purge URLs from CDN?
-            await uploadFolder(tmpDir, { Bucket: outputBucket, Key: outputKey })
-          } else {
-            await fs.ensureDir(output)
-            await Promise.all(
-              tmpFiles.map(f => fs.move(`${tmpDir}/${f}`, `${output}/${f}`, { overwrite: true }))
-            )
-          }
-
           console.log('Done')
-          await fs.remove(tmpDir)
           resolve('done')
         })
         .run()

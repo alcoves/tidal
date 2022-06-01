@@ -1,12 +1,12 @@
 import Joi from 'joi'
+import fs from 'fs-extra'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 import { getSignedURL } from '../config/s3'
 import { metadataQueue } from '../config/queues/metadata'
-import { thumbnailQueue } from '../config/queues/thumbnail'
 import { transcodeFlowProducer } from '../config/flows/transcode'
-import { OutputJobData, Preset, TranscodeJobData } from '../types'
+import { OutputJobData, PackageJobData, Preset, TranscodeJobData } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
 
 export async function transcodeController(req, res) {
@@ -62,12 +62,14 @@ export async function transcodeController(req, res) {
       return preset.package_cmd
     })
 
+  const tmpDir = await fs.mkdtemp('/tmp/tidal-')
+
   function childJobs(parentJobId: string): FlowJob[] {
     return filteredPresets.map((preset: Preset) => {
       const jobData: TranscodeJobData = {
+        tmpDir,
         cmd: preset.cmd,
         input: value.input,
-        output: value.output,
         parentId: parentJobId,
         webhooks: value.webhooks,
       }
@@ -83,15 +85,27 @@ export async function transcodeController(req, res) {
   const parentJobId: string = uuidv4()
 
   const outputJobData: OutputJobData = {
-    input: value.input,
+    tmpDir,
     output: value.output,
+  }
+
+  const packageJobData: PackageJobData = {
+    tmpDir,
     package_cmds: pacakageCommands,
   }
+
   const job = {
     name: 'output',
     data: outputJobData,
     queueName: 'transcode',
-    children: childJobs(parentJobId),
+    children: [
+      {
+        name: 'package',
+        data: packageJobData,
+        queueName: 'transcode',
+        children: childJobs(parentJobId),
+      },
+    ],
     opts: { jobId: parentJobId, priority: 1 },
   }
   await transcodeFlowProducer.add(job)
@@ -116,30 +130,5 @@ export async function metadataController(req, res) {
   if (error) return res.status(400).json(error)
 
   await metadataQueue.add('metadata', value)
-  return res.sendStatus(202)
-}
-
-export async function thumbnailController(req, res) {
-  const schema = Joi.object({
-    entityId: Joi.string().required().max(50),
-    input: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
-    output: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
-  })
-
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false, // include all errors
-    allowUnknown: true, // ignore unknown props
-    stripUnknown: true, // remove unknown props
-  })
-
-  if (error) return res.status(400).json(error)
-
-  await thumbnailQueue.add('thumbnail', value)
   return res.sendStatus(202)
 }

@@ -38,26 +38,6 @@ interface Constraints {
   height: number
 }
 
-export interface TranscodeJobData {
-  cmd: string
-  input: string
-  output: string
-  parentId: string
-  webhooks: boolean
-}
-
-export interface TranscodeProgressiveJobData {
-  cmd: string
-  input: string
-  output: string
-  webhooks: boolean
-}
-
-export interface ThumbnailJobData {
-  input: S3KeyParameters
-  output: S3KeyParameters
-}
-
 export interface MetadataJobData {
   input: S3KeyParameters
 }
@@ -72,10 +52,22 @@ export interface TidalWebhookBody {
   queueName: string | undefined
 }
 
-export interface OutputJobData {
+export interface TranscodeJobData {
+  cmd: string
+  input: string
+  tmpDir: string
+  parentId: string
+  webhooks: boolean
+}
+
+export interface PackageJobData {
+  tmpDir: string
   package_cmds: string[]
-  input: S3KeyParameters
-  output: S3PathParameters
+}
+
+export interface OutputJobData {
+  tmpDir: string
+  output: string
 }
 
 export interface TidalSettings {

@@ -1,26 +1,26 @@
 import fs from 'fs-extra'
 import { Job } from 'bullmq'
 import { OutputJobData } from '../types'
-import { execProm } from '../utils/utils'
+import { uploadFolder } from '../config/s3'
 
 export async function outputJob(job: Job) {
-  const { package_cmds }: OutputJobData = job.data
+  console.log('Output job starting...')
+  const { tmpDir, output }: OutputJobData = job.data
 
-  const tmpDir = await fs.mkdtemp('/tmp/bken-output-')
-
-  if (package_cmds.length) {
-    const packageCommands = [
-      'packager',
-      ...package_cmds,
-      '--hls_master_playlist_output',
-      '"master.m3u8"',
-      '--mpd_output',
-      '"master.mpd"',
-    ]
-
-    const result = await execProm(packageCommands.join(' '), tmpDir)
-    console.log('Result', result)
+  try {
+    if (output.includes('s3://')) {
+      console.log('Uploading files to S3', output)
+      const Key = output.split('s3://')[1].split('/')[1]
+      const Bucket = output.split('s3://')[1].split('/')[0]
+      await uploadFolder(tmpDir, { Bucket, Key })
+    } else {
+      console.log(`Moving files from ${tmpDir} to ${output}`)
+      await fs.ensureDir(output)
+      await fs.copy(tmpDir, output, { overwrite: true })
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    await fs.rmdir(tmpDir)
   }
-
-  // Sync all the files from the tmp folder to the output folder/remote
 }
