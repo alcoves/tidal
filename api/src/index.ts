@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import './config/queues/metadata'
 import './config/queues/transcode'
 
 import app from './app'

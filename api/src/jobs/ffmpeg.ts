@@ -1,11 +1,11 @@
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { getSignedURL } from '../config/s3'
-import { Progress, TranscodeJobData } from '../types'
+import { Progress, FFmpegJobData } from '../types'
 
-export async function transcodePreset(job: Job) {
+export async function ffmpegJob(job: Job) {
   console.log('Transcode job starting...')
-  const { input, cmd, tmpDir }: TranscodeJobData = job.data
+  const { input, cmd, tmpDir }: FFmpegJobData = job.data
 
   let signedUrl = ''
   let lastProgress = 0

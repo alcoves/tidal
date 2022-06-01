@@ -2,9 +2,10 @@ import { enqueueWebhook } from './webhook'
 import { defaultConnection } from '../redis'
 import { transcodeFlowProducer } from '../flows/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { transcodePreset } from '../../jobs/transcode'
+import { ffmpegJob } from '../../jobs/ffmpeg'
 import { outputJob } from '../../jobs/output'
 import { packageJob } from '../../jobs/package'
+import { ffprobeJob } from '../../jobs/ffprobe'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
   ? parseInt(process.env.CONCURRENT_TRANSCODE_JOBS)
@@ -15,12 +16,14 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
+    case 'probe':
+      return ffprobeJob(job)
     case 'output':
       return outputJob(job)
     case 'package':
       return packageJob(job)
-    case 'preset':
-      return transcodePreset(job)
+    case 'ffmpeg':
+      return ffmpegJob(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }
@@ -56,40 +59,33 @@ if (!process.env.DISABLE_JOBS) {
   transcodeWorker.on('completed', async job => {
     if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has completed!`)
-    if (job.name !== 'transcodePreset') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('failed', async (job, err) => {
     if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-    if (job.name !== 'transcodePreset') await enqueueWebhook(job)
   })
 
   transcodeWorker.on('progress', async job => {
     if (!job.data?.webhooks) return
 
-    if (job.name === 'transcodePreset') {
-      if (job.data.parentId) {
-        const tree = await transcodeFlowProducer.getFlow({
-          id: job.data.parentId,
-          queueName: 'transcode',
-        })
+    if (job.data.parentId) {
+      const tree = await transcodeFlowProducer.getFlow({
+        id: job.data.parentId,
+        queueName: 'transcode',
+      })
 
-        if (tree.children) {
-          const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
-            acc += job.progress
-            return acc
-          }, 0)
-          const percentageDone = sumPercentageCompleted / tree.children.length - 5
-          if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
-          // Bullmq parent flow jobs don't start triggering progress updated util the job is running
-          // So we have to enqueue the webhook data manually here
-          await enqueueWebhook(tree.job)
-        }
+      if (tree.children) {
+        const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
+          acc += job.progress
+          return acc
+        }, 0)
+        const percentageDone = sumPercentageCompleted / tree.children.length - 5
+        if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
       }
-    } else {
-      console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
-      await enqueueWebhook(job)
     }
+
+    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
+    await enqueueWebhook(job)
   })
 }
