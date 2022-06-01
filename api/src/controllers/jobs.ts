@@ -114,11 +114,7 @@ export async function transcodeController(req, res) {
 
 export async function ffprobeController(req, res) {
   const schema = Joi.object({
-    entityId: Joi.string().required().max(50),
-    input: Joi.object({
-      bucket: Joi.string().required().max(255),
-      key: Joi.string().required().max(255),
-    }),
+    input: Joi.string().required().max(1024),
   })
 
   const { error, value } = schema.validate(req.body, {
@@ -129,6 +125,17 @@ export async function ffprobeController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  await transcodeQueue.add('metadata', value)
-  return res.sendStatus(202)
+  const job = await transcodeQueue.add('probe', value, { priority: 1 })
+  if (!job || !job.id) return res.sendStatus(500)
+
+  for (let i = 0; i < 6; i++) {
+    i++
+    const jobQuery = await transcodeQueue.getJob(job.id)
+    if (jobQuery?.progress === 100) return res.json({ metadata: jobQuery.returnvalue })
+    await sleep(500)
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

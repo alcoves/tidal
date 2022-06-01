@@ -13,5 +13,7 @@ export async function ffprobeJob(job: Job): Promise<Metadata> {
     signedUrl = await getSignedURL({ Bucket, Key })
   }
 
-  return getMetadata(signedUrl || input)
+  const metadata = await getMetadata(signedUrl || input)
+  await job.updateProgress(100)
+  return metadata
 }
