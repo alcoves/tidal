@@ -1,5 +1,8 @@
 FROM node:16-alpine
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg wget
+
+RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.1/packager-linux-x64
+RUN mv ./packager-linux-x64 /usr/local/bin/packager
 
 WORKDIR /app
 COPY ui ui
