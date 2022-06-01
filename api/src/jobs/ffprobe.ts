@@ -1,10 +1,10 @@
 import { Job } from 'bullmq'
 import { getSignedURL } from '../config/s3'
 import { getMetadata } from '../utils/video'
-import { Metadata, MetadataJobData } from '../types'
+import { Metadata, FFprobeJobData } from '../types'
 
 export async function ffprobeJob(job: Job): Promise<Metadata> {
-  const { input }: MetadataJobData = job.data
+  const { input }: FFprobeJobData = job.data
 
   let signedUrl = ''
   if (input.includes('s3://')) {

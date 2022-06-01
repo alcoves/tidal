@@ -1,4 +1,4 @@
-import { Metadata, Preset } from '../types'
+import { Metadata } from '../types'
 import { ffprobe, FfprobeData } from 'fluent-ffmpeg'
 
 function transformFfprobeToMetadata(rawMeta: FfprobeData): Metadata {
