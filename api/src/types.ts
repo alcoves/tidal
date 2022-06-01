@@ -15,16 +15,6 @@ export interface Metadata {
   format: FfprobeFormat
 }
 
-export interface S3KeyParameters {
-  key: string
-  bucket: string
-}
-
-export interface S3PathParameters {
-  path: string
-  bucket: string
-}
-
 export interface Preset {
   id: string
   name: string
@@ -37,11 +27,6 @@ interface Constraints {
   width: number
   height: number
 }
-
-export interface MetadataJobData {
-  input: string
-}
-
 export interface TidalWebhookBody {
   data: any
   returnValue: any
@@ -50,6 +35,21 @@ export interface TidalWebhookBody {
   name: string | undefined
   progress: number | object
   queueName: string | undefined
+}
+
+export interface TidalSettings {
+  apiKey: string
+  webhookUrl: string
+  cdnHostname: string
+  bunnyAccessKey: string
+  s3Endpoint: string
+  s3AccessKeyId: string
+  nfsMountPath: string
+  s3SecretAccessKey: string
+}
+
+export interface FFprobeJobData {
+  input: string
 }
 
 export interface FFmpegJobData {
@@ -68,15 +68,4 @@ export interface PackageJobData {
 export interface OutputJobData {
   tmpDir: string
   output: string
-}
-
-export interface TidalSettings {
-  apiKey: string
-  webhookUrl: string
-  cdnHostname: string
-  bunnyAccessKey: string
-  s3Endpoint: string
-  s3AccessKeyId: string
-  nfsMountPath: string
-  s3SecretAccessKey: string
 }
