@@ -4,6 +4,7 @@ import { transcodeFlowProducer } from '../flows/transcode'
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { transcodePreset } from '../../jobs/transcode'
 import { outputJob } from '../../jobs/output'
+import { packageJob } from '../../jobs/package'
 
 const concurrency = process.env.CONCURRENT_TRANSCODE_JOBS
   ? parseInt(process.env.CONCURRENT_TRANSCODE_JOBS)
@@ -14,10 +15,12 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 function queueSwitch(job: Job) {
   switch (job.name) {
-    case 'preset':
-      return transcodePreset(job)
     case 'output':
       return outputJob(job)
+    case 'package':
+      return packageJob(job)
+    case 'preset':
+      return transcodePreset(job)
     default:
       console.error(`Job ${job.name} not found in ${job.queueName} queue`)
   }

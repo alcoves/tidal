@@ -1,5 +1,4 @@
 import { metadataQueue } from '../config/queues/metadata'
-import { thumbnailQueue } from '../config/queues/thumbnail'
 import { transcodeQueue } from '../config/queues/transcode'
 import { webhookQueue } from '../config/queues/webhook'
 
@@ -24,12 +23,6 @@ export async function getQueues(req, res) {
           jobs: await webhookQueue.getJobCounts(),
         },
       },
-      {
-        name: thumbnailQueue.name,
-        metrics: {
-          jobs: await thumbnailQueue.getJobCounts(),
-        },
-      },
     ],
   })
 }
@@ -38,12 +31,10 @@ export async function cleanQueues(req, res) {
   await metadataQueue.clean(1, 1000, 'failed')
   await transcodeQueue.clean(1, 1000, 'failed')
   await webhookQueue.clean(1, 1000, 'failed')
-  await thumbnailQueue.clean(1, 1000, 'failed')
 
   await metadataQueue.clean(1, 1000, 'completed')
   await transcodeQueue.clean(1, 1000, 'completed')
   await webhookQueue.clean(1, 1000, 'completed')
-  await thumbnailQueue.clean(1, 1000, 'completed')
 
   return res.sendStatus(200)
 }
