@@ -21,6 +21,6 @@ export async function outputJob(job: Job) {
   } catch (error) {
     console.error(error)
   } finally {
-    await fs.rmdir(tmpDir)
+    await fs.remove(tmpDir)
   }
 }
