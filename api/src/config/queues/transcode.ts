@@ -57,16 +57,18 @@ if (!process.env.DISABLE_JOBS) {
   })
 
   transcodeWorker.on('completed', async job => {
-    if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has completed!`)
+    if (!job.data?.webhooks) return
+    await enqueueWebhook(job)
   })
 
   transcodeWorker.on('failed', async (job, err) => {
-    if (!job.data?.webhooks) return
     console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
+    if (!job.data?.webhooks) return
   })
 
   transcodeWorker.on('progress', async job => {
+    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
     if (!job.data?.webhooks) return
 
     if (job.data.parentId) {
@@ -85,7 +87,6 @@ if (!process.env.DISABLE_JOBS) {
       }
     }
 
-    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
     await enqueueWebhook(job)
   })
 }
