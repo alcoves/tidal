@@ -1,4 +1,12 @@
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
+import {
+  Job,
+  Queue,
+  QueueOptions,
+  WorkerOptions,
+  QueueScheduler,
+  QueueSchedulerOptions,
+} from 'bullmq'
 
 export interface Progress {
   frames: number
@@ -46,6 +54,18 @@ export interface TidalSettings {
   s3AccessKeyId: string
   nfsMountPath: string
   s3SecretAccessKey: string
+}
+
+export interface TidalQueue {
+  name: string
+  fn: (job: Job) => Promise<unknown>
+  queue?: Queue
+  worker?: Worker
+  scheduler?: QueueScheduler
+  disabled?: boolean
+  queueOptions: QueueOptions
+  workerOptions: WorkerOptions
+  queueSchedulerOptions: QueueSchedulerOptions
 }
 
 export interface FFprobeJobData {

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import './config/queues/transcode'
+import './config/queues'
 
 import app from './app'
 
