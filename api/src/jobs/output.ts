@@ -22,5 +22,6 @@ export async function outputJob(job: Job) {
     console.error(error)
   } finally {
     await fs.remove(tmpDir)
+    await job.updateProgress(100)
   }
 }

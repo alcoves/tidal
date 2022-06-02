@@ -22,5 +22,7 @@ export async function packageJob(job: Job) {
     }
   } catch (error) {
     console.error(error)
+  } finally {
+    await job.updateProgress(100)
   }
 }
