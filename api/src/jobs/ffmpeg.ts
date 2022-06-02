@@ -31,7 +31,7 @@ export async function ffmpegJob(job: Job) {
         })
         .on('progress', async function (progress: Progress) {
           if (progress.percent >= 0) {
-            const currentProgress = Math.ceil(progress.percent)
+            const currentProgress = Math.floor(progress.percent)
             if (lastProgress !== currentProgress) {
               await job.updateProgress(currentProgress)
             }
@@ -43,6 +43,7 @@ export async function ffmpegJob(job: Job) {
           reject(err.message)
         })
         .on('end', async function () {
+          await job.updateProgress(100)
           console.log('Done')
           resolve('done')
         })
