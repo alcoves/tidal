@@ -4,10 +4,9 @@ import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 import { getSignedURL } from '../config/s3'
-import { transcodeFlowProducer } from '../config/flows/transcode'
+import { flow, getTidalQueue } from '../config/queues'
 import { OutputJobData, PackageJobData, Preset, FFmpegJobData } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
-import { transcodeQueue } from '../config/queues/transcode'
 
 export async function transcodeController(req, res) {
   const schema = Joi.object({
@@ -75,7 +74,7 @@ export async function transcodeController(req, res) {
       }
       const job: FlowJob = {
         data: jobData,
-        name: 'ffmpeg',
+        name: `ffmpeg`,
         queueName: 'transcode',
       }
       return job
@@ -96,6 +95,7 @@ export async function transcodeController(req, res) {
 
   const job = {
     name: 'output',
+    type: '123',
     data: outputJobData,
     queueName: 'transcode',
     children: [
@@ -108,7 +108,7 @@ export async function transcodeController(req, res) {
     ],
     opts: { jobId: parentJobId, priority: 1 },
   }
-  await transcodeFlowProducer.add(job)
+  await flow.add(job)
   return res.json(job)
 }
 
@@ -125,12 +125,12 @@ export async function ffprobeController(req, res) {
 
   if (error) return res.status(400).json(error)
 
-  const job = await transcodeQueue.add('probe', value, { priority: 1 })
+  const job = await getTidalQueue('ffprobe').queue?.add('probe', value, { priority: 1 })
   if (!job || !job.id) return res.sendStatus(500)
 
   for (let i = 0; i < 6; i++) {
     i++
-    const jobQuery = await transcodeQueue.getJob(job.id)
+    const jobQuery = await getTidalQueue('ffmpeg').queue?.getJob(job.id)
     if (jobQuery?.progress === 100) return res.json({ metadata: jobQuery.returnvalue })
     await sleep(500)
   }
@@ -141,30 +141,50 @@ function sleep(ms) {
 }
 
 export async function getTranscodeJobs(req, res) {
+  // TODO :: Add schema validation
+
+  // if (req.query?.sort === 'hierarchy') {
+  //   const jobs = await getTidalQueue('ffmpeg').queue?.getJobs()
+  //   const parentJobs = await jobs?.filter(job => (job?.opts?.parent?.id ? false : true))
+
+  //   const jobTree = await Promise.all(
+  //     parentJobs?.map(async parentJob => {
+  //       if (!parentJob.id) throw new Error('Job has no id')
+  //       const jobTree = await flow.getFlow({
+  //         id: parentJob.id,
+  //         queueName: 'transcode',
+  //       })
+  //       return jobTree
+  //     })
+  //   )
+
+  //   return res.json(jobTree)
+  // }
+
   return res.json([
     {
       name: 'active',
-      jobs: await transcodeQueue.getActive(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getActive(),
     },
     {
       name: 'completed',
-      jobs: await transcodeQueue.getCompleted(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getCompleted(),
     },
     {
       name: 'delayed',
-      jobs: await transcodeQueue.getDelayed(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getDelayed(),
     },
     {
       name: 'failed',
-      jobs: await transcodeQueue.getFailed(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getFailed(),
     },
     {
       name: 'waiting',
-      jobs: await transcodeQueue.getWaiting(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getWaiting(),
     },
     {
       name: 'waitingChildren',
-      jobs: await transcodeQueue.getWaitingChildren(),
+      jobs: await getTidalQueue('ffmpeg')?.queue?.getWaitingChildren(),
     },
   ])
 }
