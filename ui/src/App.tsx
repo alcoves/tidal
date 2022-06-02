@@ -8,6 +8,7 @@ import Settings from './components/Settings'
 import Presets from './components/Presets'
 import { Route, Routes } from 'react-router-dom'
 import { Button, Flex, Heading, Input } from '@chakra-ui/react'
+import TranscodeQueue from './components/Queues/TranscodeQueue'
 
 export function App() {
   const localStorageKey = localStorage.getItem('apiKey') || ''
@@ -44,6 +45,7 @@ export function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/queues' element={<Queues />} />
+        <Route path='/queues/transcode' element={<TranscodeQueue />} />
         <Route path='/workflows' element={<Workflows />} />
         <Route path='/settings' element={<Settings />} />
         <Route path='/presets' element={<Presets />} />

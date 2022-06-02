@@ -139,3 +139,32 @@ export async function ffprobeController(req, res) {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+export async function getTranscodeJobs(req, res) {
+  return res.json([
+    {
+      name: 'active',
+      jobs: await transcodeQueue.getActive(),
+    },
+    {
+      name: 'completed',
+      jobs: await transcodeQueue.getCompleted(),
+    },
+    {
+      name: 'delayed',
+      jobs: await transcodeQueue.getDelayed(),
+    },
+    {
+      name: 'failed',
+      jobs: await transcodeQueue.getFailed(),
+    },
+    {
+      name: 'waiting',
+      jobs: await transcodeQueue.getWaiting(),
+    },
+    {
+      name: 'waitingChildren',
+      jobs: await transcodeQueue.getWaitingChildren(),
+    },
+  ])
+}
