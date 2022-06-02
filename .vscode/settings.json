@@ -1,4 +1,24 @@
 {
   "peacock.color": "ffcc00",
-  "jest.jestCommandLine": "yarn jest"
+  "jest.jestCommandLine": "yarn jest",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#ffd03e",
+    "activityBar.activeBorder": "#009f79",
+    "activityBar.background": "#ffd03e",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#009f79",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "sash.hoverBorder": "#ffd03e",
+    "statusBar.background": "#ffc30b",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#d7a200",
+    "statusBarItem.remoteBackground": "#ffc30b",
+    "statusBarItem.remoteForeground": "#15202b",
+    "titleBar.activeBackground": "#ffc30b",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#ffc30b99",
+    "titleBar.inactiveForeground": "#15202b99"
+  },
+  "peacock.remoteColor": "#ffc30b"
 }
