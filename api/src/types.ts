@@ -1,12 +1,5 @@
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
-import {
-  Job,
-  Queue,
-  QueueOptions,
-  WorkerOptions,
-  QueueScheduler,
-  QueueSchedulerOptions,
-} from 'bullmq'
+import { Job, Queue, Worker, QueueScheduler } from 'bullmq'
 
 export interface Progress {
   frames: number
@@ -58,14 +51,18 @@ export interface TidalSettings {
 
 export interface TidalQueue {
   name: string
-  fn: (job: Job) => Promise<unknown>
-  queue?: Queue
-  worker?: Worker
-  scheduler?: QueueScheduler
-  disabled?: boolean
-  queueOptions: QueueOptions
-  workerOptions: WorkerOptions
-  queueSchedulerOptions: QueueSchedulerOptions
+  queue: Queue
+  worker: Worker
+  scheduler: QueueScheduler
+}
+
+export interface TidalJob {
+  cmd?: string | string[]
+  input?: string
+  output?: string
+  tmpDir?: string
+  parentId?: string
+  webhooks: boolean
 }
 
 export interface FFprobeJobData {

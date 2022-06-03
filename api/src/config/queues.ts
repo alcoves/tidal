@@ -1,13 +1,13 @@
+import { db } from '../utils/redis'
+import { TidalQueue } from '../types'
 import { defaultConnection } from './redis'
-import { Queue, Worker, QueueScheduler, FlowProducer } from 'bullmq'
+import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
+import { onCompleted, onFailed, onProgress } from '../controllers/workerEvents'
 
-import { ffmpegJob } from '../jobs/ffmpeg'
 import { outputJob } from '../jobs/output'
+import { ffmpegJob } from '../jobs/ffmpeg'
 import { packageJob } from '../jobs/package'
 import { ffprobeJob } from '../jobs/ffprobe'
-import { enqueueWebhook } from './webhooks'
-import { webhookJob } from '../jobs/webhook'
-import { TidalQueue } from '../types'
 
 export const flow = new FlowProducer({
   connection: defaultConnection,
@@ -16,158 +16,68 @@ export const flow = new FlowProducer({
 // Increasing the lock duration attempts to avoid stalling jobs
 const lockDuration = 1000 * 240 // 4 minutes
 
-const queues: TidalQueue[] = [
-  {
-    name: 'output',
-    fn: outputJob,
-    disabled: false,
-    queueOptions: {
-      connection: defaultConnection,
-      defaultJobOptions: {
-        attempts: 2,
-        backoff: { delay: 1000, type: 'exponential' },
-      },
-    },
-    workerOptions: {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    },
-    queueSchedulerOptions: { connection: defaultConnection },
-  },
-  {
-    name: 'package',
-    fn: packageJob,
-    disabled: false,
-    queueOptions: {
-      connection: defaultConnection,
-      defaultJobOptions: {
-        attempts: 1,
-        backoff: { delay: 1000, type: 'exponential' },
-      },
-    },
-    workerOptions: {
-      concurrency: 5,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    },
-    queueSchedulerOptions: { connection: defaultConnection },
-  },
-  {
-    name: 'ffmpeg',
-    fn: ffmpegJob,
-    disabled: false,
-    queueOptions: {
-      connection: defaultConnection,
-      defaultJobOptions: {
-        attempts: 5,
-        backoff: { delay: 1000, type: 'exponential' },
-      },
-    },
-    workerOptions: {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    },
-    queueSchedulerOptions: { connection: defaultConnection },
-  },
-  {
-    name: 'ffprobe',
-    fn: ffprobeJob,
-    disabled: false,
-    queueOptions: {
-      connection: defaultConnection,
-      defaultJobOptions: {
-        attempts: 5,
-        backoff: { delay: 1000, type: 'exponential' },
-      },
-    },
-    workerOptions: {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    },
-    queueSchedulerOptions: { connection: defaultConnection },
-  },
-  {
-    name: 'webhooks',
-    fn: webhookJob,
-    disabled: false,
-    queueOptions: {
-      connection: defaultConnection,
-      defaultJobOptions: {
-        attempts: 5,
-        backoff: { delay: 1000, type: 'exponential' },
-      },
-    },
-    workerOptions: {
-      concurrency: 5,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    },
-    queueSchedulerOptions: { connection: defaultConnection },
-  },
-]
+export let queues: TidalQueue[] = []
 
-for (const queue of queues) {
-  const { name, fn, disabled, queueOptions, workerOptions, queueSchedulerOptions } = queue
-  if (disabled) continue
+export async function getTidalQueues(): Promise<any[]> {
+  const keys = await db.keys('tidal:queues:*')
+  const dbRes = await Promise.all(keys.map(k => db.get(k) || ''))
+  return dbRes.map(r => {
+    if (r) return JSON.parse(r)
+  })
+}
 
-  queues[name] = {
-    queue: new Queue(name, queueOptions),
-    worker: new Worker(name, fn, workerOptions),
-    scheduler: new QueueScheduler(name, queueSchedulerOptions),
+export function getQueueByName(name: string): TidalQueue | undefined {
+  return queues.find(q => q.name === name)
+}
+
+async function queueSwitch(job: Job) {
+  const handler = job.data?.handler
+  switch (handler) {
+    case 'output':
+      return outputJob(job)
+    case 'ffmpeg':
+      return ffmpegJob(job)
+    case 'ffprobe':
+      return ffprobeJob(job)
+    case 'package':
+      return packageJob(job)
+    default:
+      throw new Error('Unknown handler')
   }
+}
 
-  queues[name].worker.on('completed', async job => {
-    console.log(`${job.queueName} :: ${job.id} has completed!`)
-    if (!job.data?.webhooks) return
-    await enqueueWebhook(job)
-  })
+async function loadQueues() {
+  const tidalQueues = await getTidalQueues()
+  const fullQueues: TidalQueue[] = []
 
-  queues[name].worker.on('failed', async (job, err) => {
-    console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
-    if (!job.data?.webhooks) return
-  })
-
-  queues[name].worker.on('progress', async job => {
-    console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
-    if (!job.data?.webhooks) return
-
-    if (job.data.parentId) {
-      const tree = await flow.getFlow({
-        queueName: name,
-        id: job.data.parentId,
-      })
-
-      if (tree.children) {
-        const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
-          acc += job.progress
-          return acc
-        }, 0)
-        const percentageDone = sumPercentageCompleted / tree.children.length - 5
-        if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
-      }
+  for (const { name } of tidalQueues) {
+    const fullQueue: TidalQueue = {
+      name,
+      queue: new Queue(name, {
+        connection: defaultConnection,
+        defaultJobOptions: {
+          attempts: 2,
+          backoff: { delay: 1000, type: 'exponential' },
+        },
+      }),
+      worker: new Worker(name, queueSwitch, {
+        concurrency: 1,
+        lockDuration: lockDuration,
+        connection: defaultConnection,
+        lockRenewTime: lockDuration / 4,
+        limiter: { max: 1, duration: 1000 },
+      }),
+      scheduler: new QueueScheduler(name, { connection: defaultConnection }),
     }
 
-    await enqueueWebhook(job)
-  })
+    fullQueue.worker.on('failed', onFailed)
+    fullQueue.worker.on('progress', onCompleted)
+    fullQueue.worker.on('completed', job => onProgress(job, name))
+
+    fullQueues.push(fullQueue)
+  }
+
+  queues = fullQueues
 }
 
-export function getTidalQueue(name: string): TidalQueue {
-  return queues[name]
-}
-
-export function getTidalQueues(): TidalQueue[] {
-  return queues
-}
+loadQueues()
