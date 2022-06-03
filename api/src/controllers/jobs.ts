@@ -4,7 +4,7 @@ import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
 import { getSignedURL } from '../config/s3'
-import { flow, getTidalQueue } from '../config/queues'
+import { flow } from '../config/queues'
 import { OutputJobData, PackageJobData, Preset, FFmpegJobData } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
 
@@ -113,27 +113,23 @@ export async function transcodeController(req, res) {
 }
 
 export async function ffprobeController(req, res) {
-  const schema = Joi.object({
-    input: Joi.string().required().max(1024),
-  })
-
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false, // include all errors
-    allowUnknown: true, // ignore unknown props
-    stripUnknown: true, // remove unknown props
-  })
-
-  if (error) return res.status(400).json(error)
-
-  const job = await getTidalQueue('ffprobe').queue?.add('probe', value, { priority: 1 })
-  if (!job || !job.id) return res.sendStatus(500)
-
-  for (let i = 0; i < 6; i++) {
-    i++
-    const jobQuery = await getTidalQueue('ffmpeg').queue?.getJob(job.id)
-    if (jobQuery?.progress === 100) return res.json({ metadata: jobQuery.returnvalue })
-    await sleep(500)
-  }
+  // const schema = Joi.object({
+  //   input: Joi.string().required().max(1024),
+  // })
+  // const { error, value } = schema.validate(req.body, {
+  //   abortEarly: false, // include all errors
+  //   allowUnknown: true, // ignore unknown props
+  //   stripUnknown: true, // remove unknown props
+  // })
+  // if (error) return res.status(400).json(error)
+  // const job = await getTidalQueue('ffprobe').queue?.add('probe', value, { priority: 1 })
+  // if (!job || !job.id) return res.sendStatus(500)
+  // for (let i = 0; i < 6; i++) {
+  //   i++
+  //   const jobQuery = await getTidalQueue('ffmpeg').queue?.getJob(job.id)
+  //   if (jobQuery?.progress === 100) return res.json({ metadata: jobQuery.returnvalue })
+  //   await sleep(500)
+  // }
 }
 
 function sleep(ms) {
@@ -162,29 +158,29 @@ export async function getTranscodeJobs(req, res) {
   // }
 
   return res.json([
-    {
-      name: 'active',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getActive(),
-    },
-    {
-      name: 'completed',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getCompleted(),
-    },
-    {
-      name: 'delayed',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getDelayed(),
-    },
-    {
-      name: 'failed',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getFailed(),
-    },
-    {
-      name: 'waiting',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getWaiting(),
-    },
-    {
-      name: 'waitingChildren',
-      jobs: await getTidalQueue('ffmpeg')?.queue?.getWaitingChildren(),
-    },
+    // {
+    //   name: 'active',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getActive(),
+    // },
+    // {
+    //   name: 'completed',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getCompleted(),
+    // },
+    // {
+    //   name: 'delayed',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getDelayed(),
+    // },
+    // {
+    //   name: 'failed',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getFailed(),
+    // },
+    // {
+    //   name: 'waiting',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getWaiting(),
+    // },
+    // {
+    //   name: 'waitingChildren',
+    //   jobs: await getTidalQueue('ffmpeg')?.queue?.getWaitingChildren(),
+    // },
   ])
 }
