@@ -1,6 +1,17 @@
+import { Queue, Worker, QueueScheduler } from 'bullmq'
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
-import { Job, Queue, Worker, QueueScheduler } from 'bullmq'
 
+enum Handler {
+  output = 'output',
+  ffmpeg = 'ffmpeg',
+  ffprobe = 'ffprobe',
+  package = 'package',
+}
+
+interface Constraints {
+  width: number
+  height: number
+}
 export interface Progress {
   frames: number
   percent: number
@@ -19,15 +30,12 @@ export interface Metadata {
 export interface Preset {
   id: string
   name: string
-  cmd: string
-  package_cmd: string
+  queue: string
+  handler: Handler
+  cmd: string | string[]
   constraints: Constraints
 }
 
-interface Constraints {
-  width: number
-  height: number
-}
 export interface TidalWebhookBody {
   data: any
   returnValue: any
@@ -57,32 +65,10 @@ export interface TidalQueue {
 }
 
 export interface TidalJob {
-  cmd?: string | string[]
   input?: string
   output?: string
   tmpDir?: string
   parentId?: string
   webhooks: boolean
-}
-
-export interface FFprobeJobData {
-  input: string
-}
-
-export interface FFmpegJobData {
-  cmd: string
-  input: string
-  tmpDir: string
-  parentId: string
-  webhooks: boolean
-}
-
-export interface PackageJobData {
-  tmpDir: string
-  package_cmds: string[]
-}
-
-export interface OutputJobData {
-  tmpDir: string
-  output: string
+  cmd?: string | string[]
 }
