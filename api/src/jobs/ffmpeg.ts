@@ -1,11 +1,15 @@
 import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { getSignedURL } from '../config/s3'
-import { Progress, FFmpegJobData } from '../types'
+import { Progress, TidalJob } from '../types'
 
 export async function ffmpegJob(job: Job) {
   console.log('Transcode job starting...')
-  const { input, cmd, tmpDir }: FFmpegJobData = job.data
+  const { input, cmd, tmpDir }: TidalJob = job.data
+
+  if (!input || !cmd || !tmpDir) {
+    throw new Error('Invalid inputs')
+  }
 
   let signedUrl = ''
   let lastProgress = 0
