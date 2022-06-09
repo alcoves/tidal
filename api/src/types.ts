@@ -12,6 +12,7 @@ interface Constraints {
   width: number
   height: number
 }
+
 export interface Progress {
   frames: number
   percent: number
@@ -29,10 +30,10 @@ export interface Metadata {
 
 export interface Preset {
   id: string
+  cmd: string
   name: string
   queue: string
   handler: Handler
-  cmd: string | string[]
   constraints: Constraints
 }
 
@@ -65,10 +66,10 @@ export interface TidalQueue {
 }
 
 export interface TidalJob {
+  cmd?: string
   input?: string
   output?: string
   tmpDir?: string
   parentId?: string
-  webhooks: boolean
-  cmd?: string | string[]
+  webhooks?: boolean
 }

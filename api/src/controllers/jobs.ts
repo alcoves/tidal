@@ -3,9 +3,9 @@ import fs from 'fs-extra'
 import { FlowJob } from 'bullmq'
 import { v4 as uuidv4 } from 'uuid'
 import { db } from '../utils/redis'
-import { getSignedURL } from '../config/s3'
 import { flow } from '../config/queues'
-import { OutputJobData, PackageJobData, Preset, FFmpegJobData } from '../types'
+import { getSignedURL } from '../config/s3'
+import { Preset, TidalJob } from '../types'
 import { checkDimensionContraints, getMetadata } from '../utils/video'
 
 export async function transcodeController(req, res) {
@@ -55,17 +55,17 @@ export async function transcodeController(req, res) {
 
   const pacakageCommands: string[] = filteredPresets
     .filter(preset => {
-      return preset.package_cmd
+      return preset.cmd
     })
     .map(preset => {
-      return preset.package_cmd
+      return preset.cmd
     })
 
   const tmpDir = await fs.mkdtemp('/tmp/tidal-')
 
   function childJobs(parentJobId: string): FlowJob[] {
     return filteredPresets.map((preset: Preset) => {
-      const jobData: FFmpegJobData = {
+      const jobData: TidalJob = {
         tmpDir,
         cmd: preset.cmd,
         input: value.input,
@@ -83,14 +83,14 @@ export async function transcodeController(req, res) {
 
   const parentJobId: string = uuidv4()
 
-  const outputJobData: OutputJobData = {
+  const outputJobData: TidalJob = {
     tmpDir,
     output: value.output,
   }
 
-  const packageJobData: PackageJobData = {
+  const packageJobData: TidalJob = {
     tmpDir,
-    package_cmds: pacakageCommands,
+    cmd: pacakageCommands.join(' \\ '),
   }
 
   const job = {

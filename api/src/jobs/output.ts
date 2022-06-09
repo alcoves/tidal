@@ -1,11 +1,15 @@
 import fs from 'fs-extra'
 import { Job } from 'bullmq'
-import { OutputJobData } from '../types'
+import { TidalJob } from '../types'
 import { uploadFolder } from '../config/s3'
 
 export async function outputJob(job: Job) {
   console.log('Output job starting...')
-  const { tmpDir, output }: OutputJobData = job.data
+  const { tmpDir, output }: TidalJob = job.data
+
+  if (!tmpDir || !output) {
+    throw new Error('Invalid inputs')
+  }
 
   try {
     if (output.includes('s3://')) {

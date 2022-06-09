@@ -15,6 +15,14 @@ export async function listWorkflows(req, res) {
   return res.status(200).json({ workflows })
 }
 
+export async function startWorkflow(req, res) {
+  // Get the tree
+  // Get the presets
+  // Turn presets into Jobs
+  // Enqueue the jobs
+  return res.send('done')
+}
+
 export async function createWorkflow(req, res) {
   const schema = Joi.object({
     id: Joi.string()
