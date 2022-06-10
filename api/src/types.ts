@@ -73,3 +73,11 @@ export interface TidalJob {
   parentId?: string
   webhooks?: boolean
 }
+
+export interface Workflow {
+  id: string
+  name: string
+  presets: Preset[]
+  chunked: boolean
+  webhookURL: string
+}

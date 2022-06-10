@@ -1,6 +1,9 @@
 import Joi from 'joi'
+import fs from 'fs-extra'
 import { v4 as uuidv4 } from 'uuid'
+import { Workflow } from '../types'
 import { db } from '../utils/redis'
+import { flow } from '../config/queues'
 
 export async function queryWorkflows() {
   const keys = await db.keys('tidal:workflows:*')
@@ -15,12 +18,36 @@ export async function listWorkflows(req, res) {
   return res.status(200).json({ workflows })
 }
 
-export async function startWorkflow(req, res) {
-  // Get the tree
-  // Get the presets
-  // Turn presets into Jobs
-  // Enqueue the jobs
-  return res.send('done')
+export async function getWorkflowById(id: string): Promise<Workflow | null> {
+  const workflow = await db.get(`tidal:workflows:${id}`)
+  if (workflow) return JSON.parse(workflow)
+  return null
+}
+
+function addTmpDirToData(obj, data = {}) {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      if (key === 'data') {
+        console.log(`key: ${key}, value: ${obj[key]}`)
+        obj[key] = { ...obj[key], ...data }
+      }
+      return addTmpDirToData(obj[key], data)
+    }
+  })
+
+  return obj
+}
+
+export async function startWorkflow(req, res): Promise<any> {
+  const workflow = req.body.flow
+  const parentJobId: string = uuidv4()
+  workflow.opts = { jobId: parentJobId, priority: 1 }
+
+  const tmpDir = await fs.mkdtemp('/tmp/tidal-')
+  addTmpDirToData(workflow, { tmpDir, parentJobId })
+
+  const workflowEnqueue = await flow.add(workflow)
+  return res.json(workflowEnqueue)
 }
 
 export async function createWorkflow(req, res) {
