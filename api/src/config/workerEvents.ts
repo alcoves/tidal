@@ -1,6 +1,6 @@
 import { Job } from 'bullmq'
-import { flow } from '../config/queues'
-import { enqueueWebhook } from '../config/webhooks'
+import { flow } from './queues'
+import { enqueueWebhook } from './webhooks'
 
 export async function onCompleted(job: Job) {
   console.log(`${job.queueName} :: ${job.id} has completed!`)
