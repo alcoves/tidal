@@ -1,0 +1,45 @@
+digraph G {
+  splines="FALSE";
+
+  /* Entities */
+  ingest [label="ingest\n- segmentation\n - metadata", shape="square"]
+  output [label="output\n- creates master.m3u8\n - emits done event", shape="square"]
+  
+  package_720p [label="package_720p\n - concat\n - package", shape="square"]
+  transcode_chunk_1_720p [label="transcode_chunk_1_720p", shape="square"]
+  transcode_chunk_2_720p [label="transcode_chunk_2_720p", shape="square"]
+  transcode_chunk_n_720p [label="transcode_chunk_n_720p", shape="square"]
+
+  package_1080p [label="package_1080p\n - concat\n - package", shape="square"]
+  transcode_chunk_1_1080p [label="transcode_chunk_1_1080p", shape="square"]
+  transcode_chunk_2_1080p [label="transcode_chunk_2_1080p", shape="square"]
+  transcode_chunk_n_1080p [label="transcode_chunk_n_1080p", shape="square"]
+
+  package_audio_128k [label="package_audio_128k\n - concat\n - package", shape="square"]
+  transcode_audio_128k [label="transcode_audio_128k", shape="square"]
+
+  create_thumbnail [label="create_thumbnail", shape="square"]
+  create_storyboard [label="create_storyboard", shape="square"]
+  create_audio_peaks [label="create_audio_peaks", shape="square"]
+  
+  /* Relationships */
+  ingest -> output[label="flow"]
+
+  output -> create_thumbnail
+  output -> create_storyboard
+  output -> create_audio_peaks
+  
+  output -> package_audio_128k
+  package_audio_128k -> transcode_audio_128k
+
+  output -> package_720p
+  package_720p -> transcode_chunk_1_720p
+  package_720p -> transcode_chunk_2_720p
+  package_720p -> transcode_chunk_n_720p
+
+  output -> package_1080p
+  package_1080p -> transcode_chunk_1_1080p
+  package_1080p -> transcode_chunk_2_1080p
+  package_1080p -> transcode_chunk_n_1080p
+
+}
