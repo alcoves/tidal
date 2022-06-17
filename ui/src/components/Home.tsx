@@ -1,10 +1,5 @@
-import { Flex, VStack } from '@chakra-ui/react'
-import CreateJob from './Jobs/CreateJob'
+import { Flex } from '@chakra-ui/react'
 
 export default function Home() {
-  return (
-    <Flex>
-      <CreateJob />
-    </Flex>
-  )
+  return <Flex></Flex>
 }

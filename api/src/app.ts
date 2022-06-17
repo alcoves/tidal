@@ -2,7 +2,6 @@ import cors from 'cors'
 import path from 'path'
 import morgan from 'morgan'
 import express from 'express'
-import jobRoutes from './routes/jobs'
 import rootRoutes from './routes/root'
 import queueRoutes from './routes/queues'
 import presetRoutes from './routes/presets'
@@ -18,7 +17,6 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use(rootRoutes)
-app.use('/jobs', jobRoutes)
 app.use('/queues', queueRoutes)
 app.use('/presets', presetRoutes)
 app.use('/settings', settingsRoutes)
