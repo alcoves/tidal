@@ -56,9 +56,6 @@ export async function createWorkflow(req, res) {
       .max(36)
       .default(() => uuidv4()),
     name: Joi.string().max(512).default('New Workflow'),
-    presets: Joi.array().items(Joi.string()).default([]),
-    webhookURL: Joi.string().uri().default('').allow(''),
-    chunked: Joi.boolean().default(false),
   })
 
   const { error, value } = schema.validate(req.body, {

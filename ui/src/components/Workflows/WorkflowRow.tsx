@@ -70,7 +70,7 @@ export default function WorkflowRow(props: any = {}) {
   }
 
   const isSaveDisabled = initialHash === updatedHash
-  const filteredPresets = presetData?.presets.filter(r => !workflow?.presets.includes(r.id)) || []
+  const filteredPresets = presetData?.presets?.filter(r => !workflow?.presets?.includes(r.id)) || []
 
   return (
     <Flex direction='column' p='2' borderColor='gray.700' borderWidth='1px' rounded='md'>
@@ -119,7 +119,7 @@ export default function WorkflowRow(props: any = {}) {
             Preset
           </MenuButton>
           <MenuList>
-            {filteredPresets.map(r => {
+            {filteredPresets?.map(r => {
               return (
                 <MenuItem
                   key={r.id}
