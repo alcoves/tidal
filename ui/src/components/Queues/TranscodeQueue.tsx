@@ -17,6 +17,7 @@ import {
 import useSWR from 'swr'
 import { fetcher } from '../../utils/fetcher'
 import { useState } from 'react'
+import { Job } from 'bullmq'
 
 function ParentJob({ job, children }) {
   return (
@@ -63,7 +64,7 @@ const RecursiveComponent = ({ job, children, level }) => {
 function JobTable({ jobs = [] }) {
   return (
     <VStack spacing={2} align='start'>
-      {jobs.map(job => (
+      {jobs.map((job: Job) => (
         <Flex key={job.id} direction='column'>
           <Flex>
             <Box>{job.name}</Box>
