@@ -5,8 +5,7 @@ RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.
 RUN mv ./packager-linux-x64 /usr/local/bin/packager
 
 WORKDIR /app
-COPY ui ui
-COPY api api
+COPY src src
 COPY package.json yarn.lock tsconfig.json ./
 
 RUN yarn --frozen-lockfile

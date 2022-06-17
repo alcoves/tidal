@@ -3,7 +3,6 @@ import path from 'path'
 import morgan from 'morgan'
 import express from 'express'
 import rootRoutes from './routes/root'
-import presetRoutes from './routes/presets'
 import settingsRoutes from './routes/settings'
 import workflowRoutes from './routes/workflows'
 
@@ -16,7 +15,6 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use(rootRoutes)
-app.use('/presets', presetRoutes)
 app.use('/settings', settingsRoutes)
 app.use('/workflows', workflowRoutes)
 

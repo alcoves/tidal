@@ -1,18 +1,5 @@
 import { Queue, Worker, QueueScheduler } from 'bullmq'
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
-
-enum Handler {
-  output = 'output',
-  ffmpeg = 'ffmpeg',
-  ffprobe = 'ffprobe',
-  package = 'package',
-}
-
-interface Constraints {
-  width: number
-  height: number
-}
-
 export interface Progress {
   frames: number
   percent: number
@@ -26,15 +13,6 @@ export interface Metadata {
   audio: FfprobeStream
   video: FfprobeStream
   format: FfprobeFormat
-}
-
-export interface Preset {
-  id: string
-  cmd: string
-  name: string
-  queue: string
-  handler: Handler
-  constraints: Constraints
 }
 
 export interface TidalWebhookBody {
@@ -77,7 +55,6 @@ export interface TidalJob {
 export interface Workflow {
   id: string
   name: string
-  presets: Preset[]
   chunked: boolean
   webhookURL: string
 }
