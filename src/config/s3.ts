@@ -3,6 +3,7 @@ import path from 'path'
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
+import { ListObjectsV2Request, Object as _Object } from 'aws-sdk/clients/s3'
 
 AWS.config.update({
   maxRetries: 8,
@@ -21,7 +22,7 @@ export const s3 = new AWS.S3({
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
 })
 
-export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
+export async function getSignedURL(urlParams: { Bucket: string; Key: string }): Promise<string> {
   return s3.getSignedUrlPromise('getObject', {
     Key: urlParams.Key,
     Bucket: urlParams.Bucket,
@@ -40,15 +41,6 @@ export function amazonS3URI(s3Url: string): { Bucket: string; Key: string } {
     Bucket: match[1],
     Key: match[2],
   }
-}
-
-// TODO :: Deprecate
-export function getUrlParamsFromS3Uri(s3Uri: string) {
-  // S3 Uri = s3://bucket/key
-  const parts = s3Uri.split('s3://')[1]
-  const bucketKeyTuple = parts.split('/')
-  const Bucket = bucketKeyTuple.shift() as string
-  return { Bucket, Key: bucketKeyTuple.join('/') }
 }
 
 export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix: string }) {
@@ -72,6 +64,17 @@ export async function deleteFolder({ Bucket, Prefix }: { Bucket: string; Prefix:
       },
     })
     .promise()
+}
+
+export async function s3Readdir(params: ListObjectsV2Request, contents: _Object[] = []) {
+  const { Contents, NextContinuationToken } = await s3.listObjectsV2(params).promise()
+  if (Contents?.length) Contents.forEach(p => contents.push(p))
+
+  if (NextContinuationToken) {
+    params.ContinuationToken = NextContinuationToken
+    return s3Readdir(params, contents)
+  }
+  return contents
 }
 
 export async function uploadFile(

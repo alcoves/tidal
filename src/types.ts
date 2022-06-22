@@ -67,8 +67,18 @@ export interface PackageJobData {
   inputs: string[]
   output: string
 }
+
 export interface PackageJob extends Job {
   data: PackageJobData
+}
+
+export interface ConcatJobData {
+  input: string
+  output: string
+}
+
+export interface ConcatJob extends Job {
+  data: ConcatJobData
 }
 
 // Deprecate
