@@ -1,7 +1,7 @@
-import ffmpeg from 'fluent-ffmpeg'
 import { Job } from 'bullmq'
 import { getSignedURL } from '../config/s3'
-import { Progress, TidalJob } from '../types'
+import { TidalJob } from '../types'
+import { ffmpeg } from '../utils/ffmpeg'
 
 export async function ffmpegJob(job: Job) {
   console.log('Transcode job starting...')
@@ -12,7 +12,6 @@ export async function ffmpegJob(job: Job) {
   }
 
   let signedUrl = ''
-  let lastProgress = 0
 
   const ffmpegCommandsSplit = cmd.split(' ')
   const outputFilename = ffmpegCommandsSplit.pop()
@@ -26,32 +25,11 @@ export async function ffmpegJob(job: Job) {
   const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
 
   try {
-    return new Promise((resolve, reject) => {
-      ffmpeg(signedUrl || input)
-        .outputOptions(ffmpegCommandsSplit)
-        .output(tmpOutputFilepath)
-        .on('start', function (commandLine) {
-          console.log('Spawned ffmpeg with command: ' + commandLine)
-        })
-        .on('progress', async function (progress: Progress) {
-          if (progress.percent >= 0) {
-            const currentProgress = Math.floor(progress.percent)
-            if (lastProgress !== currentProgress) {
-              await job.updateProgress(currentProgress)
-            }
-            lastProgress = Math.ceil(progress.percent)
-          }
-        })
-        .on('error', function (err) {
-          console.log('An error occurred: ' + err.message)
-          reject(err.message)
-        })
-        .on('end', async function () {
-          await job.updateProgress(100)
-          console.log('Done')
-          resolve('done')
-        })
-        .run()
+    await ffmpeg({
+      input: signedUrl || input,
+      output: tmpOutputFilepath,
+      commands: ffmpegCommandsSplit,
+      updateFunction: job.updateProgress,
     })
   } catch (error) {
     console.error(error)

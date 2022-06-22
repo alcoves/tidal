@@ -1,4 +1,4 @@
-import { Queue, Worker, QueueScheduler } from 'bullmq'
+import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 export interface Progress {
   frames: number
@@ -13,6 +13,13 @@ export interface Metadata {
   audio: FfprobeStream
   video: FfprobeStream
   format: FfprobeFormat
+}
+
+export interface FFmpegArgs {
+  input: string
+  output: string
+  commands: string[]
+  updateFunction?: (number) => void
 }
 
 export interface TidalWebhookBody {
@@ -57,4 +64,13 @@ export interface Workflow {
   name: string
   chunked: boolean
   webhookURL: string
+}
+
+export interface ImportAssetData {
+  id: string
+  input: string
+}
+
+export interface ImportAssetJob extends Job {
+  data: ImportAssetData
 }
