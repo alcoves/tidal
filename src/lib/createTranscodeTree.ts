@@ -16,52 +16,65 @@ import { flow } from '../config/queues'
  *   chunk 2 transcode -> return value is s3 asset location for concat (signed URL)
  */
 export default async function createTranscodeTree(id: string) {
-  const flowTree = await flow.add({
-    name: 'package',
-    queueName: 'package',
+  const sourceName = 'source.mp4'
+  const resolutions = ['x264_720p']
+  const chunks = ['000000.mkv', '000001.mkv', '000002.mkv']
+
+  // Can we get the chunk urls here?
+
+  const chunksPath = `s3://dev-cdn-bken-io/imports/${id}/chunks`
+
+  const audioJob = {
+    name: 'opus_128k',
     data: {
-      assets: [
-        `s3://dev-cdn-bken-io/imports/${id}/x264_720p.mp4`,
-        `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
-      ],
+      input: `s3://dev-cdn-bken-io/imports/${id}/${sourceName}`,
+      cmd: '-vn -c:a libopus -b:a 128k opus_128k.mp4',
+      output: `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
+    },
+    queueName: 'transcode',
+  }
+
+  const concatJobs = resolutions.map(resolution => {
+    return {
+      queueName: 'concat',
+      name: resolution,
+      data: {
+        input: `${chunksPath}/${resolution}`,
+        output: `s3://dev-cdn-bken-io/imports/${id}/${resolution}.mp4`,
+      },
+      children: chunks.map(chunk => {
+        return {
+          queueName: 'transcode',
+          name: `${resolution}_${chunk}`,
+          data: {
+            input: `${chunksPath}/source/${chunk}`,
+            cmd: `-c:v libx264 -preset medium -crf 21 ${chunk}`,
+            output: `${chunksPath}/${resolution}/${chunk}`,
+          },
+        }
+      }),
+    }
+  })
+
+  const flowTree = await flow.add({
+    name: 'export',
+    queueName: 'export',
+    data: {
+      src: `s3://dev-cdn-bken-io/imports/${id}`,
+      dest: `s3://dev-cdn-bken-io/exports/${id}`,
     },
     children: [
       {
-        name: 'concat',
+        name: 'package',
+        queueName: 'package',
         data: {
-          input: `s3://dev-cdn-bken-io/imports/${id}/x264_720p`,
-          output: `s3://dev-cdn-bken-io/imports/${id}/x264_720p.mp4`,
+          assets: [
+            `s3://dev-cdn-bken-io/imports/${id}/x264_720p.mp4`,
+            `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
+          ],
         },
-        queueName: 'concat',
-        children: [
-          {
-            queueName: 'transcode',
-            name: 'x264_720p_chunk_1',
-            data: {
-              input: `s3://dev-cdn-bken-io/imports/${id}/chunks/source/000000.mkv`,
-              cmd: '-c:v libx264 -preset medium -crf 21 000000.mkv',
-              output: `s3://dev-cdn-bken-io/imports/${id}/chunks/x264_720p/000000.mkv`,
-            },
-          },
-          {
-            queueName: 'transcode',
-            name: 'x264_720p_chunk_2',
-            data: {
-              input: `s3://dev-cdn-bken-io/imports/${id}/chunks/source/000001.mkv`,
-              cmd: '-c:v libx264 -preset medium -crf 21 000000.mkv',
-              output: `s3://dev-cdn-bken-io/imports/${id}/chunks/x264_720p/000001.mkv`,
-            },
-          },
-        ],
-      },
-      {
-        name: 'opus_128k',
-        data: {
-          input: `s3://dev-cdn-bken-io/imports/${id}/source.mkv`,
-          cmd: '-vn -c:a libopus -b:a 128k opus_128k.mp4',
-          output: `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
-        },
-        queueName: 'transcode',
+
+        children: [audioJob, ...concatJobs],
       },
     ],
   })
