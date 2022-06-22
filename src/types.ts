@@ -1,5 +1,6 @@
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
+
 export interface Progress {
   frames: number
   percent: number
@@ -9,12 +10,6 @@ export interface Progress {
   currentKbps: number
 }
 
-export interface Metadata {
-  audio: FfprobeStream
-  video: FfprobeStream
-  format: FfprobeFormat
-}
-
 export interface FFmpegArgs {
   input: string
   output: string
@@ -22,7 +17,13 @@ export interface FFmpegArgs {
   updateFunction?: (number) => void
 }
 
-export interface TidalWebhookBody {
+export interface Metadata {
+  audio: FfprobeStream
+  video: FfprobeStream
+  format: FfprobeFormat
+}
+
+export interface WebhookJobData {
   data: any
   returnValue: any
   isFailed: boolean
@@ -32,31 +33,8 @@ export interface TidalWebhookBody {
   queueName: string | undefined
 }
 
-export interface TidalSettings {
-  apiKey: string
-  webhookUrl: string
-  cdnHostname: string
-  bunnyAccessKey: string
-  s3Endpoint: string
-  s3AccessKeyId: string
-  nfsMountPath: string
-  s3SecretAccessKey: string
-}
-
-export interface TidalQueue {
-  name: string
-  queue: Queue
-  worker: Worker
-  scheduler: QueueScheduler
-}
-
-export interface TidalJob {
-  cmd?: string
-  input?: string
-  output?: string
-  tmpDir?: string
-  parentId?: string
-  webhooks?: boolean
+export interface WebhookJob extends Job {
+  data: WebhookJobData
 }
 
 export interface Workflow {
@@ -73,4 +51,22 @@ export interface ImportAssetData {
 
 export interface ImportAssetJob extends Job {
   data: ImportAssetData
+}
+
+// Deprecate
+
+export interface TidalQueue {
+  name: string
+  queue: Queue
+  worker: Worker
+  scheduler: QueueScheduler
+}
+
+export interface TidalJob {
+  cmd?: string
+  input?: string
+  output?: string
+  tmpDir?: string
+  parentId?: string
+  webhooks?: boolean
 }
