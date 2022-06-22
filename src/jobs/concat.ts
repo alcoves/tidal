@@ -1,8 +1,7 @@
 import fs from 'fs-extra'
 import { ConcatJob } from '../types'
-import { ffmpeg } from '../utils/ffmpeg'
+import { spawnFFmpeg } from '../lib/spawn'
 import { amazonS3URI, getSignedURL, s3Readdir, uploadFile } from '../config/s3'
-import { spawnFFmpeg } from '../lib/ffmpeg'
 
 function createConcatFile(urls: string[]): string {
   let file = ''

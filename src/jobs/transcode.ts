@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
+import { ffmpeg } from '../lib/spawn'
 import { TranscodeJob } from '../types'
-import { ffmpeg } from '../utils/ffmpeg'
 import { amazonS3URI, getSignedURL, uploadFile } from '../config/s3'
 
 export async function transcodeJob(job: TranscodeJob) {

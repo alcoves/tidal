@@ -16,12 +16,11 @@ import { flow } from '../config/queues'
  *   chunk 2 transcode -> return value is s3 asset location for concat (signed URL)
  */
 export default async function createTranscodeTree(id: string) {
+  const hasAudio = true
+
   const sourceName = 'source.mp4'
   const resolutions = ['x264_720p']
   const chunks = ['000000.mkv', '000001.mkv', '000002.mkv']
-
-  // Can we get the chunk urls here?
-
   const chunksPath = `s3://dev-cdn-bken-io/imports/${id}/chunks`
 
   const audioJob = {
