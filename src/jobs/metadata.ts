@@ -3,7 +3,7 @@ import { getSignedURL } from '../config/s3'
 import { getMetadata } from '../utils/video'
 import { Metadata, TidalJob } from '../types'
 
-export async function ffprobeJob(job: Job): Promise<Metadata> {
+export async function metadataJob(job: Job): Promise<Metadata> {
   const { input }: TidalJob = job.data
 
   if (!input) {

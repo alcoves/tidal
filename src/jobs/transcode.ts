@@ -3,7 +3,7 @@ import { TranscodeJob } from '../types'
 import { ffmpeg } from '../utils/ffmpeg'
 import { amazonS3URI, getSignedURL, uploadFile } from '../config/s3'
 
-export async function ffmpegJob(job: TranscodeJob) {
+export async function transcodeJob(job: TranscodeJob) {
   console.log('Transcode job starting...')
   const { input, cmd, output } = job.data
 
