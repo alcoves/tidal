@@ -7,7 +7,7 @@ export async function metadataJob(job: Job): Promise<Metadata> {
   const { input }: TidalJob = job.data
 
   if (!input) {
-    throw new Error('Invalid inputs')
+    throw new Error('invalid inputs')
   }
 
   let signedUrl = ''

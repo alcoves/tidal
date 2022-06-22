@@ -1,8 +1,7 @@
-import path from 'path'
 import fs from 'fs-extra'
-import { ffmpeg, spawnFFmpeg } from '../lib/spawn'
 import { rclone } from '../lib/rclone'
 import { TranscodeJob } from '../types'
+import { spawnFFmpeg } from '../lib/spawn'
 
 export async function transcodeJob(job: TranscodeJob) {
   console.log('transcode job starting...')

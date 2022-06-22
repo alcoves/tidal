@@ -30,17 +30,17 @@ async function segmentVideo(src: string, tmpDir: string) {
  */
 export async function importJob(job: ImportAssetJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-import-')
-  console.info(`Temporary directory created: ${tmpDir}`)
+  console.info(`temporary directory created: ${tmpDir}`)
 
   try {
     const sourceFilepath = `${tmpDir}/source${path.extname(job.data.input)}`
-    console.info(`Downloading ${job.data.input} to ${sourceFilepath}`)
+    console.info(`downloading ${job.data.input} to ${sourceFilepath}`)
     await rclone(`copyurl ${job.data.input} ${sourceFilepath}`)
 
-    console.info('Splitting video into chunks')
+    console.info('splitting video into chunks')
     await segmentVideo(sourceFilepath, tmpDir)
 
-    console.info('Uploading local folder to object storage')
+    console.info('uploading local folder to object storage')
     await rclone(
       `copy ${tmpDir} ${config.RCLONE_REMOTE}:${config.DEFAULT_BUCKET}/assets/${job.data.id}`
     )
@@ -49,15 +49,15 @@ export async function importJob(job: ImportAssetJob) {
     // Call the same function that the refresh endpoint will use
     // Go to s3 and get some metadata and then write the record to Redis
 
-    console.info('Enqueueing video transcode')
+    console.info('enqueueing video transcode')
     const transcodeJob = await createTranscodeTree(job.data.id)
     // transcode.add()
   } catch (error) {
     console.error(error)
     throw error
   } finally {
-    console.info(`Removing ${tmpDir}`)
-    await job.updateProgress(100)
+    console.info(`removing ${tmpDir}`)
     await fs.remove(tmpDir)
+    await job.updateProgress(100)
   }
 }
