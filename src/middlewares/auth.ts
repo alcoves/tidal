@@ -1,8 +1,5 @@
-import { getSettings } from '../utils/redis'
-
 export async function apiKeyAuth(req, res, next) {
-  const apiKey = req.headers['x-api-key']
-  const settings = await getSettings()
-  if (apiKey !== settings.apiKey) return res.sendStatus(403)
+  const apiKey = process.env.API_KEY
+  if (req.headers['x-api-key'] !== apiKey) return res.sendStatus(403)
   next()
 }

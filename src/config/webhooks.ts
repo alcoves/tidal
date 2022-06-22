@@ -1,5 +1,5 @@
+import { WebhookJobData } from '../types'
 import { defaultConnection } from './redis'
-import { TidalWebhookBody } from '../types'
 import { webhookJob } from '../jobs/webhook'
 import { Job, Queue, QueueScheduler, Worker } from 'bullmq'
 
@@ -25,7 +25,7 @@ export const webhookQueue = {
 }
 
 export async function enqueueWebhook(job: Job) {
-  const webhookBody: TidalWebhookBody = {
+  const webhookBody: WebhookJobData = {
     id: job.id,
     name: job.name,
     data: job.data,
