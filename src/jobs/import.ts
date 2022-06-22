@@ -4,25 +4,21 @@ import { ffmpeg } from '../utils/ffmpeg'
 import { ImportAssetJob } from '../types'
 import { uploadFile, uploadFolder } from '../config/s3'
 import { downloadFile } from '../utils/utils'
+import createTranscodeTree from '../lib/createTranscodeTree'
 
-async function getFFmpegSplitCommandParts(input: string, tmpDir: string) {
+function getFFmpegSplitCommandParts(): string[] {
   const splitCommand = `-f segment -segment_time 10 -c:v copy -an`
-  const chunksDir = `${tmpDir}/chunks`
-  await fs.mkdirp(chunksDir)
-  return {
-    input,
-    output: `${chunksDir}/%06d.mkv`,
-    commands: splitCommand.split(' '),
-  }
+  return splitCommand.split(' ')
 }
 
-async function segmentVideo(src: string, tmpDir: string, job: ImportAssetJob) {
-  const { output, commands } = await getFFmpegSplitCommandParts(src, tmpDir)
+async function segmentVideo(src: string, tmpDir: string) {
+  const segmentationPattern = '%06d.mkv'
+  const chunksDir = `${tmpDir}/chunks`
+  await fs.mkdirp(chunksDir)
   await ffmpeg({
     input: src,
-    output,
-    commands,
-    // updateFunction: job.updateProgress,
+    commands: getFFmpegSplitCommandParts(),
+    output: `${chunksDir}/${segmentationPattern}`,
   })
 }
 
@@ -42,7 +38,7 @@ export async function importJob(job: ImportAssetJob) {
     await downloadFile(job.data.input, sourceFilepath)
 
     console.info('Splitting video into chunks')
-    await segmentVideo(sourceFilepath, tmpDir, job)
+    await segmentVideo(sourceFilepath, tmpDir)
 
     console.info('Uploading local folder to object storage')
     await uploadFile(sourceFilepath, {
@@ -50,18 +46,24 @@ export async function importJob(job: ImportAssetJob) {
       Bucket: process.env.DEFAULT_BUCKET || '',
     })
     await uploadFolder(`${tmpDir}/chunks`, {
-      Key: `imports/${job.data.id}/chunks`,
+      Key: `imports/${job.data.id}/chunks/source`,
       Bucket: process.env.DEFAULT_BUCKET || '',
     })
 
-    console.info('Creating video record in Redis')
+    // console.info('Creating video record in Redis')
     // Call the same function that the refresh endpoint will use
     // Go to s3 and get some metadata and then write the record to Redis
+
+    console.info('Enqueueing video transcode')
+    const transcodeJob = await createTranscodeTree(job.data.id)
+
+    // transcode.add()
   } catch (error) {
     console.error(error)
     throw error
   } finally {
     console.info(`Removing ${tmpDir}`)
+    await job.updateProgress(100)
     await fs.remove(tmpDir)
   }
 }

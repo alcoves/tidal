@@ -1,36 +1,29 @@
-import { Job } from 'bullmq'
-import { getSignedURL } from '../config/s3'
-import { TidalJob } from '../types'
+import fs from 'fs-extra'
+import { TranscodeJob } from '../types'
 import { ffmpeg } from '../utils/ffmpeg'
+import { amazonS3URI, getSignedURL, uploadFile } from '../config/s3'
 
-export async function ffmpegJob(job: Job) {
+export async function ffmpegJob(job: TranscodeJob) {
   console.log('Transcode job starting...')
-  const { input, cmd, tmpDir }: TidalJob = job.data
+  const { input, cmd, output } = job.data
 
-  if (!input || !cmd || !tmpDir) {
-    throw new Error('Invalid inputs')
-  }
-
-  let signedUrl = ''
+  const signedUrl = await getSignedURL(amazonS3URI(input))
 
   const ffmpegCommandsSplit = cmd.split(' ')
   const outputFilename = ffmpegCommandsSplit.pop()
+  if (!outputFilename) throw new Error('Invalid filename')
 
-  if (input.includes('s3://')) {
-    const Bucket = input.split('s3://')[1].split('/')[0]
-    const Key = input.split('s3://')[1].split('/')[1]
-    signedUrl = await getSignedURL({ Bucket, Key })
-  }
-
-  const tmpOutputFilepath = `${tmpDir}/${outputFilename}`
+  const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')
 
   try {
-    await ffmpeg({
-      input: signedUrl || input,
-      output: tmpOutputFilepath,
+    const tmpFilePath = await ffmpeg({
+      job,
+      input: signedUrl,
       commands: ffmpegCommandsSplit,
-      updateFunction: job.updateProgress,
+      output: `${tmpDir}/${outputFilename}`,
     })
+
+    await uploadFile(tmpFilePath, amazonS3URI(output))
   } catch (error) {
     console.error(error)
     throw error

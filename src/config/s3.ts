@@ -29,6 +29,19 @@ export async function getSignedURL(urlParams: { Bucket: string; Key: string }) {
   })
 }
 
+export function amazonS3URI(s3Url: string): { Bucket: string; Key: string } {
+  const s3UrlRe = /^[sS]3:\/\/(.*?)\/(.*)/
+
+  if (!s3Url) throw new Error('Expected S3 URL argument')
+  const match = s3Url.match(s3UrlRe)
+  if (!match) throw new Error(`Not a valid S3 URL: ${s3Url}`)
+
+  return {
+    Bucket: match[1],
+    Key: match[2],
+  }
+}
+
 // TODO :: Deprecate
 export function getUrlParamsFromS3Uri(s3Uri: string) {
   // S3 Uri = s3://bucket/key
@@ -72,6 +85,7 @@ export async function uploadFile(
     Key: path.normalize(Key),
     ContentType: mime.lookup(filePath),
   }
+  console.log(`Uploading to ${path.normalize(Key)}`)
   return s3.upload(params).promise()
 }
 

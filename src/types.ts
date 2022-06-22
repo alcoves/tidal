@@ -11,10 +11,10 @@ export interface Progress {
 }
 
 export interface FFmpegArgs {
+  job?: Job
   input: string
   output: string
   commands: string[]
-  updateFunction?: (number) => void
 }
 
 export interface Metadata {
@@ -51,6 +51,24 @@ export interface ImportAssetData {
 
 export interface ImportAssetJob extends Job {
   data: ImportAssetData
+}
+
+export interface TranscodeJobData {
+  input: string
+  cmd: string
+  output: string
+}
+
+export interface TranscodeJob extends Job {
+  data: TranscodeJobData
+}
+
+export interface PackageJobData {
+  inputs: string[]
+  output: string
+}
+export interface PackageJob extends Job {
+  data: PackageJobData
 }
 
 // Deprecate
