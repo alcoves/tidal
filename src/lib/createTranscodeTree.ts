@@ -67,10 +67,17 @@ export default async function createTranscodeTree(id: string) {
         name: 'package',
         queueName: 'package',
         data: {
-          assets: [
-            `s3://dev-cdn-bken-io/imports/${id}/x264_720p.mp4`,
-            `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
+          inputs: [
+            {
+              path: `s3://dev-cdn-bken-io/imports/${id}/x264_720p.mp4`,
+              cmd: 'in=x264_720p.mp4,stream=video,output="x264_720p/x264_720p.mp4",playlist_name="x264_720p/playlist.m3u8",iframe_playlist_name="x264_720p/iframes.m3u8"',
+            },
+            {
+              path: `s3://dev-cdn-bken-io/imports/${id}/opus_128k.mp4`,
+              cmd: 'in=opus_128k.mp4,stream=audio,output="opus_128k/opus_128k.mp4",playlist_name="opus_128k/opus_128k.m3u8",hls_group_id=audio,hls_name="ENGLISH"',
+            },
           ],
+          output: `s3://dev-cdn-bken-io/imports/${id}/hls`,
         },
 
         children: [audioJob, ...concatJobs],
