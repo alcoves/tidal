@@ -5,11 +5,11 @@ export async function webhookJob(job: WebhookJob) {
   const apiKey = process.env.API_KEY
   const webhookUrl = process.env.WEBHOOK_URL
 
-  if (!apiKey) throw new Error(`Invalid API_KEY`)
-  if (!webhookUrl) throw new Error(`Invalid webhook URL: ${webhookUrl}`)
+  if (!apiKey) throw new Error(`invalid API_KEY`)
+  if (!webhookUrl) throw new Error(`invalid webhook URL: ${webhookUrl}`)
 
   const res = await axios({
-    method: 'POST',
+    method: 'post',
     data: job.data,
     url: webhookUrl,
     headers: { 'x-api-key': apiKey },

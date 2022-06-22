@@ -25,27 +25,27 @@ export async function concatJob(job: ConcatJob) {
     console.info('downloading chunks')
     await rclone(`copy ${input} ${tmpDir}/chunks`)
 
-    console.info('Creating concatination file')
+    console.info('creating concatination file')
     const concatFilePath = `${tmpDir}/file.txt`
     const concatFile = await createConcatFile(`${tmpDir}/chunks`)
     await fs.writeFile(concatFilePath, concatFile)
 
-    console.info('Concatinating chunks')
+    console.info('concatinating chunks')
     await spawnFFmpeg(
       `-protocol_whitelist file,http,https,tcp,tls -f concat -safe 0 -i ${concatFilePath} -c copy ${mkvMuxPath}`,
       tmpDir
     )
 
-    console.info('Remuxing to mp4')
+    console.info('remuxing to mp4')
     await spawnFFmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, tmpDir)
 
-    console.info('Uploading concatinated file to storage')
+    console.info('uploading concatinated file to storage')
     await rclone(`copyto ${mp4MuxPath} ${output}`)
   } catch (error) {
     console.error(error)
     throw error
   } finally {
-    // await fs.remove(tmpDir)
+    await fs.remove(tmpDir)
     await job.updateProgress(100)
   }
 }
