@@ -3,7 +3,7 @@ import { defaultConnection } from './redis'
 import { onCompleted, onFailed, onProgress } from './workerEvents'
 import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
 
-import { outputJob } from '../jobs/output'
+import { concatJob } from '../jobs/concat'
 import { ffmpegJob } from '../jobs/ffmpeg'
 import { importJob } from '../jobs/import'
 import { packageJob } from '../jobs/package'
@@ -17,16 +17,16 @@ export const flow = new FlowProducer({
 const lockDuration = 1000 * 240 // 4 minutes
 
 async function queueSwitch(job: Job) {
-  const handler = job.name
+  const handler = job.queueName
   switch (handler) {
     case 'import':
       return importJob(job)
-    case 'output':
-      return outputJob(job)
     case 'transcode':
       return ffmpegJob(job)
     case 'metadata':
       return ffprobeJob(job)
+    case 'concat':
+      return concatJob(job)
     case 'package':
       return packageJob(job)
     default:
@@ -34,7 +34,7 @@ async function queueSwitch(job: Job) {
   }
 }
 
-export const queues: TidalQueue[] = ['import', 'output', 'package', 'metadata', 'transcode'].map(
+export const queues: TidalQueue[] = ['import', 'concat', 'package', 'metadata', 'transcode'].map(
   queueName => {
     const queue = {
       name: queueName,

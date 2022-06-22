@@ -3,18 +3,18 @@ import { flow } from './queues'
 import { enqueueWebhook } from './webhooks'
 
 export async function onCompleted(job: Job) {
-  console.log(`${job.queueName} :: ${job.id} has completed!`)
+  console.log(`${job.queueName}:${job.id} | 🟢`)
   if (process.env.DISABLE_WEBHOOKS === 'true') return
   await enqueueWebhook(job)
 }
 
 export async function onFailed(job: Job, err) {
-  console.log(`${job.queueName} :: ${job.id} has failed with ${err.message}`)
+  console.log(`${job.queueName}:${job.id} | 🔴 | ${err.message}`)
   if (process.env.DISABLE_WEBHOOKS === 'true') return
 }
 
 export async function onProgress(job: Job, queueName: string) {
-  console.log(`${job.queueName} :: ${job.id} has progress of ${job.progress}`)
+  console.log(`${job.queueName}:${job.id} | 🟡 | ${job.progress}`)
 
   if (job.data.parentId) {
     const tree = await flow.getFlow({

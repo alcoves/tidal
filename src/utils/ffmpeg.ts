@@ -1,7 +1,7 @@
 import Ffmpeg from 'fluent-ffmpeg'
 import { Progress, FFmpegArgs } from '../types'
 
-export async function ffmpeg({ input, commands, output, updateFunction }: FFmpegArgs) {
+export async function ffmpeg({ input, commands, output, job }: FFmpegArgs): Promise<string> {
   return new Promise((resolve, reject) => {
     let lastProgress = 0
     Ffmpeg(input)
@@ -14,7 +14,7 @@ export async function ffmpeg({ input, commands, output, updateFunction }: FFmpeg
         if (progress.percent >= 0) {
           const currentProgress = Math.floor(progress.percent)
           if (lastProgress !== currentProgress) {
-            if (updateFunction) await updateFunction(currentProgress)
+            if (job) await job.updateProgress(currentProgress)
           }
           lastProgress = Math.ceil(progress.percent)
         }
@@ -24,9 +24,9 @@ export async function ffmpeg({ input, commands, output, updateFunction }: FFmpeg
         reject(err.message)
       })
       .on('end', async function () {
-        if (updateFunction) await updateFunction(100)
+        if (job) await job.updateProgress(100)
         console.log('Done')
-        resolve('done')
+        resolve(output)
       })
       .run()
   })
