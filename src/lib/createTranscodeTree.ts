@@ -59,8 +59,8 @@ export default async function createTranscodeTree(id: string) {
     name: 'export',
     queueName: 'export',
     data: {
-      src: `doco:dev-cdn-bken-io/assets/${id}`,
-      dest: `doco:dev-cdn-bken-io/exports/${id}`,
+      input: `doco:dev-cdn-bken-io/assets/${id}`,
+      output: `doco:dev-cdn-bken-io/exports/${id}`,
     },
     children: [
       {

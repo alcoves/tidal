@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { spawn } from 'child_process'
 
 export function rclone(commands: string) {
@@ -5,15 +6,15 @@ export function rclone(commands: string) {
   return new Promise((resolve, reject) => {
     const proc = spawn('rclone', commands.split(' '))
     proc.stdout.on('data', function (data) {
-      console.log('rclone:stdout', data)
+      console.log(chalk.gray('rclone:stdout', data))
     })
     proc.stderr.setEncoding('utf8')
     proc.stderr.on('data', function (data) {
-      console.log('rclone:stderr', data)
+      console.log(chalk.red('rclone:stderr', data))
       if (data.toLowerCase().includes('error')) reject(data)
     })
     proc.on('close', function (data) {
-      console.log('rclone:close')
+      console.log(chalk.green.bold('rclone:close'))
       resolve('completed')
     })
   })

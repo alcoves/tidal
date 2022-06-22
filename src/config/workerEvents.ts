@@ -1,20 +1,21 @@
+import chalk from 'chalk'
 import { Job } from 'bullmq'
 import { flow } from './queues'
 import { enqueueWebhook } from './webhooks'
 
 export async function onCompleted(job: Job) {
-  console.log(`${job.queueName}:${job.id} | 🟢`)
+  console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
   if (process.env.DISABLE_WEBHOOKS === 'true') return
   await enqueueWebhook(job)
 }
 
 export async function onFailed(job: Job, err) {
-  console.log(`${job.queueName}:${job.id} | 🔴 | ${err.message}`)
+  console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
   if (process.env.DISABLE_WEBHOOKS === 'true') return
 }
 
 export async function onProgress(job: Job, queueName: string) {
-  console.log(`${job.queueName}:${job.id} | 🟡 | ${job.progress}`)
+  console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
 
   if (job.data.parentId) {
     const tree = await flow.getFlow({
