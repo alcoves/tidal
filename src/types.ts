@@ -63,8 +63,13 @@ export interface TranscodeJob extends Job {
   data: TranscodeJobData
 }
 
+export interface PackageJobInput {
+  path: string
+  cmd: string
+}
+
 export interface PackageJobData {
-  inputs: string[]
+  inputs: PackageJobInput[]
   output: string
 }
 
