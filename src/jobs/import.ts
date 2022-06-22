@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs-extra'
-import { ffmpeg } from '../utils/ffmpeg'
+import { ffmpeg } from '../lib/spawn'
 import { ImportAssetJob } from '../types'
 import { uploadFile, uploadFolder } from '../config/s3'
 import { downloadFile } from '../utils/utils'
