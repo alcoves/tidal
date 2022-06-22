@@ -5,10 +5,10 @@ import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
 
 import { concatJob } from '../jobs/concat'
 import { exportJob } from '../jobs/export'
-import { ffmpegJob } from '../jobs/ffmpeg'
 import { importJob } from '../jobs/import'
 import { packageJob } from '../jobs/package'
-import { ffprobeJob } from '../jobs/ffprobe'
+import { metadataJob } from '../jobs/metadata'
+import { transcodeJob } from '../jobs/transcode'
 
 export const flow = new FlowProducer({
   connection: defaultConnection,
@@ -25,9 +25,9 @@ async function queueSwitch(job: Job) {
     case 'export':
       return exportJob(job)
     case 'transcode':
-      return ffmpegJob(job)
+      return transcodeJob(job)
     case 'metadata':
-      return ffprobeJob(job)
+      return metadataJob(job)
     case 'concat':
       return concatJob(job)
     case 'package':
