@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import Ffmpeg from 'fluent-ffmpeg'
 import { spawn } from 'child_process'
 import { Progress, FFmpegArgs } from '../types'
@@ -6,15 +7,15 @@ export function spawnFFmpeg(commands: string, tmpDir: string) {
   return new Promise((resolve, reject) => {
     const proc = spawn('ffmpeg', commands.split(' '), { cwd: tmpDir })
     proc.stdout.on('data', function (data) {
-      console.log('ffmpeg:stdout', data)
+      console.log(chalk.gray('ffmpeg:stdout', data))
     })
     proc.stderr.setEncoding('utf8')
     proc.stderr.on('data', function (data) {
-      console.log('ffmpeg:stderr', data)
+      console.log(chalk.gray('ffmpeg:stderr', data))
       if (data.toLowerCase().includes('error')) reject(data)
     })
     proc.on('close', function () {
-      console.log('ffmpeg closing')
+      console.log(chalk.green.bold('ffmpeg closing'))
       resolve('completed')
     })
   })

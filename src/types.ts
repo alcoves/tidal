@@ -86,6 +86,15 @@ export interface ConcatJob extends Job {
   data: ConcatJobData
 }
 
+export interface ExportJobData {
+  input: string
+  output: string
+}
+
+export interface ExportJob extends Job {
+  data: ExportJobData
+}
+
 // Deprecate
 
 export interface TidalQueue {
