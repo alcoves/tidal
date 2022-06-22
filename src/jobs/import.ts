@@ -1,9 +1,9 @@
 import path from 'path'
 import fs from 'fs-extra'
+import config from '../config/constants'
 import { ffmpeg } from '../lib/spawn'
+import { rclone } from '../lib/rclone'
 import { ImportAssetJob } from '../types'
-import { uploadFile, uploadFolder } from '../config/s3'
-import { downloadFile } from '../utils/utils'
 import createTranscodeTree from '../lib/createTranscodeTree'
 
 function getFFmpegSplitCommandParts(): string[] {
@@ -13,7 +13,7 @@ function getFFmpegSplitCommandParts(): string[] {
 
 async function segmentVideo(src: string, tmpDir: string) {
   const segmentationPattern = '%06d.mkv'
-  const chunksDir = `${tmpDir}/chunks`
+  const chunksDir = `${tmpDir}/chunks/source`
   await fs.mkdirp(chunksDir)
   await ffmpeg({
     input: src,
@@ -35,20 +35,15 @@ export async function importJob(job: ImportAssetJob) {
   try {
     const sourceFilepath = `${tmpDir}/source${path.extname(job.data.input)}`
     console.info(`Downloading ${job.data.input} to ${sourceFilepath}`)
-    await downloadFile(job.data.input, sourceFilepath)
+    await rclone(`copyurl ${job.data.input} ${sourceFilepath}`)
 
     console.info('Splitting video into chunks')
     await segmentVideo(sourceFilepath, tmpDir)
 
     console.info('Uploading local folder to object storage')
-    await uploadFile(sourceFilepath, {
-      Key: `imports/${job.data.id}/${path.basename(sourceFilepath)}`,
-      Bucket: process.env.DEFAULT_BUCKET || '',
-    })
-    await uploadFolder(`${tmpDir}/chunks`, {
-      Key: `imports/${job.data.id}/chunks/source`,
-      Bucket: process.env.DEFAULT_BUCKET || '',
-    })
+    await rclone(
+      `copy ${tmpDir} ${config.RCLONE_REMOTE}:${config.DEFAULT_BUCKET}/assets/${job.data.id}`
+    )
 
     // console.info('Creating video record in Redis')
     // Call the same function that the refresh endpoint will use
@@ -56,7 +51,6 @@ export async function importJob(job: ImportAssetJob) {
 
     console.info('Enqueueing video transcode')
     const transcodeJob = await createTranscodeTree(job.data.id)
-
     // transcode.add()
   } catch (error) {
     console.error(error)

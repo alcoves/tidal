@@ -2,19 +2,19 @@ import Ffmpeg from 'fluent-ffmpeg'
 import { spawn } from 'child_process'
 import { Progress, FFmpegArgs } from '../types'
 
-export function spawnFFmpeg(commands: string) {
+export function spawnFFmpeg(commands: string, tmpDir: string) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('ffmpeg', commands.split(' '))
+    const proc = spawn('ffmpeg', commands.split(' '), { cwd: tmpDir })
     proc.stdout.on('data', function (data) {
-      console.log('stdout')
+      console.log('ffmpeg:stdout', data)
     })
     proc.stderr.setEncoding('utf8')
     proc.stderr.on('data', function (data) {
-      console.log('stderr')
+      console.log('ffmpeg:stderr', data)
       if (data.toLowerCase().includes('error')) reject(data)
     })
     proc.on('close', function () {
-      console.log('proc close')
+      console.log('ffmpeg closing')
       resolve('completed')
     })
   })
