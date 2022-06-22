@@ -1,12 +1,14 @@
 import fs from 'fs-extra'
 import { ConcatJob } from '../types'
 import { spawnFFmpeg } from '../lib/spawn'
-import { amazonS3URI, getSignedURL, s3Readdir, uploadFile } from '../config/s3'
+import { amazonS3URI, uploadFile } from '../config/s3'
+import { rclone } from '../lib/rclone'
 
-function createConcatFile(urls: string[]): string {
+async function createConcatFile(dir: string): Promise<string> {
+  const paths = await fs.readdir(dir)
   let file = ''
-  for (const url of urls) {
-    file += `file '${url}'\n`
+  for (const path of paths) {
+    file += `file '${dir}/${path}'\n`
   }
   return file
 }
@@ -15,38 +17,35 @@ export async function concatJob(job: ConcatJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-concat-')
 
   try {
-    console.info('Concat job starting...')
+    console.info('concat job starting...')
     const { input, output } = job.data
     const mkvMuxPath = `${tmpDir}/out.mkv`
     const mp4MuxPath = `${tmpDir}/out.mp4`
 
-    console.info('Getting signed chunk URLS')
-    const { Bucket, Key } = amazonS3URI(input)
-    const remotePaths = await s3Readdir({ Bucket, Prefix: Key })
-    const signedChunkURLS = await Promise.all(
-      remotePaths.map(({ Key: _key }) => getSignedURL({ Bucket, Key: _key }))
-    )
+    console.info('downloading chunks')
+    await rclone(`copy ${input} ${tmpDir}/chunks`)
 
     console.info('Creating concatination file')
     const concatFilePath = `${tmpDir}/file.txt`
-    const concatFile = createConcatFile(signedChunkURLS)
+    const concatFile = await createConcatFile(`${tmpDir}/chunks`)
     await fs.writeFile(concatFilePath, concatFile)
 
     console.info('Concatinating chunks')
     await spawnFFmpeg(
-      `-protocol_whitelist file,http,https,tcp,tls -f concat -safe 0 -i ${concatFilePath} -c copy ${mkvMuxPath}`
+      `-protocol_whitelist file,http,https,tcp,tls -f concat -safe 0 -i ${concatFilePath} -c copy ${mkvMuxPath}`,
+      tmpDir
     )
 
     console.info('Remuxing to mp4')
-    await spawnFFmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`)
+    await spawnFFmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, tmpDir)
 
     console.info('Uploading concatinated file to storage')
-    await uploadFile(mp4MuxPath, amazonS3URI(output))
+    await rclone(`copyto ${mp4MuxPath} ${output}`)
   } catch (error) {
     console.error(error)
     throw error
   } finally {
-    await fs.remove(tmpDir)
+    // await fs.remove(tmpDir)
     await job.updateProgress(100)
   }
 }
