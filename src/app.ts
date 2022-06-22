@@ -3,8 +3,7 @@ import path from 'path'
 import morgan from 'morgan'
 import express from 'express'
 import rootRoutes from './routes/root'
-import settingsRoutes from './routes/settings'
-import workflowRoutes from './routes/workflows'
+import assetRoutes from './routes/assets'
 
 const uiDistDir = path.join(__dirname, '../../dist/ui')
 
@@ -15,8 +14,7 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use(rootRoutes)
-app.use('/settings', settingsRoutes)
-app.use('/workflows', workflowRoutes)
+app.use('/assets', assetRoutes)
 
 app.use('/ui', express.static(`${uiDistDir}`))
 app.get('/ui(.*)', function (req, res) {

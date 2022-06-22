@@ -30,7 +30,7 @@ CONCURRENT_JOBS=1
 ```
 
 - Create the `.env` file as described above
-- Run redis database `docker compose up -d`
+- Run redis database `cd docs && docker-compose -p "tidal" up -d`
 - Run `yarn && yarn dev`
 - The API will run on `http://localhost:5000` and the UI on `http://localhost:1234/ui` with hot reloading enabled
   - In a deployed environment, the UI is built and hosted statically at `http://localhost:5000/ui`
@@ -40,3 +40,9 @@ CONCURRENT_JOBS=1
 ## Techniques
 
 Tidal will support creating dyamic `workflows`. A workflow is a series of steps that take an input file all the way to the desired end state. An example would be `given this input file...transcode resolutions 720p, 1080p, and 1440p...then package to the HLS format`. Another workflow might be `given this input file...segment into 10 second chunks...transcode each chunk to x265...recombine...publish to s3`
+
+---
+
+### Assumptions
+
+- All file inputs are expected to be URLs
