@@ -18,7 +18,7 @@ export async function packageJob(job: PackageJob) {
 
     const packageCommands = [
       'packager',
-      inputs.map(({ cmd }) => cmd),
+      ...inputs.map(({ cmd }) => cmd),
       '--hls_master_playlist_output',
       '"master.m3u8"',
       '--mpd_output',

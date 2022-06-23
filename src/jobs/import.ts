@@ -1,25 +1,27 @@
 import path from 'path'
 import fs from 'fs-extra'
-import config from '../config/constants'
-import { ffmpeg } from '../lib/spawn'
-import { rclone } from '../lib/rclone'
-import { ImportAssetJob } from '../types'
 import createTranscodeTree from '../lib/createTranscodeTree'
+import { rclone } from '../lib/rclone'
+import { flow } from '../config/queues'
+import { ImportAssetJob } from '../types'
+import { spawnFFmpeg } from '../lib/spawn'
 
-function getFFmpegSplitCommandParts(): string[] {
-  const splitCommand = `-f segment -segment_time 10 -c:v copy -an`
-  return splitCommand.split(' ')
+function getFFmpegSplitCommandParts(): string {
+  return `-f segment -segment_time 10 -c:v copy -an`
 }
 
-async function segmentVideo(src: string, tmpDir: string) {
+async function segmentVideo(src: string, tmpDir: string): Promise<string[]> {
   const segmentationPattern = '%06d.mkv'
   const chunksDir = `${tmpDir}/chunks/source`
   await fs.mkdirp(chunksDir)
-  await ffmpeg({
-    input: src,
-    commands: getFFmpegSplitCommandParts(),
-    output: `${chunksDir}/${segmentationPattern}`,
-  })
+
+  await spawnFFmpeg(
+    `-i ${src} ${getFFmpegSplitCommandParts()} ${chunksDir}/${segmentationPattern}`,
+    tmpDir
+  )
+
+  const chunks = await fs.readdir(chunksDir)
+  return chunks
 }
 
 /**
@@ -31,27 +33,31 @@ async function segmentVideo(src: string, tmpDir: string) {
 export async function importJob(job: ImportAssetJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-import-')
   console.info(`temporary directory created: ${tmpDir}`)
+  const { input, output } = job.data
 
   try {
-    const sourceFilepath = `${tmpDir}/source${path.extname(job.data.input)}`
-    console.info(`downloading ${job.data.input} to ${sourceFilepath}`)
-    await rclone(`copyurl ${job.data.input} ${sourceFilepath}`)
+    const sourceFilepath = `${tmpDir}/source${path.extname(input)}`
+    console.info(`downloading ${input} to ${sourceFilepath}`)
+    await rclone(`copyto ${input} ${sourceFilepath}`)
 
     console.info('splitting video into chunks')
-    await segmentVideo(sourceFilepath, tmpDir)
+    const chunks = await segmentVideo(sourceFilepath, tmpDir)
 
     console.info('uploading local folder to object storage')
-    await rclone(
-      `copy ${tmpDir} ${config.RCLONE_REMOTE}:${config.DEFAULT_BUCKET}/assets/${job.data.id}`
-    )
+    await rclone(`copy ${tmpDir} ${process.env.TIDAL_RCLONE_REMOTE}/assets/${job.data.id}`)
 
     // console.info('Creating video record in Redis')
     // Call the same function that the refresh endpoint will use
     // Go to s3 and get some metadata and then write the record to Redis
 
-    console.info('enqueueing video transcode')
-    const transcodeJob = await createTranscodeTree(job.data.id)
-    // transcode.add()
+    console.info('enqueueing video transcode', output)
+    const flowJob = await createTranscodeTree({
+      output,
+      chunks,
+      id: job.data.id,
+      sourceFilename: path.basename(sourceFilepath),
+    })
+    await flow.add(flowJob)
   } catch (error) {
     console.error(error)
     throw error
