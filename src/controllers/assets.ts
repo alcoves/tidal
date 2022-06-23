@@ -6,6 +6,7 @@ import { ImportAssetData } from '../types'
 export async function createAsset(req, res) {
   const schema = Joi.object({
     input: Joi.string().uri().required(),
+    output: Joi.string().uri().required(),
   })
 
   const { error, value } = schema.validate(req.body, {
@@ -19,6 +20,7 @@ export async function createAsset(req, res) {
   const importAssetJob: ImportAssetData = {
     id: importId,
     input: value.input,
+    output: value.output,
   }
 
   const importQueue = getQueueByName('import')

@@ -55,7 +55,7 @@ export const queues: TidalQueue[] = [
       },
     }),
     worker: new Worker(queueName, queueSwitch, {
-      concurrency: 1,
+      concurrency: 2,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,

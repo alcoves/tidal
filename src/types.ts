@@ -47,6 +47,7 @@ export interface Workflow {
 export interface ImportAssetData {
   id: string
   input: string
+  output: string
 }
 
 export interface ImportAssetJob extends Job {
