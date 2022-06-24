@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
 import { ConcatJob } from '../types'
-import { rclone } from '../lib/rclone'
-import { spawnFFmpeg } from '../lib/spawn'
+import { ffmpeg, rclone } from '../lib/child_process'
 
 async function createConcatFile(dir: string): Promise<string> {
   const paths = await fs.readdir(dir)
@@ -30,14 +29,14 @@ export async function concatJob(job: ConcatJob) {
     await fs.writeFile(concatFilePath, concatFile)
 
     console.info('concatinating chunks')
-    await spawnFFmpeg(
+    await ffmpeg(
       `-protocol_whitelist file,http,https,tcp,tls -f concat -safe 0 -i ${concatFilePath} -c copy ${mkvMuxPath}`,
-      tmpDir
+      { cwd: tmpDir }
     )
 
     // TODO :: Support rotated videos
     console.info('remuxing to mp4')
-    await spawnFFmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, tmpDir)
+    await ffmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, { cwd: tmpDir })
 
     console.info('uploading concatinated file to storage')
     await rclone(`copyto ${mp4MuxPath} ${output}`)

@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
-import { rclone } from '../lib/rclone'
 import { TranscodeJob } from '../types'
-import { spawnFFmpeg } from '../lib/spawn'
+import { ffmpeg, rclone } from '../lib/child_process'
 
 export async function transcodeJob(job: TranscodeJob) {
   console.log('transcode job starting...')
@@ -20,7 +19,7 @@ export async function transcodeJob(job: TranscodeJob) {
     if (!outputFilename) throw new Error('invalid filename')
 
     console.info('transcoding with ffmpeg', cmd)
-    await spawnFFmpeg(cmd, tmpDir)
+    await ffmpeg(cmd, { cwd: tmpDir })
 
     const outputFilepath = `${tmpDir}/${cmd.split(' ').pop()}`
     console.info(`uploading ${outputFilepath} to ${output}`)

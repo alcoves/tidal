@@ -1,11 +1,10 @@
 import path from 'path'
 import fs from 'fs-extra'
 import createTranscodeTree from '../lib/createTranscodeTree'
-import { rclone } from '../lib/rclone'
 import { flow } from '../config/queues'
 import { ImportAssetJob } from '../types'
-import { spawnFFmpeg } from '../lib/spawn'
 import { getMetadata } from '../lib/video'
+import { ffmpeg, rclone } from '../lib/child_process'
 
 function getFFmpegSplitCommandParts(): string {
   return `-f segment -segment_time 10 -c:v copy -an`
@@ -16,10 +15,9 @@ async function segmentVideo(src: string, tmpDir: string): Promise<string[]> {
   const chunksDir = `${tmpDir}/chunks/source`
   await fs.mkdirp(chunksDir)
 
-  await spawnFFmpeg(
-    `-i ${src} ${getFFmpegSplitCommandParts()} ${chunksDir}/${segmentationPattern}`,
-    tmpDir
-  )
+  await ffmpeg(`-i ${src} ${getFFmpegSplitCommandParts()} ${chunksDir}/${segmentationPattern}`, {
+    cwd: tmpDir,
+  })
 
   const chunks = await fs.readdir(chunksDir)
   return chunks
@@ -49,6 +47,9 @@ export async function importJob(job: ImportAssetJob) {
 
     console.info('getting video metadata')
     const metadata = await getMetadata(sourceFilepath)
+
+    console.info('video input validation')
+    // TODO :: Make sure it has some basic information
 
     console.info('enqueueing video transcode', output)
     const flowJob = await createTranscodeTree({
