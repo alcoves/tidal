@@ -1,5 +1,4 @@
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
-import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 
 export interface GetVideoTranscodeCommand {
   opts: {
