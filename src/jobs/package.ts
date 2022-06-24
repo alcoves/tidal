@@ -27,6 +27,15 @@ export async function packageJob(job: PackageJob) {
     const result = await execProm(packageCommands.join(' '), tmpDir)
     console.log('Package Result: ', result)
 
+    console.log('removing inputs')
+    await Promise.all(
+      inputs.map(({ cmd }) => {
+        // in=720p.mp4,
+        const filename = cmd.split('in=')[1].split(',')[0]
+        return fs.remove(`${tmpDir}/${filename}`)
+      })
+    )
+
     console.info(`copying ${tmpDir} to ${output}`)
     await rclone(`copy ${tmpDir} ${output}`)
   } catch (error) {
