@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { getQueueByName } from '../config/queues'
 import { ImportAssetData } from '../types'
+import { getQueueByName } from '../config/queues'
 
 export async function createAsset(req, res) {
   const schema = Joi.object({
@@ -20,7 +20,7 @@ export async function createAsset(req, res) {
   const importAssetJob: ImportAssetData = {
     id: importId,
     input: value.input,
-    output: value.output,
+    output: value.output.replace('$id', importId),
   }
 
   const importQueue = getQueueByName('import')

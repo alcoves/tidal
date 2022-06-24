@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
 import { PackageJob } from '../types'
-import { rclone } from '../lib/rclone'
-import { execProm } from '../lib/utils'
+import { shaka, rclone } from '../lib/child_process'
 
 export async function packageJob(job: PackageJob) {
   console.log('package job starting...')
@@ -24,7 +23,7 @@ export async function packageJob(job: PackageJob) {
       '--mpd_output',
       '"master.mpd"',
     ]
-    const result = await execProm(packageCommands.join(' '), tmpDir)
+    const result = await shaka(packageCommands.join(' '), { cwd: tmpDir })
     console.log('Package Result: ', result)
 
     console.log('removing inputs')

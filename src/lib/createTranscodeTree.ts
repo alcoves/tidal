@@ -37,7 +37,7 @@ export default async function createTranscodeTree({
   sourceFilename: string
 }) {
   const audioPresets = getAudioPresets()
-  const videoPresets = getVideoPresets(metadata.video.width || 0, metadata.video.height || 0)
+  const videoPresets = getVideoPresets(metadata.video[0].width || 0, metadata.video[0].height || 0)
 
   const transcodeJobs: FlowJob[] = []
   const packageJobInputs: PackageJobInput[] = []
@@ -45,7 +45,7 @@ export default async function createTranscodeTree({
   const tidalRemoteDir = `${process.env.TIDAL_RCLONE_REMOTE}/assets/${id}`
   const chunksPath = `${tidalRemoteDir}/chunks`
 
-  if (metadata?.audio?.duration) {
+  if (metadata?.audio.length) {
     audioPresets.map(({ name, getTranscodeCommand, getPackageCommand }) => {
       transcodeJobs.push({
         name,

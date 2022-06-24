@@ -50,12 +50,12 @@ export const queues: TidalQueue[] = [
     queue: new Queue(queueName, {
       connection: defaultConnection,
       defaultJobOptions: {
-        attempts: 2,
+        attempts: 4,
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
     worker: new Worker(queueName, queueSwitch, {
-      concurrency: 2,
+      concurrency: 4,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
