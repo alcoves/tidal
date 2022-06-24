@@ -34,7 +34,6 @@ export async function concatJob(job: ConcatJob) {
       { cwd: tmpDir }
     )
 
-    // TODO :: Support rotated videos
     console.info('remuxing to mp4')
     await ffmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, { cwd: tmpDir })
 

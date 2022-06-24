@@ -96,6 +96,7 @@ export default async function createTranscodeTree({
             output: `${chunksPath}/${name}/${chunk}`,
             cmd: getTranscodeCommand({
               width,
+              metadata,
               input: chunk,
               opts: { crf: 23 },
               output: `${path.basename(chunk)}_${name}.mp4`,
