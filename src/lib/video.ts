@@ -36,8 +36,43 @@ export function getAudioPresets(): AudioPreset[] {
 }
 
 function x264Defaults(args: GetVideoTranscodeCommand): string {
-  const { opts, width, output, input } = args
-  return `-i ${input} -an -c:v libx264 -crf ${opts.crf} -preset medium -vf scale=${width}:${width}:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2 ${output}`
+  const { opts, width, output, input, metadata } = args
+
+  const videoFilters = [
+    `scale=${width}:${width}:force_original_aspect_ratio=decrease`,
+    'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+  ]
+
+  if (metadata?.video[0]?.tags?.rotate) {
+    // 0 = 90CounterCLockwise and Vertical Flip (default)
+    // 1 = 90Clockwise
+    // 2 = 90CounterClockwise
+    // 3 = 90Clockwise and Vertical Flip
+    const rotateInt = parseInt(metadata?.video[0]?.tags?.rotate)
+    switch (rotateInt) {
+      case 90:
+        videoFilters.push(`transpose=1`)
+        break
+      // case -90:
+      //   videoFilters.push(`transpose=2`)
+      //   break
+      // case 180:
+      //   videoFilters.push(`transpose=1`)
+      //   break
+      // case -180:
+      //   videoFilters.push(`transpose=1`)
+      //   break
+      // case 270:
+      //   videoFilters.push(`transpose=1`)
+      //   break
+      // case -270:
+      //   videoFilters.push(`transpose=1`)
+      //   break
+    }
+  }
+
+  const vfString = videoFilters.join(',')
+  return `-i ${input} -an -c:v libx264 -crf ${opts.crf} -preset medium -vf ${vfString} ${output}`
 }
 
 function opus(args: GetAudioTranscodeCommand) {

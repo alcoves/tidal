@@ -7,6 +7,7 @@ export interface GetVideoTranscodeCommand {
   width: number
   input: string
   output: string
+  metadata: Metadata
 }
 
 export interface GetAudioTranscodeCommand {
@@ -172,6 +173,8 @@ export interface MetadataStream {
   start_pts: number
   start_time: string
   tags: {
+    rotate: string
+    creation_time: string
     handler_name: string
     language: string
     vendor_id: string
