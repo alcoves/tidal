@@ -61,7 +61,7 @@ export default async function createTranscodeTree({
         path: `${tidalRemoteDir}/${name}.mp4`,
         cmd: getPackageCommand({
           type: 'audio',
-          pkgDir: 'pkg',
+          pkgDir: 'streams',
           folderName: name,
           inputFile: `${name}.mp4`,
         }),
@@ -74,7 +74,7 @@ export default async function createTranscodeTree({
       path: `${tidalRemoteDir}/${name}.mp4`,
       cmd: getPackageCommand({
         type: 'video',
-        pkgDir: 'pkg',
+        pkgDir: 'streams',
         folderName: name,
         inputFile: `${name}.mp4`,
       }),
@@ -111,7 +111,7 @@ export default async function createTranscodeTree({
     queueName: 'export',
     data: {
       output,
-      input: tidalRemoteDir,
+      input: `${tidalRemoteDir}/pkg`, // Only HLS,MPD assets are published
     },
     children: [
       {
@@ -119,7 +119,7 @@ export default async function createTranscodeTree({
         queueName: 'package',
         data: {
           inputs: packageJobInputs,
-          output: `${tidalRemoteDir}/hls`,
+          output: `${tidalRemoteDir}/pkg`,
         },
         children: transcodeJobs,
       },

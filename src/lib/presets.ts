@@ -34,11 +34,11 @@ function getPackageCommand(args: GetPackageCommand) {
 }
 
 export const audioPresets: AudioPreset[] = [
-  {
-    name: 'aac_128k',
-    getTranscodeCommand: aac,
-    getPackageCommand: getPackageCommand,
-  },
+  // {
+  //   name: 'aac_128k',
+  //   getTranscodeCommand: aac,
+  //   getPackageCommand: getPackageCommand,
+  // },
   {
     name: 'opus_128k',
     getTranscodeCommand: opus,
