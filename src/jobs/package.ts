@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import { PackageJob } from '../types'
 import { rclone } from '../lib/rclone'
-import { execProm } from '../utils/utils'
+import { execProm } from '../lib/utils'
 
 export async function packageJob(job: PackageJob) {
   console.log('package job starting...')

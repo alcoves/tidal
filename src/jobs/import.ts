@@ -5,6 +5,7 @@ import { rclone } from '../lib/rclone'
 import { flow } from '../config/queues'
 import { ImportAssetJob } from '../types'
 import { spawnFFmpeg } from '../lib/spawn'
+import { getMetadata } from '../lib/video'
 
 function getFFmpegSplitCommandParts(): string {
   return `-f segment -segment_time 10 -c:v copy -an`
@@ -46,14 +47,14 @@ export async function importJob(job: ImportAssetJob) {
     console.info('uploading local folder to object storage')
     await rclone(`copy ${tmpDir} ${process.env.TIDAL_RCLONE_REMOTE}/assets/${job.data.id}`)
 
-    // console.info('Creating video record in Redis')
-    // Call the same function that the refresh endpoint will use
-    // Go to s3 and get some metadata and then write the record to Redis
+    console.info('getting video metadata')
+    const metadata = await getMetadata(sourceFilepath)
 
     console.info('enqueueing video transcode', output)
     const flowJob = await createTranscodeTree({
       output,
       chunks,
+      metadata,
       id: job.data.id,
       sourceFilename: path.basename(sourceFilepath),
     })
