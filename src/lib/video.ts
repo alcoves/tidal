@@ -9,20 +9,15 @@ import {
 } from '../types'
 
 function parseMetadata(rawMeta: any): Metadata {
-  const videoStreams = rawMeta.streams.filter(stream => {
-    return stream.codec_type === 'video'
-  })
-
-  const audioStreams = rawMeta.streams.filter(stream => {
-    return stream.codec_type === 'audio'
-  })
-
-  const metadata: Metadata = {
-    video: videoStreams,
-    audio: audioStreams,
+  return {
+    video: rawMeta.streams.filter(stream => {
+      return stream.codec_type === 'video'
+    }),
+    audio: rawMeta.streams.filter(stream => {
+      return stream.codec_type === 'audio'
+    }),
     format: rawMeta.format,
   }
-  return metadata
 }
 
 export async function getMetadata(uri: string): Promise<Metadata> {
