@@ -1,8 +1,7 @@
 import fs from 'fs-extra'
 import { ConcatJob } from '../types'
-import { spawnFFmpeg } from '../lib/spawn'
-import { amazonS3URI, uploadFile } from '../config/s3'
 import { rclone } from '../lib/rclone'
+import { spawnFFmpeg } from '../lib/spawn'
 
 async function createConcatFile(dir: string): Promise<string> {
   const paths = await fs.readdir(dir)
@@ -36,6 +35,7 @@ export async function concatJob(job: ConcatJob) {
       tmpDir
     )
 
+    // TODO :: Support rotated videos
     console.info('remuxing to mp4')
     await spawnFFmpeg(`-i ${mkvMuxPath} -c copy -movflags +faststart ${mp4MuxPath}`, tmpDir)
 

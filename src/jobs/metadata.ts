@@ -1,14 +1,11 @@
 import { Job } from 'bullmq'
 import { getSignedURL } from '../config/s3'
-import { getMetadata } from '../utils/video'
+import { getMetadata } from '../lib/video'
 import { Metadata, TidalJob } from '../types'
 
 export async function metadataJob(job: Job): Promise<Metadata> {
   const { input }: TidalJob = job.data
-
-  if (!input) {
-    throw new Error('invalid inputs')
-  }
+  if (!input) throw new Error('invalid inputs')
 
   let signedUrl = ''
   if (input.includes('s3://')) {

@@ -1,4 +1,5 @@
-import { Metadata } from '../types'
+import { audioPresets, videoPresets } from './presets'
+import { AudioPreset, Metadata, VideoPreset } from '../types'
 import { ffprobe, FfprobeData } from 'fluent-ffmpeg'
 
 function transformFfprobeToMetadata(rawMeta: FfprobeData): Metadata {
@@ -33,6 +34,7 @@ export function getMetadata(uri: string): Promise<Metadata> {
   })
 }
 
+// TODO :: Deprecate
 export function checkDimensionContraints({
   sourceWidth = 0,
   sourceHeight = 0,
@@ -49,4 +51,13 @@ export function checkDimensionContraints({
   const sourcePixels = sourceWidth * sourceHeight
   if (maxPixels > sourcePixels) return false
   return true
+}
+
+export function getVideoPresets(width: number, height: number): VideoPreset[] {
+  const longestEdge = width > height ? width : height
+  return videoPresets.filter(p => longestEdge >= p.width)
+}
+
+export function getAudioPresets(): AudioPreset[] {
+  return audioPresets
 }

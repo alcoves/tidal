@@ -1,6 +1,41 @@
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
 import { FfprobeFormat, FfprobeStream } from 'fluent-ffmpeg'
 
+export interface GetVideoTranscodeCommand {
+  opts: {
+    crf?: number
+  }
+  width: number
+  input: string
+  output: string
+}
+
+export interface GetAudioTranscodeCommand {
+  input: string
+  output: string
+}
+
+export interface GetPackageCommand {
+  type: string
+  pkgDir: string
+  inputFile: string
+  folderName: string
+}
+
+export interface VideoPreset {
+  name: string
+  width: number
+  height: number
+  getPackageCommand: (args: GetPackageCommand) => string
+  getTranscodeCommand: (args: GetVideoTranscodeCommand) => string
+}
+
+export interface AudioPreset {
+  name: string
+  getPackageCommand: (args: GetPackageCommand) => string
+  getTranscodeCommand: (args: GetAudioTranscodeCommand) => string
+}
+
 export interface Progress {
   frames: number
   percent: number
