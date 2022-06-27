@@ -1,3 +1,4 @@
+import { String } from 'aws-sdk/clients/acm'
 import chalk from 'chalk'
 import { spawn, exec, SpawnOptionsWithoutStdio, ExecOptions } from 'child_process'
 
@@ -60,10 +61,28 @@ export function ffprobe(commands: string, options: SpawnOptionsWithoutStdio = {}
   })
 }
 
-export function rclone(commands: string) {
-  console.log(`running command :: rclone ${commands}`)
+function ensureRcloneRemote(remote: string) {
+  const envs = Object.keys(process.env).filter(k => {
+    return k.includes(`RCLONE_CONFIG_${remote.toUpperCase()}_`)
+  })
+
+  // RCLONE_CONFIG_DOCO_TYPE
+  // RCLONE_CONFIG_DOCO_ENDPOINT
+  // RCLONE_CONFIG_DOCO_ACCESS_KEY_ID
+  // RCLONE_CONFIG_DOCO_SECRET_ACCESS
+  if (envs.length < 4) {
+    throw new Error(`Invalid rclone remote: ${remote}. Ensure all rclone envs are defined`)
+  }
+}
+
+export function rclone(command: string) {
+  const [, src, dest] = command.split(' ')
+  src.includes(':') ? ensureRcloneRemote(src.split(':')[0]) : null
+  dest.includes(':') ? ensureRcloneRemote(dest.split(':')[0]) : null
+
+  console.log(`running command :: rclone ${command}`)
   return new Promise((resolve, reject) => {
-    const proc = spawn('rclone', commands.split(' '), { env: process.env })
+    const proc = spawn('rclone', command.split(' '), { env: process.env })
     proc.stdout.on('data', function (data) {
       console.log(chalk.gray('rclone:stdout', data))
     })
