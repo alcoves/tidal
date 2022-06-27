@@ -22,6 +22,14 @@ export interface GetPackageCommand {
   folderName: string
 }
 
+export interface ThumbnailJobData {
+  assetId: string
+}
+
+export interface ThumbnailJob extends Job {
+  data: ThumbnailJobData
+}
+
 export interface VideoPreset {
   name: string
   width: number
