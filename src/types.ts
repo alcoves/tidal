@@ -23,6 +23,10 @@ export interface GetPackageCommand {
 }
 
 export interface ThumbnailJobData {
+  fit: string
+  width: number
+  height: number
+  output: string
   assetId: string
 }
 
