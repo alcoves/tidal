@@ -8,6 +8,7 @@ import { exportJob } from '../jobs/export'
 import { importJob } from '../jobs/import'
 import { packageJob } from '../jobs/package'
 import { metadataJob } from '../jobs/metadata'
+import { thumbnailJob } from '../jobs/thumbnail'
 import { transcodeJob } from '../jobs/transcode'
 
 export const flow = new FlowProducer({
@@ -26,6 +27,8 @@ async function queueSwitch(job: Job) {
       return exportJob(job)
     case 'transcode':
       return transcodeJob(job)
+    case 'thumbnail':
+      return thumbnailJob(job)
     case 'metadata':
       return metadataJob(job)
     case 'concat':
@@ -43,6 +46,7 @@ export const queues: TidalQueue[] = [
   'concat',
   'package',
   'metadata',
+  'thumbnail',
   'transcode',
 ].map(queueName => {
   const queue = {

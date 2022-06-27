@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
+import { rclone } from '../lib/rclone'
 import { TranscodeJob } from '../types'
-import { ffmpeg, rclone } from '../lib/child_process'
+import { ffmpeg } from '../lib/child_process'
 
 export async function transcodeJob(job: TranscodeJob) {
   console.log('transcode job starting...')
@@ -29,6 +30,6 @@ export async function transcodeJob(job: TranscodeJob) {
     throw error
   } finally {
     console.info(`removing ${tmpDir}`)
-    // await fs.remove(tmpDir)
+    await fs.remove(tmpDir)
   }
 }

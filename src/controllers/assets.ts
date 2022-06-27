@@ -1,7 +1,15 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { ImportAssetData } from '../types'
 import { getQueueByName } from '../config/queues'
+import { ImportAssetData, ThumbnailJobData } from '../types'
+
+export async function createAssetThumbnail(req, res) {
+  const { assetId } = req.params
+  const thumbnailJob: ThumbnailJobData = { assetId }
+  const queue = getQueueByName('thumbnail')
+  if (queue) await queue.queue.add('thumbnail', thumbnailJob)
+  return res.sendStatus(202)
+}
 
 export async function createAsset(req, res) {
   const schema = Joi.object({

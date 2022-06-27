@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import { PackageJob } from '../types'
-import { shaka, rclone } from '../lib/child_process'
+import { rclone } from '../lib/rclone'
+import { shaka } from '../lib/child_process'
 
 export async function packageJob(job: PackageJob) {
   console.log('package job starting...')

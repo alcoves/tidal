@@ -4,7 +4,8 @@ import createTranscodeTree from '../lib/createTranscodeTree'
 import { flow } from '../config/queues'
 import { ImportAssetJob } from '../types'
 import { getMetadata } from '../lib/video'
-import { ffmpeg, rclone } from '../lib/child_process'
+import { rclone } from '../lib/rclone'
+import { ffmpeg } from '../lib/child_process'
 
 function getFFmpegSplitCommandParts(): string {
   return `-f segment -segment_time 10 -c:v copy -an`
@@ -35,7 +36,7 @@ export async function importJob(job: ImportAssetJob) {
   const { input, output } = job.data
 
   try {
-    const sourceFilepath = `${tmpDir}/source${path.extname(input)}`
+    const sourceFilepath = `${tmpDir}/source`
     console.info(`downloading ${input} to ${sourceFilepath}`)
     await rclone(`copyto ${input} ${sourceFilepath}`)
 

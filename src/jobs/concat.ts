@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import { ConcatJob } from '../types'
-import { ffmpeg, rclone } from '../lib/child_process'
+import { rclone } from '../lib/rclone'
+import { ffmpeg } from '../lib/child_process'
 
 async function createConcatFile(dir: string): Promise<string> {
   const paths = await fs.readdir(dir)
