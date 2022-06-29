@@ -32,7 +32,7 @@ export async function enqueueWebhook(job: Job) {
     progress: job.progress,
     queueName: job.queueName,
     returnValue: job.returnvalue,
-    isFailed: await job.isFailed(),
+    state: await job.getState(),
   }
   webhookQueue.queue.add('dispatch', webhookBody)
 }

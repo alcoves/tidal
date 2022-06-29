@@ -51,8 +51,8 @@ export interface AudioPreset {
 
 export interface WebhookJobData {
   data: any
+  state: string
   returnValue: any
-  isFailed: boolean
   id: string | undefined
   name: string | undefined
   progress: number | object
