@@ -1,42 +1,30 @@
-import { checkDimensionContraints } from './video'
+import { parseTimecodeFromSeconds } from './video'
 
 describe('video.test.ts', () => {
   const tests = [
     {
-      skipped: true,
-      r: { sourceWidth: 1920, sourceHeight: 1080, maxWidth: 1280, maxHeight: 720 },
+      seconds: '0',
+      timecode: '00:00:00.000',
     },
     {
-      skipped: true,
-      r: { sourceWidth: 1920, sourceHeight: 1080, maxWidth: 1920, maxHeight: 1080 },
+      seconds: '10',
+      timecode: '00:00:10.000',
     },
     {
-      skipped: false,
-      r: { sourceWidth: 1920, sourceHeight: 1080, maxWidth: 2560, maxHeight: 1440 },
+      seconds: '11265',
+      timecode: '03:07:45.000',
     },
     {
-      skipped: true,
-      r: { sourceWidth: 0, sourceHeight: 1, maxWidth: 1, maxHeight: 1 },
+      seconds: '0.117',
+      timecode: '00:00:00.117',
     },
     {
-      skipped: true,
-      r: { sourceWidth: 1, sourceHeight: 0, maxWidth: 1, maxHeight: 1 },
-    },
-    {
-      skipped: true,
-      r: { sourceWidth: 1, sourceHeight: 0, maxWidth: 0, maxHeight: 1 },
-    },
-    {
-      skipped: true,
-      r: { sourceWidth: 0, sourceHeight: 0, maxWidth: 0, maxHeight: 0 },
+      seconds: '305.25',
+      timecode: '00:05:05.250',
     },
   ]
 
-  test.each(tests)(
-    'given source that is $r.sourceWidth by $r.sourceHeight, a preset that is $r.maxWidth by $r.maxHeight should be skipped: $skipped',
-    ({ r, skipped }) => {
-      const shouldSkip = checkDimensionContraints(r)
-      expect(shouldSkip).toBe(skipped)
-    }
-  )
+  test.each(tests)('$seconds represets $timecode', ({ seconds, timecode }) => {
+    expect(parseTimecodeFromSeconds(seconds)).toBe(timecode)
+  })
 })

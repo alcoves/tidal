@@ -7,6 +7,7 @@ export async function createThumbnail(req, res) {
   const schema = Joi.object({
     input: Joi.string().uri().required(),
     output: Joi.string().uri().required(),
+    time: Joi.string().default('00:00:00:000'),
     width: Joi.number().min(1).max(10000).required(),
     height: Joi.number().min(1).max(10000).required(),
     fit: Joi.string().uri().default('cover').valid('cover', 'contain', 'fill', 'inside', 'outside'),
@@ -21,6 +22,7 @@ export async function createThumbnail(req, res) {
 
   const thumbnailJob: ThumbnailJobData = {
     fit: value.fit,
+    time: value.time,
     input: value.input,
     width: value.width,
     height: value.height,
