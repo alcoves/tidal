@@ -1,3 +1,4 @@
+import { Duration } from 'luxon'
 import { ffprobe } from './child_process'
 import {
   Metadata,
@@ -18,6 +19,12 @@ function parseMetadata(rawMeta: any): Metadata {
     }),
     format: rawMeta.format,
   }
+}
+
+export function parseTimecodeFromSeconds(secondsString: string): string {
+  const seconds = parseInt(secondsString)
+  const milliseconds = (parseFloat(secondsString) % 1) * 1000
+  return Duration.fromObject({ seconds, milliseconds }).toFormat('hh:mm:ss.SSS')
 }
 
 export async function getMetadata(uri: string): Promise<Metadata> {

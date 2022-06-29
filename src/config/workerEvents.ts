@@ -12,6 +12,7 @@ export async function onCompleted(job: Job) {
 export async function onFailed(job: Job, err) {
   console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
   if (process.env.DISABLE_WEBHOOKS === 'true') return
+  await enqueueWebhook(job)
 }
 
 export async function onProgress(job: Job, queueName: string) {

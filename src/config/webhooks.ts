@@ -29,8 +29,8 @@ export async function enqueueWebhook(job: Job) {
     id: job.id,
     name: job.name,
     data: job.data,
-    queueName: job.name,
     progress: job.progress,
+    queueName: job.queueName,
     returnValue: job.returnvalue,
     isFailed: await job.isFailed(),
   }

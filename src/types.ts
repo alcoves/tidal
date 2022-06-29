@@ -24,6 +24,7 @@ export interface GetPackageCommand {
 
 export interface ThumbnailJobData {
   fit: string
+  time: string
   width: number
   input: string
   height: number

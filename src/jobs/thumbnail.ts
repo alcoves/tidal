@@ -5,10 +5,11 @@ import { v4 as uuid } from 'uuid'
 import { ThumbnailJob } from '../types'
 import { ffmpeg } from '../lib/child_process'
 import { rclone, rcloneExec } from '../lib/rclone'
+import { parseTimecodeFromSeconds } from '../lib/video'
 
 export async function thumbnailJob(job: ThumbnailJob) {
   console.log('thumbnail job starting...')
-  const { input, output, width, height, fit } = job.data
+  const { input, output, width, height, fit, time } = job.data
 
   console.info('creating temporary directory')
   const tmpDir = await fs.mkdtemp('/tmp/tidal-thumbnail-')
@@ -20,8 +21,8 @@ export async function thumbnailJob(job: ThumbnailJob) {
     console.info('extracting thumbnail')
     const sourceThumbnail = 'thumbnail.png'
 
-    // TODO :: Accept input time
-    await ffmpeg(`-i ${rcloneLink} -vframes 1 -ss 00:00:00.000 ${sourceThumbnail}`, { cwd: tmpDir })
+    const timecode = parseTimecodeFromSeconds(time)
+    await ffmpeg(`-i ${rcloneLink} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, { cwd: tmpDir })
 
     console.info('compressing thumbnail')
     const outputFormat = path.extname(output).replace('.', '')
