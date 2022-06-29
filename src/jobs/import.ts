@@ -58,7 +58,7 @@ export async function importJob(job: ImportAssetJob) {
       chunks,
       assetId,
       metadata,
-      id: job.data.id,
+      parentId: job.data.id,
       sourceFilename: path.basename(sourceFilepath),
     })
     await flow.add(flowJob)

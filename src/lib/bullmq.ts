@@ -25,6 +25,7 @@ const lockDuration = 1000 * 240 // 4 minutes
 
 export const queues = {
   import: {
+    disableWebhooks: false,
     name: 'import',
     queue: new Queue('import', {
       connection: defaultConnection,
@@ -34,7 +35,7 @@ export const queues = {
       },
     }),
     worker: new Worker('import', importJob, {
-      concurrency: 4,
+      concurrency: 1,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -43,6 +44,7 @@ export const queues = {
     scheduler: new QueueScheduler('import', { connection: defaultConnection }),
   },
   concat: {
+    disableWebhooks: true,
     name: 'concat',
     queue: new Queue('concat', {
       connection: defaultConnection,
@@ -52,7 +54,7 @@ export const queues = {
       },
     }),
     worker: new Worker('concat', concatJob, {
-      concurrency: 4,
+      concurrency: 1,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -61,6 +63,7 @@ export const queues = {
     scheduler: new QueueScheduler('concat', { connection: defaultConnection }),
   },
   publish: {
+    disableWebhooks: false,
     name: 'publish',
     queue: new Queue('publish', {
       connection: defaultConnection,
@@ -70,7 +73,7 @@ export const queues = {
       },
     }),
     worker: new Worker('publish', publishJob, {
-      concurrency: 4,
+      concurrency: 1,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -79,6 +82,7 @@ export const queues = {
     scheduler: new QueueScheduler('publish', { connection: defaultConnection }),
   },
   package: {
+    disableWebhooks: true,
     name: 'package',
     queue: new Queue('package', {
       connection: defaultConnection,
@@ -88,7 +92,7 @@ export const queues = {
       },
     }),
     worker: new Worker('package', packageJob, {
-      concurrency: 4,
+      concurrency: 1,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -98,6 +102,7 @@ export const queues = {
   },
 
   thumbnail: {
+    disableWebhooks: false,
     name: 'thumbnail',
     queue: new Queue('thumbnail', {
       connection: defaultConnection,
@@ -107,7 +112,7 @@ export const queues = {
       },
     }),
     worker: new Worker('thumbnail', thumbnailJob, {
-      concurrency: 4,
+      concurrency: 1,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -116,6 +121,7 @@ export const queues = {
     scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
   },
   transcode: {
+    disableWebhooks: true,
     name: 'transcode',
     queue: new Queue('transcode', {
       connection: defaultConnection,
@@ -125,7 +131,7 @@ export const queues = {
       },
     }),
     worker: new Worker('transcode', transcodeJob, {
-      concurrency: 4,
+      concurrency: 2,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -143,7 +149,7 @@ export const queues = {
       },
     }),
     worker: new Worker('webhooks', webhookJob, {
-      concurrency: 1,
+      concurrency: 4,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
@@ -176,35 +182,36 @@ export async function enqueueWebhook(job: Job) {
 
 async function onCompleted(job: Job) {
   console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-  if (process.env.DISABLE_WEBHOOKS === 'true') return
+  if (process.env.DISABLE_WEBHOOKS === 'true' || queues[job.queueName].disableWebhooks) return
   await enqueueWebhook(job)
 }
 
 async function onFailed(job: Job, err) {
   console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-  if (process.env.DISABLE_WEBHOOKS === 'true') return
+  if (process.env.DISABLE_WEBHOOKS === 'true' || queues[job.queueName].disableWebhooks) return
   await enqueueWebhook(job)
 }
 
 async function onProgress(job: Job, queueName: string) {
   console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-
-  if (job.data.parentId) {
-    const tree = await flow.getFlow({
-      queueName,
-      id: job.data.parentId,
-    })
-
-    if (tree.children) {
-      const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
-        acc += job.progress
-        return acc
-      }, 0)
-      const percentageDone = sumPercentageCompleted / tree.children.length - 5
-      if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
-    }
-  }
-
-  if (process.env.DISABLE_WEBHOOKS === 'true') return
+  if (process.env.DISABLE_WEBHOOKS === 'true' || queues[job.queueName].disableWebhooks) return
   await enqueueWebhook(job)
+
+  // Sets the parent job progress to the sum of all child jobs
+  // The only parent jobs right now are in the "publish" queue
+  // if (job.data.parentId) {
+  //   const tree = await flow.getFlow({
+  //     queueName: 'publish',
+  //     id: job.data.parentId,
+  //   })
+
+  //   if (tree?.children) {
+  //     const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
+  //       acc += job.progress
+  //       return acc
+  //     }, 0)
+  //     const percentageDone = sumPercentageCompleted / tree.children.length - 5
+  //     if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
+  //   }
+  // }
 }

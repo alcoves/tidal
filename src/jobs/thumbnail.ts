@@ -39,6 +39,7 @@ export async function thumbnailJob(job: ThumbnailJob) {
     console.error(error)
     throw error
   } finally {
+    await job.updateProgress(100)
     console.info(`removing ${tmpDir}`)
     await fs.remove(tmpDir)
   }
