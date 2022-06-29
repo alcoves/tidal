@@ -42,7 +42,7 @@ export default async function createTranscodeTree({
   const transcodeJobs: FlowJob[] = []
   const packageJobInputs: PackageJobInput[] = []
 
-  const tidalRemoteDir = `${process.env.TIDAL_RCLONE_REMOTE}/assets/${id}`
+  const tidalRemoteDir = `${process.env.TIDAL_RCLONE_REMOTE}/${id}`
   const chunksPath = `${tidalRemoteDir}/chunks`
 
   if (metadata?.audio.length) {

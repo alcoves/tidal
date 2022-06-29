@@ -3,10 +3,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { getQueueByName } from '../config/queues'
 import { ImportAssetData, ThumbnailJobData } from '../types'
 
-export async function createAssetThumbnail(req, res) {
-  const { assetId } = req.params
-
+export async function createThumbnail(req, res) {
   const schema = Joi.object({
+    input: Joi.string().uri().required(),
     output: Joi.string().uri().required(),
     width: Joi.number().min(1).max(10000).required(),
     height: Joi.number().min(1).max(10000).required(),
@@ -21,11 +20,11 @@ export async function createAssetThumbnail(req, res) {
   if (error) return res.status(400).json(error)
 
   const thumbnailJob: ThumbnailJobData = {
-    assetId,
     fit: value.fit,
+    input: value.input,
     width: value.width,
     height: value.height,
-    output: value.output.replace('$assetId', assetId).replace('$id', uuidv4()),
+    output: value.output.replace('$id', uuidv4()),
   }
 
   const queue = getQueueByName('thumbnail')
@@ -33,7 +32,7 @@ export async function createAssetThumbnail(req, res) {
   return res.sendStatus(202)
 }
 
-export async function createAsset(req, res) {
+export async function createVideo(req, res) {
   const schema = Joi.object({
     input: Joi.string().uri().required(),
     output: Joi.string().uri().required(),
@@ -46,15 +45,14 @@ export async function createAsset(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const importId = uuidv4()
+  const id = uuidv4()
   const importAssetJob: ImportAssetData = {
-    id: importId,
+    id,
     input: value.input,
-    output: value.output.replace('$id', importId),
+    output: value.output,
   }
 
   const importQueue = getQueueByName('import')
-  if (importQueue) await importQueue.queue.add('import', importAssetJob)
-
-  return res.json({ id: importId })
+  if (importQueue) await importQueue.queue.add('import', importAssetJob, { jobId: id })
+  return res.sendStatus(202)
 }
