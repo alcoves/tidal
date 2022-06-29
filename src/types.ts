@@ -29,6 +29,7 @@ export interface ThumbnailJobData {
   input: string
   height: number
   output: string
+  assetId: string
 }
 
 export interface ThumbnailJob extends Job {
@@ -74,6 +75,7 @@ export interface ImportAssetData {
   id: string
   input: string
   output: string
+  assetId: string
 }
 
 export interface ImportAssetJob extends Job {
@@ -81,9 +83,10 @@ export interface ImportAssetJob extends Job {
 }
 
 export interface TranscodeJobData {
-  input: string
   cmd: string
+  input: string
   output: string
+  assetId: string
 }
 
 export interface TranscodeJob extends Job {
@@ -96,8 +99,9 @@ export interface PackageJobInput {
 }
 
 export interface PackageJobData {
-  inputs: PackageJobInput[]
   output: string
+  assetId: string
+  inputs: PackageJobInput[]
 }
 
 export interface PackageJob extends Job {
@@ -107,6 +111,7 @@ export interface PackageJob extends Job {
 export interface ConcatJobData {
   input: string
   output: string
+  assetId: string
 }
 
 export interface ConcatJob extends Job {
@@ -116,6 +121,7 @@ export interface ConcatJob extends Job {
 export interface PublishJobData {
   input: string
   output: string
+  assetId: string
 }
 
 export interface PublishJob extends Job {
@@ -200,22 +206,4 @@ export interface Metadata {
   format: MetadataFormat
   audio: MetadataStream[]
   video: MetadataStream[]
-}
-
-// Deprecate
-
-export interface TidalQueue {
-  name: string
-  queue: Queue
-  worker: Worker
-  scheduler: QueueScheduler
-}
-
-export interface TidalJob {
-  cmd?: string
-  input?: string
-  output?: string
-  tmpDir?: string
-  parentId?: string
-  webhooks?: boolean
 }
