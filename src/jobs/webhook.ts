@@ -1,4 +1,5 @@
 import axios from 'axios'
+import chalk from 'chalk'
 import { WebhookJob } from '../types'
 
 export async function webhookJob(job: WebhookJob) {
@@ -18,7 +19,7 @@ export async function webhookJob(job: WebhookJob) {
 
     return { data: res.data, status: res.status }
   } catch (error) {
-    console.error('failed to delivery webhook')
+    console.error(chalk.red.bold('failed to deliver webhook'))
     if (process.env.NODE_ENV === 'production') throw error
   }
 }
