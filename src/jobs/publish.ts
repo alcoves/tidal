@@ -1,9 +1,9 @@
 import chalk from 'chalk'
-import { ExportJob } from '../types'
+import { PublishJob } from '../types'
 import { rclone } from '../lib/rclone'
 
-export async function exportJob(job: ExportJob) {
-  console.info(chalk.blue('export job starting...'))
+export async function publishJob(job: PublishJob) {
+  console.info(chalk.blue('publish job starting...'))
   const { input, output } = job.data
   await rclone(`copy ${input} ${output}`)
   await job.updateProgress(100)
