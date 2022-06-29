@@ -1,10 +1,11 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { getQueueByName } from '../config/queues'
+import { queues } from '../lib/bullmq'
 import { ImportAssetData, ThumbnailJobData } from '../types'
 
 export async function createThumbnail(req, res) {
   const schema = Joi.object({
+    assetId: Joi.string().required(),
     input: Joi.string().uri().required(),
     output: Joi.string().uri().required(),
     time: Joi.string().default('00:00:00:000'),
@@ -26,16 +27,17 @@ export async function createThumbnail(req, res) {
     input: value.input,
     width: value.width,
     height: value.height,
+    assetId: value.assetId,
     output: value.output.replace('$id', uuidv4()),
   }
 
-  const queue = getQueueByName('thumbnail')
-  if (queue) await queue.queue.add('thumbnail', thumbnailJob)
+  if (queues.thumbnail) await queues.thumbnail.queue.add('thumbnail', thumbnailJob)
   return res.sendStatus(202)
 }
 
 export async function createVideo(req, res) {
   const schema = Joi.object({
+    assetId: Joi.string().required(),
     input: Joi.string().uri().required(),
     output: Joi.string().uri().required(),
   })
@@ -52,9 +54,9 @@ export async function createVideo(req, res) {
     id,
     input: value.input,
     output: value.output,
+    assetId: value.assetId,
   }
 
-  const importQueue = getQueueByName('import')
-  if (importQueue) await importQueue.queue.add('import', importAssetJob, { jobId: id })
+  if (queues.import) await queues.import.queue.add('import', importAssetJob, { jobId: id })
   return res.sendStatus(202)
 }

@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
 import createTranscodeTree from '../lib/createTranscodeTree'
-import { flow } from '../config/queues'
+import { flow } from '../lib/bullmq'
 import { rclone } from '../lib/rclone'
 import { ImportAssetJob } from '../types'
 import { getMetadata } from '../lib/video'
@@ -33,7 +33,7 @@ async function segmentVideo(src: string, tmpDir: string): Promise<string[]> {
 export async function importJob(job: ImportAssetJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-import-')
   console.info(`temporary directory created: ${tmpDir}`)
-  const { id, input, output } = job.data
+  const { assetId, id, input, output } = job.data
 
   try {
     const sourceFilepath = `${tmpDir}/source`
@@ -56,6 +56,7 @@ export async function importJob(job: ImportAssetJob) {
     const flowJob = await createTranscodeTree({
       output,
       chunks,
+      assetId,
       metadata,
       id: job.data.id,
       sourceFilename: path.basename(sourceFilepath),

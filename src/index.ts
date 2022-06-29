@@ -1,8 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import './config/queues'
-import './config/webhooks'
+import './lib/bullmq'
 
 import app from './app'
 import chalk from 'chalk'

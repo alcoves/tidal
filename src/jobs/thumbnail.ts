@@ -16,13 +16,13 @@ export async function thumbnailJob(job: ThumbnailJob) {
 
   try {
     console.info('getting source url')
-    const rcloneLink = await rcloneExec(`link ${input}`)
+    const sourceURL = await rcloneExec(`link ${input}`)
 
     console.info('extracting thumbnail')
     const sourceThumbnail = 'thumbnail.png'
 
     const timecode = parseTimecodeFromSeconds(time)
-    await ffmpeg(`-i ${rcloneLink} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, { cwd: tmpDir })
+    await ffmpeg(`-i ${sourceURL} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, { cwd: tmpDir })
 
     console.info('compressing thumbnail')
     const outputFormat = path.extname(output).replace('.', '')
