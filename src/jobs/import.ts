@@ -2,9 +2,9 @@ import path from 'path'
 import fs from 'fs-extra'
 import createTranscodeTree from '../lib/createTranscodeTree'
 import { flow } from '../config/queues'
+import { rclone } from '../lib/rclone'
 import { ImportAssetJob } from '../types'
 import { getMetadata } from '../lib/video'
-import { rclone } from '../lib/rclone'
 import { ffmpeg } from '../lib/child_process'
 
 function getFFmpegSplitCommandParts(): string {
@@ -33,7 +33,7 @@ async function segmentVideo(src: string, tmpDir: string): Promise<string[]> {
 export async function importJob(job: ImportAssetJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-import-')
   console.info(`temporary directory created: ${tmpDir}`)
-  const { input, output } = job.data
+  const { id, input, output } = job.data
 
   try {
     const sourceFilepath = `${tmpDir}/source`
@@ -44,7 +44,7 @@ export async function importJob(job: ImportAssetJob) {
     const chunks = await segmentVideo(sourceFilepath, tmpDir)
 
     console.info('uploading local folder to object storage')
-    await rclone(`copy ${tmpDir} ${process.env.TIDAL_RCLONE_REMOTE}/assets/${job.data.id}`)
+    await rclone(`copy ${tmpDir} ${process.env.TIDAL_RCLONE_REMOTE}/${id}`)
 
     console.info('getting video metadata')
     const metadata = await getMetadata(sourceFilepath)

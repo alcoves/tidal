@@ -8,20 +8,20 @@ import { rclone, rcloneExec } from '../lib/rclone'
 
 export async function thumbnailJob(job: ThumbnailJob) {
   console.log('thumbnail job starting...')
-  const { assetId, output, width, height, fit } = job.data
+  const { input, output, width, height, fit } = job.data
 
   console.info('creating temporary directory')
   const tmpDir = await fs.mkdtemp('/tmp/tidal-thumbnail-')
 
   try {
-    console.info('getting asset url')
-    const assetPath = `${process.env['TIDAL_RCLONE_REMOTE']}/assets/${assetId}`
-    const assetSourcePath = `${assetPath}/source`
-    const rcloneLink = await rcloneExec(`link ${assetSourcePath}`)
+    console.info('getting source url')
+    const rcloneLink = await rcloneExec(`link ${input}`)
 
     console.info('extracting thumbnail')
     const sourceThumbnail = 'thumbnail.png'
-    await ffmpeg(`-i ${rcloneLink} -vframes 1 ${sourceThumbnail}`, { cwd: tmpDir })
+
+    // TODO :: Accept input time
+    await ffmpeg(`-i ${rcloneLink} -vframes 1 -ss 00:00:00.000 ${sourceThumbnail}`, { cwd: tmpDir })
 
     console.info('compressing thumbnail')
     const outputFormat = path.extname(output).replace('.', '')
@@ -31,9 +31,6 @@ export async function thumbnailJob(job: ThumbnailJob) {
       .resize({ width, height, fit })
       .toFormat(outputFormat, { quality: 80 })
       .toFile(`${tmpDir}/${compressedThumbnail}`)
-
-    console.info('uploading thumbnail to tidal remote')
-    await rclone(`copy ${tmpDir}/${compressedThumbnail} ${assetPath}/thumbnails`)
 
     console.info('uploading thumbnail to user defined output')
     await rclone(`copyto ${tmpDir}/${compressedThumbnail} ${output}`)

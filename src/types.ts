@@ -25,9 +25,9 @@ export interface GetPackageCommand {
 export interface ThumbnailJobData {
   fit: string
   width: number
+  input: string
   height: number
   output: string
-  assetId: string
 }
 
 export interface ThumbnailJob extends Job {
