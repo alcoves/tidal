@@ -4,10 +4,9 @@ import { onCompleted, onFailed, onProgress } from './workerEvents'
 import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
 
 import { concatJob } from '../jobs/concat'
-import { exportJob } from '../jobs/export'
 import { importJob } from '../jobs/import'
+import { publishJob } from '../jobs/publish'
 import { packageJob } from '../jobs/package'
-import { metadataJob } from '../jobs/metadata'
 import { thumbnailJob } from '../jobs/thumbnail'
 import { transcodeJob } from '../jobs/transcode'
 
@@ -23,14 +22,12 @@ async function queueSwitch(job: Job) {
   switch (handler) {
     case 'import':
       return importJob(job)
-    case 'export':
-      return exportJob(job)
+    case 'publish':
+      return publishJob(job)
     case 'transcode':
       return transcodeJob(job)
     case 'thumbnail':
       return thumbnailJob(job)
-    case 'metadata':
-      return metadataJob(job)
     case 'concat':
       return concatJob(job)
     case 'package':

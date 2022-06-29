@@ -113,13 +113,13 @@ export interface ConcatJob extends Job {
   data: ConcatJobData
 }
 
-export interface ExportJobData {
+export interface PublishJobData {
   input: string
   output: string
 }
 
-export interface ExportJob extends Job {
-  data: ExportJobData
+export interface PublishJob extends Job {
+  data: PublishJobData
 }
 
 export interface MetadataFormat {
