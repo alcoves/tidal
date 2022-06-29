@@ -61,6 +61,8 @@ export async function importJob(job: ImportAssetJob) {
       sourceFilename: path.basename(sourceFilepath),
     })
     await flow.add(flowJob)
+
+    return { metadata }
   } catch (error) {
     console.error(error)
     throw error
