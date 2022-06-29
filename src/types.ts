@@ -87,6 +87,7 @@ export interface TranscodeJobData {
   input: string
   output: string
   assetId: string
+  parentId: string
 }
 
 export interface TranscodeJob extends Job {
@@ -101,6 +102,7 @@ export interface PackageJobInput {
 export interface PackageJobData {
   output: string
   assetId: string
+  parentId: string
   inputs: PackageJobInput[]
 }
 
@@ -112,6 +114,7 @@ export interface ConcatJobData {
   input: string
   output: string
   assetId: string
+  parentId: string
 }
 
 export interface ConcatJob extends Job {
@@ -122,6 +125,7 @@ export interface PublishJobData {
   input: string
   output: string
   assetId: string
+  parentId: string
 }
 
 export interface PublishJob extends Job {

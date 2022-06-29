@@ -24,17 +24,17 @@ interface PackageJobInput {
  *   chunk 2 transcode -> return value is s3 asset location for concat (signed URL)
  */
 export default async function createTranscodeTree({
-  id,
   output,
   chunks,
   assetId,
+  parentId,
   metadata,
   sourceFilename,
 }: {
-  id: string
   output: string
   assetId: string
   chunks: string[]
+  parentId: string
   metadata: Metadata
   sourceFilename: string
 }) {
@@ -44,13 +44,14 @@ export default async function createTranscodeTree({
   const transcodeJobs: FlowJob[] = []
   const packageJobInputs: PackageJobInput[] = []
 
-  const tidalRemoteDir = `${process.env.TIDAL_RCLONE_REMOTE}/${id}`
+  const tidalRemoteDir = `${process.env.TIDAL_RCLONE_REMOTE}/${parentId}`
   const chunksPath = `${tidalRemoteDir}/chunks`
 
   if (metadata?.audio.length) {
     audioPresets.map(({ name, getTranscodeCommand, getPackageCommand }) => {
       const transcodeJobData: TranscodeJobData = {
         assetId,
+        parentId,
         input: `${tidalRemoteDir}/${sourceFilename}`,
         output: `${tidalRemoteDir}/${name}.mp4`,
         cmd: getTranscodeCommand({ input: sourceFilename, output: `${name}.mp4` }),
@@ -87,6 +88,7 @@ export default async function createTranscodeTree({
 
     const concatJobData: ConcatJobData = {
       assetId,
+      parentId,
       input: `${chunksPath}/${name}`,
       output: `${tidalRemoteDir}/${name}.mp4`,
     }
@@ -98,6 +100,7 @@ export default async function createTranscodeTree({
       children: chunks.map(chunk => {
         const transcodeJobData: TranscodeJobData = {
           assetId,
+          parentId,
           input: `${chunksPath}/source/${chunk}`,
           output: `${chunksPath}/${name}/${chunk}`,
           cmd: getTranscodeCommand({
@@ -119,13 +122,15 @@ export default async function createTranscodeTree({
   })
 
   const publishJobData: PublishJobData = {
-    assetId,
     output,
+    assetId,
+    parentId,
     input: `${tidalRemoteDir}/pkg`, // Only HLS,MPD assets are published
   }
 
   const packageJobData: PackageJobData = {
     assetId,
+    parentId,
     inputs: packageJobInputs,
     output: `${tidalRemoteDir}/pkg`,
   }
