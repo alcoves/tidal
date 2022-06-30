@@ -98,17 +98,20 @@ export default async function createTranscodeTree({
       queueName: 'concat',
       data: concatJobData,
       children: chunks.map(chunk => {
+        const chunkName = path.basename(chunk)
+        const outputFormat = 'mkv'
+
         const transcodeJobData: TranscodeJobData = {
           assetId,
           parentId,
           input: `${chunksPath}/source/${chunk}`,
-          output: `${chunksPath}/${name}/${chunk}`,
+          output: `${chunksPath}/${name}/${chunkName}.${outputFormat}`,
           cmd: getTranscodeCommand({
             width,
             metadata,
             input: chunk,
             opts: { crf: 23 },
-            output: `${path.basename(chunk)}_${name}.mp4`,
+            output: `${path.basename(chunk)}_${name}.${outputFormat}`,
           }),
         }
 
