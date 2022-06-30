@@ -10,6 +10,9 @@ RUN chmod 755 /usr/bin/rclone
 
 RUN curl -O https://github.com/shaka-project/shaka-packager/releases/download/v2.6.1/packager-linux-x64
 RUN mv ./packager-linux-x64 /usr/local/bin/packager
+RUN chown root:root /usr/local/bin/packager
+RUN chmod 755 /usr/local/bin/packager
+RUN chmod +x /usr/local/bin/packager
 
 WORKDIR /app
 COPY src src
