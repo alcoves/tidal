@@ -3,8 +3,8 @@ RUN apk add --no-cache ffmpeg curl unzip
 
 RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip
 RUN unzip rclone-current-linux-amd64.zip
-RUN cd rclone-*-linux-amd64
-RUN cp rclone /usr/bin/
+RUN cd rclone-*-linux-amd64 && cp rclone /usr/bin/
+RUN rm -rf rclone-*-linux-amd64
 RUN chown root:root /usr/bin/rclone
 RUN chmod 755 /usr/bin/rclone
 
