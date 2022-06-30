@@ -23,7 +23,7 @@ export function rclone(command: string) {
 
 export function rcloneExec(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    exec(`rclone ${command}`, (error, stdout, stderr) => {
+    exec(`rclone ${command}`, { env: process.env }, (error, stdout, stderr) => {
       if (error) {
         console.error(chalk.blue(error.message))
         // reject(error)
