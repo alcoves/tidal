@@ -23,6 +23,8 @@ export const flow = new FlowProducer({
 // Increasing the lock duration attempts to avoid stalling jobs
 const lockDuration = 1000 * 240 // 4 minutes
 
+const jobsDisabled = process.env.DISABLE_JOBS === 'true' ? true : false
+
 export const queues = {
   import: {
     disableWebhooks: false,
@@ -34,13 +36,15 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('import', importJob, {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('import', importJob, {
+          concurrency: 1,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('import', { connection: defaultConnection }),
   },
   concat: {
@@ -53,13 +57,15 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('concat', concatJob, {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('concat', concatJob, {
+          concurrency: 1,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('concat', { connection: defaultConnection }),
   },
   publish: {
@@ -72,13 +78,15 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('publish', publishJob, {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('publish', publishJob, {
+          concurrency: 1,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('publish', { connection: defaultConnection }),
   },
   package: {
@@ -91,16 +99,17 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('package', packageJob, {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('package', packageJob, {
+          concurrency: 1,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('package', { connection: defaultConnection }),
   },
-
   thumbnail: {
     disableWebhooks: false,
     name: 'thumbnail',
@@ -111,13 +120,15 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('thumbnail', thumbnailJob, {
-      concurrency: 1,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('thumbnail', thumbnailJob, {
+          concurrency: 1,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
   },
   transcode: {
@@ -130,13 +141,15 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: new Worker('transcode', transcodeJob, {
-      concurrency: 2,
-      lockDuration: lockDuration,
-      connection: defaultConnection,
-      lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
-    }),
+    worker: jobsDisabled
+      ? new Worker('transcode', transcodeJob, {
+          concurrency: 2,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
     scheduler: new QueueScheduler('transcode', { connection: defaultConnection }),
   },
   webhooks: {
@@ -160,7 +173,7 @@ export const queues = {
 }
 
 for (const queue of Object.values(queues)) {
-  if (queue.name !== 'webhooks') {
+  if (queue.name !== 'webhooks' && queue.worker) {
     queue.worker.on('failed', onFailed)
     queue.worker.on('completed', onCompleted)
     queue.worker.on('progress', job => onProgress(job, queue.name))
