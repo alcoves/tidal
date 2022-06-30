@@ -12,7 +12,8 @@ function getFFmpegSplitCommandParts(): string {
 }
 
 async function segmentVideo(src: string, tmpDir: string): Promise<string[]> {
-  const segmentationPattern = '%06d.mkv'
+  const srcFormat = path.extname(src)
+  const segmentationPattern = `%06d${srcFormat}`
   const chunksDir = `${tmpDir}/chunks/source`
   await fs.mkdirp(chunksDir)
 
@@ -36,7 +37,8 @@ export async function importJob(job: ImportAssetJob) {
   const { assetId, id, input, output } = job.data
 
   try {
-    const sourceFilepath = `${tmpDir}/source`
+    const sourceFilename = path.basename(input)
+    const sourceFilepath = `${tmpDir}/${sourceFilename}`
     console.info(`downloading ${input} to ${sourceFilepath}`)
     await rclone(`copyto ${input} ${sourceFilepath}`)
 
