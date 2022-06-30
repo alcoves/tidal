@@ -23,7 +23,8 @@ export const flow = new FlowProducer({
 // Increasing the lock duration attempts to avoid stalling jobs
 const lockDuration = 1000 * 240 // 4 minutes
 
-const jobsDisabled = process.env.DISABLE_JOBS === 'true' ? true : false
+const shouldProcessJobs = process.env.DISABLE_JOBS === 'true' ? false : true
+if (shouldProcessJobs) console.log(chalk.blue.bold('job processing spooling up...'))
 
 export const queues = {
   import: {
@@ -36,7 +37,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('import', importJob, {
           concurrency: 1,
           lockDuration: lockDuration,
@@ -57,7 +58,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('concat', concatJob, {
           concurrency: 1,
           lockDuration: lockDuration,
@@ -78,7 +79,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('publish', publishJob, {
           concurrency: 1,
           lockDuration: lockDuration,
@@ -99,7 +100,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('package', packageJob, {
           concurrency: 1,
           lockDuration: lockDuration,
@@ -120,7 +121,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('thumbnail', thumbnailJob, {
           concurrency: 1,
           lockDuration: lockDuration,
@@ -141,7 +142,7 @@ export const queues = {
         backoff: { delay: 1000, type: 'exponential' },
       },
     }),
-    worker: jobsDisabled
+    worker: shouldProcessJobs
       ? new Worker('transcode', transcodeJob, {
           concurrency: 2,
           lockDuration: lockDuration,
