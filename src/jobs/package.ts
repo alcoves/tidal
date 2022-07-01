@@ -25,7 +25,7 @@ export async function packageJob(job: PackageJob) {
       '"master.mpd"',
     ]
     const result = await shaka(packageCommands.join(' '), { cwd: tmpDir })
-    console.log('Package Result: ', result)
+    console.log('package result: ', result)
 
     console.log('removing inputs')
     await Promise.all(
