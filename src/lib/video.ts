@@ -79,17 +79,17 @@ function x264Defaults(args: GetVideoTranscodeCommand): string {
   }
 
   const vfString = videoFilters.join(',')
-  return `-i ${input} -an -c:v libx264 -crf ${opts.crf} -preset medium -vf ${vfString} ${output}`
+  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -an -c:v libx264 -crf ${opts.crf} -preset medium -vf ${vfString} ${output}`
 }
 
 function opus(args: GetAudioTranscodeCommand) {
   const { output, input } = args
-  return `-i ${input} -vn -c:a libopus -b:a 128k ${output}`
+  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -vn -c:a libopus -b:a 128k ${output}`
 }
 
 function aac(args: GetAudioTranscodeCommand) {
   const { output, input } = args
-  return `-i ${input} -vn -c:a aac -b:a 128k ${output}`
+  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -vn -c:a aac -b:a 128k ${output}`
 }
 
 function getPackageCommand(args: GetPackageCommand) {
