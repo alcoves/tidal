@@ -1,25 +1,17 @@
-import { Queue, Worker, QueueScheduler, Job } from 'bullmq'
+import { Job } from 'bullmq'
 
-export interface GetVideoTranscodeCommand {
-  opts: {
-    crf?: number
-  }
-  width: number
-  input: string
-  output: string
-  metadata: Metadata
+export interface WebhookJobData {
+  data: any
+  state: string
+  returnValue: any
+  id: string | undefined
+  name: string | undefined
+  progress: number | object
+  queueName: string | undefined
 }
 
-export interface GetAudioTranscodeCommand {
-  input: string
-  output: string
-}
-
-export interface GetPackageCommand {
-  type: string
-  pkgDir: string
-  inputFile: string
-  folderName: string
+export interface WebhookJob extends Job {
+  data: WebhookJobData
 }
 
 export interface ThumbnailJobData {
@@ -36,100 +28,14 @@ export interface ThumbnailJob extends Job {
   data: ThumbnailJobData
 }
 
-export interface VideoPreset {
-  name: string
-  width: number
-  height: number
-  getPackageCommand: (args: GetPackageCommand) => string
-  getTranscodeCommand: (args: GetVideoTranscodeCommand) => string
-}
-
-export interface AudioPreset {
-  name: string
-  getPackageCommand: (args: GetPackageCommand) => string
-  getTranscodeCommand: (args: GetAudioTranscodeCommand) => string
-}
-
-export interface WebhookJobData {
-  data: any
-  state: string
-  returnValue: any
-  id: string | undefined
-  name: string | undefined
-  progress: number | object
-  queueName: string | undefined
-}
-
-export interface WebhookJob extends Job {
-  data: WebhookJobData
-}
-
-export interface Workflow {
-  id: string
-  name: string
-  chunked: boolean
-  webhookURL: string
-}
-
-export interface ImportAssetData {
-  id: string
+export interface AdaptiveTranscodeJobData {
   input: string
   output: string
   assetId: string
 }
 
-export interface ImportAssetJob extends Job {
-  data: ImportAssetData
-}
-
-export interface TranscodeJobData {
-  cmd: string
-  input: string
-  output: string
-  assetId: string
-  parentId: string
-}
-
-export interface TranscodeJob extends Job {
-  data: TranscodeJobData
-}
-
-export interface PackageJobInput {
-  path: string
-  cmd: string
-}
-
-export interface PackageJobData {
-  output: string
-  assetId: string
-  parentId: string
-  inputs: PackageJobInput[]
-}
-
-export interface PackageJob extends Job {
-  data: PackageJobData
-}
-
-export interface ConcatJobData {
-  input: string
-  output: string
-  assetId: string
-  parentId: string
-}
-
-export interface ConcatJob extends Job {
-  data: ConcatJobData
-}
-
-export interface PublishJobData {
-  input: string
-  output: string
-  assetId: string
-  parentId: string
-}
-
-export interface PublishJob extends Job {
-  data: PublishJobData
+export interface AdaptiveTranscodeJob extends Job {
+  data: AdaptiveTranscodeJobData
 }
 
 export interface MetadataFormat {

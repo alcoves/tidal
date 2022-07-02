@@ -1,7 +1,8 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { queues } from '../lib/bullmq'
-import { ImportAssetData, ThumbnailJobData } from '../types'
+import { getMetadata } from '../lib/video'
+import { AdaptiveTranscodeJobData, ThumbnailJobData } from '../types'
 
 export async function createThumbnail(req, res) {
   const schema = Joi.object({
@@ -35,7 +36,7 @@ export async function createThumbnail(req, res) {
   return res.sendStatus(202)
 }
 
-export async function createVideo(req, res) {
+export async function createAdaptiveTranscode(req, res) {
   const schema = Joi.object({
     assetId: Joi.string().required(),
     input: Joi.string().uri().required(),
@@ -49,14 +50,20 @@ export async function createVideo(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const id = uuidv4()
-  const importAssetJob: ImportAssetData = {
-    id,
-    input: value.input,
-    output: value.output,
-    assetId: value.assetId,
+  const metadata = await getMetadata(value.input)
+
+  if (queues.adaptiveTranscode) {
+    // const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
+    //   input: value.input,
+    //   output: value.output,
+    //   assetId: value.assetId,
+    // }
+
+    // await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
+    return res.status(202).json({
+      metadata,
+    })
   }
 
-  if (queues.import) await queues.import.queue.add('import', importAssetJob, { jobId: id })
-  return res.sendStatus(202)
+  return res.sendStatus(400)
 }
