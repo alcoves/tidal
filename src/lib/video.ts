@@ -1,13 +1,6 @@
 import { Duration } from 'luxon'
 import { ffprobe } from './child_process'
-import {
-  Metadata,
-  AudioPreset,
-  VideoPreset,
-  GetPackageCommand,
-  GetVideoTranscodeCommand,
-  GetAudioTranscodeCommand,
-} from '../types'
+import { AdaptiveTranscodeStruct, AdaptiveTranscodeType, Metadata, VideoPreset } from '../types'
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
@@ -33,18 +26,50 @@ export async function getMetadata(uri: string): Promise<Metadata> {
   return parseMetadata(rawMetadata)
 }
 
-export function getVideoPresets(width: number, height: number): VideoPreset[] {
+export function generateAdaptiveTranscodeCommands({
+  input,
+  metadata,
+}: {
+  metadata: Metadata
+  input: string
+}): AdaptiveTranscodeStruct[] {
+  const vWidth = metadata?.video[0]?.width || 0
+  const vHeight = metadata?.video[0]?.height || 0
+
+  const videoPresets = getAvailiblePresets(vWidth, vHeight).map(v => {
+    return {
+      type: AdaptiveTranscodeType.video,
+      cmd: x264Defaults({ metadata, width: v.width, input }),
+    }
+  })
+
+  return [
+    ...videoPresets,
+    {
+      cmd: `-i ${input} -vn -c:a audio.aac`,
+      type: AdaptiveTranscodeType.audio,
+    },
+    {
+      cmd: `-i ${input} -vn -c:a libopus -b:a 128k audio.ogg`,
+      type: AdaptiveTranscodeType.audio,
+    },
+  ]
+}
+
+export function getAvailiblePresets(width: number, height: number): VideoPreset[] {
   const longestEdge = width > height ? width : height
   return videoPresets.filter(p => longestEdge >= p.width)
 }
 
-export function getAudioPresets(): AudioPreset[] {
-  return audioPresets
-}
-
-function x264Defaults(args: GetVideoTranscodeCommand): string {
-  const { opts, width, output, input, metadata } = args
-
+function x264Defaults({
+  input,
+  width,
+  metadata,
+}: {
+  width: number
+  input: string
+  metadata: Metadata
+}): string {
   const videoFilters = [
     `scale=${width}:${width}:force_original_aspect_ratio=decrease`,
     'scale=trunc(iw/2)*2:trunc(ih/2)*2',
@@ -79,99 +104,83 @@ function x264Defaults(args: GetVideoTranscodeCommand): string {
   }
 
   const vfString = videoFilters.join(',')
-  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -an -c:v libx264 -crf ${opts.crf} -preset medium -vf ${vfString} ${output}`
+  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -an -c:v libx264 -crf 23 -preset medium -vf ${vfString} videob .mp4`
 }
 
-function opus(args: GetAudioTranscodeCommand) {
-  const { output, input } = args
-  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -vn -c:a libopus -b:a 128k ${output}`
-}
+// function opus(args: GetAudioTranscodeCommand) {
+//   const { output, input } = args
+//   return `-i ${input} -vn -c:a libopus -b:a 128k ${output}`
+// }
 
-function aac(args: GetAudioTranscodeCommand) {
-  const { output, input } = args
-  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -vn -c:a aac -b:a 128k ${output}`
-}
+// function aac(args: GetAudioTranscodeCommand) {
+//   const { output, input } = args
+//   return `-i ${input} -vn -c:a aac -b:a 128k ${output}`
+// }
 
-function getPackageCommand(args: GetPackageCommand) {
-  const { type, inputFile, pkgDir, folderName } = args
-  switch (type) {
-    case 'video':
-      return `in=${inputFile},stream=video,output="${pkgDir}/${folderName}/${inputFile}",playlist_name="${pkgDir}/${folderName}/playlist.m3u8",iframe_playlist_name="${pkgDir}/${folderName}/iframes.m3u8"`
-    case 'audio':
-      return `in=${inputFile},stream=audio,output="${pkgDir}/${folderName}/${inputFile}",playlist_name="${pkgDir}/${folderName}/playlist.m3u8",hls_group_id=audio,hls_name="ENGLISH"`
-    default:
-      throw new Error(`invalid package command type: ${type}`)
-  }
-}
+// function getPackageCommand(args: GetPackageCommand) {
+//   const { type, inputFile, pkgDir, folderName } = args
+//   switch (type) {
+//     case 'video':
+//       return `in=${inputFile},stream=video,output="${pkgDir}/${folderName}/${inputFile}",playlist_name="${pkgDir}/${folderName}/playlist.m3u8",iframe_playlist_name="${pkgDir}/${folderName}/iframes.m3u8"`
+//     case 'audio':
+//       return `in=${inputFile},stream=audio,output="${pkgDir}/${folderName}/${inputFile}",playlist_name="${pkgDir}/${folderName}/playlist.m3u8",hls_group_id=audio,hls_name="ENGLISH"`
+//     default:
+//       throw new Error(`invalid package command type: ${type}`)
+//   }
+// }
 
-export const audioPresets: AudioPreset[] = [
-  // {
-  //   name: 'aac_128k',
-  //   getTranscodeCommand: aac,
-  //   getPackageCommand: getPackageCommand,
-  // },
-  {
-    name: 'opus_128k',
-    getTranscodeCommand: opus,
-    getPackageCommand: getPackageCommand,
-  },
-]
+// export const audioPresets: AudioPreset[] = [
+//   // {
+//   //   name: 'aac_128k',
+//   //   getTranscodeCommand: aac,
+//   //   getPackageCommand: getPackageCommand,
+//   // },
+//   {
+//     name: 'opus_128k',
+//     getTranscodeCommand: opus,
+//     getPackageCommand: getPackageCommand,
+//   },
+// ]
 
-export const videoPresets: VideoPreset[] = [
+const videoPresets: VideoPreset[] = [
   {
     name: 'x264_144p',
     width: 256,
     height: 144,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_240p',
     width: 426,
     height: 240,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_360p',
     width: 640,
     height: 360,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_480p',
     width: 854,
     height: 480,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_720p',
     width: 1280,
     height: 720,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_1080p',
     width: 1920,
     height: 1080,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_1440p',
     width: 2560,
     height: 1440,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
   {
     name: 'x264_2160p',
     width: 3840,
     height: 2160,
-    getTranscodeCommand: x264Defaults,
-    getPackageCommand: getPackageCommand,
   },
 ]
