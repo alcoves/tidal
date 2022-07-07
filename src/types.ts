@@ -1,5 +1,10 @@
 import { Job } from 'bullmq'
 
+export enum AdaptiveTranscodeType {
+  video = 'video',
+  audio = 'audio',
+}
+
 export interface WebhookJobData {
   data: any
   state: string
@@ -28,14 +33,26 @@ export interface ThumbnailJob extends Job {
   data: ThumbnailJobData
 }
 
+export interface AdaptiveTranscodeStruct {
+  cmd: string
+  type: AdaptiveTranscodeType
+}
+
 export interface AdaptiveTranscodeJobData {
   input: string
   output: string
   assetId: string
+  transcodes: AdaptiveTranscodeStruct[]
 }
 
 export interface AdaptiveTranscodeJob extends Job {
   data: AdaptiveTranscodeJobData
+}
+
+export interface VideoPreset {
+  name: string
+  width: number
+  height: number
 }
 
 export interface MetadataFormat {

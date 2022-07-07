@@ -1,8 +1,8 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { queues } from '../lib/bullmq'
-import { getMetadata } from '../lib/video'
 import { AdaptiveTranscodeJobData, ThumbnailJobData } from '../types'
+import { generateAdaptiveTranscodeCommands, getMetadata } from '../lib/video'
 
 export async function createThumbnail(req, res) {
   const schema = Joi.object({
@@ -53,13 +53,17 @@ export async function createAdaptiveTranscode(req, res) {
   const metadata = await getMetadata(value.input)
 
   if (queues.adaptiveTranscode) {
-    // const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
-    //   input: value.input,
-    //   output: value.output,
-    //   assetId: value.assetId,
-    // }
+    const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
+      input: value.input,
+      output: value.output,
+      assetId: value.assetId,
+      transcodes: generateAdaptiveTranscodeCommands({
+        metadata,
+        input: value.input,
+      }),
+    }
 
-    // await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
+    await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
     return res.status(202).json({
       metadata,
     })
