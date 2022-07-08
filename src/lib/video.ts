@@ -35,10 +35,10 @@ export async function getMetadata(uri: string): Promise<Metadata> {
   return parseMetadata(rawMetadata)
 }
 
-function getAudioPresets(hasAudio: boolean): AdaptiveTranscodeStruct[] {
+function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
   const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
 
-  if (hasAudio) {
+  if (metadata?.audio?.length < 1) {
     return [
       {
         cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a aac`,
@@ -72,7 +72,7 @@ export function generateAdaptiveTranscodeCommands({
     }
   })
 
-  const audioPresets = getAudioPresets(Boolean(metadata?.audio.length))
+  const audioPresets = getAudioPresets(metadata)
 
   return [...audioPresets, ...videoPresets]
 }
@@ -122,8 +122,9 @@ function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }
   return `${keyframes} -an -c:v libx264 -crf 23 -preset medium -profile high -movflags +faststart -vf ${vfString}`
 }
 
-export function validateVideo(metadata: Metadata) {
-  if (!metadata?.video?.length) return false
+export function videoMetadataValidated(metadata: Metadata): boolean {
+  if (metadata?.video?.length < 1) return false
+  return true
 }
 
 const videoPresets: VideoPreset[] = [
