@@ -45,7 +45,7 @@ export const queues = {
     scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
   },
   adaptiveTranscode: {
-    disableWebhooks: true,
+    disableWebhooks: false,
     name: 'adaptiveTranscode',
     queue: new Queue('adaptiveTranscode', {
       connection: defaultConnection,
