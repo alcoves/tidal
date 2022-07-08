@@ -1,10 +1,10 @@
 import path from 'path'
 import fs from 'fs-extra'
 import sharp from 'sharp'
+import s3, { s3URI } from '../lib/s3'
 import { v4 as uuid } from 'uuid'
 import { ThumbnailJob } from '../types'
 import { ffmpeg } from '../lib/child_process'
-import { rclone, rcloneExec } from '../lib/rclone'
 import { parseTimecodeFromSeconds } from '../lib/video'
 
 export async function thumbnailJob(job: ThumbnailJob) {
@@ -16,7 +16,12 @@ export async function thumbnailJob(job: ThumbnailJob) {
 
   try {
     console.info('getting source url')
-    const sourceURL = await rcloneExec(`link ${input}`)
+    const sourceURL = input.includes('s3://')
+      ? await s3.getSignedUrlPromise('getObject', {
+          Key: s3URI(input).Key,
+          Bucket: s3URI(input).Bucket,
+        })
+      : input
 
     console.info('extracting thumbnail')
     const sourceThumbnail = 'thumbnail.png'
@@ -34,7 +39,13 @@ export async function thumbnailJob(job: ThumbnailJob) {
       .toFile(`${tmpDir}/${compressedThumbnail}`)
 
     console.info('uploading thumbnail to user defined output')
-    await rclone(`copyto ${tmpDir}/${compressedThumbnail} ${output}`)
+    await s3
+      .upload({
+        Key: s3URI(output).Key,
+        Bucket: s3URI(output).Bucket,
+        Body: fs.createReadStream(`${tmpDir}/${compressedThumbnail}`),
+      })
+      .promise()
   } catch (error) {
     console.error(error)
     throw error
