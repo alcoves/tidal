@@ -104,7 +104,7 @@ function x264Defaults({
   }
 
   const vfString = videoFilters.join(',')
-  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -an -c:v libx264 -crf 23 -preset medium -vf ${vfString} videob .mp4`
+  return `-i ${input} -force_key_frames expr:gte(t,n_forced*2) -an -c:v libx264 -crf 23 -preset medium -vf ${vfString} video.mp4`
 }
 
 // function opus(args: GetAudioTranscodeCommand) {
