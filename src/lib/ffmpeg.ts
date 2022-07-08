@@ -13,7 +13,8 @@ export function ffmpeg(commands: string, options: SpawnOptionsWithoutStdio = {})
     proc.stderr.setEncoding('utf8')
     proc.stderr.on('data', function (data) {
       console.log(chalk.gray('ffmpeg:stderr', data))
-      if (data.toLowerCase().includes('error')) reject(data)
+      if (data.toLowerCase().includes('error') || data.toLowerCase().includes('invalid'))
+        reject(data)
     })
     proc.on('close', function () {
       console.log(chalk.green.bold('ffmpeg closing'))
