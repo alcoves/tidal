@@ -122,6 +122,10 @@ function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }
   return `${keyframes} -an -c:v libx264 -crf 23 -preset medium -profile high -movflags +faststart -vf ${vfString}`
 }
 
+export function validateVideo(metadata: Metadata) {
+  if (!metadata?.video?.length) return false
+}
+
 const videoPresets: VideoPreset[] = [
   {
     name: 'x264_144p',

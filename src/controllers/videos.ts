@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { queues } from '../lib/bullmq'
 import { getShakaPackagingCommand } from '../lib/packaging'
 import { AdaptiveTranscodeJobData, ThumbnailJobData } from '../types'
-import { generateAdaptiveTranscodeCommands, getMetadata } from '../lib/video'
+import { generateAdaptiveTranscodeCommands, getMetadata, validateVideo } from '../lib/video'
 
 export async function createThumbnail(req, res) {
   const schema = Joi.object({
@@ -52,6 +52,8 @@ export async function createAdaptiveTranscode(req, res) {
   if (error) return res.status(400).json(error)
 
   const metadata = await getMetadata(value.input)
+  const validatedVideo = validateVideo(metadata)
+  if (!validatedVideo) res.status(400).send('failed to validate video')
 
   if (queues.adaptiveTranscode) {
     const transcodeCommands = generateAdaptiveTranscodeCommands({ metadata })
