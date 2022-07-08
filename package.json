@@ -25,6 +25,7 @@
     "luxon": "^2.4.0",
     "mime-types": "^2.1.35",
     "morgan": "^1.10.0",
+    "recursive-readdir": "^2.2.2",
     "redis": "^4.1.0",
     "sharp": "^0.30.7",
     "uuid": "^8.3.2"

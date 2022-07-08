@@ -1,4 +1,4 @@
-import { ffprobe } from './child_process'
+import { ffprobe } from './ffmpeg'
 
 describe('ffprobe', () => {
   test('it returns metadata in the json format', async () => {

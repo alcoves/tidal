@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import s3, { s3URI } from '../lib/s3'
 import { v4 as uuid } from 'uuid'
 import { ThumbnailJob } from '../types'
-import { ffmpeg } from '../lib/child_process'
+import { ffmpeg } from '../lib/ffmpeg'
 import { parseTimecodeFromSeconds } from '../lib/video'
 
 export async function thumbnailJob(job: ThumbnailJob) {

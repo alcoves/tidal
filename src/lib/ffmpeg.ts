@@ -1,29 +1,8 @@
 import chalk from 'chalk'
-import { spawn, exec, SpawnOptionsWithoutStdio, ExecOptions } from 'child_process'
-
-export function shaka(command: string, options: ExecOptions = {}): any {
-  return new Promise((resolve, reject) => {
-    exec(command, options, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`)
-        reject(error.message)
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`)
-        if (command.includes('packager') || command.includes('ffmpeg')) {
-          resolve(stderr)
-        } else {
-          reject(stderr)
-        }
-      }
-      console.log(`stdout: ${stdout}`)
-      resolve(stdout)
-    })
-  })
-}
+import { spawn, SpawnOptionsWithoutStdio } from 'child_process'
 
 export function ffmpeg(commands: string, options: SpawnOptionsWithoutStdio = {}): any {
-  const fullCommands = ['-hide_banner', '-loglevel', 'error', ...commands.split(' ')]
+  const fullCommands = ['-hide_banner', '-loglevel', 'error', '-y', ...commands.split(' ')]
   console.info(chalk.yellow.bold(`ffmpeg ${fullCommands.join(' ')}`))
 
   return new Promise((resolve, reject) => {
@@ -46,7 +25,7 @@ export function ffmpeg(commands: string, options: SpawnOptionsWithoutStdio = {})
 export function ffprobe(commands: string, options: SpawnOptionsWithoutStdio = {}): any {
   let stdout = ''
   const fullCommands = ['-hide_banner', '-loglevel', 'error', ...commands.split(' ')]
-  console.info(chalk.yellow.bold(`ffmpeg ${fullCommands.join(' ')}`))
+  console.info(chalk.yellow.bold(`ffprobe ${fullCommands.join(' ')}`))
 
   return new Promise((resolve, reject) => {
     const proc = spawn('ffprobe', fullCommands, options)

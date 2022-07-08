@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { queues } from '../lib/bullmq'
+import { getShakaPackagingCommand } from '../lib/packaging'
 import { AdaptiveTranscodeJobData, ThumbnailJobData } from '../types'
 import { generateAdaptiveTranscodeCommands, getMetadata } from '../lib/video'
 
@@ -53,14 +54,13 @@ export async function createAdaptiveTranscode(req, res) {
   const metadata = await getMetadata(value.input)
 
   if (queues.adaptiveTranscode) {
+    const transcodeCommands = generateAdaptiveTranscodeCommands({ metadata })
     const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
       input: value.input,
       output: value.output,
       assetId: value.assetId,
-      transcodes: generateAdaptiveTranscodeCommands({
-        metadata,
-        input: value.input,
-      }),
+      transcodeCommands,
+      packagingCommand: getShakaPackagingCommand(transcodeCommands),
     }
 
     await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)

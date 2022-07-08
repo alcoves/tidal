@@ -35,6 +35,7 @@ export interface ThumbnailJob extends Job {
 
 export interface AdaptiveTranscodeStruct {
   cmd: string
+  outputFilename: string
   type: AdaptiveTranscodeType
 }
 
@@ -42,7 +43,8 @@ export interface AdaptiveTranscodeJobData {
   input: string
   output: string
   assetId: string
-  transcodes: AdaptiveTranscodeStruct[]
+  packagingCommand: string
+  transcodeCommands: AdaptiveTranscodeStruct[]
 }
 
 export interface AdaptiveTranscodeJob extends Job {
