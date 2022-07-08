@@ -35,6 +35,27 @@ export async function getMetadata(uri: string): Promise<Metadata> {
   return parseMetadata(rawMetadata)
 }
 
+function getAudioPresets(hasAudio: boolean): AdaptiveTranscodeStruct[] {
+  const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
+
+  if (hasAudio) {
+    return [
+      {
+        cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a aac`,
+        outputFilename: 'aac_source.mp4',
+        type: AdaptiveTranscodeType.audio,
+      },
+      {
+        cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a libopus -b:a 128k`,
+        outputFilename: 'opus_128k.mp4',
+        type: AdaptiveTranscodeType.audio,
+      },
+    ]
+  }
+
+  return []
+}
+
 export function generateAdaptiveTranscodeCommands({
   metadata,
 }: {
@@ -51,21 +72,9 @@ export function generateAdaptiveTranscodeCommands({
     }
   })
 
-  const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
+  const audioPresets = getAudioPresets(Boolean(metadata?.audio.length))
 
-  return [
-    ...videoPresets,
-    {
-      cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a aac`,
-      outputFilename: 'aac_source.mp4',
-      type: AdaptiveTranscodeType.audio,
-    },
-    {
-      cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a libopus -b:a 128k`,
-      outputFilename: 'opus_128k.mp4',
-      type: AdaptiveTranscodeType.audio,
-    },
-  ]
+  return [...audioPresets, ...videoPresets]
 }
 
 export function getAvailiblePresets(width: number, height: number): VideoPreset[] {
