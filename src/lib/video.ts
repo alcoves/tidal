@@ -1,6 +1,7 @@
 import { Duration } from 'luxon'
 import { ffprobe } from './ffmpeg'
 import { AdaptiveTranscodeStruct, AdaptiveTranscodeType, Metadata, VideoPreset } from '../types'
+import s3, { s3URI } from './s3'
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
@@ -21,7 +22,15 @@ export function parseTimecodeFromSeconds(secondsString: string): string {
 }
 
 export async function getMetadata(uri: string): Promise<Metadata> {
-  const ffprobeCmd = `-v quiet -print_format json -show_format -show_streams ${uri}`
+  console.info('getting source url')
+  const sourceURL = uri.includes('s3://')
+    ? await s3.getSignedUrlPromise('getObject', {
+        Key: s3URI(uri).Key,
+        Bucket: s3URI(uri).Bucket,
+      })
+    : uri
+
+  const ffprobeCmd = `-v quiet -print_format json -show_format -show_streams ${sourceURL}`
   const rawMetadata = await ffprobe(ffprobeCmd)
   return parseMetadata(rawMetadata)
 }
