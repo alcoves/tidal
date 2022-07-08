@@ -36,9 +36,10 @@ export async function getMetadata(uri: string): Promise<Metadata> {
 }
 
 function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
+  const hasAudio = Boolean(metadata?.audio?.length)
   const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
 
-  if (metadata?.audio?.length < 1) {
+  if (hasAudio) {
     return [
       {
         cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a aac`,
