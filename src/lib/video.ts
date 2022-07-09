@@ -1,7 +1,7 @@
+import s3, { s3URI } from './s3'
 import { Duration } from 'luxon'
 import { ffprobe } from './ffmpeg'
 import { AdaptiveTranscodeStruct, AdaptiveTranscodeType, Metadata, VideoPreset } from '../types'
-import s3, { s3URI } from './s3'
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
