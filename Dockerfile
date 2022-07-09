@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine3.16
 RUN apk add --no-cache ffmpeg wget unzip
 
 RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.1/packager-linux-x64
