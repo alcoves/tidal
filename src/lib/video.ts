@@ -43,12 +43,12 @@ function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
   if (hasAudio) {
     return [
       {
-        cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a aac`,
+        cmd: `${keyframes} -profile high -vn -c:a aac`,
         outputFilename: 'aac_source.mp4',
         type: AdaptiveTranscodeType.audio,
       },
       {
-        cmd: `${keyframes} -profile high -movflags +faststart -vn -c:a libopus -b:a 128k`,
+        cmd: `${keyframes} -profile high -vn -c:a libopus -b:a 128k`,
         outputFilename: 'opus_128k.mp4',
         type: AdaptiveTranscodeType.audio,
       },
@@ -121,7 +121,7 @@ function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }
   }
 
   const vfString = videoFilters.join(',')
-  return `${keyframes} -an -c:v libx264 -crf 23 -preset medium -profile high -movflags +faststart -vf ${vfString}`
+  return ` -vf ${vfString} -an -c:v libx264 -crf 23 -preset medium -profile high ${keyframes}`
 }
 
 export function videoMetadataValidated(metadata: Metadata): boolean {
