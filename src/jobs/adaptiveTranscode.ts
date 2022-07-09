@@ -33,7 +33,7 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
     for (const audioTranscode of audioTranscodes) {
       console.info(chalk.blue(`processing ${audioTranscode.type} transcode`))
       console.info(chalk.blue(`running command: ${audioTranscode.cmd}`))
-      await ffmpeg(`-i ${sourceURL} ${audioTranscode.cmd} ${audioTranscode.outputFilename}`, {
+      await ffmpeg(`-i '${sourceURL}' ${audioTranscode.cmd} ${audioTranscode.outputFilename}`, {
         cwd: tmpDir,
       })
       progressInt++
@@ -43,7 +43,7 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
     for (const videoTranscode of videoTranscodes) {
       console.info(chalk.blue(`processing ${videoTranscode.type} transcode`))
       console.info(chalk.blue(`running command: ${videoTranscode.cmd}`))
-      await ffmpeg(`-i ${sourceURL} ${videoTranscode.cmd} ${videoTranscode.outputFilename}`, {
+      await ffmpeg(`-i '${sourceURL}' ${videoTranscode.cmd} ${videoTranscode.outputFilename}`, {
         cwd: tmpDir,
       })
       progressInt++
