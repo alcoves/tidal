@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { WebhookJobData } from '../types'
+import { TidalQueues, WebhookJobData } from '../types'
 import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
 
 import { webhookJob } from '../jobs/webhook'
@@ -22,7 +22,7 @@ const lockDuration = 1000 * 240 // 4 minutes
 const shouldProcessJobs = process.env.DISABLE_JOBS === 'true' ? false : true
 if (shouldProcessJobs) console.log(chalk.blue.bold('job processing spooling up...'))
 
-export const queues = {
+export const queues: TidalQueues = {
   thumbnail: {
     disableWebhooks: false,
     name: 'thumbnail',
@@ -67,6 +67,7 @@ export const queues = {
   },
   webhooks: {
     name: 'webhooks',
+    disableWebhooks: false,
     queue: new Queue('webhooks', {
       connection: defaultConnection,
       defaultJobOptions: {
