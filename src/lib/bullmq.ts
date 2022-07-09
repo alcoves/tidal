@@ -71,12 +71,12 @@ export const queues: TidalQueues = {
     queue: new Queue('webhooks', {
       connection: defaultConnection,
       defaultJobOptions: {
-        attempts: 2,
+        attempts: 3,
         backoff: { delay: 5000, type: 'exponential' },
       },
     }),
     worker: new Worker('webhooks', webhookJob, {
-      concurrency: 4,
+      concurrency: 8,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
