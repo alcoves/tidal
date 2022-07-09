@@ -3,6 +3,8 @@ import { Duration } from 'luxon'
 import { ffprobe } from './ffmpeg'
 import { AdaptiveTranscodeStruct, AdaptiveTranscodeType, Metadata, VideoPreset } from '../types'
 
+const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:gte(t,n_forced*2)']
+
 function parseMetadata(rawMeta: any): Metadata {
   return {
     video: rawMeta.streams.filter(stream => {
@@ -38,19 +40,18 @@ export async function getMetadata(uri: string): Promise<Metadata> {
 
 function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
   const hasAudio = Boolean(metadata?.audio?.length)
-  const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
 
   if (hasAudio) {
     return [
       {
-        cmd: `${keyframes} -profile high -vn -c:a aac`,
         outputFilename: 'aac_source.mp4',
         type: AdaptiveTranscodeType.audio,
+        cmd: [...keyframes, '-profile', 'high', '-vn', '-c:a', 'aac'].join(' '),
       },
       {
-        cmd: `${keyframes} -profile high -vn -c:a libopus -b:a 128k`,
         outputFilename: 'opus_128k.mp4',
         type: AdaptiveTranscodeType.audio,
+        cmd: [...keyframes, '-profile', 'high', '-vn', '-c:a', 'libopus', '-b:a', '128k'].join(' '),
       },
     ]
   }
@@ -85,11 +86,9 @@ export function getAvailiblePresets(width: number, height: number): VideoPreset[
 }
 
 function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }): string {
-  const keyframes = `-g ${60} -keyint_min ${60} -force_key_frames expr:gte(t,n_forced*2)`
-
   const videoFilters = [
     `scale=${width}:${width}:force_original_aspect_ratio=decrease`,
-    'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+    `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
   ]
 
   if (metadata?.video[0]?.tags?.rotate) {
@@ -120,8 +119,20 @@ function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }
     }
   }
 
-  const vfString = videoFilters.join(',')
-  return ` -vf ${vfString} -an -c:v libx264 -crf 23 -preset medium -profile high ${keyframes}`
+  return [
+    '-vf',
+    videoFilters.join(','),
+    '-an',
+    '-c:v',
+    'libx264',
+    '-crf',
+    '23',
+    '-preset',
+    'medium',
+    '-profile',
+    'high',
+    ...keyframes,
+  ].join(' ')
 }
 
 export function videoMetadataValidated(metadata: Metadata): boolean {
