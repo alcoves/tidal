@@ -25,6 +25,7 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
       ? await s3.getSignedUrlPromise('getObject', {
           Key: s3URI(input).Key,
           Bucket: s3URI(input).Bucket,
+          Expires: 86400 * 7, // 7 days
         })
       : input
 

@@ -27,6 +27,7 @@ export async function getMetadata(uri: string): Promise<Metadata> {
     ? await s3.getSignedUrlPromise('getObject', {
         Key: s3URI(uri).Key,
         Bucket: s3URI(uri).Bucket,
+        Expires: 86400 * 7, // 7 days
       })
     : uri
 
