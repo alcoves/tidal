@@ -58,4 +58,32 @@ export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
   }
 }
 
+export async function downloadFile(path, uri) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (uri.includes('s3://')) {
+        const file = fs.createWriteStream(path)
+        s3.getObject({
+          Key: s3URI(uri).Key,
+          Bucket: s3URI(uri).Bucket,
+        })
+          .on('httpData', function (chunk) {
+            file.write(chunk)
+          })
+          .on('httpDone', function () {
+            console.log(chalk.blue('file download complete'))
+            file.end()
+            resolve('')
+          })
+          .send()
+      } else {
+        throw new Error('URL input type is not supported yet...')
+      }
+    } catch (error) {
+      console.error('download file error', error)
+      reject(error)
+    }
+  })
+}
+
 export default s3

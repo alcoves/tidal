@@ -1,8 +1,9 @@
+import path from 'path'
 import chalk from 'chalk'
 import fs from 'fs-extra'
-import { PACKAGE_DIR, shaka } from '../lib/packaging'
 import { ffmpeg } from '../lib/ffmpeg'
-import s3, { s3URI, uploadDir } from '../lib/s3'
+import { PACKAGE_DIR, shaka } from '../lib/packaging'
+import { downloadFile, s3URI, uploadDir } from '../lib/s3'
 import { AdaptiveTranscodeJob, AdaptiveTranscodeType } from '../types'
 
 export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
@@ -20,21 +21,16 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
   )
 
   try {
-    console.info('getting source url')
-    const sourceURL = input.includes('s3://')
-      ? await s3.getSignedUrlPromise('getObject', {
-          Key: s3URI(input).Key,
-          Bucket: s3URI(input).Bucket,
-          Expires: 86400 * 7, // 7 days
-        })
-      : input
+    console.info(chalk.blue('downloading source material'))
+    const sourceFilePath = `${tmpDir}/${path.basename(input)}`
+    await downloadFile(sourceFilePath, input)
 
     let progressInt = 0
 
     for (const audioTranscode of audioTranscodes) {
       console.info(chalk.blue(`processing ${audioTranscode.type} transcode`))
       console.info(chalk.blue(`running command: ${audioTranscode.cmd}`))
-      await ffmpeg(`-i ${sourceURL} ${audioTranscode.cmd} ${audioTranscode.outputFilename}`, {
+      await ffmpeg(`-i ${sourceFilePath} ${audioTranscode.cmd} ${audioTranscode.outputFilename}`, {
         cwd: tmpDir,
       })
       progressInt++
@@ -44,7 +40,7 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
     for (const videoTranscode of videoTranscodes) {
       console.info(chalk.blue(`processing ${videoTranscode.type} transcode`))
       console.info(chalk.blue(`running command: ${videoTranscode.cmd}`))
-      await ffmpeg(`-i ${sourceURL} ${videoTranscode.cmd} ${videoTranscode.outputFilename}`, {
+      await ffmpeg(`-i ${sourceFilePath} ${videoTranscode.cmd} ${videoTranscode.outputFilename}`, {
         cwd: tmpDir,
       })
       progressInt++
