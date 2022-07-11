@@ -1,9 +1,11 @@
+import path from 'path'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process'
 
 export function ffmpeg(commands: string, options: SpawnOptionsWithoutStdio = {}): any {
   let error = ''
+  if (!options.cwd) options.cwd = '.'
 
   const fullCommands = ['-hide_banner', '-loglevel', 'error', '-y', ...commands.split(' ')]
   console.info(chalk.yellow.bold(`ffmpeg ${fullCommands.join(' ')}`))
@@ -19,7 +21,8 @@ export function ffmpeg(commands: string, options: SpawnOptionsWithoutStdio = {})
       error = data
     })
     proc.on('close', function () {
-      const outputExists = fs.pathExistsSync(fullCommands[fullCommands.length - 1])
+      const outputPath = path.normalize(`${options.cwd}/${fullCommands[fullCommands.length - 1]}`)
+      const outputExists = fs.pathExistsSync(outputPath)
 
       // Allows the case "there was an ffmpeg error but the file exists"
       if (!outputExists) {
