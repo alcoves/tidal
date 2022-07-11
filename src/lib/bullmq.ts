@@ -35,7 +35,7 @@ export const queues: TidalQueues = {
     }),
     worker: shouldProcessJobs
       ? new Worker('thumbnail', thumbnailJob, {
-          concurrency: 1,
+          concurrency: 4,
           lockDuration: lockDuration,
           connection: defaultConnection,
           lockRenewTime: lockDuration / 4,
@@ -50,7 +50,7 @@ export const queues: TidalQueues = {
     queue: new Queue('adaptiveTranscode', {
       connection: defaultConnection,
       defaultJobOptions: {
-        attempts: 4,
+        attempts: 2,
         backoff: { delay: 1000 * 30, type: 'exponential' },
       },
     }),

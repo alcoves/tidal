@@ -46,12 +46,12 @@ function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
       {
         outputFilename: 'aac_source.mp4',
         type: AdaptiveTranscodeType.audio,
-        cmd: [...keyframes, '-profile', 'high', '-vn', '-c:a', 'aac'].join(' '),
+        cmd: ['-vn', '-c:a', 'aac', '-ac', '2'].join(' '),
       },
       {
         outputFilename: 'opus_128k.mp4',
         type: AdaptiveTranscodeType.audio,
-        cmd: [...keyframes, '-profile', 'high', '-vn', '-c:a', 'libopus', '-b:a', '128k'].join(' '),
+        cmd: ['-vn', '-c:a', 'libopus', '-b:a', '128k', '-ac', '2'].join(' '),
       },
     ]
   }
