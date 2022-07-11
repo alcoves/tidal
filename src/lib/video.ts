@@ -131,6 +131,8 @@ function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }
     'medium',
     '-profile',
     'high',
+    '-pix_fmt',
+    'yuv420p',
     ...keyframes,
   ].join(' ')
 }
