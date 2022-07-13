@@ -1,13 +1,29 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
 import { queues } from '../lib/bullmq'
-import { getShakaPackagingCommand } from '../lib/packaging'
-import { AdaptiveTranscodeJobData, ThumbnailJobData } from '../types'
-import {
-  getMetadata,
-  videoMetadataValidated,
-  generateAdaptiveTranscodeCommands,
-} from '../lib/video'
+import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
+
+export async function createMetadata(req, res) {
+  const schema = Joi.object({
+    assetId: Joi.string().required(),
+    input: Joi.string().uri().required(),
+  })
+
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
+  if (error) return res.status(400).json(error)
+
+  const metadataJob: MetadataJobData = {
+    input: value.input,
+    assetId: value.assetId,
+  }
+
+  if (queues.metadata) await queues.metadata.queue.add('metadata', metadataJob)
+  return res.sendStatus(202)
+}
 
 export async function createThumbnail(req, res) {
   const schema = Joi.object({
@@ -55,24 +71,15 @@ export async function createAdaptiveTranscode(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const metadata = await getMetadata(value.input)
-  const validatedVideo = videoMetadataValidated(metadata)
-  if (!validatedVideo) return res.status(400).send('failed to validate video')
-
   if (queues.adaptiveTranscode) {
-    const transcodeCommands = generateAdaptiveTranscodeCommands({ metadata })
     const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
       input: value.input,
       output: value.output,
       assetId: value.assetId,
-      transcodeCommands,
-      packagingCommand: getShakaPackagingCommand(transcodeCommands),
     }
 
     await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
-    return res.status(202).json({
-      metadata,
-    })
+    return res.status(202)
   }
 
   return res.sendStatus(400)

@@ -30,6 +30,15 @@ export interface WebhookJob extends Job {
   data: WebhookJobData
 }
 
+export interface MetadataJobData {
+  input: string
+  assetId: string
+}
+
+export interface MetadataJob extends Job {
+  data: MetadataJobData
+}
+
 export interface ThumbnailJobData {
   fit: string
   time: string
@@ -54,8 +63,6 @@ export interface AdaptiveTranscodeJobData {
   input: string
   output: string
   assetId: string
-  packagingCommand: string
-  transcodeCommands: AdaptiveTranscodeStruct[]
 }
 
 export interface AdaptiveTranscodeJob extends Job {

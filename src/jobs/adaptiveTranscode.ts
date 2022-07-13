@@ -2,25 +2,41 @@ import path from 'path'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import { ffmpeg } from '../lib/ffmpeg'
-import { PACKAGE_DIR, shaka } from '../lib/packaging'
+import {
+  getMetadata,
+  videoMetadataValidated,
+  generateAdaptiveTranscodeCommands,
+} from '../lib/video'
 import { downloadFile, s3URI, uploadDir } from '../lib/s3'
 import { AdaptiveTranscodeJob, AdaptiveTranscodeType } from '../types'
+import { getShakaPackagingCommand, PACKAGE_DIR, shaka } from '../lib/packaging'
 
 export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
   console.log(chalk.blue('transcode job starting...'))
-  const { input, transcodeCommands, packagingCommand, output } = job.data
+  const { input, output } = job.data
 
   console.info(chalk.blue('creating temporary directory'))
   const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')
 
-  const audioTranscodes = transcodeCommands.filter(
-    ({ type }) => type === AdaptiveTranscodeType.audio
-  )
-  const videoTranscodes = transcodeCommands.filter(
-    ({ type }) => type === AdaptiveTranscodeType.video
-  )
-
   try {
+    console.info(chalk.blue('fetching metadata'))
+    const metadata = await getMetadata(input)
+    const validatedVideo = videoMetadataValidated(metadata)
+    if (!validatedVideo) throw new Error('failed to validate video')
+
+    console.info(chalk.blue('downloading source material'))
+    const transcodeCommands = generateAdaptiveTranscodeCommands({ metadata })
+
+    console.info(chalk.blue('downloading source material'))
+    const packagingCommand = getShakaPackagingCommand(transcodeCommands)
+
+    const audioTranscodes = transcodeCommands.filter(
+      ({ type }) => type === AdaptiveTranscodeType.audio
+    )
+    const videoTranscodes = transcodeCommands.filter(
+      ({ type }) => type === AdaptiveTranscodeType.video
+    )
+
     console.info(chalk.blue('downloading source material'))
     const sourceFilePath = `${tmpDir}/${path.basename(input)}`
     await downloadFile(sourceFilePath, input)

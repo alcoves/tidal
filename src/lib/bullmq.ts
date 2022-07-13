@@ -3,6 +3,7 @@ import { TidalQueues, WebhookJobData } from '../types'
 import { Queue, Worker, QueueScheduler, FlowProducer, Job } from 'bullmq'
 
 import { webhookJob } from '../jobs/webhook'
+import { metadataJob } from '../jobs/metadata'
 import { thumbnailJob } from '../jobs/thumbnail'
 import { adaptiveTranscodeJob } from '../jobs/adaptiveTranscode'
 
@@ -23,6 +24,27 @@ const shouldProcessJobs = process.env.DISABLE_JOBS === 'true' ? false : true
 if (shouldProcessJobs) console.log(chalk.blue.bold('job processing spooling up...'))
 
 export const queues: TidalQueues = {
+  metadata: {
+    disableWebhooks: false,
+    name: 'metadata',
+    queue: new Queue('metadata', {
+      connection: defaultConnection,
+      defaultJobOptions: {
+        attempts: 1,
+        backoff: { delay: 1000 * 30, type: 'exponential' },
+      },
+    }),
+    worker: shouldProcessJobs
+      ? new Worker('metadata', metadataJob, {
+          concurrency: 4,
+          lockDuration: lockDuration,
+          connection: defaultConnection,
+          lockRenewTime: lockDuration / 4,
+          limiter: { max: 1, duration: 1000 },
+        })
+      : null,
+    scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
+  },
   thumbnail: {
     disableWebhooks: false,
     name: 'thumbnail',
