@@ -12,6 +12,7 @@ export async function webhookJob(job: WebhookJob) {
 
     const res = await axios({
       method: 'post',
+      timeout: 5000,
       data: job.data,
       url: webhookUrl,
       headers: { 'x-api-key': apiKey },

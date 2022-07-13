@@ -40,7 +40,7 @@ export const queues: TidalQueues = {
           lockDuration: lockDuration,
           connection: defaultConnection,
           lockRenewTime: lockDuration / 4,
-          limiter: { max: 1, duration: 1000 },
+          limiter: { max: 4, duration: 1000 },
         })
       : null,
     scheduler: new QueueScheduler('metadata', { connection: defaultConnection }),
@@ -61,7 +61,7 @@ export const queues: TidalQueues = {
           lockDuration: lockDuration,
           connection: defaultConnection,
           lockRenewTime: lockDuration / 4,
-          limiter: { max: 1, duration: 1000 },
+          limiter: { max: 4, duration: 1000 },
         })
       : null,
     scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
@@ -98,11 +98,11 @@ export const queues: TidalQueues = {
       },
     }),
     worker: new Worker('webhooks', webhookJob, {
-      concurrency: 8,
+      concurrency: 4,
       lockDuration: lockDuration,
       connection: defaultConnection,
       lockRenewTime: lockDuration / 4,
-      limiter: { max: 1, duration: 1000 },
+      limiter: { max: 4, duration: 1000 },
     }),
     scheduler: new QueueScheduler('webhooks', { connection: defaultConnection }),
   },

@@ -62,7 +62,7 @@ export function generateAdaptiveTranscodeCommands({
   metadata: Metadata
 }): AdaptiveTranscodeStruct[] {
   const [vStream] = metadata.streams.filter(({ codec_type }) => {
-    codec_type === 'video'
+    return codec_type === 'video'
   })
   const vWidth = vStream.width
   const vHeight = vStream.height
