@@ -7,11 +7,14 @@ const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:g
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
+    audio: rawMeta.streams.filter(stream => {
+      return stream.codec_type === 'audio'
+    }),
     video: rawMeta.streams.filter(stream => {
       return stream.codec_type === 'video'
     }),
-    audio: rawMeta.streams.filter(stream => {
-      return stream.codec_type === 'audio'
+    data: rawMeta.streams.filter(stream => {
+      return stream.codec_type === 'data'
     }),
     format: rawMeta.format,
   }

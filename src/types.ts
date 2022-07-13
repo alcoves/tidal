@@ -151,6 +151,7 @@ export interface MetadataStream {
 
 export interface Metadata {
   format: MetadataFormat
+  data: MetadataStream[]
   audio: MetadataStream[]
   video: MetadataStream[]
 }
