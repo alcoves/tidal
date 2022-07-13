@@ -25,6 +25,7 @@ export function getShakaPackagingCommand(transcodeCommands: AdaptiveTranscodeStr
   const shakaInputs = transcodeCommands.map(cmd => {
     const SOURCE_FILENAME = path.parse(cmd.outputFilename).name
     const DIRNAME = `${PACKAGE_DIR}/streams/${SOURCE_FILENAME}`
+
     if (cmd.type === 'audio') {
       return [
         `in=${cmd.outputFilename}`,
@@ -42,8 +43,6 @@ export function getShakaPackagingCommand(transcodeCommands: AdaptiveTranscodeStr
         `output="${DIRNAME}/${SOURCE_FILENAME}.mp4"`,
         `playlist_name="${DIRNAME}/playlist.m3u8"`,
         `iframe_playlist_name="${DIRNAME}/iframes.m3u8"`,
-        `hls_group_id=${cmd.type}`,
-        `hls_name="${SOURCE_FILENAME}"`,
       ].join(',')
     }
   })
