@@ -7,16 +7,8 @@ const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:g
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
-    audio: rawMeta.streams.filter(stream => {
-      return stream.codec_type === 'audio'
-    }),
-    video: rawMeta.streams.filter(stream => {
-      return stream.codec_type === 'video'
-    }),
-    data: rawMeta.streams.filter(stream => {
-      return stream.codec_type === 'data'
-    }),
     format: rawMeta.format,
+    streams: rawMeta.streams,
   }
 }
 
@@ -42,9 +34,11 @@ export async function getMetadata(uri: string): Promise<Metadata> {
 }
 
 function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
-  const hasAudio = Boolean(metadata?.audio?.length)
+  const [aStream] = metadata.streams.filter(({ codec_type }) => {
+    return codec_type === 'audio'
+  })
 
-  if (hasAudio) {
+  if (aStream) {
     return [
       {
         outputFilename: 'aac_source.mp4',
@@ -67,8 +61,11 @@ export function generateAdaptiveTranscodeCommands({
 }: {
   metadata: Metadata
 }): AdaptiveTranscodeStruct[] {
-  const vWidth = metadata?.video[0]?.width || 0
-  const vHeight = metadata?.video[0]?.height || 0
+  const [vStream] = metadata.streams.filter(({ codec_type }) => {
+    codec_type === 'video'
+  })
+  const vWidth = vStream.width
+  const vHeight = vStream.height
 
   const videoPresets = getAvailiblePresets(vWidth, vHeight).map(v => {
     return {
@@ -113,7 +110,11 @@ function x264Defaults({ width }: { width: number }): string {
 }
 
 export function videoMetadataValidated(metadata: Metadata): boolean {
-  if (metadata?.video?.length < 1) return false
+  const vStreams = metadata.streams.filter(({ codec_type }) => {
+    return codec_type === 'video'
+  })
+  // Tidal does not support files with multiple streams
+  if (vStreams.length !== 1) return false
   return true
 }
 
