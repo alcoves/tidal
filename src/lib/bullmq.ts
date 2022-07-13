@@ -30,7 +30,7 @@ export const queues: TidalQueues = {
     queue: new Queue('metadata', {
       connection: defaultConnection,
       defaultJobOptions: {
-        attempts: 1,
+        attempts: 4,
         backoff: { delay: 1000 * 30, type: 'exponential' },
       },
     }),
@@ -43,7 +43,7 @@ export const queues: TidalQueues = {
           limiter: { max: 1, duration: 1000 },
         })
       : null,
-    scheduler: new QueueScheduler('thumbnail', { connection: defaultConnection }),
+    scheduler: new QueueScheduler('metadata', { connection: defaultConnection }),
   },
   thumbnail: {
     disableWebhooks: false,
