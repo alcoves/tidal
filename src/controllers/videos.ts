@@ -22,7 +22,7 @@ export async function createMetadata(req, res) {
   }
 
   if (queues.metadata) await queues.metadata.queue.add('metadata', metadataJob)
-  return res.sendStatus(202)
+  return res.status(202).end()
 }
 
 export async function createThumbnail(req, res) {
@@ -54,10 +54,10 @@ export async function createThumbnail(req, res) {
   }
 
   if (queues.thumbnail) await queues.thumbnail.queue.add('thumbnail', thumbnailJob)
-  return res.sendStatus(202)
+  return res.status(202).end()
 }
 
-export async function createAdaptiveTranscode(req, res) {
+export async function adaptiveTranscode(req, res) {
   const schema = Joi.object({
     assetId: Joi.string().required(),
     input: Joi.string().uri().required(),
@@ -79,8 +79,8 @@ export async function createAdaptiveTranscode(req, res) {
     }
 
     await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
-    return res.status(202)
+    return res.status(202).end()
   }
 
-  return res.sendStatus(400)
+  return res.status(400).end()
 }

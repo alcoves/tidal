@@ -3,7 +3,7 @@ import { queues } from '../lib/bullmq'
 export async function getQueue(req, res) {
   const queueName = req.params.queueId
   const queue = queues[queueName]
-  if (!queue) return res.sendStatus(404)
+  if (!queue) return res.status(404).end()
 
   return res.json({
     counts: await queue.queue.getJobCounts(),
@@ -14,7 +14,7 @@ export async function getQueue(req, res) {
 export async function retryFailedJobs(req, res) {
   const queueName = req.params.queueId
   const queue = queues[queueName]
-  if (!queue) return res.sendStatus(404)
+  if (!queue) return res.status(404).end()
 
   const failedJobs = await queue.queue.getFailed()
   await Promise.all(
@@ -23,7 +23,7 @@ export async function retryFailedJobs(req, res) {
     })
   )
 
-  return res.sendStatus(200)
+  return res.status(200).end()
 }
 
 export async function cleanQueues(req, res) {

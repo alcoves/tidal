@@ -1,3 +1,3 @@
 export function root(req, res) {
-  return res.sendStatus(200)
+  return res.status(200).end()
 }

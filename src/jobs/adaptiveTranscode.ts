@@ -24,10 +24,10 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
     const validatedVideo = videoMetadataValidated(metadata)
     if (!validatedVideo) throw new Error('failed to validate video')
 
-    console.info(chalk.blue('downloading source material'))
+    console.info(chalk.blue('creating transcode commands'))
     const transcodeCommands = generateAdaptiveTranscodeCommands({ metadata })
 
-    console.info(chalk.blue('downloading source material'))
+    console.info(chalk.blue('creating package commands'))
     const packagingCommand = getShakaPackagingCommand(transcodeCommands)
 
     const audioTranscodes = transcodeCommands.filter(
