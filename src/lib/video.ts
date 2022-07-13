@@ -71,7 +71,7 @@ export function generateAdaptiveTranscodeCommands({
     return {
       outputFilename: `${v.name}.mp4`,
       type: AdaptiveTranscodeType.video,
-      cmd: x264Defaults({ metadata, width: v.width }),
+      cmd: x264Defaults({ width: v.width }),
     }
   })
 
@@ -85,39 +85,11 @@ export function getAvailiblePresets(width: number, height: number): VideoPreset[
   return videoPresets.filter(p => longestEdge >= p.width)
 }
 
-function x264Defaults({ width, metadata }: { width: number; metadata: Metadata }): string {
+function x264Defaults({ width }: { width: number }): string {
   const videoFilters = [
     `scale=${width}:${width}:force_original_aspect_ratio=decrease`,
     `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
   ]
-
-  if (metadata?.video[0]?.tags?.rotate) {
-    // 0 = 90CounterCLockwise and Vertical Flip (default)
-    // 1 = 90Clockwise
-    // 2 = 90CounterClockwise
-    // 3 = 90Clockwise and Vertical Flip
-    const rotateInt = parseInt(metadata?.video[0]?.tags?.rotate)
-    switch (rotateInt) {
-      case 90:
-        videoFilters.push(`transpose=1`)
-        break
-      // case -90:
-      //   videoFilters.push(`transpose=2`)
-      //   break
-      // case 180:
-      //   videoFilters.push(`transpose=1`)
-      //   break
-      // case -180:
-      //   videoFilters.push(`transpose=1`)
-      //   break
-      // case 270:
-      //   videoFilters.push(`transpose=1`)
-      //   break
-      // case -270:
-      //   videoFilters.push(`transpose=1`)
-      //   break
-    }
-  }
 
   return [
     '-vf',
