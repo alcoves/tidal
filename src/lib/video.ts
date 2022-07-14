@@ -45,11 +45,14 @@ function getAudioPresets(metadata: Metadata): AdaptiveTranscodeStruct[] {
         type: AdaptiveTranscodeType.audio,
         cmd: ['-vn', '-c:a', 'aac', '-ac', '2'].join(' '),
       },
-      {
-        outputFilename: 'opus_128k.mp4',
-        type: AdaptiveTranscodeType.audio,
-        cmd: ['-vn', '-c:a', 'libopus', '-b:a', '128k', '-ac', '2'].join(' '),
-      },
+      // Opus seems to break hls.js but not mpd players
+      // Failed to read the 'buffered' property from 'SourceBuffer'
+      // Comment this command in and observe errors
+      // {
+      //   outputFilename: 'opus_128k.mp4',
+      //   type: AdaptiveTranscodeType.audio,
+      //   cmd: ['-vn', '-c:a', 'libopus', '-b:a', '128k', '-ac', '2'].join(' '),
+      // },
     ]
   }
 

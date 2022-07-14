@@ -12,7 +12,7 @@ export async function webhookJob(job: WebhookJob) {
 
     const res = await axios({
       method: 'post',
-      timeout: 5000,
+      timeout: 10000,
       data: job.data,
       url: webhookUrl,
       headers: { 'x-api-key': apiKey },
@@ -20,7 +20,7 @@ export async function webhookJob(job: WebhookJob) {
 
     return { data: res.data, status: res.status }
   } catch (error) {
-    console.error(chalk.red.bold('failed to deliver webhook'))
+    console.error(chalk.red.bold(`failed to deliver webhook: ${job.data.name}`))
     if (process.env.NODE_ENV === 'production') throw error
   }
 }
