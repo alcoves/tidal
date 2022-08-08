@@ -12,7 +12,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1177.0",
+    "aws-sdk": "^2.1190.0",
     "axios": "^0.27.2",
     "bullmq": "^1.86.5",
     "chalk": "4.1.2",
