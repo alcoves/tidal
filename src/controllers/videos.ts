@@ -1,6 +1,8 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { queues } from '../lib/bullmq'
+import { queue as metadataQueue } from '../queues/metadata'
+import { queue as thumbnailQueue } from '../queues/thumbnail'
+import { queue as adaptiveTranscodeQueue } from '../queues/adaptiveTranscode'
 import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
 
 export async function createMetadata(req, res) {
@@ -21,8 +23,13 @@ export async function createMetadata(req, res) {
     assetId: value.assetId,
   }
 
-  if (queues.metadata) await queues.metadata.queue.add('metadata', metadataJob)
-  return res.status(202).end()
+  const _metadataQueue = metadataQueue()
+  if (_metadataQueue) {
+    console.log('ADDING TO QUEUE')
+    const job = await _metadataQueue.add('metadata', metadataJob)
+    return res.status(202).json({ id: job.id })
+  }
+  return res.status(400).end()
 }
 
 export async function createThumbnail(req, res) {
@@ -53,11 +60,12 @@ export async function createThumbnail(req, res) {
     output: value.output.replace('$id', uuidv4()),
   }
 
-  if (queues.thumbnail) await queues.thumbnail.queue.add('thumbnail', thumbnailJob)
+  const _thumbnailQueue = thumbnailQueue()
+  if (_thumbnailQueue) await _thumbnailQueue.add('thumbnail', thumbnailJob)
   return res.status(202).end()
 }
 
-export async function adaptiveTranscode(req, res) {
+export async function adaptiveTranscodeHandler(req, res) {
   const schema = Joi.object({
     assetId: Joi.string().required(),
     input: Joi.string().uri().required(),
@@ -71,14 +79,15 @@ export async function adaptiveTranscode(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  if (queues.adaptiveTranscode) {
+  const _adaptiveTranscodeQueue = adaptiveTranscodeQueue()
+  if (_adaptiveTranscodeQueue) {
     const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
       input: value.input,
       output: value.output,
       assetId: value.assetId,
     }
 
-    await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
+    await _adaptiveTranscodeQueue.add('transcode', adaptiveTranscodeJobData)
     return res.status(202).end()
   }
 

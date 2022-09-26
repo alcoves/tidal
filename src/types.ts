@@ -1,15 +1,4 @@
-import { Job, Queue, QueueScheduler } from 'bullmq'
-
-export interface TidalQueue {
-  name: string
-  queue: Queue
-  worker: any | null // TODO :: Fix generic issue Worker<any>
-  disableWebhooks: boolean
-  scheduler: QueueScheduler
-}
-export interface TidalQueues {
-  [key: string]: TidalQueue
-}
+import { Job } from 'bullmq'
 
 export enum AdaptiveTranscodeType {
   video = 'video',

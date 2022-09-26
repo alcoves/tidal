@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ffprobe it returns metadata in the json format 1`] = `
-Object {
-  "format": Object {
+{
+  "format": {
     "bit_rate": "240197",
     "duration": "30.001000",
     "filename": "./data/test.mp4",
@@ -13,15 +13,15 @@ Object {
     "probe_score": 100,
     "size": "900770",
     "start_time": "0.000000",
-    "tags": Object {
+    "tags": {
       "compatible_brands": "isomiso2avc1mp41",
       "encoder": "Lavf58.76.100",
       "major_brand": "isom",
       "minor_version": "512",
     },
   },
-  "streams": Array [
-    Object {
+  "streams": [
+    {
       "avg_frame_rate": "60/1",
       "bit_rate": "149404",
       "bits_per_raw_sample": "8",
@@ -35,7 +35,7 @@ Object {
       "coded_height": 720,
       "coded_width": 1280,
       "display_aspect_ratio": "16:9",
-      "disposition": Object {
+      "disposition": {
         "attached_pic": 0,
         "clean_effects": 0,
         "comment": 0,
@@ -65,7 +65,7 @@ Object {
       "sample_aspect_ratio": "1:1",
       "start_pts": 0,
       "start_time": "0.000000",
-      "tags": Object {
+      "tags": {
         "handler_name": "VideoHandler",
         "language": "und",
         "vendor_id": "[0][0][0][0]",
@@ -73,7 +73,7 @@ Object {
       "time_base": "1/15360",
       "width": 1280,
     },
-    Object {
+    {
       "avg_frame_rate": "0/0",
       "bit_rate": "77444",
       "bits_per_sample": 0,
@@ -84,7 +84,7 @@ Object {
       "codec_tag": "0x6134706d",
       "codec_tag_string": "mp4a",
       "codec_type": "audio",
-      "disposition": Object {
+      "disposition": {
         "attached_pic": 0,
         "clean_effects": 0,
         "comment": 0,
@@ -108,7 +108,7 @@ Object {
       "sample_rate": "44100",
       "start_pts": 0,
       "start_time": "0.000000",
-      "tags": Object {
+      "tags": {
         "handler_name": "SoundHandler",
         "language": "und",
         "vendor_id": "[0][0][0][0]",
@@ -120,8 +120,8 @@ Object {
 `;
 
 exports[`ffprobe it returns metadata in the json format using cwd arg 1`] = `
-Object {
-  "format": Object {
+{
+  "format": {
     "bit_rate": "240197",
     "duration": "30.001000",
     "filename": "test.mp4",
@@ -132,15 +132,15 @@ Object {
     "probe_score": 100,
     "size": "900770",
     "start_time": "0.000000",
-    "tags": Object {
+    "tags": {
       "compatible_brands": "isomiso2avc1mp41",
       "encoder": "Lavf58.76.100",
       "major_brand": "isom",
       "minor_version": "512",
     },
   },
-  "streams": Array [
-    Object {
+  "streams": [
+    {
       "avg_frame_rate": "60/1",
       "bit_rate": "149404",
       "bits_per_raw_sample": "8",
@@ -154,7 +154,7 @@ Object {
       "coded_height": 720,
       "coded_width": 1280,
       "display_aspect_ratio": "16:9",
-      "disposition": Object {
+      "disposition": {
         "attached_pic": 0,
         "clean_effects": 0,
         "comment": 0,
@@ -184,7 +184,7 @@ Object {
       "sample_aspect_ratio": "1:1",
       "start_pts": 0,
       "start_time": "0.000000",
-      "tags": Object {
+      "tags": {
         "handler_name": "VideoHandler",
         "language": "und",
         "vendor_id": "[0][0][0][0]",
@@ -192,7 +192,7 @@ Object {
       "time_base": "1/15360",
       "width": 1280,
     },
-    Object {
+    {
       "avg_frame_rate": "0/0",
       "bit_rate": "77444",
       "bits_per_sample": 0,
@@ -203,7 +203,7 @@ Object {
       "codec_tag": "0x6134706d",
       "codec_tag_string": "mp4a",
       "codec_type": "audio",
-      "disposition": Object {
+      "disposition": {
         "attached_pic": 0,
         "clean_effects": 0,
         "comment": 0,
@@ -227,7 +227,7 @@ Object {
       "sample_rate": "44100",
       "start_pts": 0,
       "start_time": "0.000000",
-      "tags": Object {
+      "tags": {
         "handler_name": "SoundHandler",
         "language": "und",
         "vendor_id": "[0][0][0][0]",
