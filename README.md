@@ -17,16 +17,19 @@ We recommend using minio for s3 compatible storage. We only support object stora
 .env
 
 ```
-REDIS_PORT=6379
-REDIS_HOST=localhost
-REDIS_PASSWORD=test
+REDIS_PORT="6379"
+REDIS_HOST="localhost"
+REDIS_PASSWORD="redis"
 
---- Optional
+DISABLE_JOBS="false"
+API_KEY="tidal"
+DISABLE_WEBHOOKS="false"
+WEBHOOK_URL="http://localhost:4000/webhooks/tidal"
 
-API_PORT=5001
-API_URL=http://localhost:5001
-DISABLE_JOBS=true
-CONCURRENT_JOBS=1
+TIDAL_BUCKET="tidal"
+AWS_ACCESS_KEY_ID="minioadmin"
+AWS_SECRET_ACCESS_KEY="minioadmin"
+AWS_ENDPONT="http://localhost:9001"
 ```
 
 - Create the `.env` file as described above
