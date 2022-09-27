@@ -44,7 +44,6 @@ async function main(port: number) {
 
   try {
     app.listen(port, () => {
-      console.log(_metadataWorker)
       console.log(chalk.green.bold(`listening on *:${port}`))
       console.log(chalk.green.bold(`Redis URL: ${process.env.REDIS_HOST}`))
     })

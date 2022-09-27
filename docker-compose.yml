@@ -6,11 +6,11 @@ services:
       - 6379:6379
     command: >
       --requirepass redis
-  database:
+  postgres:
     container_name: postgres
     image: postgres
     ports:
-      - 5001:5432
+      - 6001:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:

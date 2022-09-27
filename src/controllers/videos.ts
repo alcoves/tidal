@@ -25,7 +25,6 @@ export async function createMetadata(req, res) {
 
   const _metadataQueue = metadataQueue()
   if (_metadataQueue) {
-    console.log('ADDING TO QUEUE')
     const job = await _metadataQueue.add('metadata', metadataJob)
     return res.status(202).json({ id: job.id })
   }

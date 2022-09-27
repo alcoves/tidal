@@ -21,8 +21,6 @@ export function queue() {
 }
 
 export function worker() {
-  console.log('Worker staring')
-
   const worker = new Worker(config.queueName, metadataJob, {
     connection,
     concurrency: 4,
