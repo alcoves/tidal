@@ -1,11 +1,15 @@
+import '@fontsource/nunito'
+import '@fontsource/nunito-sans'
+
 import React from 'react'
-import App from './components/App/App'
+import App from './components/App'
 import ReactDOM from 'react-dom/client'
 import reportWebVitals from './reportWebVitals'
-import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
+
+import { theme } from './config/theme'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { theme } from './config/theme'
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 
 const queryClient = new QueryClient()
 

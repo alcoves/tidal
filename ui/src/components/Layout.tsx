@@ -1,7 +1,18 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import { IoBuildSharp, IoHomeSharp, IoVideocamSharp } from 'react-icons/io5'
 import { Box, Button, Flex, Heading, Text, VStack } from '@chakra-ui/react'
 
-function SidebarItem({ to, text, matchExact }: { to: string; text: string; matchExact?: boolean }) {
+function SidebarItem({
+  to,
+  text,
+  icon,
+  matchExact,
+}: {
+  to: string
+  text: string
+  icon: any
+  matchExact?: boolean
+}) {
   const location = useLocation()
   const isActive = matchExact
     ? location.pathname === to
@@ -13,8 +24,10 @@ function SidebarItem({ to, text, matchExact }: { to: string; text: string; match
         to={to}
         w='100%'
         as={Link}
+        leftIcon={icon}
         colorScheme='teal'
         justifyContent='start'
+        alignContent='end'
         variant={isActive ? 'solid' : 'ghost'}
       >
         {text}
@@ -45,16 +58,20 @@ export default function Layout() {
         </Flex>
       </Flex>
       <Flex w='100%' h='100%'>
-        <Box w='200px' h='100%' pt='2'>
-          <SidebarItem matchExact to='/' text='Home' />
+        <Box minW='200px' h='100%' pt='2'>
+          <SidebarItem icon={<IoHomeSharp size='18px' />} matchExact to='/' text='Home' />
           <SidebarSubText text='assets' />
           <VStack mt='4' spacing='1'>
-            <SidebarItem matchExact to='/assets/images' text='Images' />
-            <SidebarItem matchExact to='/assets/videos' text='Video' />
+            <SidebarItem
+              icon={<IoVideocamSharp size='18px' />}
+              matchExact
+              to='/assets/videos'
+              text='Video'
+            />
           </VStack>
           <SidebarSubText text='workload' />
           <VStack mt='4' spacing='1'>
-            <SidebarItem to='/jobs' text='Jobs' />
+            <SidebarItem icon={<IoBuildSharp size='18px' />} to='/jobs' text='Jobs' />
           </VStack>
           <SidebarSubText text='settings' />
         </Box>

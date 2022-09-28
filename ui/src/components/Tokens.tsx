@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 
 import { useState } from 'react'
-import { tidalTokenKey } from '../../config/global'
+import { tidalTokenKey } from '../config/global'
 
 export default function TokenSettings() {
   const [inputToken, setInputToken] = useState('')
