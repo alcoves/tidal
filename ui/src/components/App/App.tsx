@@ -6,7 +6,7 @@ import TokenSettings from '../Settings/Tokens';
 function App() {
   return (
     <Box h='calc(100vh - 50px)' w='100vw'>
-      <Flex borderBottom='solid grey 1px' justify='space-between' h='50px' bg='gray.50'>
+      <Flex borderBottom='solid grey 1px' justify='space-between' h='50px'>
         <Flex w='200px' align='center' pl='2'>
           <Heading size='md'>Tidal</Heading>
         </Flex>
@@ -17,7 +17,7 @@ function App() {
         </Flex>
       </Flex>
       <Flex w='100%' h='100%'>
-      <Box borderRight='solid grey 1px' w='200px' h='100%' bg='gray.50'>
+      <Box borderRight='solid grey 1px' w='200px' h='100%'>
         <Flex cursor='pointer' w='100%' h='30px' align='center' pl='4'>
           <Text>
             <Link to="/">Home</Link>

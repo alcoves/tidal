@@ -5,6 +5,10 @@ import {
   Box,
   Text,
   VStack,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react'
 
 import { useState } from 'react';
@@ -26,17 +30,24 @@ export default function TokenSettings() {
         </Text>
         </Box>
 
-        <Box p='2' bg='blue.100' rounded='md'>
-          <Heading size='sm'> Token Storage </Heading>
-        <Text>
-        {`Tokens are stored client-side in local storage. This will persist
+        <Alert status='info'>
+
+    <AlertIcon />
+    <AlertDescription>
+          {`Tokens are stored client-side in local storage. This will persist
         your token across sessions. You can manually clear your token here.
         `}
-        </Text>
-        <Button mt='2' size='sm' colorScheme='blue' onClick={() => {
+          </AlertDescription>
+          <AlertDescription>
+          <Button mt='2' size='sm' colorScheme='blue' onClick={() => {
               localStorage.removeItem(tidalTokenKey)
             }}>Clear Token</Button>
-        </Box>
+          </AlertDescription>
+
+
+  </Alert>
+ 
+
         <Box w='100%'>
           <VStack align='start'>
           <Heading mb='2' size='sm'> Token </Heading>
