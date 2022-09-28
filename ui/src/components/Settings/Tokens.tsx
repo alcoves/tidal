@@ -31,7 +31,7 @@ export default function TokenSettings() {
           </Text>
         </Box>
 
-        <Alert status='info'>
+        <Alert status='info' colorScheme='teal'>
           <AlertIcon />
           <AlertDescription>
             {`Tokens are stored client-side in local storage. This will persist
@@ -42,7 +42,7 @@ export default function TokenSettings() {
             <Button
               mt='2'
               size='sm'
-              colorScheme='blue'
+              colorScheme='teal'
               onClick={() => {
                 localStorage.removeItem(tidalTokenKey)
               }}
@@ -64,7 +64,7 @@ export default function TokenSettings() {
             />
             <Button
               size='sm'
-              colorScheme='blue'
+              colorScheme='teal'
               onClick={() => {
                 localStorage.setItem(tidalTokenKey, inputToken)
                 setInputToken('')

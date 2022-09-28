@@ -6,11 +6,19 @@ const _theme = {
     useSystemColorMode: true,
   },
   colors: {
-    brand: {
-      900: '#1a365d',
-      800: '#153e75',
-      700: '#2a69ac',
-    },
+    // https://smart-swatch.netlify.app/#ffcc00
+    // brand: {
+    //   50: '#dff5fd',
+    //   100: '#bde2f0',
+    //   200: '#99d0e4',
+    //   300: '#73c1d8',
+    //   400: '#4fb3cc',
+    //   500: '#379eb3',
+    //   600: '#277e8c',
+    //   700: '#185565',
+    //   800: '#052f3e',
+    //   900: '#000f18',
+    // },
   },
 }
 
