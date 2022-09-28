@@ -49,3 +49,9 @@ Tidal will support creating dyamic `workflows`. A workflow is a series of steps 
 ### Assumptions
 
 - All file inputs are expected to be URLs
+
+### Prisma
+
+```
+npx prisma migrate dev --name init
+```
