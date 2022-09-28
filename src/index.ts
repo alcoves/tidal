@@ -1,29 +1,23 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { queue as metadataQueue, worker as metadataWorker } from './queues/metadata'
-import { queue as thumbnailQueue, worker as thumbnailWorker } from './queues/thumbnail'
-import {
-  queue as adaptiveTranscodeQueue,
-  worker as adaptiveTranscodeWorker,
-} from './queues/adaptiveTranscode'
-import { queue as webhooksQueue, worker as webhooksWorker } from './queues/webhooks'
+import { adaptiveTranscode, metadata, thumbnail, webhooks } from './queues/queues'
 
 import app from './app'
 import chalk from 'chalk'
 
 async function main(port: number) {
-  const _metadataQueue = metadataQueue()
-  const _metadataWorker = metadataWorker()
+  const _metadataQueue = metadata.queue
+  const _metadataWorker = metadata.worker
 
-  const _thumbnailQueue = thumbnailQueue()
-  const _thumbnailWorker = thumbnailWorker()
+  const _thumbnailQueue = thumbnail.queue
+  const _thumbnailWorker = thumbnail.worker
 
-  const _adaptiveTranscodeQueue = adaptiveTranscodeQueue()
-  const _adaptiveTranscodeWorker = adaptiveTranscodeWorker()
+  const _adaptiveTranscodeQueue = adaptiveTranscode.queue
+  const _adaptiveTranscodeWorker = adaptiveTranscode.worker
 
-  const _webhooksQueue = webhooksQueue()
-  const _webhooksWorker = webhooksWorker()
+  const _webhooksQueue = webhooks.queue
+  const _webhooksWorker = webhooks.worker
 
   try {
     app.listen(port, () => {

@@ -1,9 +1,9 @@
-import { queue as adaptiveTranscodeQueue } from '../queues/adaptiveTranscode'
+import { adaptiveTranscode } from '../queues/queues'
 
 export async function getQueueJobs(req, res) {
   return res.json({
-    counts: await adaptiveTranscodeQueue().getJobCounts(),
-    jobs: await adaptiveTranscodeQueue().getJobs(),
+    counts: await adaptiveTranscode.queue.getJobCounts(),
+    jobs: await adaptiveTranscode.queue.getJobs(),
   })
 }
 

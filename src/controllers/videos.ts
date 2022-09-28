@@ -1,8 +1,6 @@
 import Joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { queue as metadataQueue } from '../queues/metadata'
-import { queue as thumbnailQueue } from '../queues/thumbnail'
-import { queue as adaptiveTranscodeQueue } from '../queues/adaptiveTranscode'
+import { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
 import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
 
 export async function createMetadata(req, res) {
@@ -23,7 +21,7 @@ export async function createMetadata(req, res) {
     assetId: value.assetId,
   }
 
-  const _metadataQueue = metadataQueue()
+  const _metadataQueue = metadata.queue
   if (_metadataQueue) {
     const job = await _metadataQueue.add('metadata', metadataJob)
     return res.status(202).json({ id: job.id })
@@ -59,7 +57,7 @@ export async function createThumbnail(req, res) {
     output: value.output.replace('$id', uuidv4()),
   }
 
-  const _thumbnailQueue = thumbnailQueue()
+  const _thumbnailQueue = thumbnail.queue
   if (_thumbnailQueue) await _thumbnailQueue.add('thumbnail', thumbnailJob)
   return res.status(202).end()
 }
@@ -78,7 +76,7 @@ export async function adaptiveTranscodeHandler(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const _adaptiveTranscodeQueue = adaptiveTranscodeQueue()
+  const _adaptiveTranscodeQueue = adaptiveTranscode.queue
   if (_adaptiveTranscodeQueue) {
     const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
       input: value.input,

@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { Job } from 'bullmq'
+import { webhooks } from './queues'
 import { WebhookJobData } from '../types'
-import { queue as webhooksQueue } from './webhooks'
 
 export async function enqueueWebhook(job: Job) {
   const webhookBody: WebhookJobData = {
@@ -13,7 +13,7 @@ export async function enqueueWebhook(job: Job) {
     returnValue: job.returnvalue,
     state: await job.getState(),
   }
-  webhooksQueue().add('dispatch', webhookBody)
+  webhooks.queue.add('dispatch', webhookBody)
 }
 
 export async function onCompleted(job: Job, webhooksDisabled: boolean) {
