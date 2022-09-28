@@ -1,5 +1,6 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Routes, Route, Outlet, Link } from "react-router-dom";
+import Jobs from '../Jobs/Jobs';
 import TokenSettings from '../Settings/Tokens';
 
 function App() {
@@ -48,14 +49,6 @@ function Home() {
   return (
     <div>
       <h2>Home</h2>
-    </div>
-  );
-}
-
-function Jobs() {
-  return (
-    <div>
-      <h2>Jobs</h2>
     </div>
   );
 }

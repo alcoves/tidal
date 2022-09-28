@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider } from '@chakra-ui/react'
 import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,7 +15,9 @@ root.render(
   <React.StrictMode>
     <ChakraProvider>
       <BrowserRouter>
-        <App />
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
       </BrowserRouter>
     </ChakraProvider>
   </React.StrictMode>
