@@ -15,6 +15,16 @@ export interface WebhookJobData {
   queueName: string | undefined
 }
 
+export interface VideoJobData {
+  cmd: string
+  input: string
+  output: string
+}
+
+export interface VideoJob extends Job {
+  data: VideoJobData
+}
+
 export interface WebhookJob extends Job {
   data: WebhookJobData
 }

@@ -1,5 +1,11 @@
-import { Box } from '@chakra-ui/react'
+import { Box, Input } from '@chakra-ui/react'
 
 export default function AddJob() {
-  return <Box>Add Job</Box>
+  return (
+    <Box>
+      <Input placeholder='input path or url' />
+      <Input placeholder='ffmpeg command' />
+      <Input placeholder='output path or url' />
+    </Box>
+  )
 }

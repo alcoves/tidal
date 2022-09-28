@@ -2,9 +2,10 @@ import { webhookJob } from '../jobs/webhook'
 import { queueFactory } from './queueFactory'
 import { metadataJob } from '../jobs/metadata'
 import { thumbnailJob } from '../jobs/thumbnail'
+import { videoHandler } from '../handlers/video'
 import { adaptiveTranscodeJob } from '../jobs/adaptiveTranscode'
 
-const queueNames = ['adaptiveTranscode', 'metadata', 'thumbnail', 'webhooks']
+const queueNames = ['adaptiveTranscode', 'metadata', 'thumbnail', 'webhooks', 'video']
 
 export const adaptiveTranscode = queueFactory({
   queueName: queueNames[0],
@@ -37,7 +38,16 @@ export const webhooks = queueFactory({
   queueName: queueNames[3],
   concurrency: 4,
   workerDisabled: false,
-  webhooksDisabled: false,
+  webhooksDisabled: true, // Disabled so webhook jobs don't re-emit webhooks
   lockDuration: 1000 * 240,
   jobHandler: webhookJob,
+})
+
+export const video = queueFactory({
+  queueName: queueNames[4],
+  concurrency: 4,
+  workerDisabled: false,
+  webhooksDisabled: false,
+  lockDuration: 1000 * 240,
+  jobHandler: videoHandler,
 })
