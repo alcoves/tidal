@@ -1,5 +1,6 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Routes, Route, Outlet, Link } from "react-router-dom";
+import TokenSettings from '../Settings/Tokens';
 
 function App() {
   return (
@@ -9,7 +10,9 @@ function App() {
           <Heading size='md'>Tidal</Heading>
         </Flex>
         <Flex align='center' pr='2'>
-          set token button
+        <Text>
+            <Link to="/settings/tokens">Tokens</Link>
+          </Text>
         </Flex>
       </Flex>
       <Flex w='100%' h='100%'>
@@ -26,13 +29,14 @@ function App() {
         </Flex>
       </Box>
       <Box w='100%' p='4'>
-
       <Routes>
         <Route index element={<Home />} />
         <Route path="jobs" element={<Jobs />} />
+        <Route path='settings'>
+          <Route path="tokens" element={<TokenSettings />} />
+        </Route>
         <Route path="*" element={<NoMatch />} />
       </Routes>
-
       <Outlet />
       </Box>
       </Flex>
