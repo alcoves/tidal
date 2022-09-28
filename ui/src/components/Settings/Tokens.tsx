@@ -7,7 +7,6 @@ import {
   VStack,
   Alert,
   AlertIcon,
-  AlertTitle,
   AlertDescription,
 } from '@chakra-ui/react'
 
@@ -56,8 +55,7 @@ export default function TokenSettings() {
         <Box w='100%'>
           <VStack align='start'>
             <Heading mb='2' size='sm'>
-              {' '}
-              Token{' '}
+              Token
             </Heading>
             <Input
               value={inputToken}
