@@ -1,5 +1,5 @@
+import { Queue, Worker } from 'bullmq'
 import { connection } from './connection'
-import { Queue, QueueScheduler, Worker } from 'bullmq'
 import { onCompleted, onFailed, onProgress } from './workerEvents'
 import { adaptiveTranscodeJob } from '../jobs/adaptiveTranscode'
 
@@ -10,7 +10,7 @@ const config = {
   lockDuration: 1000 * 240,
 }
 
-export function queue() {
+export function queue(): Queue {
   return new Queue(config.queueName, {
     connection,
     defaultJobOptions: {
@@ -20,7 +20,7 @@ export function queue() {
   })
 }
 
-export function worker() {
+export function worker(): Worker {
   const worker = new Worker(config.queueName, adaptiveTranscodeJob, {
     connection,
     concurrency: 4,
@@ -34,8 +34,4 @@ export function worker() {
   worker.on('failed', (job, err) => onFailed(job, err, config.WEBHOOKS_DISABLED))
 
   return worker
-}
-
-export function scheduler() {
-  return new QueueScheduler(config.queueName, { connection })
 }

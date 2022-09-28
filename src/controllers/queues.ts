@@ -1,16 +1,10 @@
-// import { queues } from '../lib/bullmq'
+import { queue as adaptiveTranscodeQueue } from '../queues/adaptiveTranscode'
 
-export async function getQueue(req, res) {
-  // const queueName = req.params.queueId
-  // const queue = queues[queueName]
-  // if (!queue) return res.status(404).end()
-
-  // return res.json({
-  //   counts: await queue.queue.getJobCounts(),
-  //   jobs: await queue.queue.getJobs(),
-  // })
-
-  return res.status(200).end()
+export async function getQueueJobs(req, res) {
+  return res.json({
+    counts: await adaptiveTranscodeQueue().getJobCounts(),
+    jobs: await adaptiveTranscodeQueue().getJobs(),
+  })
 }
 
 export async function retryFailedJobs(req, res) {

@@ -1,6 +1,6 @@
+import { Queue, Worker } from 'bullmq'
 import { connection } from './connection'
 import { webhookJob } from '../jobs/webhook'
-import { Queue, QueueScheduler, Worker } from 'bullmq'
 import { onCompleted, onFailed, onProgress } from './workerEvents'
 
 const config = {
@@ -29,15 +29,9 @@ export function worker() {
     limiter: { max: config.WORKER_DISABLED ? 0 : 1, duration: 1000 },
   })
 
-  const scheduler = new QueueScheduler(config.queueName, { connection })
-
   worker.on('progress', job => onProgress(job, config.WEBHOOKS_DISABLED))
   worker.on('completed', job => onCompleted(job, config.WEBHOOKS_DISABLED))
   worker.on('failed', (job, err) => onFailed(job, err, config.WEBHOOKS_DISABLED))
 
   return worker
-}
-
-export function scheduler() {
-  return new QueueScheduler(config.queueName, { connection })
 }

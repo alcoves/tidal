@@ -1,6 +1,6 @@
+import { Queue, Worker } from 'bullmq'
 import { connection } from './connection'
 import { metadataJob } from '../jobs/metadata'
-import { Queue, QueueScheduler, Worker } from 'bullmq'
 import { onCompleted, onFailed, onProgress } from './workerEvents'
 
 const config = {
@@ -43,7 +43,3 @@ new Worker('metadata', metadataJob, {
   lockRenewTime: config.lockDuration / 4,
   limiter: { max: 1, duration: 1000 },
 })
-
-export function scheduler() {
-  return new QueueScheduler(config.queueName, { connection })
-}

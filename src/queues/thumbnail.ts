@@ -1,6 +1,6 @@
+import { Queue, Worker } from 'bullmq'
 import { connection } from './connection'
 import { thumbnailJob } from '../jobs/thumbnail'
-import { Queue, QueueScheduler, Worker } from 'bullmq'
 import { onCompleted, onFailed, onProgress } from './workerEvents'
 
 const config = {
@@ -34,8 +34,4 @@ export function worker() {
   worker.on('failed', (job, err) => onFailed(job, err, config.WEBHOOKS_DISABLED))
 
   return worker
-}
-
-export function scheduler() {
-  return new QueueScheduler(config.queueName, { connection })
 }
