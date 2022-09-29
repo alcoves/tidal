@@ -1,16 +1,18 @@
 import Layout from './Layout'
 import Jobs from './Jobs'
 import AddJob from './AddJob'
-import NoMatchRoute from './NoMatchRoute'
 import TokenSettings from './Tokens'
-import { Routes, Route } from 'react-router-dom'
+import VideoAsset from './VideoAsset'
 import VideoAssets from './VideoAssets'
+import NoMatchRoute from './NoMatchRoute'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
         <Route path='assets/videos' element={<VideoAssets />} />
+        <Route path='assets/videos/:videoId' element={<VideoAsset />} />
         <Route path='jobs' element={<Jobs />} />
         <Route path='jobs/add' element={<AddJob />} />
         <Route path='settings/tokens' element={<TokenSettings />} />

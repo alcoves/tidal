@@ -4,6 +4,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
 import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
 
+export async function getVideo(req, res) {
+  const video = await db.video.findUnique({ where: { id: req.params.videoId } })
+  res.json(video)
+}
+
 export async function listVideos(req, res) {
   const videos = await db.video.findMany()
   res.json({ videos })
