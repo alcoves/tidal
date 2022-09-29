@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+import { db } from './config/db'
 import { adaptiveTranscode, metadata, thumbnail, webhooks } from './queues/queues'
 
 import app from './app'
@@ -25,6 +26,8 @@ async function main(port: number) {
       console.log(chalk.green.bold(`Redis URL: ${process.env.REDIS_HOST}`))
     })
   } catch (error) {
+    await db.$disconnect()
+
     await _metadataQueue.close()
     await _metadataWorker.close()
 
@@ -39,6 +42,8 @@ async function main(port: number) {
 
     console.log(chalk.red.bold(`Error: ${error}`))
     process.exit()
+  } finally {
+    await db.$disconnect()
   }
 }
 

@@ -1,7 +1,34 @@
 import Joi from 'joi'
+import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
 import { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
 import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
+
+export async function listVideos(req, res) {
+  const videos = await db.video.findMany()
+  res.json({ videos })
+}
+
+export async function createVideo(req, res) {
+  const schema = Joi.object({
+    input: Joi.string().uri().required(),
+  })
+
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
+  if (error) return res.status(400).json(error)
+
+  const video = await db.video.create({
+    data: {
+      input: value.input,
+    },
+  })
+
+  res.json(video)
+}
 
 export async function createMetadata(req, res) {
   const schema = Joi.object({

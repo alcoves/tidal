@@ -53,5 +53,5 @@ Tidal will support creating dyamic `workflows`. A workflow is a series of steps 
 ### Prisma
 
 ```
-npx prisma migrate dev --name init
+npx prisma migrate dev
 ```

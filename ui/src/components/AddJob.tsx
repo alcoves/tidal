@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import {
-  Box,
   Alert,
   AlertIcon,
   Button,
-  Heading,
   Textarea,
   VStack,
   Modal,
@@ -16,14 +14,24 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from '@chakra-ui/react'
+import { createVideo } from '../services/createVideo'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 const defaultValue = `{
   "input": "https://cdn.bken.io/samples/small.mp4"
 }`
 
 export default function AddJob() {
+  const queryClient = useQueryClient()
   const [value, setValue] = useState(defaultValue)
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const mutation = useMutation(createVideo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['videos'])
+      onClose()
+    },
+  })
 
   function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setValue(e.target.value)
@@ -58,7 +66,16 @@ export default function AddJob() {
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button w='100%' isDisabled={!jsonIsValid} colorScheme='teal'>
+            <Button
+              w='100%'
+              isDisabled={!jsonIsValid}
+              isLoading={mutation.isLoading}
+              onClick={() => {
+                const parsed = JSON.parse(value)
+                mutation.mutate({ input: parsed.input })
+              }}
+              colorScheme='teal'
+            >
               Submit
             </Button>
           </ModalFooter>

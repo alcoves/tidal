@@ -1,11 +1,10 @@
-import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { Box, Button } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
 import { getQueueJobs } from '../services/getQueueJobs'
 
 export default function Jobs() {
-  const { isLoading, isError, data, error } = useQuery('jobs', getQueueJobs)
-
+  const { data } = useQuery(['jobs'], getQueueJobs)
   return (
     <Box>
       Jobs
