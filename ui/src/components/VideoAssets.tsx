@@ -22,7 +22,7 @@ export default function VideoAssets() {
 
   return (
     <Box>
-      <Flex w='100%' align='end' justify='space-between'>
+      <Flex w='100%' align='start' justify='space-between'>
         <Heading size='lg'>Video Assets</Heading>
         <AddJob />
       </Flex>

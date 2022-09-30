@@ -3,6 +3,7 @@ import { apiKeyAuth } from '../middlewares/auth'
 import {
   getVideo,
   listVideos,
+  deleteVideo,
   createVideo,
   createMetadata,
   createThumbnail,
@@ -14,6 +15,7 @@ const router = express.Router()
 router.get('/', apiKeyAuth, listVideos)
 router.post('/', apiKeyAuth, createVideo)
 router.get('/:videoId', apiKeyAuth, getVideo)
+router.delete('/:videoId', apiKeyAuth, deleteVideo)
 router.post('/metadata', apiKeyAuth, createMetadata)
 router.post('/thumbnails', apiKeyAuth, createThumbnail)
 router.post('/transcodes/adaptive', apiKeyAuth, adaptiveTranscodeHandler)

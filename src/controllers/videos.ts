@@ -1,16 +1,31 @@
 import Joi from 'joi'
+import path from 'path'
 import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
 import { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
 import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
 
+export async function deleteVideo(req, res) {
+  await db.video.update({
+    data: { deleted: true },
+    where: { id: req.params.videoId },
+  })
+  res.sendStatus(200)
+}
+
 export async function getVideo(req, res) {
-  const video = await db.video.findUnique({ where: { id: req.params.videoId } })
-  res.json(video)
+  const videos = await db.video.findMany({
+    where: { id: req.params.videoId, deleted: false },
+    include: {
+      source: true,
+    },
+  })
+  if (videos.length) return res.json(videos[0])
+  return res.sendStatus(404)
 }
 
 export async function listVideos(req, res) {
-  const videos = await db.video.findMany()
+  const videos = await db.video.findMany({ where: { deleted: false } })
   res.json({ videos })
 }
 
@@ -26,9 +41,17 @@ export async function createVideo(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const video = await db.video.create({
+  const video = await db.video.create({ data: {} })
+
+  const sourceFileExtension = path.extname(value.input.split('?')[0])
+
+  await db.source.create({
     data: {
-      input: value.input,
+      metadata: 'null',
+      s3Bucket: 'test',
+      url: value.input,
+      videoId: video.id,
+      s3Key: `assets/videos/${video.id}/source${sourceFileExtension}`,
     },
   })
 

@@ -9,6 +9,13 @@ export const theme = extendTheme({
     body: `'Nunito', serif`,
     heading: `'Nunito Sans', sans-serif`,
   },
+  components: {
+    Alert: {
+      defaultProps: {
+        rounded: 'md',
+      },
+    },
+  },
   // colors: {
   // https://smart-swatch.netlify.app/#ffcc00
   // brand: {

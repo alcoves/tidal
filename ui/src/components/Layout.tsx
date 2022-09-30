@@ -58,7 +58,7 @@ export default function Layout() {
         </Flex>
       </Flex>
       <Flex w='100%' h='100%'>
-        <Box minW='200px' h='100%' pt='2'>
+        <Box minW='200px' h='100%' pt='2' borderRightColor='gray.900'>
           <SidebarItem icon={<IoHomeSharp size='18px' />} matchExact to='/' text='Home' />
           <SidebarSubText text='assets' />
           <VStack mt='4' spacing='1'>

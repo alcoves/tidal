@@ -10,10 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Video {
+model Source {
   id        String   @id @default(uuid())
-  input     String
+  url       String
+  metadata  String
+  s3Key     String
+  s3Bucket  String
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  videoId   String   @unique
+  video     Video    @relation(fields: [videoId], references: [id])
+}
+
+model Video {
+  id        String   @id @default(uuid())
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  source    Source?
 }
