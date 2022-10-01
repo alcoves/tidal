@@ -7,6 +7,8 @@ import {
   AccordionIcon,
   AccordionPanel,
   AccordionButton,
+  Flex,
+  Badge,
 } from '@chakra-ui/react'
 
 export default function SourceAsset({ source }: { source: any }) {
@@ -14,7 +16,12 @@ export default function SourceAsset({ source }: { source: any }) {
     <>
       <Box w='100%' border='1px' borderColor='teal.500' rounded='md'>
         <Box p='4' bg='teal.500'>
-          <Heading size='md'>Source</Heading>
+          <Flex w='100%' justify='space-between'>
+            <Heading size='md'>Source</Heading>
+            <Badge fontSize='1rem' variant='solid' colorScheme='yellow'>
+              READY
+            </Badge>
+          </Flex>
           <Text> The source file used for processing </Text>
         </Box>
         <Accordion allowMultiple w='100%'>
