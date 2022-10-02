@@ -18,6 +18,7 @@ AWS.config.update({
 
 const opts: AWS.S3.ClientConfiguration = {
   signatureVersion: 'v4',
+  s3ForcePathStyle: true,
 }
 
 if (process.env.AWS_ENDPONT) {
