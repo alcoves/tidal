@@ -1,3 +1,4 @@
+import url from 'url'
 import Joi from 'joi'
 import path from 'path'
 import { db } from '../config/db'
@@ -20,6 +21,7 @@ export async function deleteVideo(req, res) {
 
 export async function getVideo(req, res) {
   const videos = await db.video.findMany({
+    orderBy: { createdAt: 'desc' },
     where: { id: req.params.videoId, deleted: false },
     include: {
       source: true,
@@ -30,7 +32,10 @@ export async function getVideo(req, res) {
 }
 
 export async function listVideos(req, res) {
-  const videos = await db.video.findMany({ where: { deleted: false } })
+  const videos = await db.video.findMany({
+    where: { deleted: false },
+    orderBy: { createdAt: 'desc' },
+  })
   res.json({ videos })
 }
 
@@ -48,12 +53,13 @@ export async function createVideo(req, res) {
 
   const video = await db.video.create({ data: {} })
 
-  const sourceFileExtension = path.extname(value.input.split('?')[0])
+  const cleanedUrl = url.parse(value.input).pathname || ''
+  const sourceFileExtension = path.extname(cleanedUrl) || ''
 
-  await db.source.create({
+  const source = await db.source.create({
     data: {
       metadata: 'null',
-      s3Bucket: 'test',
+      s3Bucket: 'test', // REMOVE
       url: value.input,
       videoId: video.id,
       s3Key: `assets/videos/${video.id}/source${sourceFileExtension}`,
@@ -62,10 +68,11 @@ export async function createVideo(req, res) {
 
   const ingestionJob: IngestionJobData = {
     input: value.input,
+    output: source.s3Key,
+    entityId: source.id,
   }
 
   const job = await queues.ingestion.queue.add('ingestion', ingestionJob)
-  console.log(job.id)
   // return res.status(202).json({ id: job.id })
   res.json(video)
 }

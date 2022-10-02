@@ -23,6 +23,8 @@ export interface VideoJobData {
 
 export interface IngestionJobData {
   input: string
+  output: string
+  entityId: string
 }
 
 export interface IngestionJob extends Job {

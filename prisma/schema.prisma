@@ -10,37 +10,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SourceStatus {
-  PROCESSING
-  READY
-  ERROR
-}
-
-enum VideoStatus {
+enum Status {
   PROCESSING
   READY
   ERROR
 }
 
 model Source {
-  id        String       @id @default(uuid())
+  id        String   @id @default(uuid())
   url       String
   metadata  String
   s3Key     String
   s3Bucket  String
-  status    SourceStatus @default(PROCESSING)
-  deleted   Boolean      @default(false)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  videoId   String       @unique
-  video     Video        @relation(fields: [videoId], references: [id])
+  status    Status   @default(PROCESSING)
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videoId   String   @unique
+  video     Video    @relation(fields: [videoId], references: [id])
 }
 
 model Video {
-  id        String      @id @default(uuid())
-  status    VideoStatus @default(PROCESSING)
-  deleted   Boolean     @default(false)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id        String   @id @default(uuid())
+  status    Status   @default(PROCESSING)
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   source    Source?
 }

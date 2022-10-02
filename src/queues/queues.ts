@@ -77,9 +77,6 @@ const queues = {
     webhooksDisabled: false,
     lockDuration: 1000 * 240,
     jobHandler: ingestionHandler,
-    // workerOnFailed: onFailed, // This is the extra functionality on top of webhooks
-    // workerOnProgress: onProgress,
-    // workerOnCompleted: onCompleted,
   }),
   webhooks: queueFactory({
     queueName: 'webhooks',

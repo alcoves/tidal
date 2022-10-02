@@ -27,17 +27,20 @@ export async function enqueueWebhook(job: Job) {
 
 export async function onFailed(job: Job, err: Error, prev: string, opts: EventOptions) {
   console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-  opts.webhooksDisabled ? null : await enqueueWebhook(job)
+  // await updateRecordStatus(job, 'ERROR', opts.dbModelName)
+  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
 }
 
 export async function onProgress(job: Job, opts: EventOptions) {
   console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-  opts.webhooksDisabled ? null : await enqueueWebhook(job)
+  // await updateRecordStatus(job, 'PROCESSING', opts.dbModelName)
+  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
 }
 
 export async function onCompleted(job: Job, opts: EventOptions) {
   console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-  opts.webhooksDisabled ? null : await enqueueWebhook(job)
+  // await updateRecordStatus(job, 'READY', opts.dbModelName)
+  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
 }
 
 // Sets the parent job progress to the sum of all child jobs

@@ -1,12 +1,11 @@
-import url from 'url'
-import path from 'path'
 import chalk from 'chalk'
 import axios from 'axios'
 import customFFmpeg from '../jobs/customFFmpeg'
 
-import { VideoJob } from '../types'
+import { IngestionJob } from '../types'
 import { PassThrough } from 'stream'
 import s3 from '../lib/s3'
+import { db } from '../config/db'
 
 // The job will download the file, get it's metadata from our s3, then return done
 // To start, the job will update the database. but ideally there is a pattern to
@@ -23,18 +22,14 @@ async function importFileFromURL({ bucket, key, url }) {
   return response.then(data => data.Location)
 }
 
-export async function ingestionHandler(job: VideoJob) {
+export async function ingestionHandler(job: IngestionJob) {
   console.log(chalk.blue(`${job.queueName} job starting...`))
 
   try {
-    console.log(chalk.blue(`parsing strings`))
-    const cleanedUrl = url.parse(job.data.input).pathname || ''
-    const extension = path.extname(cleanedUrl) || ''
-
     console.log(chalk.blue(`importing file from URL`))
     await importFileFromURL({
       url: job.data.input,
-      key: `test${extension}`,
+      key: job.data.output,
       bucket: process.env.TIDAL_BUCKET,
     })
 
@@ -43,12 +38,21 @@ export async function ingestionHandler(job: VideoJob) {
     console.log(chalk.blue(`Updating database?`))
     console.log(chalk.blue(`Or should each queue have custom handlers`))
 
-    console.log('Done!')
     // await customFFmpeg(job.data)
+    // await job.updateProgress(100)
+
+    await db.source.update({
+      where: { id: job.data.entityId },
+      data: { status: 'READY', metadata: '1234' },
+    })
+
+    console.log('Done!')
   } catch (error) {
+    await db.source.update({
+      where: { id: job.data.entityId },
+      data: { status: 'ERROR', metadata: '1234' },
+    })
     console.error(chalk.red(error))
     throw error
-  } finally {
-    await job.updateProgress(100)
   }
 }
