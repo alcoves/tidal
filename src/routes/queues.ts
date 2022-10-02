@@ -1,11 +1,21 @@
 import express from 'express'
 import { apiKeyAuth } from '../middlewares/auth'
-import { cleanQueues, getQueueJobs, retryFailedJobs } from '../controllers/queues'
+import {
+  getQueue,
+  listQueues,
+  cleanQueues,
+  getQueueJob,
+  retryFailedJobs,
+} from '../controllers/queues'
 
 const router = express.Router()
 
+router.get('/', apiKeyAuth, listQueues)
+router.get('/:queueName', apiKeyAuth, getQueue)
+router.get('/:queueName/jobs/:jobId', apiKeyAuth, getQueueJob)
+
+// May not use
 router.delete('/clean', apiKeyAuth, cleanQueues)
-router.get('/:queueId/jobs', apiKeyAuth, getQueueJobs)
-router.put('/:queueId/failed', apiKeyAuth, retryFailedJobs)
+router.put('/:queueName/failed', apiKeyAuth, retryFailedJobs)
 
 export default router

@@ -21,6 +21,14 @@ export interface VideoJobData {
   output: string
 }
 
+export interface IngestionJobData {
+  input: string
+}
+
+export interface IngestionJob extends Job {
+  data: IngestionJobData
+}
+
 export interface VideoJob extends Job {
   data: VideoJobData
 }

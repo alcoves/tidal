@@ -17,12 +17,11 @@ import {
   AlertDescription,
 } from '@chakra-ui/react'
 import SourceAsset from './SourceAsset'
+import QueryError from '../QueryError'
 
 export default function VideoAsset() {
   const { videoId } = useParams()
   const { data, error } = useQuery([videoId], getVideo)
-
-  console.log(error)
 
   if (data && videoId) {
     return (
@@ -42,16 +41,6 @@ export default function VideoAsset() {
     )
   }
 
-  if (error) {
-    return (
-      <Box>
-        <Alert status='error'>
-          <AlertTitle>Error!</AlertTitle>
-          <AlertDescription>{JSON.stringify(error)}</AlertDescription>
-        </Alert>
-      </Box>
-    )
-  }
-
+  if (error) return <QueryError error={error} />
   return <Spinner />
 }

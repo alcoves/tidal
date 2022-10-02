@@ -2,8 +2,13 @@ import Joi from 'joi'
 import path from 'path'
 import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
-import { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
-import { AdaptiveTranscodeJobData, MetadataJobData, ThumbnailJobData } from '../types'
+import queues, { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
+import {
+  AdaptiveTranscodeJobData,
+  IngestionJobData,
+  MetadataJobData,
+  ThumbnailJobData,
+} from '../types'
 
 export async function deleteVideo(req, res) {
   await db.video.update({
@@ -55,13 +60,13 @@ export async function createVideo(req, res) {
     },
   })
 
-  // TODO :: Start source ingestion job
-  // The job will download the file, get it's metadata from our s3, then return done
-  // To start, the job will update the database. but ideally there is a pattern to
-  // pass an update function into the event handlers
-  // Ingestion job should take an argument which determines if an automatic HLS encode should be
-  // added once the file is ingested
+  const ingestionJob: IngestionJobData = {
+    input: value.input,
+  }
 
+  const job = await queues.ingestion.queue.add('ingestion', ingestionJob)
+  console.log(job.id)
+  // return res.status(202).json({ id: job.id })
   res.json(video)
 }
 

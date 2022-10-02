@@ -71,7 +71,7 @@ export default function Layout() {
           </VStack>
           <SidebarSubText text='workload' />
           <VStack mt='4' spacing='1'>
-            <SidebarItem icon={<IoBuildSharp size='18px' />} to='/jobs' text='Jobs' />
+            <SidebarItem icon={<IoBuildSharp size='18px' />} to='/queues' text='Queues' />
           </VStack>
           <SidebarSubText text='settings' />
         </Box>
