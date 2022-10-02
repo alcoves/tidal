@@ -33,7 +33,7 @@ export default function VideoAssets() {
               <Tr>
                 <Th></Th>
                 <Th>ID</Th>
-                <Th>Input</Th>
+                <Th>Status</Th>
                 <Th>Created</Th>
               </Tr>
             </Thead>
@@ -51,7 +51,7 @@ export default function VideoAssets() {
                   >
                     <Td>Thumbnail</Td>
                     <Td>{v.id}</Td>
-                    <Td>Status</Td>
+                    <Td>{v.status}</Td>
                     <Td>{v.createdAt}</Td>
                   </Tr>
                 )

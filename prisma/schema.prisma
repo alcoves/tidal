@@ -11,9 +11,13 @@ datasource db {
 }
 
 enum SourceStatus {
-  STARTING
-  DOWNLOADING
-  INSPECTING
+  PROCESSING
+  READY
+  ERROR
+}
+
+enum VideoStatus {
+  PROCESSING
   READY
   ERROR
 }
@@ -24,7 +28,7 @@ model Source {
   metadata  String
   s3Key     String
   s3Bucket  String
-  status    SourceStatus @default(STARTING)
+  status    SourceStatus @default(PROCESSING)
   deleted   Boolean      @default(false)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
@@ -33,9 +37,10 @@ model Source {
 }
 
 model Video {
-  id        String   @id @default(uuid())
-  deleted   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String      @id @default(uuid())
+  status    VideoStatus @default(PROCESSING)
+  deleted   Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   source    Source?
 }

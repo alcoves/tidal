@@ -11,6 +11,19 @@ import {
   Badge,
 } from '@chakra-ui/react'
 
+function getStatusBadgeColor(status: string) {
+  switch (status.toLowerCase()) {
+    case 'processing':
+      return 'yellow'
+    case 'ready':
+      return 'blue'
+    case 'error':
+      return 'red'
+    default:
+      return 'gray'
+  }
+}
+
 export default function SourceAsset({ source }: { source: any }) {
   return (
     <>
@@ -18,8 +31,8 @@ export default function SourceAsset({ source }: { source: any }) {
         <Box p='4' bg='teal.500'>
           <Flex w='100%' justify='space-between'>
             <Heading size='md'>Source</Heading>
-            <Badge fontSize='1rem' variant='solid' colorScheme='yellow'>
-              READY
+            <Badge fontSize='1rem' variant='solid' colorScheme={getStatusBadgeColor(source.status)}>
+              {source.status}
             </Badge>
           </Flex>
           <Text> The source file used for processing </Text>
