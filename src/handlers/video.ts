@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import customFFmpeg from '../jobs/customFFmpeg'
+import customFFmpeg from './customFFmpeg'
 import { VideoJob } from '../types'
 
 export async function videoHandler(job: VideoJob) {

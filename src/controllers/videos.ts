@@ -3,12 +3,12 @@ import Joi from 'joi'
 import path from 'path'
 import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
-import queues, { adaptiveTranscode, metadata, thumbnail } from '../queues/queues'
+import queues from '../queues/queues'
 import {
-  AdaptiveTranscodeJobData,
   IngestionJobData,
   MetadataJobData,
   ThumbnailJobData,
+  AdaptiveTranscodeJobData,
 } from '../types'
 
 export async function deleteVideo(req, res) {
@@ -58,8 +58,6 @@ export async function createVideo(req, res) {
 
   const source = await db.source.create({
     data: {
-      metadata: 'null',
-      s3Bucket: 'test', // REMOVE
       url: value.input,
       videoId: video.id,
       s3Key: `assets/videos/${video.id}/source${sourceFileExtension}`,
@@ -69,7 +67,7 @@ export async function createVideo(req, res) {
   const ingestionJob: IngestionJobData = {
     input: value.input,
     output: source.s3Key,
-    entityId: source.id,
+    assetId: source.id,
   }
 
   const job = await queues.ingestion.queue.add('ingestion', ingestionJob)
@@ -95,12 +93,8 @@ export async function createMetadata(req, res) {
     assetId: value.assetId,
   }
 
-  const _metadataQueue = metadata.queue
-  if (_metadataQueue) {
-    const job = await _metadataQueue.add('metadata', metadataJob)
-    return res.status(202).json({ id: job.id })
-  }
-  return res.status(400).end()
+  const job = await queues.metadata.queue.add('metadata', metadataJob)
+  return res.status(202).json({ id: job.id })
 }
 
 export async function createThumbnail(req, res) {
@@ -131,8 +125,7 @@ export async function createThumbnail(req, res) {
     output: value.output.replace('$id', uuidv4()),
   }
 
-  const _thumbnailQueue = thumbnail.queue
-  if (_thumbnailQueue) await _thumbnailQueue.add('thumbnail', thumbnailJob)
+  await queues.thumbnail.queue.add('thumbnail', thumbnailJob)
   return res.status(202).end()
 }
 
@@ -150,17 +143,14 @@ export async function adaptiveTranscodeHandler(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const _adaptiveTranscodeQueue = adaptiveTranscode.queue
-  if (_adaptiveTranscodeQueue) {
-    const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
-      input: value.input,
-      output: value.output,
-      assetId: value.assetId,
-    }
-
-    await _adaptiveTranscodeQueue.add('transcode', adaptiveTranscodeJobData)
-    return res.status(202).end()
+  const adaptiveTranscodeJobData: AdaptiveTranscodeJobData = {
+    input: value.input,
+    output: value.output,
+    assetId: value.assetId,
   }
+
+  await queues.adaptiveTranscode.queue.add('transcode', adaptiveTranscodeJobData)
+  return res.status(202).end()
 
   return res.status(400).end()
 }

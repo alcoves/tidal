@@ -1,25 +1,13 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { db } from './config/db'
-import { adaptiveTranscode, metadata, thumbnail, webhooks } from './queues/queues'
-
 import app from './app'
 import chalk from 'chalk'
+import queues from './queues/queues'
+
+import { db } from './config/db'
 
 async function main(port: number) {
-  const _metadataQueue = metadata.queue
-  const _metadataWorker = metadata.worker
-
-  const _thumbnailQueue = thumbnail.queue
-  const _thumbnailWorker = thumbnail.worker
-
-  const _adaptiveTranscodeQueue = adaptiveTranscode.queue
-  const _adaptiveTranscodeWorker = adaptiveTranscode.worker
-
-  const _webhooksQueue = webhooks.queue
-  const _webhooksWorker = webhooks.worker
-
   try {
     app.listen(port, () => {
       console.log(chalk.green.bold(`listening on *:${port}`))
@@ -28,17 +16,10 @@ async function main(port: number) {
   } catch (error) {
     await db.$disconnect()
 
-    await _metadataQueue.close()
-    await _metadataWorker.close()
-
-    await _thumbnailQueue.close()
-    await _thumbnailWorker.close()
-
-    await _adaptiveTranscodeQueue.close()
-    await _adaptiveTranscodeWorker.close()
-
-    await _webhooksQueue.close()
-    await _webhooksWorker.close()
+    for (const { queue, worker } of Object.values(queues)) {
+      await queue.close()
+      await worker.close()
+    }
 
     console.log(chalk.red.bold(`Error: ${error}`))
     process.exit()

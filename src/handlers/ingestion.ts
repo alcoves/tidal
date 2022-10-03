@@ -1,11 +1,14 @@
 import chalk from 'chalk'
 import axios from 'axios'
-import customFFmpeg from '../jobs/customFFmpeg'
+import customFFmpeg from './customFFmpeg'
 
-import { IngestionJob } from '../types'
+import { IngestionJob, ThumbnailJobData } from '../types'
 import { PassThrough } from 'stream'
 import s3 from '../lib/s3'
 import { db } from '../config/db'
+import queues from '../queues/queues'
+import { getMetadata } from '../lib/video'
+import { defaultIngestionJobs } from '../services/defaultIngestionJobs'
 
 // The job will download the file, get it's metadata from our s3, then return done
 // To start, the job will update the database. but ideally there is a pattern to
@@ -33,24 +36,27 @@ export async function ingestionHandler(job: IngestionJob) {
       bucket: process.env.TIDAL_BUCKET,
     })
 
-    console.log(chalk.blue(`Gathering metadata from source file`))
-    console.log(chalk.blue(`Computing bits and bobs`))
-    console.log(chalk.blue(`Updating database?`))
-    console.log(chalk.blue(`Or should each queue have custom handlers`))
+    const sourceUrl = await s3.getSignedUrlPromise('getObject', {
+      Key: job.data.output,
+      Bucket: process.env.TIDAL_BUCKET,
+    })
 
-    // await customFFmpeg(job.data)
-    // await job.updateProgress(100)
+    console.log(chalk.blue(`gathering metadata from source file`))
+    const metadata = await getMetadata(sourceUrl)
+
+    console.log(chalk.blue(`creating extra jobs`))
+    await defaultIngestionJobs(job.data.assetId)
 
     await db.source.update({
-      where: { id: job.data.entityId },
-      data: { status: 'READY', metadata: '1234' },
+      where: { id: job.data.assetId },
+      data: { status: 'READY', metadata: JSON.stringify(metadata) },
     })
 
     console.log('Done!')
   } catch (error) {
     await db.source.update({
-      where: { id: job.data.entityId },
-      data: { status: 'ERROR', metadata: '1234' },
+      where: { id: job.data.assetId },
+      data: { status: 'ERROR' },
     })
     console.error(chalk.red(error))
     throw error

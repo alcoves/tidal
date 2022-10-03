@@ -19,9 +19,8 @@ enum Status {
 model Source {
   id        String   @id @default(uuid())
   url       String
-  metadata  String
   s3Key     String
-  s3Bucket  String
+  metadata  String   @default("")
   status    Status   @default(PROCESSING)
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -30,11 +29,23 @@ model Source {
   video     Video    @relation(fields: [videoId], references: [id])
 }
 
-model Video {
+model Thumbnail {
   id        String   @id @default(uuid())
+  url       String   @default("")
   status    Status   @default(PROCESSING)
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  source    Source?
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id])
+}
+
+model Video {
+  id         String      @id @default(uuid())
+  status     Status      @default(PROCESSING)
+  deleted    Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  source     Source?
+  thumbnails Thumbnail[]
 }
