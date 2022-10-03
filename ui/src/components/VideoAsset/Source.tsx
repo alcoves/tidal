@@ -1,14 +1,14 @@
 import {
   Box,
   Text,
+  Flex,
+  Badge,
   Heading,
   Accordion,
   AccordionItem,
   AccordionIcon,
   AccordionPanel,
   AccordionButton,
-  Flex,
-  Badge,
 } from '@chakra-ui/react'
 
 function getStatusBadgeColor(status: string) {
@@ -24,15 +24,15 @@ function getStatusBadgeColor(status: string) {
   }
 }
 
-export default function SourceAsset({ source }: { source: any }) {
+export default function SourceAsset({ video }: { video: any }) {
   return (
     <>
       <Box w='100%' border='1px' borderColor='teal.500' rounded='md'>
         <Box p='4' bg='teal.500'>
           <Flex w='100%' justify='space-between'>
             <Heading size='md'>Source</Heading>
-            <Badge fontSize='1rem' variant='solid' colorScheme={getStatusBadgeColor(source.status)}>
-              {source.status}
+            <Badge fontSize='1rem' variant='solid' colorScheme={getStatusBadgeColor(video.status)}>
+              {video.status}
             </Badge>
           </Flex>
           <Text> The source file used for processing </Text>
@@ -41,12 +41,12 @@ export default function SourceAsset({ source }: { source: any }) {
           <AccordionItem border='none'>
             <AccordionButton>
               <Box flex='1' textAlign='left'>
-                <Text noOfLines={1}>{source.url}</Text>
+                <Text noOfLines={1}>{video.input}</Text>
               </Box>
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4} overflowY='auto'>
-              <pre>{JSON.stringify(source, null, 2)}</pre>
+              <pre>{JSON.stringify(video, null, 2)}</pre>
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

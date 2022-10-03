@@ -58,25 +58,39 @@ export default function Layout() {
         </Flex>
       </Flex>
       <Flex w='100%' h='100%'>
-        <Box minW='200px' h='100%' pt='2' borderRightColor='gray.900'>
-          <SidebarItem icon={<IoHomeSharp size='18px' />} matchExact to='/' text='Home' />
-          <SidebarSubText text='assets' />
-          <VStack mt='4' spacing='1'>
-            <SidebarItem
-              icon={<IoVideocamSharp size='18px' />}
-              matchExact
-              to='/assets/videos'
-              text='Video'
-            />
-          </VStack>
-          <SidebarSubText text='workload' />
-          <VStack mt='4' spacing='1'>
-            <SidebarItem icon={<IoBuildSharp size='18px' />} to='/queues' text='Queues' />
-          </VStack>
-          <SidebarSubText text='settings' />
-        </Box>
-        <Box w='100%' p='4'>
-          <Outlet />
+        <Flex
+          pt='2'
+          h='100%'
+          minW='200px'
+          direction='column'
+          justify='space-between'
+          borderRightColor='gray.900'
+        >
+          <Box>
+            <SidebarItem icon={<IoHomeSharp size='18px' />} matchExact to='/' text='Home' />
+            <SidebarSubText text='assets' />
+            <VStack mt='4' spacing='1'>
+              <SidebarItem
+                icon={<IoVideocamSharp size='18px' />}
+                matchExact
+                to='/assets/videos'
+                text='Video'
+              />
+            </VStack>
+            <SidebarSubText text='workload' />
+            <VStack mt='4' spacing='1'>
+              <SidebarItem icon={<IoBuildSharp size='18px' />} to='/queues' text='Queues' />
+            </VStack>
+            <SidebarSubText text='settings' />
+          </Box>
+          <Flex p='4' h='100px' align='end' justify='center'>
+            <Text fontSize='.8rem'>Tidal 2022</Text>
+          </Flex>
+        </Flex>
+        <Box overflow='scroll' w='100%'>
+          <Box minH='calc(100vh - 50px)' p='4' pb='8'>
+            <Outlet />
+          </Box>
         </Box>
       </Flex>
     </Box>

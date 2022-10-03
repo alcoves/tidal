@@ -15,13 +15,20 @@ export async function thumbnailJob(job: ThumbnailJob) {
   const tmpDir = await fs.mkdtemp('/tmp/tidal-thumbnail-')
 
   try {
+    console.info('getting source url')
+    const sourceURL = input.includes('s3://')
+      ? await s3.getSignedUrlPromise('getObject', {
+          Key: s3URI(input).Key,
+          Bucket: s3URI(input).Bucket,
+          Expires: 86400 * 7, // 7 days
+        })
+      : input
+
     console.info('extracting thumbnail')
     const sourceThumbnail = 'thumbnail.png'
 
     const timecode = parseTimecodeFromSeconds(time)
-    await ffmpeg(`-i ${job.data.input} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, {
-      cwd: tmpDir,
-    })
+    await ffmpeg(`-i ${sourceURL} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, { cwd: tmpDir })
 
     console.info('compressing thumbnail')
     const outputFormat = path.extname(output).replace('.', '')

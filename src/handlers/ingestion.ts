@@ -2,13 +2,12 @@ import chalk from 'chalk'
 import axios from 'axios'
 import customFFmpeg from './customFFmpeg'
 
-import { IngestionJob, ThumbnailJobData } from '../types'
+import { IngestionJob } from '../types'
 import { PassThrough } from 'stream'
-import s3 from '../lib/s3'
+import s3, { s3URI } from '../lib/s3'
 import { db } from '../config/db'
-import queues from '../queues/queues'
 import { getMetadata } from '../lib/video'
-import { defaultIngestionJobs } from '../services/defaultIngestionJobs'
+import { enqueueThumbnailJob } from '../services/thumbnails'
 
 // The job will download the file, get it's metadata from our s3, then return done
 // To start, the job will update the database. but ideally there is a pattern to
@@ -17,6 +16,7 @@ import { defaultIngestionJobs } from '../services/defaultIngestionJobs'
 // added once the file is ingested
 
 async function importFileFromURL({ bucket, key, url }) {
+  console.log({ bucket, key, url })
   const passThrough = new PassThrough()
   const stream = await axios.get(url, { responseType: 'stream' })
   const response = s3.upload({ Bucket: bucket, Key: key, Body: passThrough }).promise()
@@ -32,29 +32,29 @@ export async function ingestionHandler(job: IngestionJob) {
     console.log(chalk.blue(`importing file from URL`))
     await importFileFromURL({
       url: job.data.input,
-      key: job.data.output,
-      bucket: process.env.TIDAL_BUCKET,
+      key: s3URI(job.data.s3OutputUri).Key,
+      bucket: s3URI(job.data.s3OutputUri).Bucket,
     })
 
     const sourceUrl = await s3.getSignedUrlPromise('getObject', {
-      Key: job.data.output,
-      Bucket: process.env.TIDAL_BUCKET,
+      Key: s3URI(job.data.s3OutputUri).Key,
+      Bucket: s3URI(job.data.s3OutputUri).Bucket,
     })
 
     console.log(chalk.blue(`gathering metadata from source file`))
     const metadata = await getMetadata(sourceUrl)
 
     console.log(chalk.blue(`creating extra jobs`))
-    await defaultIngestionJobs(job.data.assetId)
+    await enqueueThumbnailJob(job.data.assetId)
 
-    await db.source.update({
+    await db.video.update({
       where: { id: job.data.assetId },
       data: { status: 'READY', metadata: JSON.stringify(metadata) },
     })
 
     console.log('Done!')
   } catch (error) {
-    await db.source.update({
+    await db.video.update({
       where: { id: job.data.assetId },
       data: { status: 'ERROR' },
     })

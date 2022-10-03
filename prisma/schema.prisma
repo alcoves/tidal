@@ -16,22 +16,10 @@ enum Status {
   ERROR
 }
 
-model Source {
-  id        String   @id @default(uuid())
-  url       String
-  s3Key     String
-  metadata  String   @default("")
-  status    Status   @default(PROCESSING)
-  deleted   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  videoId   String   @unique
-  video     Video    @relation(fields: [videoId], references: [id])
-}
-
 model Thumbnail {
   id        String   @id @default(uuid())
   url       String   @default("")
+  s3Uri     String
   status    Status   @default(PROCESSING)
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -42,10 +30,12 @@ model Thumbnail {
 
 model Video {
   id         String      @id @default(uuid())
+  input      String
+  s3Uri      String
+  metadata   String      @default("")
   status     Status      @default(PROCESSING)
   deleted    Boolean     @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  source     Source?
   thumbnails Thumbnail[]
 }

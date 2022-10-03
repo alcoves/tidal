@@ -38,6 +38,10 @@ export function s3URI(uri: string) {
   }
 }
 
+export function genS3Uri({ Bucket, Key }: { Bucket: string; Key: string }) {
+  return `s3://${Bucket}/${Key}`
+}
+
 export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
   try {
     const files = await readdir(inputDir)

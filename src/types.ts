@@ -23,8 +23,8 @@ export interface VideoJobData {
 
 export interface IngestionJobData {
   input: string
-  output: string
   assetId: string
+  s3OutputUri: string
 }
 
 export interface IngestionJob extends Job {
@@ -48,12 +48,15 @@ export interface MetadataJob extends Job {
   data: MetadataJobData
 }
 
-export interface ThumbnailJobData {
+export interface ThumbnailJobOptions {
   fit: string
   time: string
   width: number
-  input: string
   height: number
+}
+
+export interface ThumbnailJobData extends ThumbnailJobOptions {
+  input: string
   output: string
   assetId: string
 }
