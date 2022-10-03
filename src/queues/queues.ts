@@ -2,18 +2,17 @@ import { webhookJob } from '../handlers/webhook'
 import { queueFactory } from './queueFactory'
 import { metadataJob } from '../handlers/metadata'
 import { thumbnailJob } from '../handlers/thumbnail'
+import { transcodeJob } from '../handlers/transcode'
 import { ingestionHandler } from '../handlers/ingestion'
-import { adaptiveTranscodeJob } from '../handlers/adaptiveTranscode'
-// import { onCompleted, onFailed, onProgress } from './workerEvents'
 
 const queues = {
-  adaptiveTranscode: queueFactory({
-    queueName: 'adaptiveTranscode',
+  transcodes: queueFactory({
+    queueName: 'transcode',
     concurrency: 4,
     workerDisabled: false,
     webhooksDisabled: false,
     lockDuration: 1000 * 240,
-    jobHandler: adaptiveTranscodeJob,
+    jobHandler: transcodeJob,
   }),
   thumbnail: queueFactory({
     queueName: 'thumbnail',

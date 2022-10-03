@@ -15,8 +15,8 @@ export default function Thumbnails({ video }: { video: any }) {
   const { thumbnails = [], id } = video
   return (
     <>
-      <Box w='100%' border='1px' borderColor='teal.500' rounded='md'>
-        <Box p='4' bg='teal.500'>
+      <Box w='100%' border='1px' borderColor='teal.400' rounded='md'>
+        <Box p='4' bg='teal.400'>
           <Flex w='100%' justify='space-between'>
             <Heading size='md'>Thumbnails</Heading>
           </Flex>

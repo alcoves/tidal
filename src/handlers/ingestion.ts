@@ -1,11 +1,10 @@
 import chalk from 'chalk'
 import axios from 'axios'
-import customFFmpeg from './customFFmpeg'
 
-import { IngestionJob } from '../types'
+import { db } from '../config/db'
 import { PassThrough } from 'stream'
 import s3, { s3URI } from '../lib/s3'
-import { db } from '../config/db'
+import { IngestionJob } from '../types'
 import { getMetadata } from '../lib/video'
 import { enqueueThumbnailJob } from '../services/thumbnails'
 

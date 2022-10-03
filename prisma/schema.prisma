@@ -16,6 +16,18 @@ enum Status {
   ERROR
 }
 
+model Transcode {
+  id        String   @id @default(uuid())
+  s3Uri     String
+  metadata  String   @default("")
+  status    Status   @default(PROCESSING)
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id])
+}
+
 model Thumbnail {
   id        String   @id @default(uuid())
   url       String   @default("")
@@ -37,5 +49,6 @@ model Video {
   deleted    Boolean     @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  transcodes Transcode[]
   thumbnails Thumbnail[]
 }

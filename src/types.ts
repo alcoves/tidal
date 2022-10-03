@@ -15,6 +15,21 @@ export interface WebhookJobData {
   queueName: string | undefined
 }
 
+export interface TranscodeJobOptions {
+  cmd: string
+  videoId: string
+}
+
+export interface TranscodeJobData {
+  cmd: string
+  input: string
+  transcodeId: string
+}
+
+export interface TranscodeJob extends Job {
+  data: TranscodeJobData
+}
+
 export interface VideoJobData {
   cmd: string
   input: string
