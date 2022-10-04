@@ -34,7 +34,7 @@ export async function enqueueIngestionJob(input: string) {
     s3OutputUri: s3Uri,
   }
 
-  const video = await db.video.create({
+  await db.video.create({
     data: {
       id: videoId,
       source: {
@@ -47,8 +47,6 @@ export async function enqueueIngestionJob(input: string) {
     },
   })
 
-  console.log('VIDEO', video)
-
   await queues[queueName].queue.add(jobName, ingestionJob)
 }
 
@@ -60,10 +58,7 @@ export async function enqueueThumbnailJob(videoId: string, opts?: ThumbnailJobOp
   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
   if (!video || !video.source) return
 
-  const sourceUrl = await s3.getSignedUrlPromise('getObject', {
-    Key: s3URI(video.source.s3Uri).Key,
-    Bucket: s3URI(video.source.s3Uri).Bucket,
-  })
+  const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
 
   const s3Uri = genS3Uri({
     Bucket: process.env.TIDAL_BUCKET || '',
@@ -92,7 +87,7 @@ export async function enqueueThumbnailJob(videoId: string, opts?: ThumbnailJobOp
   await queues[queueName].queue.add(jobName, thumbnailJob)
 }
 
-export async function enqueueTranscodeJob(videoId: string, opts?: TranscodeJobOptions) {
+export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOptions) {
   const transcodeId = uuidv4()
   const jobName = 'transcode'
   const queueName = 'transcodes'
@@ -100,26 +95,26 @@ export async function enqueueTranscodeJob(videoId: string, opts?: TranscodeJobOp
   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
   if (!video || !video.source) return
 
-  const sourceUrl = await s3.getSignedUrlPromise('getObject', {
-    Key: s3URI(video.source.s3Uri).Key,
-    Bucket: s3URI(video.source.s3Uri).Bucket,
+  const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
+
+  const s3OutputUri = genS3Uri({
+    Bucket: process.env.TIDAL_BUCKET || '',
+    Key: `assets/videos/${videoId}/transcodes/${transcodeId}/${opts.filename}`,
   })
 
   const transcodeJob: TranscodeJobData = {
     videoId,
     transcodeId,
+    s3OutputUri,
+    cmd: opts.cmd,
     input: sourceUrl,
-    cmd: opts?.cmd || '',
   }
 
   await db.transcode.create({
     data: {
-      id: transcodeId,
       videoId,
-      s3Uri: genS3Uri({
-        Bucket: process.env.TIDAL_BUCKET || '',
-        Key: `assets/videos/${videoId}/transcodes/${transcodeId}/out.mp4`,
-      }),
+      id: transcodeId,
+      s3Uri: s3OutputUri,
     },
   })
 

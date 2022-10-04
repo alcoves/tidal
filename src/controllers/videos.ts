@@ -83,7 +83,7 @@ export async function createTranscode(req, res) {
   const { videoId } = req.params
   const schema = Joi.object({
     cmd: Joi.string().required(),
-    extension: Joi.string().required(),
+    filename: Joi.string().required(),
   })
 
   const { error, value } = schema.validate(req.body, {
@@ -96,6 +96,7 @@ export async function createTranscode(req, res) {
   await enqueueTranscodeJob(videoId, {
     videoId,
     cmd: value.cmd,
+    filename: value.filename,
   })
 
   return res.status(202).end()
