@@ -1,20 +1,6 @@
+import { Queue, Worker } from 'bullmq'
 import { connection } from './connection'
-import { Processor, Queue, Worker } from 'bullmq'
-// import { onCompleted, onFailed, onProgress } from './workerEvents'
-
-interface QueueFactoryOptions {
-  queueName: string
-  concurrency: number
-  lockDuration: number
-  workerDisabled: boolean
-  webhooksDisabled: boolean
-  jobHandler: Processor
-}
-
-interface QueueFactory {
-  queue: Queue
-  worker: Worker
-}
+import { QueueFactory, QueueFactoryOptions } from '../types'
 
 export function queueFactory(config: QueueFactoryOptions): QueueFactory {
   const queue = new Queue(config.queueName, {
@@ -33,21 +19,9 @@ export function queueFactory(config: QueueFactoryOptions): QueueFactory {
     limiter: { max: config.workerDisabled ? 0 : 1, duration: 1000 },
   })
 
-  // worker.on('failed', (job, error, prev) =>
-  //   onFailed(job, error, prev, {
-  //     webhooksDisabled: config.webhooksDisabled,
-  //   })
-  // )
-  // worker.on('progress', job => {
-  //   onProgress(job, {
-  //     webhooksDisabled: config.webhooksDisabled,
-  //   })
-  // })
-  // worker.on('completed', job =>
-  //   onCompleted(job, {
-  //     webhooksDisabled: config.webhooksDisabled,
-  //   })
-  // )
+  if (config.onFailed) worker.on('failed', config.onFailed)
+  if (config.onProgress) worker.on('progress', config.onProgress)
+  if (config.onCompleted) worker.on('completed', config.onCompleted)
 
   return { queue, worker }
 }

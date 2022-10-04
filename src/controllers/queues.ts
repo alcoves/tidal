@@ -33,6 +33,16 @@ export async function getQueueJob(req, res) {
   return res.json({ job: selectedJob })
 }
 
+export async function retryJob(req, res) {
+  const { queueName, jobId } = req.params
+  const selectedQueue = queues[queueName].queue
+  const selectedJob = await Job.fromId(selectedQueue, jobId)
+  if (!selectedJob) return res.sendStatus(404)
+
+  await selectedJob.retry()
+  return res.json({ job: selectedJob })
+}
+
 export async function retryFailedJobs(req, res) {
   // const queueName = req.params.queueId
   // const queue = queues[queueName]

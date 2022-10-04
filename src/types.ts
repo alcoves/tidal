@@ -1,4 +1,20 @@
-import { Job } from 'bullmq'
+import { Job, Processor, Queue, Worker } from 'bullmq'
+
+export interface QueueFactoryOptions {
+  queueName: string
+  concurrency: number
+  lockDuration: number
+  workerDisabled: boolean
+  jobHandler: Processor
+  onProgress?: (job: Job) => void
+  onCompleted?: (job: Job) => void
+  onFailed?: (job: Job, err: Error) => void
+}
+
+export interface QueueFactory {
+  queue: Queue
+  worker: Worker
+}
 
 export enum AdaptiveTranscodeType {
   video = 'video',
@@ -23,6 +39,7 @@ export interface TranscodeJobOptions {
 export interface TranscodeJobData {
   cmd: string
   input: string
+  videoId: string
   transcodeId: string
 }
 
@@ -38,7 +55,8 @@ export interface VideoJobData {
 
 export interface IngestionJobData {
   input: string
-  assetId: string
+  videoId: string
+  ingestionId: string
   s3OutputUri: string
 }
 
@@ -54,15 +72,6 @@ export interface WebhookJob extends Job {
   data: WebhookJobData
 }
 
-export interface MetadataJobData {
-  input: string
-  assetId: string
-}
-
-export interface MetadataJob extends Job {
-  data: MetadataJobData
-}
-
 export interface ThumbnailJobOptions {
   fit: string
   time: string
@@ -73,7 +82,8 @@ export interface ThumbnailJobOptions {
 export interface ThumbnailJobData extends ThumbnailJobOptions {
   input: string
   output: string
-  assetId: string
+  videoId: string
+  thumbnailId: string
 }
 
 export interface ThumbnailJob extends Job {

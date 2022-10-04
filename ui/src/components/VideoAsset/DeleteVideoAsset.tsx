@@ -12,15 +12,18 @@ import {
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IoTrashBinSharp } from 'react-icons/io5'
+import { useNavigate } from 'react-router-dom'
 import { deleteVideo } from '../../services/api'
 
 export default function DeleteVideoAsset({ videoId }: { videoId: string }) {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const mutation = useMutation(deleteVideo, {
     onSuccess: () => {
       queryClient.invalidateQueries(['videos'])
       onClose()
+      navigate(-1)
     },
   })
 

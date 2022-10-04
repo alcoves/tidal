@@ -17,5 +17,6 @@ router.get('/:videoId', apiKeyAuth, getVideo)
 router.delete('/:videoId', apiKeyAuth, deleteVideo)
 router.post('/:videoId/thumbnails', apiKeyAuth, createThumbnail)
 router.post('/:videoId/transcodes', apiKeyAuth, createTranscode)
+// router.post('/:videoId/transcodes/:transcodeId/retry', apiKeyAuth, retryTranscode)
 
 export default router

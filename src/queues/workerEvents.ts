@@ -1,62 +1,81 @@
 import chalk from 'chalk'
-import { Job } from 'bullmq'
-import queues from './queues'
-import { WebhookJobData } from '../types'
+import { db } from '../config/db'
+import { IngestionJob, ThumbnailJob, TranscodeJob } from '../types'
 
-const GLOBAL_WEBHOOKS_DISABLED = Boolean(process.env.DISABLE_WEBHOOKS === 'true')
-
-interface EventOptions {
-  webhooksDisabled: boolean
+export const transcode = {
+  onFailed: async (job: TranscodeJob, err: Error) => {
+    console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
+    if (job.name === 'transcode') {
+      await db.transcode.update({
+        where: { id: job.data.transcodeId },
+        data: { status: 'ERROR' },
+      })
+    }
+  },
+  onProgress: async (job: TranscodeJob) => {
+    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+  },
+  onCompleted: async (job: TranscodeJob) => {
+    console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
+    if (job.name === 'transcode') {
+      await db.transcode.update({
+        where: { id: job.data.transcodeId },
+        data: { status: 'READY', metadata: job.returnvalue },
+      })
+    }
+  },
 }
 
-export async function enqueueWebhook(job: Job) {
-  const webhookBody: WebhookJobData = {
-    id: job.id,
-    name: job.name,
-    data: job.data,
-    progress: job.progress,
-    queueName: job.queueName,
-    returnValue: job.returnvalue,
-    state: await job.getState(),
-  }
-  if (!GLOBAL_WEBHOOKS_DISABLED) {
-    queues.webhooks.queue.add('dispatch', webhookBody)
-  }
-  console.log(chalk.yellow(`global webhooks are disabled`))
+export const thumbnail = {
+  onFailed: async (job: ThumbnailJob, err: Error) => {
+    console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
+    if (job.name === 'thumbnail') {
+      await db.thumbnail.update({
+        where: { id: job.data.thumbnailId },
+        data: { status: 'ERROR' },
+      })
+    }
+  },
+  onProgress: async (job: ThumbnailJob) => {
+    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+  },
+  onCompleted: async (job: ThumbnailJob) => {
+    console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
+    if (job.name === 'thumbnail') {
+      await db.thumbnail.update({
+        where: { id: job.data.thumbnailId },
+        data: { status: 'READY' },
+      })
+    }
+  },
 }
 
-export async function onFailed(job: Job, err: Error, prev: string, opts: EventOptions) {
-  console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-  // await updateRecordStatus(job, 'ERROR', opts.dbModelName)
-  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
+export const ingestion = {
+  onFailed: async (job: IngestionJob, err: Error) => {
+    console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
+    if (job.name === 'ingestion') {
+      await db.source.update({
+        where: { id: job.data.ingestionId },
+        data: { status: 'ERROR' },
+      })
+    }
+  },
+  onProgress: async (job: IngestionJob) => {
+    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+    // if (job.name === 'ingestion') {
+    // await db.source.update({
+    //   where: { id: job.data.ingestionId },
+    //   data: { progress: job.progress, status: "PROCESSING" },
+    // })
+    // }
+  },
+  onCompleted: async (job: IngestionJob) => {
+    console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
+    if (job.name === 'ingestion') {
+      await db.source.update({
+        where: { id: job.data.ingestionId },
+        data: { status: 'READY', metadata: job.returnvalue },
+      })
+    }
+  },
 }
-
-export async function onProgress(job: Job, opts: EventOptions) {
-  console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-  // await updateRecordStatus(job, 'PROCESSING', opts.dbModelName)
-  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
-}
-
-export async function onCompleted(job: Job, opts: EventOptions) {
-  console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-  // await updateRecordStatus(job, 'READY', opts.dbModelName)
-  // opts.webhooksDisabled ? null : await enqueueWebhook(job)
-}
-
-// Sets the parent job progress to the sum of all child jobs
-// The only parent jobs right now are in the "publish" queue
-// if (job.data.parentId) {
-//   const tree = await flow.getFlow({
-//     queueName: 'publish',
-//     id: job.data.parentId,
-//   })
-
-//   if (tree?.children) {
-//     const sumPercentageCompleted = tree.children.reduce((acc: any, { job }) => {
-//       acc += job.progress
-//       return acc
-//     }, 0)
-//     const percentageDone = sumPercentageCompleted / tree.children.length - 5
-//     if (percentageDone >= 0) await tree.job.updateProgress(percentageDone)
-//   }
-// }

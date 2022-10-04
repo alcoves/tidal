@@ -1,3 +1,5 @@
+import RetryJob from '../RetryJob'
+
 import {
   Box,
   Text,
@@ -10,6 +12,7 @@ import {
   AccordionPanel,
   AccordionButton,
 } from '@chakra-ui/react'
+import { queues } from '../../config/global'
 
 function getStatusBadgeColor(status: string) {
   switch (status.toLowerCase()) {
@@ -48,6 +51,7 @@ export default function Encodes({ video }: { video: any }) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4} overflowY='auto'>
+                  <RetryJob queueName={queues.transcodes} jobId={t.id} videoId={video.id} />
                   <pre>{JSON.stringify(t, null, 2)}</pre>
                 </AccordionPanel>
               </AccordionItem>

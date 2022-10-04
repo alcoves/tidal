@@ -21,11 +21,11 @@ model Transcode {
   s3Uri     String
   metadata  String   @default("")
   status    Status   @default(PROCESSING)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id])
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id])
 }
 
 model Thumbnail {
@@ -33,22 +33,33 @@ model Thumbnail {
   url       String   @default("")
   s3Uri     String
   status    Status   @default(PROCESSING)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id])
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  videoId   String
+}
+
+model Source {
+  id        String   @id @default(uuid())
+  status    Status   @default(PROCESSING)
+  input     String
+  s3Uri     String
+  metadata  String   @default("")
   video     Video    @relation(fields: [videoId], references: [id])
+  videoId   String   @unique
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Video {
   id         String      @id @default(uuid())
-  input      String
-  s3Uri      String
-  metadata   String      @default("")
   status     Status      @default(PROCESSING)
+  source     Source?
+  transcodes Transcode[]
+  thumbnails Thumbnail[]
   deleted    Boolean     @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  transcodes Transcode[]
-  thumbnails Thumbnail[]
 }

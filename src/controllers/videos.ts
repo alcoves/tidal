@@ -1,12 +1,6 @@
-import url from 'url'
 import Joi from 'joi'
-import path from 'path'
 import { db } from '../config/db'
-import { v4 as uuidv4 } from 'uuid'
-import queues from '../queues/queues'
-import { IngestionJobData } from '../types'
-import { enqueueThumbnailJob } from '../services/thumbnails'
-import { enqueueTranscodeJob } from '../services/transcodes'
+import { enqueueIngestionJob, enqueueThumbnailJob, enqueueTranscodeJob } from '../services/bullmq'
 
 export async function deleteVideo(req, res) {
   await db.video.update({
@@ -21,6 +15,7 @@ export async function getVideo(req, res) {
     orderBy: { createdAt: 'desc' },
     where: { id: req.params.videoId, deleted: false },
     include: {
+      source: true,
       thumbnails: true,
       transcodes: true,
     },
@@ -52,26 +47,9 @@ export async function createVideo(req, res) {
   })
   if (error) return res.status(400).json(error)
 
-  const videoId = uuidv4()
-  const cleanedUrl = url.parse(value.input).pathname || ''
-  const sourceFileExtension = path.extname(cleanedUrl) || ''
+  await enqueueIngestionJob(value.input)
 
-  const video = await db.video.create({
-    data: {
-      id: videoId,
-      input: value.input,
-      s3Uri: `s3://${process.env.TIDAL_BUCKET}/assets/videos/${videoId}/source${sourceFileExtension}`,
-    },
-  })
-
-  const ingestionJob: IngestionJobData = {
-    assetId: video.id,
-    input: value.input,
-    s3OutputUri: video.s3Uri,
-  }
-
-  await queues.ingestion.queue.add('ingestion', ingestionJob)
-  res.json(video)
+  return res.status(202).end()
 }
 
 export async function createThumbnail(req, res) {
@@ -79,8 +57,8 @@ export async function createThumbnail(req, res) {
 
   const schema = Joi.object({
     time: Joi.string().default('00:00:00:000'),
-    width: Joi.number().min(1).max(10000).required(),
-    height: Joi.number().min(1).max(10000).required(),
+    width: Joi.number().default(854).min(1).max(10000).required(),
+    height: Joi.number().default(400).min(1).max(10000).required(),
     fit: Joi.string().uri().default('cover').valid('cover', 'contain', 'fill', 'inside', 'outside'),
   })
 
