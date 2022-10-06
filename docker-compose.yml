@@ -1,14 +1,12 @@
 services:
   redis:
-    container_name: redis
-    image: redis:latest
+    image: redis:7-alpine
     ports:
       - 6379:6379
     command: >
       --requirepass redis
   postgres:
-    container_name: postgres
-    image: postgres
+    image: postgres:14-alpine
     ports:
       - 6001:5432
     volumes:
@@ -17,18 +15,39 @@ services:
       - POSTGRES_DB=tidal
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-  minio:
-    container_name: minio
-    image: minio/minio
+  localstack:
+    image: localstack/localstack:latest
     ports:
-      - '9000:9000'
-      - '9001:9001'
-    volumes:
-      - minio:/data
+      - '4566:4566'
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server --console-address ":9001" /data
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: awstest
+      AWS_SECRET_ACCESS_KEY: awstest
+    volumes:
+      - pgdata:/tmp/localstack
+  # tidal:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/dev.dockerfile
+  #   ports:
+  #     - '3000:3000'
+  #     - '5000:5000'
+  #   environment:
+  #     CHOKIDAR_USEPOLLING: true
+  #     REDIS_PORT: 6379
+  #     REDIS_HOST: localhost
+  #     REDIS_PASSWORD: redis
+  #     API_KEY: tidal
+  #     DISABLE_JOBS: false
+  #     DISABLE_WEBHOOKS: true
+  #     WEBHOOK_URL: http://localhost:4000/webhooks/tidal
+  #     TIDAL_BUCKET: tidal
+  #     AWS_ACCESS_KEY_ID: awstest
+  #     AWS_SECRET_ACCESS_KEY: awstest
+  #     AWS_ENDPONT: http://localstack:4646
+  #     DATABASE_URL: 'postgresql://postgres:postgres@localhost:6001/tidal?schema=public'
+  #   volumes:
+  #     - /ui:/app/ui
 volumes:
   pgdata:
-  minio:
+  localstack:
