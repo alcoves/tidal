@@ -35,8 +35,8 @@ AWS_ENDPONT="http://localhost:9001"
 - Create the `.env` file as described above
 - Run redis database `cd docs && docker-compose -p "tidal" up -d`
 - Run `yarn && yarn dev`
-- The API will run on `http://localhost:5000` and the UI on `http://localhost:1234/ui` with hot reloading enabled
-  - In a deployed environment, the UI is built and hosted statically at `http://localhost:5000/ui`
+- The API will run on `http://localhost:6005` and the UI on `http://localhost:1234/ui` with hot reloading enabled
+  - In a deployed environment, the UI is built and hosted statically at `http://localhost:6005/ui`
 - Now use the UI to add enter the required configuration on the via the Settings tab
   - The default API key is `tidal` if one is not provided
 

@@ -28,4 +28,4 @@ async function main(port: number) {
   }
 }
 
-main(parseInt(process.env.API_PORT || '5000'))
+main(parseInt(process.env.API_PORT || '6005'))

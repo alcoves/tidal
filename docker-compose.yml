@@ -24,30 +24,8 @@ services:
       AWS_ACCESS_KEY_ID: awstest
       AWS_SECRET_ACCESS_KEY: awstest
     volumes:
-      - pgdata:/tmp/localstack
-  # tidal:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/dev.dockerfile
-  #   ports:
-  #     - '3000:3000'
-  #     - '5000:5000'
-  #   environment:
-  #     CHOKIDAR_USEPOLLING: true
-  #     REDIS_PORT: 6379
-  #     REDIS_HOST: localhost
-  #     REDIS_PASSWORD: redis
-  #     API_KEY: tidal
-  #     DISABLE_JOBS: false
-  #     DISABLE_WEBHOOKS: true
-  #     WEBHOOK_URL: http://localhost:4000/webhooks/tidal
-  #     TIDAL_BUCKET: tidal
-  #     AWS_ACCESS_KEY_ID: awstest
-  #     AWS_SECRET_ACCESS_KEY: awstest
-  #     AWS_ENDPONT: http://localstack:4646
-  #     DATABASE_URL: 'postgresql://postgres:postgres@localhost:6001/tidal?schema=public'
-  #   volumes:
-  #     - /ui:/app/ui
+      - ./scripts/localstack:/docker-entrypoint-initaws.d
+      - localstack:/tmp/localstack
 volumes:
   pgdata:
   localstack:
