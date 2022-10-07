@@ -14,29 +14,11 @@ We recommend using minio for s3 compatible storage. We only support object stora
 
 ## Local development
 
-.env
 
-```
-REDIS_PORT="6379"
-REDIS_HOST="localhost"
-REDIS_PASSWORD="redis"
-
-DISABLE_JOBS="false"
-API_KEY="tidal"
-DISABLE_WEBHOOKS="false"
-WEBHOOK_URL="http://localhost:4000/webhooks/tidal"
-
-TIDAL_BUCKET="tidal"
-AWS_ACCESS_KEY_ID="minioadmin"
-AWS_SECRET_ACCESS_KEY="minioadmin"
-AWS_ENDPONT="http://localhost:9001"
-```
-
-- Create the `.env` file as described above
-- Run redis database `cd docs && docker-compose -p "tidal" up -d`
-- Run `yarn && yarn dev`
-- The API will run on `http://localhost:6005` and the UI on `http://localhost:1234/ui` with hot reloading enabled
-  - In a deployed environment, the UI is built and hosted statically at `http://localhost:6005/ui`
+- Create the `.env` file as described by `.env.example`
+- Run services with `docker compose up`
+- Run `yarn setup`
+- Run `yarn dev`
 - Now use the UI to add enter the required configuration on the via the Settings tab
   - The default API key is `tidal` if one is not provided
 

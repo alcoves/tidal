@@ -9,6 +9,7 @@
     "test": "jest",
     "build": "tsc",
     "dev-server": "nodemon",
+    "setup": "yarn && prisma migrate dev && prisma generate && cd ui && yarn",
     "dev": "concurrently \"yarn dev-server\" \"yarn dev-ui\"",
     "start": "node dist/index.js",
     "dev-ui": "cd ui && yarn start"

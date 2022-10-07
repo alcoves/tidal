@@ -8,6 +8,6 @@ RUN chmod +x /usr/local/bin/packager
 # RUN yarn
 RUN cd /ui && yarn
 
-EXPOSE 6005
+EXPOSE 3001
 EXPOSE 3000
 CMD yarn dev

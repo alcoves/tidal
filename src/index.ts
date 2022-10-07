@@ -7,7 +7,7 @@ import queues from './queues/queues'
 
 import { db } from './config/db'
 
-async function main(port: number) {
+async function main(port: number | string) {
   try {
     app.listen(port, () => {
       console.log(chalk.green.bold(`listening on *:${port}`))
@@ -28,4 +28,11 @@ async function main(port: number) {
   }
 }
 
-main(parseInt(process.env.API_PORT || '6005'))
+const API_PORT = process.env.API_PORT
+
+if (API_PORT) {
+  main(parseInt(API_PORT))
+} else {
+  process.exit(1)
+}
+

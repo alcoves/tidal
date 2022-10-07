@@ -2,13 +2,13 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     command: >
-      --requirepass redis
+      --requirepass ${REDIS_PASSWORD}
   postgres:
     image: postgres:14-alpine
     ports:
-      - 6001:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
@@ -18,11 +18,11 @@ services:
   localstack:
     image: localstack/localstack:latest
     ports:
-      - '4566:4566'
+      - '${LOCALSTACK_PORT}:4566'
     environment:
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: awstest
-      AWS_SECRET_ACCESS_KEY: awstest
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
       - localstack:/tmp/localstack
