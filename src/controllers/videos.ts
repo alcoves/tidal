@@ -101,3 +101,15 @@ export async function createTranscode(req, res) {
 
   return res.status(202).end()
 }
+
+export async function createPlayback(req, res) {
+  // Get resolutions
+  // Create transcode commands
+  // Create playback db record with transcode jobs
+  // enqueue all transcode jobs
+  return res.status(202).end()
+}
+
+export async function deletePlayback(req, res) {
+  return res.status(202).end()
+}
