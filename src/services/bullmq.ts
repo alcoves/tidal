@@ -125,17 +125,21 @@ export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOpt
 export async function enqueuePlaybackJob(videoId: string) {
   //
   const playbackId = uuidv4()
-  const filename = 'main.m3u8'
+  const filename = 'playlist.m3u8'
 
   const hlsDefaults = [
     '-master_pl_name',
-    'master.m3u8',
+    'main.m3u8',
     '-hls_segment_type',
     'fmp4',
     '-hls_flags',
     'single_file',
     '-hls_time',
     '4',
+    '-hls_playlist_type',
+    'vod',
+    '-g',
+    '250',
   ]
 
   const x264Defaults = ['-c:v', 'libx264', '-crf', '26', '-preset', 'slow']

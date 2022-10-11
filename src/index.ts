@@ -35,4 +35,3 @@ if (API_PORT) {
 } else {
   process.exit(1)
 }
-
