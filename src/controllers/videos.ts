@@ -1,6 +1,11 @@
 import Joi from 'joi'
 import { db } from '../config/db'
-import { enqueueIngestionJob, enqueueThumbnailJob, enqueueTranscodeJob } from '../services/bullmq'
+import {
+  enqueueIngestionJob,
+  enqueuePlaybackJob,
+  enqueueThumbnailJob,
+  enqueueTranscodeJob,
+} from '../services/bullmq'
 
 export async function deleteVideo(req, res) {
   await db.video.update({
@@ -16,8 +21,18 @@ export async function getVideo(req, res) {
     where: { id: req.params.videoId, deleted: false },
     include: {
       source: true,
-      thumbnails: true,
-      transcodes: true,
+      thumbnails: {
+        where: { deleted: false },
+        orderBy: { createdAt: 'desc' },
+      },
+      transcodes: {
+        where: { deleted: false },
+        orderBy: { createdAt: 'desc' },
+      },
+      playbacks: {
+        where: { deleted: false },
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
   if (videos.length) return res.json(videos[0])
@@ -29,7 +44,10 @@ export async function listVideos(req, res) {
     where: { deleted: false },
     orderBy: { createdAt: 'desc' },
     include: {
-      thumbnails: true,
+      thumbnails: {
+        where: { deleted: false },
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
   res.json({ videos })
@@ -103,13 +121,16 @@ export async function createTranscode(req, res) {
 }
 
 export async function createPlayback(req, res) {
-  // Get resolutions
-  // Create transcode commands
-  // Create playback db record with transcode jobs
-  // enqueue all transcode jobs
+  const { videoId } = req.params
+  await enqueuePlaybackJob(videoId)
   return res.status(202).end()
 }
 
 export async function deletePlayback(req, res) {
-  return res.status(202).end()
+  const { playbackId } = req.params
+  await db.playback.update({
+    where: { id: playbackId },
+    data: { deleted: true },
+  })
+  return res.status(200).end()
 }

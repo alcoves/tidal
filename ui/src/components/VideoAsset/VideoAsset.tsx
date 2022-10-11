@@ -9,6 +9,7 @@ import Source from './Source'
 import QueryError from '../QueryError'
 import Thumbnails from './Thumbnails'
 import Encodes from './Encodes'
+import Playbacks from './Playbacks'
 
 export default function VideoAsset() {
   const { videoId } = useParams()
@@ -28,6 +29,7 @@ export default function VideoAsset() {
         <VStack maxW='600px' mt='4' spacing='6'>
           <Source video={data} />
           <Thumbnails video={data} />
+          <Playbacks video={data} />
           <Encodes video={data} />
         </VStack>
       </Box>

@@ -20,6 +20,8 @@ model Playback {
   id          String      @id @default(uuid())
   playbackUri String
   transcodes  Transcode[]
+  videoId     String
+  video       Video       @relation(fields: [videoId], references: [id])
   status      Status      @default(PROCESSING)
   deleted     Boolean     @default(false)
   createdAt   DateTime    @default(now())
@@ -69,6 +71,7 @@ model Video {
   id         String      @id @default(uuid())
   status     Status      @default(PROCESSING)
   source     Source?
+  playbacks  Playback[]
   transcodes Transcode[]
   thumbnails Thumbnail[]
   deleted    Boolean     @default(false)

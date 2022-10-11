@@ -15,6 +15,10 @@ interface RetryJobRequestData {
   queueName: string
 }
 
+interface CreatePlaybackRequestData {
+  id: string
+}
+
 const AUTH_TOKEN = localStorage.getItem(tidalTokenKey)
 axios.defaults.headers.common['X-API-Key'] = `${AUTH_TOKEN}`
 
@@ -38,6 +42,10 @@ export function getJob({ queryKey }: any) {
 
 export function createThumbnail(data: CreateThumbnailRequestData) {
   return axios.post(`${tidalApiEndpoint}/videos/${data.id}/thumbnails`).then(result => result.data)
+}
+
+export function createPlayback(data: CreatePlaybackRequestData) {
+  return axios.post(`${tidalApiEndpoint}/videos/${data.id}/playbacks`).then(result => result.data)
 }
 
 export function retryJob(data: RetryJobRequestData) {

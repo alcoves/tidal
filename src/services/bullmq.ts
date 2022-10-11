@@ -115,8 +115,45 @@ export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOpt
       videoId,
       id: transcodeId,
       s3Uri: s3OutputUri,
+      playbackId: opts.playbackId || '',
     },
   })
 
   await queues[queueName].queue.add(jobName, transcodeJob)
+}
+
+export async function enqueuePlaybackJob(videoId: string) {
+  //
+  const playbackId = uuidv4()
+  const filename = 'main.m3u8'
+
+  const hlsDefaults = [
+    '-master_pl_name',
+    'master.m3u8',
+    '-hls_segment_type',
+    'fmp4',
+    '-hls_flags',
+    'single_file',
+    '-hls_time',
+    '4',
+  ]
+
+  const x264Defaults = ['-c:v', 'libx264', '-crf', '26', '-preset', 'slow']
+
+  const fullCommand = [...hlsDefaults, ...x264Defaults].join(' ')
+
+  await db.playback.create({
+    data: {
+      id: playbackId,
+      videoId,
+      playbackUri: `http://localhost:5000/play/${playbackId}.m3u8`,
+    },
+  })
+
+  await enqueueTranscodeJob(videoId, {
+    videoId,
+    filename,
+    playbackId,
+    cmd: fullCommand,
+  })
 }

@@ -35,6 +35,7 @@ export interface TranscodeJobOptions {
   cmd: string
   videoId: string
   filename: string
+  playbackId?: string
 }
 
 export interface TranscodeJobData {
