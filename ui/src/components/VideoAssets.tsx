@@ -1,5 +1,6 @@
 import AddJob from './AddJob'
 
+import { DateTime } from 'luxon'
 import { useQuery } from '@tanstack/react-query'
 import { getVideos } from '../services/getVideos'
 import {
@@ -13,8 +14,10 @@ import {
   Th,
   Td,
   TableContainer,
+  Image,
 } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
+import { getThumbnailUrlFromS3Uri } from '../config/utils'
 
 export default function VideoAssets() {
   const navigate = useNavigate()
@@ -41,6 +44,7 @@ export default function VideoAssets() {
               {data?.videos?.map((v: any) => {
                 return (
                   <Tr
+                    key={v.id}
                     onClick={() => {
                       navigate(`/assets/videos/${v.id}`)
                     }}
@@ -49,10 +53,17 @@ export default function VideoAssets() {
                       background: 'gray.700',
                     }}
                   >
-                    <Td>Thumbnail</Td>
+                    <Td>
+                      <Image
+                        w='100px'
+                        alt='thumbnail'
+                        objectFit='cover'
+                        src={getThumbnailUrlFromS3Uri(v?.thumbnails[0].s3Uri)}
+                      />
+                    </Td>
                     <Td>{v.id}</Td>
                     <Td>{v.status}</Td>
-                    <Td>{v.createdAt}</Td>
+                    <Td>{DateTime.fromISO(v.createdAt).toFormat('ff')}</Td>
                   </Tr>
                 )
               })}
