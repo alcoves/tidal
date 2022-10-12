@@ -58,7 +58,9 @@ export default function VideoAssets() {
                         w='100px'
                         alt='thumbnail'
                         objectFit='cover'
-                        src={getThumbnailUrlFromS3Uri(v?.thumbnails[0].s3Uri)}
+                        src={getThumbnailUrlFromS3Uri(
+                          v?.thumbnails.length ? v?.thumbnails[0]?.s3Uri : ''
+                        )}
                       />
                     </Td>
                     <Td>{v.id}</Td>
