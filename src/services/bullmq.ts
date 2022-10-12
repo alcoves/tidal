@@ -175,7 +175,6 @@ export async function enqueuePlaybackJob(videoId: string) {
     data: {
       id: playbackId,
       videoId,
-      playbackUri: `${TIDAL_CDN_ENDPOINT}/play/${playbackId}.m3u8`,
     },
   })
 
