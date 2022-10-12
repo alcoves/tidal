@@ -9,6 +9,7 @@ import {
   AccordionPanel,
   AccordionButton,
 } from '@chakra-ui/react'
+import { getMainPlayback } from '../../config/utils'
 import VideoPlayer from '../VideoPlayer'
 import CreatePlayback from './CreatePlayback'
 
@@ -34,7 +35,7 @@ export default function Playbacks({ video }: { video: any }) {
               </AccordionButton>
               <AccordionPanel pb={4} overflowY='auto'>
                 <pre>{JSON.stringify(p, null, 2)}</pre>
-                <VideoPlayer key={p.id} src={`http://localhost:3001/play/${p.id}`} />
+                <VideoPlayer key={p.id} src={getMainPlayback(p.id)} />
               </AccordionPanel>
             </AccordionItem>
           </Accordion>

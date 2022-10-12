@@ -25,5 +25,5 @@ RUN yarn --frozen-lockfile
 RUN yarn build
 RUN yarn install --production --frozen-lockfile
 
-EXPOSE 3001
+EXPOSE 3000
 CMD yarn start

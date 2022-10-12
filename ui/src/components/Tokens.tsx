@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 
 import { useState } from 'react'
-import { tidalTokenKey } from '../config/global'
+import { TIDAL_LOCALSTORAGE_TOKEN_KEY } from '../config/global'
 
 export default function TokenSettings() {
   const [inputToken, setInputToken] = useState('')
@@ -44,7 +44,7 @@ export default function TokenSettings() {
               size='sm'
               colorScheme='teal'
               onClick={() => {
-                localStorage.removeItem(tidalTokenKey)
+                localStorage.removeItem(TIDAL_LOCALSTORAGE_TOKEN_KEY)
               }}
             >
               Clear Token
@@ -66,7 +66,7 @@ export default function TokenSettings() {
               size='sm'
               colorScheme='teal'
               onClick={() => {
-                localStorage.setItem(tidalTokenKey, inputToken)
+                localStorage.setItem(TIDAL_LOCALSTORAGE_TOKEN_KEY, inputToken)
                 setInputToken('')
               }}
             >

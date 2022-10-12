@@ -12,6 +12,7 @@ import {
   ThumbnailJobOptions,
   TranscodeJobOptions,
 } from '../types'
+import { TIDAL_CDN_ENDPOINT } from '../config/globals'
 
 export async function enqueueIngestionJob(input: string) {
   const videoId = uuidv4()
@@ -127,6 +128,8 @@ export async function enqueuePlaybackJob(videoId: string) {
   const playbackId = uuidv4()
   const filename = 'playlist.m3u8'
 
+  const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:gte(t,n_forced*2)']
+
   const hlsDefaults = [
     '-master_pl_name',
     'main.m3u8',
@@ -138,11 +141,33 @@ export async function enqueuePlaybackJob(videoId: string) {
     '4',
     '-hls_playlist_type',
     'vod',
-    '-g',
-    '250',
   ]
 
-  const x264Defaults = ['-c:v', 'libx264', '-crf', '26', '-preset', 'slow']
+  const videoFilters = [
+    `scale=${1280}:${1280}:force_original_aspect_ratio=decrease`,
+    `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
+  ]
+
+  const x264Defaults = [
+    '-vf',
+    videoFilters.join(','),
+    '-an',
+    '-c:v',
+    'libx264',
+    '-crf',
+    '26',
+    '-maxrate',
+    '1M',
+    '-bufsize',
+    '2M',
+    '-preset',
+    'slow',
+    '-profile:v',
+    'high',
+    '-pix_fmt',
+    'yuv420p',
+    ...keyframes,
+  ]
 
   const fullCommand = [...hlsDefaults, ...x264Defaults].join(' ')
 
@@ -150,7 +175,7 @@ export async function enqueuePlaybackJob(videoId: string) {
     data: {
       id: playbackId,
       videoId,
-      playbackUri: `http://localhost:5000/play/${playbackId}.m3u8`,
+      playbackUri: `${TIDAL_CDN_ENDPOINT}/play/${playbackId}.m3u8`,
     },
   })
 

@@ -21,8 +21,8 @@ const opts: AWS.S3.ClientConfiguration = {
   s3ForcePathStyle: true,
 }
 
-if (process.env.AWS_ENDPONT) {
-  opts.endpoint = new AWS.Endpoint(process.env.AWS_ENDPONT)
+if (process.env.AWS_ENDPOINT) {
+  opts.endpoint = new AWS.Endpoint(process.env.AWS_ENDPOINT)
 }
 
 const s3 = new AWS.S3(opts)

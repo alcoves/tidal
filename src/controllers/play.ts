@@ -1,5 +1,6 @@
 import s3, { s3URI } from '../lib/s3'
 import { db } from '../config/db'
+import { TIDAL_CDN_ENDPOINT } from '../config/globals'
 
 export async function getMainPlayback(req, res) {
   const { playbackId } = req.params
@@ -36,11 +37,9 @@ export async function getMainPlayback(req, res) {
   const stream_inf = split[2]
   const playlist_uri = split[3]
 
-  // console.log('split', split)
-
   const dynamicMain = [extm3u, ext_x_version_7]
 
-  const manifestUri = `http://localhost:3030/tidal/assets/videos/${playback.video.id}/transcodes/${playback.transcodes[0].id}/playlist.m3u8`
+  const manifestUri = `${TIDAL_CDN_ENDPOINT}/tidal/assets/videos/${playback.video.id}/transcodes/${playback.transcodes[0].id}/playlist.m3u8`
 
   dynamicMain.push(stream_inf)
   dynamicMain.push(manifestUri)
