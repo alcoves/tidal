@@ -32,6 +32,11 @@ export async function getVideo(req, res) {
       playbacks: {
         where: { deleted: false },
         orderBy: { createdAt: 'desc' },
+        include: {
+          transcodes: {
+            orderBy: { createdAt: 'desc' },
+          },
+        },
       },
     },
   })
