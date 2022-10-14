@@ -151,6 +151,8 @@ export async function enqueuePlaybackJob(videoId: string) {
   const x264Defaults = [
     '-vf',
     videoFilters.join(','),
+    // '-vsync',
+    // '1', Constant framerate
     '-an',
     '-c:v',
     'libx264',
