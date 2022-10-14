@@ -2,6 +2,7 @@ import {
   Box,
   Flex,
   Text,
+  Badge,
   Heading,
   Accordion,
   AccordionIcon,
@@ -34,8 +35,16 @@ export default function Playbacks({ video }: { video: any }) {
                 <AccordionIcon />
               </AccordionButton>
               <AccordionPanel pb={4} overflowY='auto'>
-                <pre>{JSON.stringify(p, null, 2)}</pre>
+                {p?.transcodes?.map((t: any) => {
+                  return (
+                    <Flex py='2' justify='space-between' w='100%' key={t.id}>
+                      <Badge>{t.id}</Badge>
+                      <Badge>{t.status}</Badge>
+                    </Flex>
+                  )
+                })}
                 <VideoPlayer key={p.id} src={getMainPlayback(p.id)} />
+                <pre>{JSON.stringify(p, null, 2)}</pre>
               </AccordionPanel>
             </AccordionItem>
           </Accordion>
