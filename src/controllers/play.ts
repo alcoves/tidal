@@ -17,35 +17,39 @@ export async function getMainPlayback(req, res) {
 
   if (!playback?.transcodes?.length) return res.sendStatus(400)
 
-  const mainUri = playback.transcodes[0].s3Uri.replace('playlist.m3u8', 'main.m3u8')
-
-  const { Body } = await s3
-    .getObject({
-      Key: s3URI(mainUri).Key,
-      Bucket: s3URI(mainUri).Bucket,
+  const manifests = await Promise.all(
+    playback.transcodes.map(t => {
+      const mainUri = t.s3Uri.replace('playlist.m3u8', 'main.m3u8')
+      return s3
+        .getObject({
+          Key: s3URI(mainUri).Key,
+          Bucket: s3URI(mainUri).Bucket,
+        })
+        .promise()
     })
-    .promise()
-  if (!Body) return res.sendStatus(400)
+  ).catch(err => {
+    console.error('There was an error fetching transcode playlists', err)
+  })
 
-  const main = Body.toString()
-  // console.log('main', main)
+  const mainManifest = playback.transcodes.reduce((acc: string[], cv, i) => {
+    const manifest = manifests[i].Body.toString()
+    const [extm3u, ext_x_version_7, stream_inf, playlist_uri] = manifest.split('\n')
+    const manifestUri = `${TIDAL_CDN_ENDPOINT}/tidal/assets/videos/${playback.video.id}/transcodes/${cv.id}/playlist.m3u8`
 
-  const split = main.split('\n')
+    if (i === 0) {
+      // On the first loop, we have to enter the ext information
+      acc.push(extm3u)
+      acc.push(ext_x_version_7)
+    }
 
-  const extm3u = split[0]
-  const ext_x_version_7 = split[1]
-  const stream_inf = split[2]
-  const playlist_uri = split[3]
+    acc.push(stream_inf)
+    acc.push(manifestUri)
 
-  const dynamicMain = [extm3u, ext_x_version_7]
-
-  const manifestUri = `${TIDAL_CDN_ENDPOINT}/tidal/assets/videos/${playback.video.id}/transcodes/${playback.transcodes[0].id}/playlist.m3u8`
-
-  dynamicMain.push(stream_inf)
-  dynamicMain.push(manifestUri)
+    return acc
+  }, [])
 
   res.setHeader('content-type', 'audio/mpegurl')
-  const finalOutput = dynamicMain.join('\n')
+  const finalOutput = mainManifest.join('\n')
   // console.log(finalOutput)
   return res.status(200).send(finalOutput)
 }
