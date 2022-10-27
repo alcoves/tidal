@@ -186,4 +186,18 @@ export async function enqueuePlaybackJob(videoId: string) {
     playbackId,
     cmd: fullCommand,
   })
+
+  await enqueueTranscodeJob(videoId, {
+    videoId,
+    filename,
+    playbackId,
+    cmd: fullCommand,
+  })
+
+  await enqueueTranscodeJob(videoId, {
+    videoId,
+    filename,
+    playbackId,
+    cmd: fullCommand,
+  })
 }
