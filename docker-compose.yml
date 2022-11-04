@@ -1,35 +1,50 @@
 services:
-  redis:
+  tidal_redis:
+    restart: always
     image: redis:7-alpine
     ports:
-      - ${REDIS_PORT}:6379
-    command: >
-      --requirepass ${REDIS_PASSWORD}
+      - '3003:6379'
+    command: redis-server --requirepass ${REDIS_PASSWORD}
   postgres:
-    image: postgres:14-alpine
+    restart: always
+    image: postgres:15-alpine
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=tidal
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   localstack:
+    restart: always
     image: localstack/localstack:latest
     ports:
-      - '${LOCALSTACK_PORT}:4566'
+      - ${LOCALSTACK_PORT}:4566
     environment:
       PERSISTENCE: 1
-      EXTRA_CORS_EXPOSE_HEADERS: "*"
-      EXTRA_CORS_ALLOWED_HEADERS: "*"
-      EXTRA_CORS_ALLOWED_ORIGINS: "*"
+      DISABLE_CORS_CHECKS: 1
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
       - localstack:/tmp/localstack
+  server:
+    depends_on:
+     - tidal_redis
+     - postgres
+     - localstack
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - ${API_PORT}:3001
+    env_file:
+      - .env
+    volumes:
+      - ./server/src:/usr/local/apps/tidal/server/src
 volumes:
   pgdata:
   localstack:

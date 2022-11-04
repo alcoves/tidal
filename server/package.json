@@ -8,11 +8,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "dev-server": "nodemon",
-    "setup": "yarn && prisma migrate dev && prisma generate && cd ui && yarn",
-    "dev": "concurrently \"yarn dev-server\" \"yarn dev-ui\"",
-    "start": "node dist/index.js",
-    "dev-ui": "cd ui && yarn start"
+    "dev": "nodemon",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@prisma/client": "^4.5.0",
@@ -35,9 +32,12 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.14",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.2.0",
     "@types/luxon": "^3.0.2",
+    "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",

@@ -1,13 +1,20 @@
-FROM node:18-alpine3.16
+FROM node:18-alpine
+
 RUN apk add --no-cache ffmpeg wget unzip
 
 RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.1/packager-linux-x64
 RUN mv ./packager-linux-x64 /usr/local/bin/packager
 RUN chmod +x /usr/local/bin/packager
 
-# RUN yarn
-RUN cd /ui && yarn
+WORKDIR /usr/local/apps/tidal/server
+COPY ./server/package.json .
+COPY ./server/nodemon.json .
+COPY ./server/tsconfig.json .
+RUN yarn install --force
 
-EXPOSE 3000
+COPY ./server/prisma ./prisma
+RUN npx prisma generate
+
 EXPOSE 3001
-CMD yarn dev
+
+CMD ["yarn", "dev"]
