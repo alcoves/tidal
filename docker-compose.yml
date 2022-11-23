@@ -1,10 +1,12 @@
 services:
-  redis:
-    restart: always
+  redis: 
     image: redis:7-alpine
+    restart: always
     ports:
-      - ${REDIS_PORT}:6379
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+      - ${REDIS_PORT}:${REDIS_PORT}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
+    volumes: 
+      - redis:/data
   postgres:
     restart: always
     image: postgres:15-alpine
@@ -80,5 +82,6 @@ services:
   #   volumes:
   #     - ./server/src:/usr/local/app/src
 volumes:
+  redis:
   pgdata:
   localstack:
