@@ -5,11 +5,11 @@ import { useParams } from 'react-router-dom'
 import { getVideo } from '../../services/getVideo'
 import { useQuery } from '@tanstack/react-query'
 import { Box, Text, Code, HStack, VStack, Heading, Spinner } from '@chakra-ui/react'
-import Source from './Source'
+import Input from './Input'
 import QueryError from '../QueryError'
-import Thumbnails from './Thumbnails'
-import Encodes from './Encodes'
-import Playbacks from './Playbacks'
+// import Thumbnails from './Thumbnails'
+// import Encodes from './Encodes'
+// import Playbacks from './Playbacks'
 
 export default function VideoAsset() {
   const { videoId } = useParams()
@@ -27,10 +27,10 @@ export default function VideoAsset() {
         <Text>Created: {DateTime.fromISO(data?.createdAt).toFormat('ff')}</Text>
         <Text>Updated: {DateTime.fromISO(data?.updatedAt).toFormat('ff')}</Text>
         <VStack maxW='600px' mt='4' spacing='6'>
-          <Source video={data} />
-          <Thumbnails video={data} />
+          <Input video={data} />
+          {/* <Thumbnails video={data} />
           <Playbacks video={data} />
-          <Encodes video={data} />
+          <Encodes video={data} /> */}
         </VStack>
       </Box>
     )

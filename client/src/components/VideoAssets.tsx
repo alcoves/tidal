@@ -54,14 +54,14 @@ export default function VideoAssets() {
                     }}
                   >
                     <Td>
-                      <Image
+                      {/* <Image
                         w='100px'
                         alt='thumbnail'
                         objectFit='cover'
                         src={getThumbnailUrlFromS3Uri(
                           v?.thumbnails.length ? v?.thumbnails[0]?.s3Uri : ''
                         )}
-                      />
+                      /> */}
                     </Td>
                     <Td>{v.id}</Td>
                     <Td>{v.status}</Td>

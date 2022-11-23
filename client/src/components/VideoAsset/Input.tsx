@@ -24,31 +24,31 @@ function getStatusBadgeColor(status: string) {
   }
 }
 
-export default function SourceAsset({ video }: { video: any }) {
-  const status = video?.source?.status
+export default function VideoInput({ video }: { video: any }) {
+  const status = video?.input?.status
 
   return (
     <>
       <Box w='100%' border='1px' borderColor='teal.400' rounded='md'>
         <Box p='4' bg='teal.400'>
           <Flex w='100%' justify='space-between'>
-            <Heading size='md'>Source</Heading>
+            <Heading size='md'>Input</Heading>
             <Badge fontSize='1rem' variant='solid' colorScheme={getStatusBadgeColor(status)}>
               {status}
             </Badge>
           </Flex>
-          <Text> The source file used for processing </Text>
+          <Text> The input file used for processing </Text>
         </Box>
         <Accordion allowMultiple w='100%'>
           <AccordionItem border='none'>
             <AccordionButton>
               <Box flex='1' textAlign='left'>
-                <Text noOfLines={1}>{video?.source?.input}</Text>
+                <Text noOfLines={1}>{video?.input?.input}</Text>
               </Box>
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4} overflowY='auto'>
-              <pre>{JSON.stringify(video?.source, null, 2)}</pre>
+              <pre>{JSON.stringify(video?.input, null, 2)}</pre>
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

@@ -24,8 +24,9 @@ export async function enqueueIngestionJob(input: string) {
 
   const location = genS3Uri({
     Bucket: process.env.TIDAL_BUCKET || '',
-    Key: `assets/videos/${videoId}/source${sourceFileExtension}`,
+    Key: `assets/videos/${videoId}`,
   })
+  const videoInputLocation = `${location}/source${sourceFileExtension}`
 
   const ingestionJob: IngestionJobData = {
     input,
@@ -36,12 +37,13 @@ export async function enqueueIngestionJob(input: string) {
 
   await db.video.create({
     data: {
+      location,
       id: videoId,
       input: {
         create: {
           input,
-          location,
           id: ingestionId,
+          location: videoInputLocation,
         },
       },
     },

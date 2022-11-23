@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { db } from '../config/db'
+import { deleteFolder } from '../lib/s3'
 import {
   enqueueIngestionJob,
   // enqueuePlaybackJob,
@@ -8,10 +9,17 @@ import {
 } from '../services/bullmq'
 
 export async function deleteVideo(req, res) {
-  await db.video.update({
-    data: { deleted: true },
+  const video = await db.video.findUnique({
     where: { id: req.params.videoId },
   })
+
+  if (!video) return res.sendStatus(400)
+  await deleteFolder(video.location)
+  await db.video.delete({
+    include: { input: true },
+    where: { id: req.params.videoId },
+  })
+
   res.sendStatus(200)
 }
 

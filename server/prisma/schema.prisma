@@ -60,7 +60,7 @@ model VideoInput {
   input     String
   location  String
   metadata  Json?
-  video     Video    @relation(fields: [videoId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   videoId   String   @unique
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -70,6 +70,7 @@ model VideoInput {
 model Video {
   id        String      @id @default(uuid())
   status    Status      @default(PROCESSING)
+  location  String
   input     VideoInput?
   deleted   Boolean     @default(false)
   createdAt DateTime    @default(now())

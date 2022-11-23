@@ -42,6 +42,16 @@ export function genS3Uri({ Bucket, Key }: { Bucket: string; Key: string }) {
   return `s3://${Bucket}/${Key}`
 }
 
+async function listObjects(params, items: any = []) {
+  const { Contents, ContinuationToken } = await s3.listObjectsV2(params).promise()
+  Contents?.map(o => items.push(o))
+  if (ContinuationToken) {
+    params.NextContinuationToken = ContinuationToken
+    return listObjects(params, items)
+  }
+  return items
+}
+
 export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
   try {
     const files = await readdir(inputDir)
@@ -89,6 +99,24 @@ export async function downloadFile(path, uri) {
       reject(error)
     }
   })
+}
+
+export async function deleteFolder(uri: string) {
+  const allFiles = await listObjects({
+    Prefix: s3URI(uri).Key,
+    Bucket: s3URI(uri).Bucket,
+  })
+
+  await Promise.all(
+    allFiles.map(f => {
+      return s3
+        .deleteObject({
+          Key: f.Key,
+          Bucket: s3URI(uri).Bucket,
+        })
+        .promise()
+    })
+  )
 }
 
 export default s3
