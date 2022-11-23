@@ -34,6 +34,11 @@ Tidal will support creating dyamic `workflows`. A workflow is a series of steps 
 
 ### Prisma
 
-```
+Provisioning inside docker.
+
+Assuming the local stack is running, you should use the API container to provision the database
+
+```sh
+docker exec -it tidal-server-1 sh
 npx prisma migrate dev
 ```

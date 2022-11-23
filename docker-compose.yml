@@ -11,13 +11,14 @@ services:
     restart: always
     image: postgres:15-alpine
     ports:
-      - ${POSTGRES_PORT}:5432
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: -p ${POSTGRES_PORT}
   localstack:
     restart: always
     image: localstack/localstack:latest
@@ -32,22 +33,22 @@ services:
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
       - localstack:/tmp/localstack
-  # client:
-  #   depends_on:
-  #    - redis
-  #    - server
-  #    - postgres
-  #    - localstack
-  #   restart: always
-  #   build:
-  #     context: .
-  #     dockerfile: docker/Dockerfile.dev_client
-  #   ports:
-  #     - ${REACT_PORT}:3000
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./client/src:/usr/local/app/src
+  client:
+    depends_on:
+     - redis
+     - server
+     - postgres
+     - localstack
+    restart: always
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev_client
+    ports:
+      - ${REACT_PORT}:3000
+    env_file:
+      - .env
+    volumes:
+      - ./client/src:/usr/local/app/src
   server:
     depends_on:
      - redis
