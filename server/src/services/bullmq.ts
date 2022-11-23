@@ -12,7 +12,6 @@ import {
   ThumbnailJobOptions,
   TranscodeJobOptions,
 } from '../types'
-import { TIDAL_CDN_ENDPOINT } from '../config/globals'
 
 export async function enqueueIngestionJob(input: string) {
   const videoId = uuidv4()
@@ -23,7 +22,7 @@ export async function enqueueIngestionJob(input: string) {
   const cleanedUrl = url.parse(input).pathname || ''
   const sourceFileExtension = path.extname(cleanedUrl) || ''
 
-  const s3Uri = genS3Uri({
+  const location = genS3Uri({
     Bucket: process.env.TIDAL_BUCKET || '',
     Key: `assets/videos/${videoId}/source${sourceFileExtension}`,
   })
@@ -32,16 +31,16 @@ export async function enqueueIngestionJob(input: string) {
     input,
     videoId,
     ingestionId,
-    s3OutputUri: s3Uri,
+    s3OutputUri: location,
   }
 
   await db.video.create({
     data: {
       id: videoId,
-      source: {
+      input: {
         create: {
           input,
-          s3Uri,
+          location,
           id: ingestionId,
         },
       },
@@ -51,153 +50,153 @@ export async function enqueueIngestionJob(input: string) {
   await queues[queueName].queue.add(jobName, ingestionJob)
 }
 
-export async function enqueueThumbnailJob(videoId: string, opts?: ThumbnailJobOptions) {
-  const thumbnailId = uuidv4()
-  const jobName = 'thumbnail'
-  const queueName = 'thumbnail'
+// export async function enqueueThumbnailJob(videoId: string, opts?: ThumbnailJobOptions) {
+//   const thumbnailId = uuidv4()
+//   const jobName = 'thumbnail'
+//   const queueName = 'thumbnail'
 
-  const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
-  if (!video || !video.source) return
+//   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
+//   if (!video || !video.source) return
 
-  const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
+//   const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
 
-  const s3Uri = genS3Uri({
-    Bucket: process.env.TIDAL_BUCKET || '',
-    Key: `assets/videos/${videoId}/thumbnails/${thumbnailId}.webp`,
-  })
+//   const s3Uri = genS3Uri({
+//     Bucket: process.env.TIDAL_BUCKET || '',
+//     Key: `assets/videos/${videoId}/thumbnails/${thumbnailId}.webp`,
+//   })
 
-  const thumbnailJob: ThumbnailJobData = {
-    videoId,
-    thumbnailId,
-    fit: opts?.fit || 'cover',
-    time: opts?.time || '0',
-    width: opts?.width || 854,
-    height: opts?.height || 452,
-    input: sourceUrl,
-    output: s3Uri,
-  }
+//   const thumbnailJob: ThumbnailJobData = {
+//     videoId,
+//     thumbnailId,
+//     fit: opts?.fit || 'cover',
+//     time: opts?.time || '0',
+//     width: opts?.width || 854,
+//     height: opts?.height || 452,
+//     input: sourceUrl,
+//     output: s3Uri,
+//   }
 
-  await db.thumbnail.create({
-    data: {
-      s3Uri,
-      videoId,
-      id: thumbnailId,
-    },
-  })
+//   await db.thumbnail.create({
+//     data: {
+//       s3Uri,
+//       videoId,
+//       id: thumbnailId,
+//     },
+//   })
 
-  await queues[queueName].queue.add(jobName, thumbnailJob)
-}
+//   await queues[queueName].queue.add(jobName, thumbnailJob)
+// }
 
-export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOptions) {
-  const transcodeId = uuidv4()
-  const jobName = 'transcode'
-  const queueName = 'transcodes'
+// export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOptions) {
+//   const transcodeId = uuidv4()
+//   const jobName = 'transcode'
+//   const queueName = 'transcodes'
 
-  const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
-  if (!video || !video.source) return
+//   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
+//   if (!video || !video.source) return
 
-  const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
+//   const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
 
-  const s3OutputUri = genS3Uri({
-    Bucket: process.env.TIDAL_BUCKET || '',
-    Key: `assets/videos/${videoId}/transcodes/${transcodeId}/${opts.filename}`,
-  })
+//   const s3OutputUri = genS3Uri({
+//     Bucket: process.env.TIDAL_BUCKET || '',
+//     Key: `assets/videos/${videoId}/transcodes/${transcodeId}/${opts.filename}`,
+//   })
 
-  const transcodeJob: TranscodeJobData = {
-    videoId,
-    transcodeId,
-    s3OutputUri,
-    cmd: opts.cmd,
-    input: sourceUrl,
-  }
+//   const transcodeJob: TranscodeJobData = {
+//     videoId,
+//     transcodeId,
+//     s3OutputUri,
+//     cmd: opts.cmd,
+//     input: sourceUrl,
+//   }
 
-  await db.transcode.create({
-    data: {
-      videoId,
-      id: transcodeId,
-      s3Uri: s3OutputUri,
-      playbackId: opts.playbackId || '',
-    },
-  })
+//   await db.transcode.create({
+//     data: {
+//       videoId,
+//       id: transcodeId,
+//       s3Uri: s3OutputUri,
+//       playbackId: opts.playbackId || '',
+//     },
+//   })
 
-  await queues[queueName].queue.add(jobName, transcodeJob)
-}
+//   await queues[queueName].queue.add(jobName, transcodeJob)
+// }
 
-export async function enqueuePlaybackJob(videoId: string) {
-  //
-  const playbackId = uuidv4()
-  const filename = 'playlist.m3u8'
+// export async function enqueuePlaybackJob(videoId: string) {
+//   //
+//   const playbackId = uuidv4()
+//   const filename = 'playlist.m3u8'
 
-  const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:gte(t,n_forced*2)']
+//   const keyframes = ['-g', '60', '-keyint_min', '60', '-force_key_frames', 'expr:gte(t,n_forced*2)']
 
-  const hlsDefaults = [
-    '-master_pl_name',
-    'main.m3u8',
-    '-hls_segment_type',
-    'fmp4',
-    '-hls_flags',
-    'single_file',
-    '-hls_time',
-    '4',
-    '-hls_playlist_type',
-    'vod',
-  ]
+//   const hlsDefaults = [
+//     '-master_pl_name',
+//     'main.m3u8',
+//     '-hls_segment_type',
+//     'fmp4',
+//     '-hls_flags',
+//     'single_file',
+//     '-hls_time',
+//     '4',
+//     '-hls_playlist_type',
+//     'vod',
+//   ]
 
-  const videoFilters = [
-    `scale=${1280}:${1280}:force_original_aspect_ratio=decrease`,
-    `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
-  ]
+//   const videoFilters = [
+//     `scale=${1280}:${1280}:force_original_aspect_ratio=decrease`,
+//     `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
+//   ]
 
-  const x264Defaults = [
-    '-vf',
-    videoFilters.join(','),
-    // '-vsync',
-    // '1', Constant framerate
-    '-an',
-    '-c:v',
-    'libx264',
-    '-crf',
-    '26',
-    '-maxrate',
-    '1M',
-    '-bufsize',
-    '2M',
-    '-preset',
-    'slow',
-    '-profile:v',
-    'high',
-    '-pix_fmt',
-    'yuv420p',
-    ...keyframes,
-  ]
+//   const x264Defaults = [
+//     '-vf',
+//     videoFilters.join(','),
+//     // '-vsync',
+//     // '1', Constant framerate
+//     '-an',
+//     '-c:v',
+//     'libx264',
+//     '-crf',
+//     '26',
+//     '-maxrate',
+//     '1M',
+//     '-bufsize',
+//     '2M',
+//     '-preset',
+//     'slow',
+//     '-profile:v',
+//     'high',
+//     '-pix_fmt',
+//     'yuv420p',
+//     ...keyframes,
+//   ]
 
-  const fullCommand = [...hlsDefaults, ...x264Defaults].join(' ')
+//   const fullCommand = [...hlsDefaults, ...x264Defaults].join(' ')
 
-  await db.playback.create({
-    data: {
-      id: playbackId,
-      videoId,
-    },
-  })
+//   await db.playback.create({
+//     data: {
+//       id: playbackId,
+//       videoId,
+//     },
+//   })
 
-  await enqueueTranscodeJob(videoId, {
-    videoId,
-    filename,
-    playbackId,
-    cmd: fullCommand,
-  })
+//   await enqueueTranscodeJob(videoId, {
+//     videoId,
+//     filename,
+//     playbackId,
+//     cmd: fullCommand,
+//   })
 
-  await enqueueTranscodeJob(videoId, {
-    videoId,
-    filename,
-    playbackId,
-    cmd: fullCommand,
-  })
+//   await enqueueTranscodeJob(videoId, {
+//     videoId,
+//     filename,
+//     playbackId,
+//     cmd: fullCommand,
+//   })
 
-  await enqueueTranscodeJob(videoId, {
-    videoId,
-    filename,
-    playbackId,
-    cmd: fullCommand,
-  })
-}
+//   await enqueueTranscodeJob(videoId, {
+//     videoId,
+//     filename,
+//     playbackId,
+//     cmd: fullCommand,
+//   })
+// }

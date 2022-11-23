@@ -1,1 +1,5 @@
-export const TIDAL_CDN_ENDPOINT = process.env.AWS_ENDPOINT
+const globals = {
+  tidalCdnEndpoint: process.env.AWS_ENDPOINT,
+}
+
+export default globals

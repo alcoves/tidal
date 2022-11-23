@@ -64,6 +64,7 @@ services:
       - .env
     volumes:
       - ./server/src:/usr/local/app/src
+      - ./server/prisma:/usr/local/app/prisma
   # worker:
   #   # depends_on:
   #   #  - redis

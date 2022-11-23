@@ -5,7 +5,7 @@ import { PassThrough } from 'stream'
 import s3, { s3URI } from '../lib/s3'
 import { IngestionJob } from '../types'
 import { getMetadata } from '../lib/video'
-import { enqueueThumbnailJob } from '../services/bullmq'
+// import { enqueueThumbnailJob } from '../services/bullmq'
 
 // The job will download the file, get it's metadata from our s3, then return done
 // To start, the job will update the database. but ideally there is a pattern to
@@ -42,8 +42,8 @@ export async function ingestionHandler(job: IngestionJob) {
     console.log(chalk.blue(`gathering metadata from source file`))
     const metadata = await getMetadata(sourceUrl)
 
-    console.log(chalk.blue(`creating extra jobs`))
-    await enqueueThumbnailJob(job.data.videoId)
+    // console.log(chalk.blue(`creating extra jobs`))
+    // await enqueueThumbnailJob(job.data.videoId)
 
     console.log('Done!')
     return JSON.stringify(metadata)

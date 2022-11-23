@@ -2,9 +2,9 @@ import Joi from 'joi'
 import { db } from '../config/db'
 import {
   enqueueIngestionJob,
-  enqueuePlaybackJob,
-  enqueueThumbnailJob,
-  enqueueTranscodeJob,
+  // enqueuePlaybackJob,
+  // enqueueThumbnailJob,
+  // enqueueTranscodeJob,
 } from '../services/bullmq'
 
 export async function deleteVideo(req, res) {
@@ -20,24 +20,24 @@ export async function getVideo(req, res) {
     orderBy: { createdAt: 'desc' },
     where: { id: req.params.videoId, deleted: false },
     include: {
-      source: true,
-      thumbnails: {
-        where: { deleted: false },
-        orderBy: { createdAt: 'desc' },
-      },
-      transcodes: {
-        where: { deleted: false },
-        orderBy: { createdAt: 'desc' },
-      },
-      playbacks: {
-        where: { deleted: false },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          transcodes: {
-            orderBy: { createdAt: 'desc' },
-          },
-        },
-      },
+      input: true,
+      // thumbnails: {
+      //   where: { deleted: false },
+      //   orderBy: { createdAt: 'desc' },
+      // },
+      // transcodes: {
+      //   where: { deleted: false },
+      //   orderBy: { createdAt: 'desc' },
+      // },
+      // playbacks: {
+      //   where: { deleted: false },
+      //   orderBy: { createdAt: 'desc' },
+      //   include: {
+      //     transcodes: {
+      //       orderBy: { createdAt: 'desc' },
+      //     },
+      //   },
+      // },
     },
   })
   if (videos.length) return res.json(videos[0])
@@ -48,12 +48,12 @@ export async function listVideos(req, res) {
   const videos = await db.video.findMany({
     where: { deleted: false },
     orderBy: { createdAt: 'desc' },
-    include: {
-      thumbnails: {
-        where: { deleted: false },
-        orderBy: { createdAt: 'desc' },
-      },
-    },
+    // include: {
+    //   thumbnails: {
+    //     where: { deleted: false },
+    //     orderBy: { createdAt: 'desc' },
+    //   },
+    // },
   })
   res.json({ videos })
 }
@@ -75,67 +75,52 @@ export async function createVideo(req, res) {
   return res.status(202).end()
 }
 
-export async function createThumbnail(req, res) {
-  const { videoId } = req.params
+// export async function createThumbnail(req, res) {
+//   const { videoId } = req.params
 
-  const schema = Joi.object({
-    time: Joi.string().default('00:00:00:000'),
-    width: Joi.number().default(854).min(1).max(10000).required(),
-    height: Joi.number().default(400).min(1).max(10000).required(),
-    fit: Joi.string().uri().default('cover').valid('cover', 'contain', 'fill', 'inside', 'outside'),
-  })
+//   const schema = Joi.object({
+//     time: Joi.string().default('00:00:00:000'),
+//     width: Joi.number().default(854).min(1).max(10000).required(),
+//     height: Joi.number().default(400).min(1).max(10000).required(),
+//     fit: Joi.string().uri().default('cover').valid('cover', 'contain', 'fill', 'inside', 'outside'),
+//   })
 
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false, // include all errors
-    allowUnknown: true, // ignore unknown props
-    stripUnknown: true, // remove unknown props
-  })
-  if (error) return res.status(400).json(error)
+//   const { error, value } = schema.validate(req.body, {
+//     abortEarly: false, // include all errors
+//     allowUnknown: true, // ignore unknown props
+//     stripUnknown: true, // remove unknown props
+//   })
+//   if (error) return res.status(400).json(error)
 
-  await enqueueThumbnailJob(videoId, {
-    fit: value.fit,
-    time: value.time,
-    width: value.width,
-    height: value.height,
-  })
+//   await enqueueThumbnailJob(videoId, {
+//     fit: value.fit,
+//     time: value.time,
+//     width: value.width,
+//     height: value.height,
+//   })
 
-  return res.status(202).end()
-}
+//   return res.status(202).end()
+// }
 
-export async function createTranscode(req, res) {
-  const { videoId } = req.params
-  const schema = Joi.object({
-    cmd: Joi.string().required(),
-    filename: Joi.string().required(),
-  })
+// export async function createTranscode(req, res) {
+//   const { videoId } = req.params
+//   const schema = Joi.object({
+//     cmd: Joi.string().required(),
+//     filename: Joi.string().required(),
+//   })
 
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false, // include all errors
-    allowUnknown: true, // ignore unknown props
-    stripUnknown: true, // remove unknown props
-  })
-  if (error) return res.status(400).json(error)
+//   const { error, value } = schema.validate(req.body, {
+//     abortEarly: false, // include all errors
+//     allowUnknown: true, // ignore unknown props
+//     stripUnknown: true, // remove unknown props
+//   })
+//   if (error) return res.status(400).json(error)
 
-  await enqueueTranscodeJob(videoId, {
-    videoId,
-    cmd: value.cmd,
-    filename: value.filename,
-  })
+//   await enqueueTranscodeJob(videoId, {
+//     videoId,
+//     cmd: value.cmd,
+//     filename: value.filename,
+//   })
 
-  return res.status(202).end()
-}
-
-export async function createPlayback(req, res) {
-  const { videoId } = req.params
-  await enqueuePlaybackJob(videoId)
-  return res.status(202).end()
-}
-
-export async function deletePlayback(req, res) {
-  const { playbackId } = req.params
-  await db.playback.update({
-    where: { id: playbackId },
-    data: { deleted: true },
-  })
-  return res.status(200).end()
-}
+//   return res.status(202).end()
+// }

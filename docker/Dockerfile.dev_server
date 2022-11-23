@@ -11,9 +11,6 @@ COPY ./server/package.json .
 COPY ./server/nodemon.json .
 COPY ./server/tsconfig.json .
 
-COPY ./server/prisma ./prisma
-RUN npx prisma generate
-
 RUN yarn install --frozen-lockfile --development
 
 EXPOSE 3001

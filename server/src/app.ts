@@ -2,7 +2,7 @@ import cors from 'cors'
 import morgan from 'morgan'
 import express from 'express'
 import rootRoutes from './routes/root'
-import playRoutes from './routes/play'
+// import playRoutes from './routes/play'
 import videoRoutes from './routes/videos'
 import queueRoutes from './routes/queues'
 
@@ -13,7 +13,7 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use(rootRoutes)
-app.use('/play', playRoutes)
+// app.use('/play', playRoutes)
 app.use('/queues', queueRoutes)
 app.use('/videos', videoRoutes)
 
