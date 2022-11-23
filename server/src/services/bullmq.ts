@@ -32,7 +32,7 @@ export async function enqueueIngestionJob(input: string) {
     input,
     videoId,
     ingestionId,
-    s3OutputUri: location,
+    s3OutputUri: videoInputLocation,
   }
 
   await db.video.create({
