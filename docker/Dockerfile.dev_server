@@ -6,14 +6,15 @@ RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.
 RUN mv ./packager-linux-x64 /usr/local/bin/packager
 RUN chmod +x /usr/local/bin/packager
 
-WORKDIR /usr/local/apps/tidal/server
+WORKDIR /usr/local/app
 COPY ./server/package.json .
 COPY ./server/nodemon.json .
 COPY ./server/tsconfig.json .
-RUN yarn install --force
 
 COPY ./server/prisma ./prisma
 RUN npx prisma generate
+
+RUN yarn install --frozen-lockfile --development
 
 EXPOSE 3001
 

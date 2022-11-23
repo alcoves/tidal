@@ -30,6 +30,22 @@ services:
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
       - localstack:/tmp/localstack
+  # client:
+  #   depends_on:
+  #    - redis
+  #    - server
+  #    - postgres
+  #    - localstack
+  #   restart: always
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.dev_client
+  #   ports:
+  #     - ${REACT_PORT}:3000
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./client/src:/usr/local/app/src
   server:
     depends_on:
      - redis
@@ -38,13 +54,31 @@ services:
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: docker/Dockerfile.dev_server
     ports:
       - ${API_PORT}:3001
     env_file:
       - .env
     volumes:
-      - ./server/src:/usr/local/apps/tidal/server/src
+      - ./server/src:/usr/local/app/src
+  # worker:
+  #   # depends_on:
+  #   #  - redis
+  #   #  - postgres
+  #   #  - localstack
+  #   # - server
+  #   restart: always
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.dev_server
+  #   ports:
+  #     - ${API_PORT}:3001
+  #   environment:
+  #     TIDAL_WORKER: 1
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./server/src:/usr/local/app/src
 volumes:
   pgdata:
   localstack:
