@@ -1,4 +1,4 @@
-import s3, { s3URI } from './s3'
+import s3, { parseS3Uri } from './s3'
 import { Duration } from 'luxon'
 import { ffprobe } from './ffmpeg'
 import { AdaptiveTranscodeStruct, AdaptiveTranscodeType, Metadata, VideoPreset } from '../types'
@@ -22,8 +22,8 @@ export async function getMetadata(uri: string): Promise<Metadata> {
   console.info('getting source url')
   const sourceURL = uri.includes('s3://')
     ? await s3.getSignedUrlPromise('getObject', {
-        Key: s3URI(uri).Key,
-        Bucket: s3URI(uri).Bucket,
+        Key: parseS3Uri(uri).Key,
+        Bucket: parseS3Uri(uri).Bucket,
         Expires: 86400 * 7, // 7 days
       })
     : uri

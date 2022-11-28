@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import axios from 'axios'
 
 import { PassThrough } from 'stream'
-import s3, { s3URI } from '../lib/s3'
+import s3, { parseS3Uri } from '../lib/s3'
 import { IngestionJob } from '../types'
 import { getMetadata } from '../lib/video'
 // import { enqueueThumbnailJob } from '../services/bullmq'
@@ -30,13 +30,13 @@ export async function ingestionHandler(job: IngestionJob) {
     console.log(chalk.blue(`importing file from URL`))
     await importFileFromURL({
       url: job.data.input,
-      key: s3URI(job.data.s3OutputUri).Key,
-      bucket: s3URI(job.data.s3OutputUri).Bucket,
+      key: parseS3Uri(job.data.s3OutputUri).Key,
+      bucket: parseS3Uri(job.data.s3OutputUri).Bucket,
     })
 
     const sourceUrl = await s3.getSignedUrlPromise('getObject', {
-      Key: s3URI(job.data.s3OutputUri).Key,
-      Bucket: s3URI(job.data.s3OutputUri).Bucket,
+      Key: parseS3Uri(job.data.s3OutputUri).Key,
+      Bucket: parseS3Uri(job.data.s3OutputUri).Bucket,
     })
 
     console.log(chalk.blue(`gathering metadata from source file`))

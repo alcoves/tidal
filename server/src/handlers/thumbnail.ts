@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
 import sharp from 'sharp'
-import s3, { s3URI } from '../lib/s3'
+import s3, { parseS3Uri } from '../lib/s3'
 import { v4 as uuid } from 'uuid'
 import { ThumbnailJob } from '../types'
 import { ffmpeg } from '../lib/ffmpeg'
@@ -18,8 +18,8 @@ export async function thumbnailJob(job: ThumbnailJob) {
     console.info('getting source url')
     const sourceURL = input.includes('s3://')
       ? await s3.getSignedUrlPromise('getObject', {
-          Key: s3URI(input).Key,
-          Bucket: s3URI(input).Bucket,
+          Key: parseS3Uri(input).Key,
+          Bucket: parseS3Uri(input).Bucket,
           Expires: 86400 * 7, // 7 days
         })
       : input
@@ -42,8 +42,8 @@ export async function thumbnailJob(job: ThumbnailJob) {
     console.info('uploading thumbnail to user defined output')
     await s3
       .upload({
-        Key: s3URI(output).Key,
-        Bucket: s3URI(output).Bucket,
+        Key: parseS3Uri(output).Key,
+        Bucket: parseS3Uri(output).Bucket,
         Body: fs.createReadStream(`${tmpDir}/${compressedThumbnail}`),
       })
       .promise()

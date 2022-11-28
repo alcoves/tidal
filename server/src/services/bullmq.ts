@@ -4,7 +4,7 @@ import queues from '../queues/queues'
 
 import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
-import s3, { genS3Uri, s3URI } from '../lib/s3'
+import s3, { generateS3Uri, parseS3Uri } from '../lib/s3'
 import {
   IngestionJobData,
   TranscodeJobData,
@@ -22,7 +22,7 @@ export async function enqueueIngestionJob(input: string) {
   const cleanedUrl = url.parse(input).pathname || ''
   const sourceFileExtension = path.extname(cleanedUrl) || ''
 
-  const location = genS3Uri({
+  const location = generateS3Uri({
     Bucket: process.env.TIDAL_BUCKET || '',
     Key: `assets/videos/${videoId}`,
   })
@@ -60,9 +60,9 @@ export async function enqueueIngestionJob(input: string) {
 //   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
 //   if (!video || !video.source) return
 
-//   const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
+//   const sourceUrl = await s3.getSignedUrlPromise('getObject', parseS3Uri(video.source.s3Uri))
 
-//   const s3Uri = genS3Uri({
+//   const s3Uri = generateS3Uri({
 //     Bucket: process.env.TIDAL_BUCKET || '',
 //     Key: `assets/videos/${videoId}/thumbnails/${thumbnailId}.webp`,
 //   })
@@ -97,9 +97,9 @@ export async function enqueueIngestionJob(input: string) {
 //   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
 //   if (!video || !video.source) return
 
-//   const sourceUrl = await s3.getSignedUrlPromise('getObject', s3URI(video.source.s3Uri))
+//   const sourceUrl = await s3.getSignedUrlPromise('getObject', parseS3Uri(video.source.s3Uri))
 
-//   const s3OutputUri = genS3Uri({
+//   const s3OutputUri = generateS3Uri({
 //     Bucket: process.env.TIDAL_BUCKET || '',
 //     Key: `assets/videos/${videoId}/transcodes/${transcodeId}/${opts.filename}`,
 //   })

@@ -27,7 +27,7 @@ if (process.env.AWS_ENDPOINT) {
 
 const s3 = new AWS.S3(opts)
 
-export function s3URI(uri: string) {
+export function parseS3Uri(uri: string) {
   const s3UrlRe = /^[sS]3:\/\/(.*?)\/(.*)/
   const match = uri.match(s3UrlRe)
   if (!match) throw new Error(`Not a valid S3 URI: ${uri}`)
@@ -38,7 +38,7 @@ export function s3URI(uri: string) {
   }
 }
 
-export function genS3Uri({ Bucket, Key }: { Bucket: string; Key: string }) {
+export function generateS3Uri({ Bucket, Key }: { Bucket: string; Key: string }) {
   return `s3://${Bucket}/${Key}`
 }
 
@@ -79,8 +79,8 @@ export async function downloadFile(path, uri) {
       if (uri.includes('s3://')) {
         const file = fs.createWriteStream(path)
         s3.getObject({
-          Key: s3URI(uri).Key,
-          Bucket: s3URI(uri).Bucket,
+          Key: parseS3Uri(uri).Key,
+          Bucket: parseS3Uri(uri).Bucket,
         })
           .on('httpData', function (chunk) {
             file.write(chunk)
@@ -103,8 +103,8 @@ export async function downloadFile(path, uri) {
 
 export async function deleteFolder(uri: string) {
   const allFiles = await listObjects({
-    Prefix: s3URI(uri).Key,
-    Bucket: s3URI(uri).Bucket,
+    Prefix: parseS3Uri(uri).Key,
+    Bucket: parseS3Uri(uri).Bucket,
   })
 
   await Promise.all(
@@ -112,7 +112,7 @@ export async function deleteFolder(uri: string) {
       return s3
         .deleteObject({
           Key: f.Key,
-          Bucket: s3URI(uri).Bucket,
+          Bucket: parseS3Uri(uri).Bucket,
         })
         .promise()
     })
