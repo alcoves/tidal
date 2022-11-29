@@ -10,6 +10,11 @@ interface CreateThumbnailRequestData {
   time: string
 }
 
+interface CreateRenditionRequestData {
+  id: string
+  cmd: string
+}
+
 interface RetryJobRequestData {
   jobId: string
   queueName: string
@@ -45,6 +50,12 @@ export function getJob({ queryKey }: any) {
 export function createThumbnail(data: CreateThumbnailRequestData) {
   return axios
     .post(`${TIDAL_API_ENDPOINT}/videos/${data.id}/thumbnails`)
+    .then(result => result.data)
+}
+
+export function createRendition(data: CreateRenditionRequestData) {
+  return axios
+    .post(`${TIDAL_API_ENDPOINT}/videos/${data.id}/renditions`)
     .then(result => result.data)
 }
 

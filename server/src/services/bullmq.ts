@@ -5,13 +5,7 @@ import queues from '../queues/queues'
 import { db } from '../config/db'
 import { v4 as uuidv4 } from 'uuid'
 import s3, { generateS3Uri, parseS3Uri } from '../lib/s3'
-import {
-  IngestionJobData,
-  TranscodeJobData,
-  ThumbnailJobData,
-  ThumbnailJobOptions,
-  TranscodeJobOptions,
-} from '../types'
+import { IngestionJobData, TranscodeJobData, TranscodeJobOptions } from '../types'
 
 export async function enqueueIngestionJob(input: string) {
   const videoId = uuidv4()
@@ -90,40 +84,51 @@ export async function enqueueIngestionJob(input: string) {
 //   await queues[queueName].queue.add(jobName, thumbnailJob)
 // }
 
-// export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOptions) {
-//   const transcodeId = uuidv4()
-//   const jobName = 'transcode'
-//   const queueName = 'transcodes'
+export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOptions) {
+  const renditionId = uuidv4()
+  const jobName = 'transcode'
+  const queueName = 'transcodes'
 
-//   const video = await db.video.findUnique({ where: { id: videoId }, include: { source: true } })
-//   if (!video || !video.source) return
+  const video = await db.video.findUnique({
+    where: { id: videoId },
+    include: {
+      renditions: {
+        where: { type: 'ORIGINAL' },
+      },
+    },
+  })
+  if (!video || !video?.renditions?.length) return
 
-//   const sourceUrl = await s3.getSignedUrlPromise('getObject', parseS3Uri(video.source.s3Uri))
+  const sourceUrl = await s3.getSignedUrlPromise(
+    'getObject',
+    parseS3Uri(video.renditions[0].location)
+  )
 
-//   const s3OutputUri = generateS3Uri({
-//     Bucket: process.env.TIDAL_BUCKET || '',
-//     Key: `assets/videos/${videoId}/transcodes/${transcodeId}/${opts.filename}`,
-//   })
+  const s3OutputUri = generateS3Uri({
+    Bucket: process.env.TIDAL_BUCKET || '',
+    Key: `assets/videos/${videoId}/renditions/${renditionId}/${renditionId}.${opts.container}`,
+  })
 
-//   const transcodeJob: TranscodeJobData = {
-//     videoId,
-//     transcodeId,
-//     s3OutputUri,
-//     cmd: opts.cmd,
-//     input: sourceUrl,
-//   }
+  const transcodeJob: TranscodeJobData = {
+    videoId,
+    cmd: opts.cmd,
+    id: renditionId,
+    input: sourceUrl,
+    location: s3OutputUri,
+  }
 
-//   await db.transcode.create({
-//     data: {
-//       videoId,
-//       id: transcodeId,
-//       s3Uri: s3OutputUri,
-//       playbackId: opts.playbackId || '',
-//     },
-//   })
+  await db.videoRendition.create({
+    data: {
+      videoId,
+      type: 'OTHER',
+      id: renditionId,
+      input: sourceUrl,
+      location: s3OutputUri,
+    },
+  })
 
-//   await queues[queueName].queue.add(jobName, transcodeJob)
-// }
+  await queues[queueName].queue.add(jobName, transcodeJob)
+}
 
 // export async function enqueuePlaybackJob(videoId: string) {
 //   //

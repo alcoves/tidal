@@ -11,6 +11,7 @@ import {
   AccordionIcon,
   AccordionPanel,
   AccordionButton,
+  HStack,
 } from '@chakra-ui/react'
 import { queues } from '../../config/global'
 
@@ -19,7 +20,7 @@ function getStatusBadgeColor(status: string) {
     case 'processing':
       return 'yellow'
     case 'ready':
-      return 'blue'
+      return 'green'
     case 'error':
       return 'red'
     default:
@@ -27,32 +28,36 @@ function getStatusBadgeColor(status: string) {
   }
 }
 
-export default function Encodes({ video }: { video: any }) {
+export default function Renditions({ renditions }: { renditions: any[] }) {
   return (
     <>
       <Box w='100%' border='1px' borderColor='teal.400' rounded='md'>
         <Box p='4' bg='teal.400'>
           <Flex w='100%' justify='space-between'>
-            <Heading size='md'>Encodes</Heading>
-            <Badge fontSize='1rem' variant='solid' colorScheme={getStatusBadgeColor(video.status)}>
-              {video.status}
-            </Badge>
+            <Heading size='md'>Renditions</Heading>
           </Flex>
           <Text> The video encodes. </Text>
         </Box>
-        {video?.transcodes.map((t: any) => {
+        {renditions.map((r: any) => {
           return (
-            <Accordion key={t.id} allowMultiple w='100%'>
+            <Accordion key={r.id} allowMultiple w='100%'>
               <AccordionItem border='none'>
                 <AccordionButton>
-                  <Box flex='1' textAlign='left'>
-                    <Text noOfLines={1}>{t.id}</Text>
-                  </Box>
+                  <HStack flex='1' textAlign='left'>
+                    <Badge
+                      fontSize='1rem'
+                      variant='solid'
+                      colorScheme={getStatusBadgeColor(r.status)}
+                    >
+                      {r.type}
+                    </Badge>
+                    <Text noOfLines={1}>{r.id}</Text>
+                  </HStack>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4} overflowY='auto'>
-                  <RetryJob queueName={queues.transcodes} jobId={t.id} videoId={video.id} />
-                  <pre>{JSON.stringify(t, null, 2)}</pre>
+                  {/* <RetryJob queueName={queues.transcodes} jobId={r.id} videoId={video.id} /> */}
+                  <pre>{JSON.stringify(r, null, 2)}</pre>
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>

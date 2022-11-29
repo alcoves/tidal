@@ -5,7 +5,7 @@ import {
   enqueueIngestionJob,
   // enqueuePlaybackJob,
   // enqueueThumbnailJob,
-  // enqueueTranscodeJob,
+  enqueueTranscodeJob,
 } from '../services/bullmq'
 
 export async function deleteVideo(req, res) {
@@ -16,7 +16,6 @@ export async function deleteVideo(req, res) {
   if (!video) return res.sendStatus(400)
   await deleteFolder(video.location)
   await db.video.delete({
-    include: { input: true },
     where: { id: req.params.videoId },
   })
 
@@ -28,15 +27,14 @@ export async function getVideo(req, res) {
     orderBy: { createdAt: 'desc' },
     where: { id: req.params.videoId, deleted: false },
     include: {
-      input: true,
       // thumbnails: {
       //   where: { deleted: false },
       //   orderBy: { createdAt: 'desc' },
       // },
-      // transcodes: {
-      //   where: { deleted: false },
-      //   orderBy: { createdAt: 'desc' },
-      // },
+      renditions: {
+        where: { deleted: false },
+        orderBy: { createdAt: 'desc' },
+      },
       // playbacks: {
       //   where: { deleted: false },
       //   orderBy: { createdAt: 'desc' },
@@ -110,25 +108,30 @@ export async function createVideo(req, res) {
 //   return res.status(202).end()
 // }
 
-// export async function createTranscode(req, res) {
-//   const { videoId } = req.params
-//   const schema = Joi.object({
-//     cmd: Joi.string().required(),
-//     filename: Joi.string().required(),
-//   })
+export async function createRendition(req, res) {
+  const { videoId } = req.params
+  const schema = Joi.object({
+    cmd: Joi.string().required(),
+    container: Joi.string().required(),
+  })
 
-//   const { error, value } = schema.validate(req.body, {
-//     abortEarly: false, // include all errors
-//     allowUnknown: true, // ignore unknown props
-//     stripUnknown: true, // remove unknown props
-//   })
-//   if (error) return res.status(400).json(error)
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false, // include all errors
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  })
+  if (error) return res.status(400).json(error)
 
-//   await enqueueTranscodeJob(videoId, {
-//     videoId,
-//     cmd: value.cmd,
-//     filename: value.filename,
-//   })
+  const video = await db.video.findUnique({
+    where: { id: videoId },
+  })
+  if (!video) return res.sendStatus(404)
 
-//   return res.status(202).end()
-// }
+  await enqueueTranscodeJob(videoId, {
+    videoId,
+    cmd: value.cmd,
+    container: value.container,
+  })
+
+  return res.status(202).end()
+}

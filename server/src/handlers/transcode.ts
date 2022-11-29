@@ -10,8 +10,8 @@ export async function transcodeJob(job: TranscodeJob) {
   console.info(chalk.blue('creating temporary directory'))
   const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')
 
-  const filename = path.basename(job.data.s3OutputUri)
-  const { Bucket, Key } = parseS3Uri(job.data.s3OutputUri)
+  const filename = path.basename(job.data.location)
+  const { Bucket, Key } = parseS3Uri(job.data.location)
 
   try {
     await ffmpeg(`-i ${job.data.input} ${job.data.cmd} ${filename}`, {
@@ -20,8 +20,8 @@ export async function transcodeJob(job: TranscodeJob) {
 
     if (filename.includes('.m3u8')) {
       console.info(chalk.blue('uploading hls directory to remote'))
-      const hlsUploadUri = path.dirname(parseS3Uri(job.data.s3OutputUri).Key)
-      await uploadDir(tmpDir, hlsUploadUri, parseS3Uri(job.data.s3OutputUri).Bucket)
+      const hlsUploadUri = path.dirname(parseS3Uri(job.data.location).Key)
+      await uploadDir(tmpDir, hlsUploadUri, parseS3Uri(job.data.location).Bucket)
     } else {
       console.info(chalk.blue('uploading single output to remote'))
       await s3

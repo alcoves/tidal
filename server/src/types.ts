@@ -34,16 +34,15 @@ export interface WebhookJobData {
 export interface TranscodeJobOptions {
   cmd: string
   videoId: string
-  filename: string
-  playbackId?: string
+  container: string
 }
 
 export interface TranscodeJobData {
+  id: string
   cmd: string
   input: string
   videoId: string
-  s3OutputUri: string
-  transcodeId: string
+  location: string
 }
 
 export interface TranscodeJob extends Job {
