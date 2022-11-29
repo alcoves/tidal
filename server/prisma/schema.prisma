@@ -16,6 +16,37 @@ enum Status {
   PROCESSING
 }
 
+enum VideoRenditionType {
+  ORIGINAL
+  MEZZANINE
+  OTHER
+}
+
+model Video {
+  id         String           @id @default(uuid())
+  status     Status           @default(PROCESSING)
+  location   String
+  renditions VideoRendition[]
+  deleted    Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+// A rendition could be the original, a mezzaine file, or a transcode
+model VideoRendition {
+  id        String             @id @default(uuid())
+  status    Status             @default(PROCESSING)
+  input     String
+  location  String
+  metadata  Json?
+  type      VideoRenditionType
+  video     Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId   String             @unique
+  deleted   Boolean            @default(false)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
 // model Playback {
 //   id         String      @id @default(uuid())
 //   transcodes Transcode[]
@@ -52,27 +83,3 @@ enum Status {
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
 // }
-
-// VideoInput represents the source file
-model VideoInput {
-  id        String   @id @default(uuid())
-  status    Status   @default(PROCESSING)
-  input     String
-  location  String
-  metadata  Json?
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId   String   @unique
-  deleted   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Video {
-  id        String      @id @default(uuid())
-  status    Status      @default(PROCESSING)
-  location  String
-  input     VideoInput?
-  deleted   Boolean     @default(false)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-}
