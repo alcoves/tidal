@@ -39,9 +39,10 @@ export async function enqueueIngestionJob(input: string) {
     data: {
       location,
       id: videoId,
-      input: {
+      renditions: {
         create: {
           input,
+          type: 'ORIGINAL',
           id: ingestionId,
           location: videoInputLocation,
         },

@@ -24,7 +24,7 @@ enum VideoRenditionType {
 
 model Video {
   id         String           @id @default(uuid())
-  status     Status           @default(PROCESSING)
+  status     Status           @default(PROCESSING) // TODO :: Dont need this?
   location   String
   renditions VideoRendition[]
   deleted    Boolean          @default(false)
@@ -32,14 +32,13 @@ model Video {
   updatedAt  DateTime         @updatedAt
 }
 
-// A rendition could be the original, a mezzaine file, or a transcode
 model VideoRendition {
   id        String             @id @default(uuid())
   status    Status             @default(PROCESSING)
   input     String
   location  String
   metadata  Json?
-  type      VideoRenditionType
+  type      VideoRenditionType @default(OTHER)
   video     Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
   videoId   String             @unique
   deleted   Boolean            @default(false)
