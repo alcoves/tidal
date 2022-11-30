@@ -6,7 +6,7 @@ import { getVideo } from '../../services/getVideo'
 import { useQuery } from '@tanstack/react-query'
 import { Box, Text, Code, HStack, VStack, Heading, Spinner } from '@chakra-ui/react'
 
-import Renditions from './Renditions'
+import Files from './Files'
 import QueryError from '../QueryError'
 import CreateRendition from './CreateRendition'
 // import Thumbnails from './Thumbnails'
@@ -29,7 +29,7 @@ export default function VideoAsset() {
         <Text>Created: {DateTime.fromISO(data?.createdAt).toFormat('ff')}</Text>
         <Text>Updated: {DateTime.fromISO(data?.updatedAt).toFormat('ff')}</Text>
         <VStack maxW='600px' mt='4' spacing='6'>
-          <Renditions renditions={data?.renditions || []} />
+          <Files assets={data?.files || []} />
           {/* <Input video={data} /> */}
           {/* <Thumbnails video={data} />
           <Playbacks video={data} />

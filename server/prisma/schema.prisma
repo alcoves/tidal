@@ -16,34 +16,33 @@ enum Status {
   PROCESSING
 }
 
-enum VideoRenditionType {
+enum VideoFileType {
   ORIGINAL
-  MEZZANINE
-  OTHER
+  RENDITION
 }
 
 model Video {
-  id         String           @id @default(uuid())
-  status     Status           @default(PROCESSING) // TODO :: Dont need this?
-  location   String
-  renditions VideoRendition[]
-  deleted    Boolean          @default(false)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  id        String      @id @default(uuid())
+  status    Status      @default(PROCESSING)
+  location  String
+  files     VideoFile[]
+  deleted   Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
-model VideoRendition {
-  id        String             @id @default(uuid())
-  status    Status             @default(PROCESSING)
+model VideoFile {
+  id        String        @id @default(uuid())
+  status    Status        @default(PROCESSING)
   input     String
   location  String
   metadata  Json?
-  type      VideoRenditionType @default(OTHER)
-  video     Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  type      VideoFileType
+  video     Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
   videoId   String
-  deleted   Boolean            @default(false)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  deleted   Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 // model Playback {
@@ -55,20 +54,6 @@ model VideoRendition {
 //   deleted    Boolean     @default(false)
 //   createdAt  DateTime    @default(now())
 //   updatedAt  DateTime    @updatedAt
-// }
-
-// model Transcode {
-//   id         String    @id @default(uuid())
-//   s3Uri      String
-//   metadata   String    @default("")
-//   status     Status    @default(PROCESSING)
-//   videoId    String
-//   video      Video     @relation(fields: [videoId], references: [id])
-//   playbackId String?
-//   playback   Playback? @relation(fields: [playbackId], references: [id])
-//   deleted    Boolean   @default(false)
-//   createdAt  DateTime  @default(now())
-//   updatedAt  DateTime  @updatedAt
 // }
 
 // model Thumbnail {

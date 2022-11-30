@@ -6,7 +6,7 @@ export const transcode = {
   onFailed: async (job: TranscodeJob, err: Error) => {
     console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
     if (job.name === 'transcode') {
-      await db.videoRendition.update({
+      await db.videoFile.update({
         where: { id: job.data.id },
         data: { status: 'ERROR' },
       })
@@ -18,7 +18,7 @@ export const transcode = {
   onCompleted: async (job: TranscodeJob) => {
     console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
     if (job.name === 'transcode') {
-      await db.videoRendition.update({
+      await db.videoFile.update({
         where: { id: job.data.id },
         data: { status: 'READY', metadata: job.returnvalue },
       })
@@ -54,7 +54,7 @@ export const ingestion = {
   onFailed: async (job: IngestionJob, err: Error) => {
     console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
     if (job.name === 'ingestion') {
-      await db.videoRendition.update({
+      await db.videoFile.update({
         where: { id: job.data.ingestionId },
         data: { status: 'ERROR' },
       })
@@ -72,7 +72,7 @@ export const ingestion = {
   onCompleted: async (job: IngestionJob) => {
     console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
     if (job.name === 'ingestion') {
-      await db.videoRendition.update({
+      await db.videoFile.update({
         where: { id: job.data.ingestionId },
         data: { status: 'READY', metadata: job.returnvalue },
       })

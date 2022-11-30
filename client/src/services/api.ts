@@ -10,7 +10,7 @@ interface CreateThumbnailRequestData {
   time: string
 }
 
-interface CreateRenditionRequestData {
+interface CreateVideoFileRequestData {
   id: string
   cmd: string
 }
@@ -53,10 +53,8 @@ export function createThumbnail(data: CreateThumbnailRequestData) {
     .then(result => result.data)
 }
 
-export function createRendition(data: CreateRenditionRequestData) {
-  return axios
-    .post(`${TIDAL_API_ENDPOINT}/videos/${data.id}/renditions`)
-    .then(result => result.data)
+export function createVideoFile(data: CreateVideoFileRequestData) {
+  return axios.post(`${TIDAL_API_ENDPOINT}/videos/${data.id}/files`).then(result => result.data)
 }
 
 export function createPlayback(data: CreatePlaybackRequestData) {

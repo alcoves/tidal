@@ -31,9 +31,9 @@ export async function getVideo(req, res) {
       //   where: { deleted: false },
       //   orderBy: { createdAt: 'desc' },
       // },
-      renditions: {
+      files: {
         where: { deleted: false },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { type: 'desc' },
       },
       // playbacks: {
       //   where: { deleted: false },
