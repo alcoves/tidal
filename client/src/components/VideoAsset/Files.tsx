@@ -14,6 +14,7 @@ import {
   HStack,
 } from '@chakra-ui/react'
 import { queues } from '../../config/global'
+import VideoPlayer from '../VideoPlayer'
 
 function getStatusBadgeColor(status: string) {
   switch (status.toLowerCase()) {
@@ -58,6 +59,10 @@ export default function VideoFiles({ assets }: { assets: any[] }) {
                 <AccordionPanel pb={4} overflowY='auto'>
                   {/* <RetryJob queueName={queues.transcodes} jobId={r.id} videoId={video.id} /> */}
                   <pre>{JSON.stringify(r, null, 2)}</pre>
+                  <VideoPlayer
+                    key={r.id}
+                    src={`http://localhost:4566/${r.location.split('s3://')[1]}`}
+                  />
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
