@@ -33,7 +33,7 @@ export async function getVideo(req, res) {
       // },
       files: {
         where: { deleted: false },
-        orderBy: { type: 'desc' },
+        orderBy: { type: 'asc' },
       },
       // playbacks: {
       //   where: { deleted: false },
