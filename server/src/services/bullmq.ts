@@ -33,7 +33,7 @@ export async function enqueueIngestionJob(input: string) {
     data: {
       location,
       id: videoId,
-      renditions: {
+      files: {
         create: {
           input,
           type: 'ORIGINAL',
@@ -92,21 +92,18 @@ export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOpt
   const video = await db.video.findUnique({
     where: { id: videoId },
     include: {
-      renditions: {
+      files: {
         where: { type: 'ORIGINAL' },
       },
     },
   })
-  if (!video || !video?.renditions?.length) return
+  if (!video || !video?.files?.length) return
 
-  const sourceUrl = await s3.getSignedUrlPromise(
-    'getObject',
-    parseS3Uri(video.renditions[0].location)
-  )
+  const sourceUrl = await s3.getSignedUrlPromise('getObject', parseS3Uri(video.files[0].location))
 
   const s3OutputUri = generateS3Uri({
     Bucket: process.env.TIDAL_BUCKET || '',
-    Key: `assets/videos/${videoId}/renditions/${renditionId}/${renditionId}.${opts.container}`,
+    Key: `assets/videos/${videoId}/files/${renditionId}/${renditionId}.${opts.container}`,
   })
 
   const transcodeJob: TranscodeJobData = {
@@ -117,10 +114,10 @@ export async function enqueueTranscodeJob(videoId: string, opts: TranscodeJobOpt
     location: s3OutputUri,
   }
 
-  await db.videoRendition.create({
+  await db.videoFile.create({
     data: {
       videoId,
-      type: 'OTHER',
+      type: 'RENDITION',
       id: renditionId,
       input: sourceUrl,
       location: s3OutputUri,

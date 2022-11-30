@@ -19,14 +19,14 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { getThumbnailUrlFromS3Uri } from '../config/utils'
 
-export default function VideoAssets() {
+export default function VideoFiles() {
   const navigate = useNavigate()
   const { data } = useQuery(['videos'], getVideos)
 
   return (
     <Box>
       <Flex w='100%' align='start' justify='space-between'>
-        <Heading size='lg'>Video Assets</Heading>
+        <Heading size='lg'>Video Files</Heading>
         <AddJob />
       </Flex>
       <Box pt='4'>

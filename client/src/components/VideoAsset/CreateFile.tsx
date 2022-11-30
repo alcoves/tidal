@@ -12,13 +12,13 @@ import {
   Input,
 } from '@chakra-ui/react'
 import { IoSettingsSharp } from 'react-icons/io5'
-import { createRendition } from '../../services/api'
+import { createVideoFile } from '../../services/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export default function CreateRendition({ videoId }: { videoId: string }) {
   const queryClient = useQueryClient()
 
-  const mutation = useMutation(createRendition, {
+  const mutation = useMutation(createVideoFile, {
     onSuccess: () => {
       queryClient.invalidateQueries(['videos', videoId])
       onClose()
@@ -39,16 +39,16 @@ export default function CreateRendition({ videoId }: { videoId: string }) {
         onClick={onOpen}
         colorScheme='teal'
       >
-        Create Rendition
+        Create File
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create Rendition</ModalHeader>
+          <ModalHeader>Create File</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Creates a rendition given an ffmpeg command</Text>
+            <Text>Creates a new video file given an ffmpeg command</Text>
             <Input placeholder='-' />
           </ModalBody>
           <ModalFooter>

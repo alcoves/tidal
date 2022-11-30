@@ -108,7 +108,7 @@ export async function createVideo(req, res) {
 //   return res.status(202).end()
 // }
 
-export async function createRendition(req, res) {
+export async function createVideoFile(req, res) {
   const { videoId } = req.params
   const schema = Joi.object({
     cmd: Joi.string().required(),

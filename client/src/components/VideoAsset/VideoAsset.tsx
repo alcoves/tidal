@@ -8,7 +8,7 @@ import { Box, Text, Code, HStack, VStack, Heading, Spinner } from '@chakra-ui/re
 
 import Files from './Files'
 import QueryError from '../QueryError'
-import CreateRendition from './CreateRendition'
+import CreateFile from './CreateFile'
 // import Thumbnails from './Thumbnails'
 // import Playbacks from './Playbacks'
 
@@ -22,7 +22,7 @@ export default function VideoAsset() {
         <Heading size='lg'>Video Asset</Heading>
         <Code>{`GET /assets/videos/${videoId}`}</Code>
         <HStack mt='2' mb='10'>
-          <CreateRendition videoId={videoId} />
+          <CreateFile videoId={videoId} />
           <DeleteVideoAsset videoId={videoId} />
         </HStack>
         <Text>Asset Id: {data?.id}</Text>

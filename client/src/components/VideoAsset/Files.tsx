@@ -28,17 +28,17 @@ function getStatusBadgeColor(status: string) {
   }
 }
 
-export default function Renditions({ renditions }: { renditions: any[] }) {
+export default function VideoFiles({ assets }: { assets: any[] }) {
   return (
     <>
       <Box w='100%' border='1px' borderColor='teal.400' rounded='md'>
         <Box p='4' bg='teal.400'>
           <Flex w='100%' justify='space-between'>
-            <Heading size='md'>Renditions</Heading>
+            <Heading size='md'>Files</Heading>
           </Flex>
-          <Text> The video encodes. </Text>
+          <Text> Files for your video </Text>
         </Box>
-        {renditions.map((r: any) => {
+        {assets.map((r: any) => {
           return (
             <Accordion key={r.id} allowMultiple w='100%'>
               <AccordionItem border='none'>

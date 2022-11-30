@@ -5,7 +5,7 @@ import {
   listVideos,
   deleteVideo,
   createVideo,
-  createRendition,
+  createVideoFile,
 } from '../controllers/videos'
 
 const router = express.Router()
@@ -15,6 +15,6 @@ router.post('/', apiKeyAuth, createVideo)
 router.get('/:videoId', apiKeyAuth, getVideo)
 router.delete('/:videoId', apiKeyAuth, deleteVideo)
 
-router.post('/:videoId/renditions', apiKeyAuth, createRendition)
+router.post('/:videoId/files', apiKeyAuth, createVideoFile)
 
 export default router
