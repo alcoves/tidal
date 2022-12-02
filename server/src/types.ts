@@ -21,9 +21,14 @@ export interface QueueFactory {
   worker: Worker
 }
 
-export enum AdaptiveTranscodeType {
-  video = 'video',
-  audio = 'audio',
+export interface AdaptiveTranscodeJobData {
+  input: string
+  videoId: string
+  playbackId: string
+}
+
+export interface AdaptiveTranscodeJob extends Job {
+  data: AdaptiveTranscodeJobData
 }
 
 export interface WebhookJobData {
@@ -34,45 +39,6 @@ export interface WebhookJobData {
   name: string | undefined
   progress: number | object
   queueName: string | undefined
-}
-
-export interface TranscodeJobOptions {
-  cmd: string
-  videoId: string
-  container: string
-}
-
-export interface TranscodeJobData {
-  id: string
-  cmd: string
-  input: string
-  videoId: string
-  location: string
-}
-
-export interface TranscodeJob extends Job {
-  data: TranscodeJobData
-}
-
-export interface VideoJobData {
-  cmd: string
-  input: string
-  output: string
-}
-
-export interface IngestionJobData {
-  input: string
-  videoId: string
-  videoFileId: string
-  s3OutputUri: string
-}
-
-export interface IngestionJob extends Job {
-  data: IngestionJobData
-}
-
-export interface VideoJob extends Job {
-  data: VideoJobData
 }
 
 export interface WebhookJob extends Job {
@@ -95,22 +61,6 @@ export interface ThumbnailJobData extends ThumbnailJobOptions {
 
 export interface ThumbnailJob extends Job {
   data: ThumbnailJobData
-}
-
-export interface AdaptiveTranscodeStruct {
-  cmd: string
-  outputFilename: string
-  type: AdaptiveTranscodeType
-}
-
-export interface AdaptiveTranscodeJobData {
-  input: string
-  output: string
-  assetId: string
-}
-
-export interface AdaptiveTranscodeJob extends Job {
-  data: AdaptiveTranscodeJobData
 }
 
 export interface VideoPreset {

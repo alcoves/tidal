@@ -1,81 +1,54 @@
 import chalk from 'chalk'
 import { db } from '../config/db'
-import { IngestionJob, TranscodeJob } from '../types'
+import { AdaptiveTranscodeJob, ThumbnailJob } from '../types'
 
-export const transcode = {
-  onFailed: async (job: TranscodeJob, err: Error) => {
-    console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-    if (job.name === 'transcode') {
-      await db.videoFile.update({
-        where: { id: job.data.id },
-        data: { status: 'ERROR' },
-      })
-    }
+export const adaptiveTranscode = {
+  onFailed: async (job: AdaptiveTranscodeJob, err: Error) => {
+    console.debug(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
+    await db.videoPlayback.update({
+      where: { id: job.data.playbackId },
+      data: { status: 'ERROR' },
+    })
   },
-  onProgress: async (job: TranscodeJob) => {
-    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+  onProgress: async (job: AdaptiveTranscodeJob) => {
+    console.debug(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+    await db.videoPlayback.upsert({
+      where: { id: job.data.playbackId },
+      update: { status: 'PROCESSING' },
+      create: {
+        status: 'PROCESSING',
+        id: job.data.playbackId,
+        videoId: job.data.videoId,
+      },
+    })
   },
-  onCompleted: async (job: TranscodeJob) => {
-    console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-    if (job.name === 'transcode') {
-      await db.videoFile.update({
-        where: { id: job.data.id },
-        data: { status: 'READY', metadata: job.returnvalue },
-      })
-    }
+  onCompleted: async (job: AdaptiveTranscodeJob) => {
+    console.debug(chalk.green.bold(`${job.queueName}:${job.id}`))
+    await db.videoPlayback.update({
+      data: { status: 'READY' },
+      where: { id: job.data.playbackId },
+    })
   },
 }
 
-// export const thumbnail = {
-//   onFailed: async (job: ThumbnailJob, err: Error) => {
-//     console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-//     if (job.name === 'thumbnail') {
-//       await db.thumbnail.update({
-//         where: { id: job.data.thumbnailId },
-//         data: { status: 'ERROR' },
-//       })
-//     }
-//   },
-//   onProgress: async (job: ThumbnailJob) => {
-//     console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-//   },
-//   onCompleted: async (job: ThumbnailJob) => {
-//     console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-//     if (job.name === 'thumbnail') {
-//       await db.thumbnail.update({
-//         where: { id: job.data.thumbnailId },
-//         data: { status: 'READY' },
-//       })
-//     }
-//   },
-// }
-
-export const ingestion = {
-  onFailed: async (job: IngestionJob, err: Error) => {
+export const thumbnail = {
+  onFailed: async (job: ThumbnailJob, err: Error) => {
     console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
-    if (job.name === 'ingestion') {
-      await db.videoFile.update({
-        where: { id: job.data.videoFileId },
-        data: { status: 'ERROR' },
-      })
-    }
-  },
-  onProgress: async (job: IngestionJob) => {
-    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-    // if (job.name === 'ingestion') {
-    // await db.videoInput.update({
-    //   where: { id: job.data.videoFileId },
-    //   data: { progress: job.progress, status: "PROCESSING" },
-    // })
+    // if (job.name === 'thumbnail') {
+    //   await db.videoThumbnail.update({
+    //     where: { id: job.data.thumbnailId },
+    //   })
     // }
   },
-  onCompleted: async (job: IngestionJob) => {
+  onProgress: async (job: ThumbnailJob) => {
+    console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
+  },
+  onCompleted: async (job: ThumbnailJob) => {
     console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
-    if (job.name === 'ingestion') {
-      await db.videoFile.update({
-        where: { id: job.data.videoFileId },
-        data: { status: 'READY', metadata: job.returnvalue },
-      })
-    }
+    // if (job.name === 'thumbnail') {
+    //   await db.videoThumbnail.update({
+    //     where: { id: job.data.thumbnailId },
+    //   })
+    // }
   },
 }

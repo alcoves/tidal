@@ -1,19 +1,38 @@
+import queues from '../queues/queues'
+
 import { v4 as uuid } from 'uuid'
 import { db } from '../config/db'
 import globals from '../config/globals'
 import s3, { deleteFolder } from '../lib/s3'
+import { AdaptiveTranscodeJobData } from '../types'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
   const videoFileId = uuid()
 
+  const videoLocation = `assets/videos/${videoId}`
+  const videoFileInputLocation = `${videoLocation}/files/${videoFileId}`
   const presignedPutRequest = await s3.getSignedUrlPromise('putObject', {
-    Key: `assets/videos/${videoId}/files/${videoFileId}`,
+    Key: videoFileInputLocation,
     Bucket: globals.tidalBucket,
   })
 
+  await db.video.create({
+    data: {
+      id: videoId,
+      location: videoLocation,
+      files: {
+        create: {
+          type: 'ORIGINAL',
+          id: videoFileId,
+          location: videoFileInputLocation,
+        },
+      },
+    },
+  })
+
   return res.json({
-    fileId: videoFileId,
+    videoId,
     link: presignedPutRequest,
   })
 }
@@ -37,19 +56,14 @@ export async function getVideo(req, res) {
     orderBy: { createdAt: 'desc' },
     where: { id: req.params.videoId },
     include: {
-      // thumbnails: {
-      //   orderBy: { createdAt: 'desc' },
-      // },
       files: {
         orderBy: { type: 'asc' },
       },
+      // thumbnails: {
+      //   orderBy: { createdAt: 'desc' },
+      // },
       // playbacks: {
       //   orderBy: { createdAt: 'desc' },
-      //   include: {
-      //     transcodes: {
-      //       orderBy: { createdAt: 'desc' },
-      //     },
-      //   },
       // },
     },
   })
@@ -67,6 +81,40 @@ export async function listVideos(req, res) {
     // },
   })
   res.json({ videos })
+}
+
+export async function startVideoProcessing(req, res) {
+  const { videoId } = req.params
+
+  const video = await db.video.findUnique({
+    where: { id: videoId },
+    include: {
+      files: {
+        where: {
+          type: 'ORIGINAL',
+        },
+      },
+    },
+  })
+  if (!video) return res.sendStatus(404)
+  if (!video.files.length) return res.sendStatus(400)
+
+  const originalVideoFile = video.files[0]
+
+  await db.videoFile.update({
+    where: { id: originalVideoFile.id },
+    data: {
+      status: 'READY',
+    },
+  })
+
+  await queues.adaptiveTranscode.queue.add('adaptiveTranscode', {
+    videoId,
+    playbackId: uuid(),
+    input: originalVideoFile.location,
+  } as AdaptiveTranscodeJobData)
+
+  return res.status(202).end()
 }
 
 // export async function createThumbnail(req, res) {

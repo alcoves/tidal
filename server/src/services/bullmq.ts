@@ -3,7 +3,6 @@
 // import { db } from '../config/db'
 // import { v4 as uuidv4 } from 'uuid'
 // import s3, { generateS3Uri, parseS3Uri } from '../lib/s3'
-// import { TranscodeJobData, TranscodeJobOptions } from '../types'
 
 export default {}
 
