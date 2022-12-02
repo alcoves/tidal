@@ -22,15 +22,26 @@ export interface QueueFactory {
   worker: Worker
 }
 
-export interface AdaptiveTranscodeJobData {
+export interface PackagingJobData {
   input: string
   output: string
   videoId: string
-  playbackId: string
+  packageId: string
 }
 
-export interface AdaptiveTranscodeJob extends Job {
-  data: AdaptiveTranscodeJobData
+export interface PackagingJob extends Job {
+  data: PackagingJobData
+}
+
+export interface TranscodeJobData {
+  input: string
+  output: string
+  videoId: string
+  packageId?: string
+}
+
+export interface TranscodeJob extends Job {
+  data: TranscodeJobData
 }
 
 export interface WebhookJobData {

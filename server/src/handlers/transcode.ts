@@ -2,11 +2,11 @@ import chalk from 'chalk'
 import fs from 'fs-extra'
 
 import { ffmpeg } from '../lib/ffmpeg'
-import { AdaptiveTranscodeJob } from '../types'
+import { TranscodeJob } from '../types'
 import s3, { parseS3Uri, uploadDir } from '../lib/s3'
 import globals from '../config/globals'
 
-export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
+export async function transcodeJob(job: TranscodeJob) {
   await job.updateProgress(1)
   console.info(chalk.blue('creating temporary directory'))
   const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')

@@ -124,8 +124,8 @@ export function getVideoSourceLocation(videoId: string) {
   return `s3://${globals.tidalBucket}/assets/videos/${videoId}`
 }
 
-export function getAdaptiveLocation(videoId: string, playbackId: string) {
-  return `s3://${globals.tidalBucket}/assets/videos/${videoId}/playbacks/${playbackId}/${globals.mainM3U8Name}`
+export function getVideoPackageLocation(videoId: string, packageId: string) {
+  return `s3://${globals.tidalBucket}/assets/videos/${videoId}/packages/${packageId}/${globals.mainM3U8Name}`
 }
 
 export default s3

@@ -6,15 +6,15 @@ export async function renderVideoPlayer(req, res) {
   const video = await db.video.findUnique({
     where: { id: videoId },
     include: {
-      playbacks: {
+      packages: {
         orderBy: { createdAt: 'desc' },
       },
     },
   })
   if (!video) return res.sendStatus(404)
-  if (!video?.playbacks?.length) return res.sendStatus(400)
+  if (!video?.packages?.length) return res.sendStatus(400)
 
-  const manifestUrl = video.playbacks[0].location.replace(
+  const manifestUrl = video.packages[0].location.replace(
     `s3://${globals.tidalBucket}`,
     globals.tidalEndpoint
   )

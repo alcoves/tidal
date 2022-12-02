@@ -3,7 +3,7 @@ import queues from '../queues/queues'
 import { v4 as uuid } from 'uuid'
 import { db } from '../config/db'
 import s3, { deleteFolder, getVideoSourceLocation, parseS3Uri } from '../lib/s3'
-import { AdaptiveTranscodeJobData } from '../types'
+import { TranscodeJobData } from '../types'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
@@ -61,7 +61,7 @@ export async function getVideo(req, res) {
       // thumbnails: {
       //   orderBy: { createdAt: 'desc' },
       // },
-      playbacks: {
+      packages: {
         orderBy: { createdAt: 'desc' },
       },
     },
@@ -108,12 +108,15 @@ export async function startVideoProcessing(req, res) {
   })
 
   const playbackId = uuid()
-  await queues.adaptiveTranscode.queue.add('adaptiveTranscode', {
+
+  // This is where
+
+  await queues.transcode.queue.add('transcode', {
     videoId,
     playbackId,
     input: originalVideoFile.location,
-    output: `${video.location}/playbacks/${playbackId}`,
-  } as AdaptiveTranscodeJobData)
+    output: `${video.location}/packages/${playbackId}`,
+  } as TranscodeJobData)
 
   return res.status(202).end()
 }
