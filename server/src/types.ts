@@ -1,8 +1,9 @@
 import { Job, Processor, Queue, Worker } from 'bullmq'
 
 export interface Globals {
+  mainM3U8Name: string
   tidalBucket: string
-  tidalCdnEndpoint: string
+  tidalEndpoint: string
 }
 
 export interface QueueFactoryOptions {

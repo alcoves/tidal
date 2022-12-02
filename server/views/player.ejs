@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width; height=device-height;">
+    <link rel="stylesheet" href="resource://content-accessible/TopLevelVideoDocument.css">
+    <script type="text/javascript" src="chrome://global/content/TopLevelVideoDocument.js"></script>
+    <title>Player</title>
+  </head>
+  <body>
+    <style>
+      video {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        max-width: 100%;
+        max-height: 100%;
+        user-select: none;
+        -moz-user-focus: normal;
+      }  
+    </style>
+    <video id="video" controls></video>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      const manifestUrl = "<%- manifestUrl %>"
+      if (Hls.isSupported()) {
+        const video = document.getElementById('video');
+        const hls = new Hls();
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          hls.loadSource(manifestUrl);
+        });
+      }
+      video.play();
+    </script>
+  </body>
+</html>

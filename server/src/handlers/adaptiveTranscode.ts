@@ -1,10 +1,10 @@
-import path from 'path'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 
 import { ffmpeg } from '../lib/ffmpeg'
 import { AdaptiveTranscodeJob } from '../types'
 import s3, { parseS3Uri, uploadDir } from '../lib/s3'
+import globals from '../config/globals'
 
 export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
   await job.updateProgress(1)
@@ -20,8 +20,7 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
   })
 
   const codecArgs = `-c:v libsvtav1 -crf 40 -preset 8 -c:a libopus -ac 2 -b:a 128k`
-  const hlsArgs = `-master_pl_name main.m3u8 -hls_time 6 -hls_playlist_type vod -hls_segment_type fmp4`
-  // -filter:v "scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2"
+  const hlsArgs = `-master_pl_name ${globals.mainM3U8Name} -hls_time 6 -hls_playlist_type vod -hls_segment_type fmp4`
   const resolutionArgs = `-filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`
   const command = `${codecArgs} ${hlsArgs} ${resolutionArgs} ${adaptiveSyncDir}/playlist.m3u8`
 

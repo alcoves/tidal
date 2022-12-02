@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import { db } from '../config/db'
+import { getAdaptiveLocation } from '../lib/s3'
 import { AdaptiveTranscodeJob, ThumbnailJob } from '../types'
 
 export const adaptiveTranscode = {
@@ -19,7 +20,7 @@ export const adaptiveTranscode = {
         status: 'PROCESSING',
         id: job.data.playbackId,
         videoId: job.data.videoId,
-        location: `assets/videos/${job.data.videoId}/playbacks/${job.data.playbackId}/main.m3u8`,
+        location: getAdaptiveLocation(job.data.videoId, job.data.playbackId),
       },
     })
   },

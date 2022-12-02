@@ -76,6 +76,7 @@ services:
       - .env
     volumes:
       - ./server/src:/usr/local/app/src
+      - ./server/views:/usr/local/app/views
       - ./server/prisma:/usr/local/app/prisma
   # worker:
   #   # depends_on:

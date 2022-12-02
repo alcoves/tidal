@@ -4,6 +4,7 @@ import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
 import readdir from 'recursive-readdir'
+import globals from '../config/globals'
 
 AWS.config.update({
   region: 'us-east-1',
@@ -21,8 +22,8 @@ const opts: AWS.S3.ClientConfiguration = {
   s3ForcePathStyle: true,
 }
 
-if (process.env.AWS_ENDPOINT) {
-  opts.endpoint = new AWS.Endpoint(process.env.AWS_ENDPOINT)
+if (globals.tidalEndpoint) {
+  opts.endpoint = new AWS.Endpoint(globals.tidalEndpoint)
 }
 
 const s3 = new AWS.S3(opts)
@@ -117,6 +118,14 @@ export async function deleteFolder(uri: string) {
         .promise()
     })
   )
+}
+
+export function getVideoSourceLocation(videoId: string) {
+  return `s3://${globals.tidalBucket}/assets/videos/${videoId}`
+}
+
+export function getAdaptiveLocation(videoId: string, playbackId: string) {
+  return `s3://${globals.tidalBucket}/assets/videos/${videoId}/playbacks/${playbackId}/${globals.mainM3U8Name}`
 }
 
 export default s3
