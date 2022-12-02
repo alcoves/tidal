@@ -55,7 +55,7 @@ export const ingestion = {
     console.log(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
     if (job.name === 'ingestion') {
       await db.videoFile.update({
-        where: { id: job.data.ingestionId },
+        where: { id: job.data.videoFileId },
         data: { status: 'ERROR' },
       })
     }
@@ -64,7 +64,7 @@ export const ingestion = {
     console.log(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
     // if (job.name === 'ingestion') {
     // await db.videoInput.update({
-    //   where: { id: job.data.ingestionId },
+    //   where: { id: job.data.videoFileId },
     //   data: { progress: job.progress, status: "PROCESSING" },
     // })
     // }
@@ -73,7 +73,7 @@ export const ingestion = {
     console.log(chalk.green.bold(`${job.queueName}:${job.id}`))
     if (job.name === 'ingestion') {
       await db.videoFile.update({
-        where: { id: job.data.ingestionId },
+        where: { id: job.data.videoFileId },
         data: { status: 'READY', metadata: job.returnvalue },
       })
     }

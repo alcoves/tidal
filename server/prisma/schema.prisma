@@ -10,60 +10,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum VideoType {
+  PROXY
+  ORIGINAL
+}
+
 enum Status {
   READY
   ERROR
   PROCESSING
 }
 
-enum VideoFileType {
-  ORIGINAL
-  RENDITION
-}
-
 model Video {
-  id        String      @id @default(uuid())
-  status    Status      @default(PROCESSING)
-  location  String
-  files     VideoFile[]
-  deleted   Boolean     @default(false)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id         String           @id @default(uuid())
+  location   String
+  files      VideoFile[]
+  playbacks  VideoPlayback[]
+  thumbnails VideoThumbnail[]
+  updatedAt  DateTime         @updatedAt
+  createdAt  DateTime         @default(now())
 }
 
 model VideoFile {
-  id        String        @id @default(uuid())
-  status    Status        @default(PROCESSING)
-  input     String
+  id        String    @id @default(uuid())
+  status    Status    @default(PROCESSING)
   location  String
   metadata  Json?
-  type      VideoFileType
-  video     Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId   String
-  deleted   Boolean       @default(false)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  type      VideoType
+  video     Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId   String    @unique
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
 }
 
-// model Playback {
-//   id         String      @id @default(uuid())
-//   transcodes Transcode[]
-//   videoId    String
-//   video      Video       @relation(fields: [videoId], references: [id])
-//   status     Status      @default(PROCESSING)
-//   deleted    Boolean     @default(false)
-//   createdAt  DateTime    @default(now())
-//   updatedAt  DateTime    @updatedAt
-// }
+model VideoPlayback {
+  id        String   @id @default(uuid())
+  status    Status   @default(PROCESSING)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
 
-// model Thumbnail {
-//   id        String   @id @default(uuid())
-//   url       String   @default("")
-//   s3Uri     String
-//   status    Status   @default(PROCESSING)
-//   videoId   String
-//   video     Video    @relation(fields: [videoId], references: [id])
-//   deleted   Boolean  @default(false)
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+model VideoThumbnail {
+  id        String   @id @default(uuid())
+  location  String
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}

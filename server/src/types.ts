@@ -1,5 +1,10 @@
 import { Job, Processor, Queue, Worker } from 'bullmq'
 
+export interface Globals {
+  tidalBucket: string
+  tidalCdnEndpoint: string
+}
+
 export interface QueueFactoryOptions {
   queueName: string
   concurrency: number
@@ -58,7 +63,7 @@ export interface VideoJobData {
 export interface IngestionJobData {
   input: string
   videoId: string
-  ingestionId: string
+  videoFileId: string
   s3OutputUri: string
 }
 
