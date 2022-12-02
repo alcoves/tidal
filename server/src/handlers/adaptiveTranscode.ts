@@ -10,19 +10,31 @@ export async function adaptiveTranscodeJob(job: AdaptiveTranscodeJob) {
   await job.updateProgress(1)
   console.info(chalk.blue('creating temporary directory'))
   const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')
+  const adaptiveSyncDir = `output`
+  const fullAdaptiveSyncDir = `${tmpDir}/${adaptiveSyncDir}`
+  await fs.ensureDir(fullAdaptiveSyncDir)
 
-  // const filename = path.basename(job.data.location)
-  // const { Bucket, Key } = parseS3Uri(job.data.location)
+  const sourceLink = await s3.getSignedUrlPromise('getObject', {
+    Key: parseS3Uri(job.data.input).Key,
+    Bucket: parseS3Uri(job.data.input).Bucket,
+  })
 
-  const command = '-c:v libx264 -crf 26 -preset slow -ac 2 -b:a 128k'
+  const codecArgs = `-c:v libsvtav1 -crf 40 -preset 8 -c:a libopus -ac 2 -b:a 128k`
+  const hlsArgs = `-master_pl_name main.m3u8 -hls_time 6 -hls_playlist_type vod -hls_segment_type fmp4`
+  // -filter:v "scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2"
+  const resolutionArgs = `-filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`
+  const command = `${codecArgs} ${hlsArgs} ${resolutionArgs} ${adaptiveSyncDir}/playlist.m3u8`
 
   try {
-    // await ffmpeg(`-i ${job.data.input} ${command} playlist.m3u8`, {
-    //   cwd: tmpDir,
-    // })
+    await ffmpeg(`-i ${sourceLink} ${command}`, {
+      cwd: tmpDir,
+    })
     console.info(chalk.blue('uploading hls directory to remote'))
-    // const hlsUploadUri = path.dirname(parseS3Uri(job.data.location).Key)
-    // await uploadDir(tmpDir, hlsUploadUri, parseS3Uri(job.data.location).Bucket)
+    await uploadDir(
+      fullAdaptiveSyncDir,
+      parseS3Uri(job.data.output).Key,
+      parseS3Uri(job.data.output).Bucket
+    )
   } catch (error) {
     console.error(chalk.red(error))
     throw error

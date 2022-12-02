@@ -46,6 +46,7 @@ model VideoFile {
 model VideoPlayback {
   id        String   @id @default(uuid())
   status    Status   @default(PROCESSING)
+  location  String
   videoId   String
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   updatedAt DateTime @updatedAt

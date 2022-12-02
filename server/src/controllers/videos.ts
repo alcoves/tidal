@@ -108,10 +108,12 @@ export async function startVideoProcessing(req, res) {
     },
   })
 
+  const playbackId = uuid()
   await queues.adaptiveTranscode.queue.add('adaptiveTranscode', {
     videoId,
-    playbackId: uuid(),
+    playbackId,
     input: originalVideoFile.location,
+    output: `${video.location}/playbacks/${playbackId}`,
   } as AdaptiveTranscodeJobData)
 
   return res.status(202).end()

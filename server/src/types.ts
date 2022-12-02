@@ -23,6 +23,7 @@ export interface QueueFactory {
 
 export interface AdaptiveTranscodeJobData {
   input: string
+  output: string
   videoId: string
   playbackId: string
 }

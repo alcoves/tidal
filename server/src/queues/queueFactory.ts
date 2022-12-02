@@ -6,7 +6,7 @@ export function queueFactory(config: QueueFactoryOptions): QueueFactory {
   const queue = new Queue(config.queueName, {
     connection,
     defaultJobOptions: {
-      attempts: 4,
+      attempts: 0,
       backoff: { delay: 1000 * 30, type: 'exponential' },
     },
   })

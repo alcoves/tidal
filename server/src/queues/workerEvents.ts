@@ -4,7 +4,7 @@ import { AdaptiveTranscodeJob, ThumbnailJob } from '../types'
 
 export const adaptiveTranscode = {
   onFailed: async (job: AdaptiveTranscodeJob, err: Error) => {
-    console.debug(chalk.red.bold(`${job.queueName}:${job.id} :: ${err.message}`))
+    console.debug(chalk.red.bold(`${job.queueName}:${job.id} :: Error:${JSON.stringify(err)}`))
     await db.videoPlayback.update({
       where: { id: job.data.playbackId },
       data: { status: 'ERROR' },
@@ -19,6 +19,7 @@ export const adaptiveTranscode = {
         status: 'PROCESSING',
         id: job.data.playbackId,
         videoId: job.data.videoId,
+        location: `assets/videos/${job.data.videoId}/playbacks/${job.data.playbackId}/main.m3u8`,
       },
     })
   },
