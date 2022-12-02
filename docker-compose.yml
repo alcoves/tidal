@@ -6,14 +6,14 @@ services:
       - ${REDIS_PORT}:${REDIS_PORT}
     command: redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
     volumes: 
-      - ./redis_volume:/data
+      - ./volumes/redis:/data
   postgres:
     restart: always
     image: postgres:15-alpine
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
-      - ./postgres_volume:/var/lib/postgresql/data
+      - ./volumes/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -37,7 +37,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
-      - ./localstack_volume:/tmp/localstack
+      - ./volumes/localstack:/tmp/localstack
   prisma-studio:
     image: timothyjmiller/prisma-studio:latest
     restart: unless-stopped
@@ -78,21 +78,3 @@ services:
       - ./server/src:/usr/local/app/src
       - ./server/views:/usr/local/app/views
       - ./server/prisma:/usr/local/app/prisma
-  # worker:
-  #   # depends_on:
-  #   #  - redis
-  #   #  - postgres
-  #   #  - localstack
-  #   # - server
-  #   restart: always
-  #   build:
-  #     context: .
-  #     dockerfile: docker/Dockerfile.dev_server
-  #   ports:
-  #     - ${API_PORT}:3001
-  #   environment:
-  #     TIDAL_WORKER: 1
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./server/src:/usr/local/app/src

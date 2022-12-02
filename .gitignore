@@ -69,9 +69,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # development volumes
-redis_volume/
-postgres_volume/
-localstack_volume/
-
-
-ffmpeg -hide_banner -loglevel error -y -i http://localhost:4566/tidal/assets/videos/87a32bfb-dd34-4275-a760-9130094c30d9/source.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=awstest%2F20221130%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20221130T021933Z&X-Amz-Expires=900&X-Amz-Signature=8717d55637e81bae35b3275fa91f2f79604412fd86bba5daf3577485c992a687&X-Amz-SignedHeaders=host -c:v libsvtav1 -crf 40 -preset 12 2e5de43f-1b3c-4908-927a-cbc5256f785d.mp4
+volumes/
