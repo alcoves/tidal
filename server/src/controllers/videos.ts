@@ -3,18 +3,18 @@ import queues from '../queues/queues'
 import { v4 as uuid } from 'uuid'
 import { db } from '../config/db'
 import globals from '../config/globals'
-import s3, { deleteFolder } from '../lib/s3'
+import s3, { deleteFolder, parseS3Uri } from '../lib/s3'
 import { AdaptiveTranscodeJobData } from '../types'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
   const videoFileId = uuid()
 
-  const videoLocation = `assets/videos/${videoId}`
+  const videoLocation = `s3://${globals.tidalBucket}/assets/videos/${videoId}`
   const videoFileInputLocation = `${videoLocation}/files/${videoFileId}`
   const presignedPutRequest = await s3.getSignedUrlPromise('putObject', {
-    Key: videoFileInputLocation,
-    Bucket: globals.tidalBucket,
+    Key: parseS3Uri(videoFileInputLocation).Key,
+    Bucket: parseS3Uri(videoFileInputLocation).Bucket,
   })
 
   await db.video.create({
@@ -62,9 +62,9 @@ export async function getVideo(req, res) {
       // thumbnails: {
       //   orderBy: { createdAt: 'desc' },
       // },
-      // playbacks: {
-      //   orderBy: { createdAt: 'desc' },
-      // },
+      playbacks: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
   if (videos.length) return res.json(videos[0])
