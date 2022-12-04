@@ -42,3 +42,14 @@ Assuming the local stack is running, you should use the API container to provisi
 docker exec -it tidal-server-1 sh
 npx prisma migrate dev
 ```
+
+### Upload Flow
+
+POST /videos/uploads - returns a URL to upload to and a videoId
+PUT upload url
+POST /videos/:videoId - kicks off the video process
+  - creates a probe job for the source file
+  - when probe for the original file is done, start the processing phase
+  - processing phase enqueues relevant transcoding jobs and packages videos
+
+GET /videos/:videoId/play - Once the video is processed, this link produces a player

@@ -9,6 +9,7 @@ import s3, {
   getVideoSourceLocation,
   getVideoPackageLocation,
 } from '../lib/s3'
+// import { getMetadata } from '../lib/video'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
@@ -110,6 +111,10 @@ export async function startVideoProcessing(req, res) {
       status: 'READY',
     },
   })
+
+  // This should
+  // const source
+  // const metadata = await getMetadata()
 
   const fileId1 = uuid()
   const fileId2 = uuid()
