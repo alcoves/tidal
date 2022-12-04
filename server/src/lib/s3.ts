@@ -74,11 +74,11 @@ export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
   }
 }
 
-export async function downloadFile(path, uri) {
+export async function downloadFile(outputPath, uri) {
   return new Promise((resolve, reject) => {
     try {
       if (uri.includes('s3://')) {
-        const file = fs.createWriteStream(path)
+        const file = fs.createWriteStream(outputPath)
         s3.getObject({
           Key: parseS3Uri(uri).Key,
           Bucket: parseS3Uri(uri).Bucket,

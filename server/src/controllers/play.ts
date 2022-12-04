@@ -7,6 +7,7 @@ export async function renderVideoPlayer(req, res) {
     where: { id: videoId },
     include: {
       packages: {
+        where: { status: 'READY' },
         orderBy: { createdAt: 'desc' },
       },
     },

@@ -1,9 +1,8 @@
-import queues from '../queues/queues'
-
 import { v4 as uuid } from 'uuid'
 import { db } from '../config/db'
-import s3, { deleteFolder, getVideoSourceLocation, parseS3Uri } from '../lib/s3'
 import { TranscodeJobData } from '../types'
+import { flowProducer } from '../queues/flow'
+import s3, { deleteFolder, getVideoSourceLocation, parseS3Uri } from '../lib/s3'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
@@ -107,16 +106,48 @@ export async function startVideoProcessing(req, res) {
     },
   })
 
-  const playbackId = uuid()
+  const packageId = uuid()
 
-  // This is where
+  const fileId1 = uuid()
+  const fileId2 = uuid()
 
-  await queues.transcode.queue.add('transcode', {
+  const videoTranscode: TranscodeJobData = {
     videoId,
-    playbackId,
+    videoFileId: fileId1,
+    cmd: `c:v libsvtav1 -crf 40 -preset 8 -c:a libopus -ac 2 -b:a 128k -filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`,
     input: originalVideoFile.location,
-    output: `${video.location}/packages/${playbackId}`,
-  } as TranscodeJobData)
+    output: `${video.location}/files/${fileId1}/${fileId1}.mkv`,
+  }
+
+  const audioTranscode: TranscodeJobData = {
+    videoId,
+    videoFileId: uuid(),
+    cmd: `-vn -c:a libopus -ac 2 -b:a 128k`,
+    outputFilename: 'output.ogg',
+    input: originalVideoFile.location,
+    output: `${video.location}/files/${packageId}`,
+  }
+
+  await flowProducer.add({
+    name: 'packaging',
+    queueName: 'packaging',
+    data: {
+      videoId,
+      inputs: [],
+    },
+    children: [
+      {
+        queueName: 'transcode',
+        name: 'v_1',
+        data: videoTranscode,
+      },
+      {
+        queueName: 'transcode',
+        name: 'a_1',
+        data: audioTranscode,
+      },
+    ],
+  })
 
   return res.status(202).end()
 }

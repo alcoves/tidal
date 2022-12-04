@@ -1,36 +1,38 @@
 import chalk from 'chalk'
+import path from 'path'
 import fs from 'fs-extra'
 
-import { ffmpeg } from '../lib/ffmpeg'
+import { gpac } from '../lib/gpac'
 import { PackagingJob } from '../types'
-import s3, { parseS3Uri, uploadDir } from '../lib/s3'
-import globals from '../config/globals'
+import { downloadFile, parseS3Uri, uploadDir } from '../lib/s3'
 
 export async function packagingJob(job: PackagingJob) {
   await job.updateProgress(1)
   console.info(chalk.blue('creating temporary directory'))
   const tmpDir = await fs.mkdtemp('/tmp/tidal-transcode-')
-  const adaptiveSyncDir = `output`
-  const fullAdaptiveSyncDir = `${tmpDir}/${adaptiveSyncDir}`
-  await fs.ensureDir(fullAdaptiveSyncDir)
 
-  const sourceLink = await s3.getSignedUrlPromise('getObject', {
-    Key: parseS3Uri(job.data.input).Key,
-    Bucket: parseS3Uri(job.data.input).Bucket,
-  })
+  console.info(chalk.blue('ensure working directories exist'))
+  const withAdaptiveAssetsDirectory = `${tmpDir}/output`
+  const withTranscodedAssetsDirectory = `${tmpDir}/inputs`
+  await fs.ensureDir(withAdaptiveAssetsDirectory)
+  await fs.ensureDir(withTranscodedAssetsDirectory)
 
-  const codecArgs = `-c:v libsvtav1 -crf 40 -preset 8 -c:a libopus -ac 2 -b:a 128k`
-  const hlsArgs = `-master_pl_name ${globals.mainM3U8Name} -hls_time 6 -hls_playlist_type vod -hls_segment_type fmp4`
-  const resolutionArgs = `-filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`
-  const command = `${codecArgs} ${hlsArgs} ${resolutionArgs} ${adaptiveSyncDir}/playlist.m3u8`
+  console.info(chalk.blue('downloading inputs'))
+  const inputPaths = await Promise.resolve(
+    job.data.inputs.map(i => {
+      const outputPath = `${tmpDir}/${path.basename(i)}`
+      return downloadFile(outputPath, i).then(() => outputPath)
+    })
+  )
+
+  const inputs = inputPaths.map(i => `-i ${i}`)
+  const gpacArgs = `-o ${withAdaptiveAssetsDirectory}/main.m3u8:profile=onDemand`
 
   try {
-    await ffmpeg(`-i ${sourceLink} ${command}`, {
-      cwd: tmpDir,
-    })
-    console.info(chalk.blue('uploading hls directory to remote'))
+    await gpac(`${inputs.join(' ')} ${gpacArgs}`)
+    console.info(chalk.blue('uploading directory to remote'))
     await uploadDir(
-      fullAdaptiveSyncDir,
+      withAdaptiveAssetsDirectory,
       parseS3Uri(job.data.output).Key,
       parseS3Uri(job.data.output).Bucket
     )

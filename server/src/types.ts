@@ -23,10 +23,10 @@ export interface QueueFactory {
 }
 
 export interface PackagingJobData {
-  input: string
+  inputs: string[]
   output: string
-  videoId: string
-  packageId: string
+  videoId: string // needed?
+  packageId: string // needed?
 }
 
 export interface PackagingJob extends Job {
@@ -34,10 +34,11 @@ export interface PackagingJob extends Job {
 }
 
 export interface TranscodeJobData {
+  cmd: string
   input: string
-  output: string
   videoId: string
-  packageId?: string
+  output: string
+  videoFileId: string
 }
 
 export interface TranscodeJob extends Job {
