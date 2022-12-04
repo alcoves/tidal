@@ -18,10 +18,11 @@ export async function packagingJob(job: PackagingJob) {
   await fs.ensureDir(withTranscodedAssetsDirectory)
 
   console.info(chalk.blue('downloading inputs'))
-  const inputPaths = await Promise.resolve(
-    job.data.inputs.map(i => {
+  const inputPaths = await Promise.all(
+    job.data.inputs.map(async i => {
       const outputPath = `${tmpDir}/${path.basename(i)}`
-      return downloadFile(outputPath, i).then(() => outputPath)
+      await downloadFile(outputPath, i)
+      return outputPath
     })
   )
 

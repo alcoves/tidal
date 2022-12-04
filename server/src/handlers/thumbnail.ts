@@ -28,7 +28,7 @@ export async function thumbnailJob(job: ThumbnailJob) {
     const sourceThumbnail = 'thumbnail.png'
 
     const timecode = parseTimecodeFromSeconds(time)
-    await ffmpeg(`-i ${sourceURL} -vframes 1 -ss ${timecode} ${sourceThumbnail}`, { cwd: tmpDir })
+    await ffmpeg(`-i ${sourceURL} -vframes 1 -ss ${timecode} ${sourceThumbnail}`)
 
     console.info('compressing thumbnail')
     const outputFormat = path.extname(output).replace('.', '')

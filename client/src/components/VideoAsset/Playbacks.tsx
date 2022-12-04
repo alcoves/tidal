@@ -10,21 +10,19 @@ import {
   AccordionPanel,
   AccordionButton,
 } from '@chakra-ui/react'
-import { getMainPlayback } from '../../config/utils'
-import VideoPlayer from '../VideoPlayer'
 import CreatePlayback from './CreatePlayback'
 
-export default function Playbacks({ video }: { video: any }) {
+export default function Packages({ video }: { video: any }) {
   return (
     <Box w='100%' border='1px' borderColor='teal.400' rounded='md'>
       <Box p='4' bg='teal.400'>
         <Flex w='100%' justify='space-between'>
-          <Heading size='md'>Playbacks</Heading>
+          <Heading size='md'>Packages</Heading>
           <CreatePlayback videoId={video.id} />
         </Flex>
-        <Text> Playbacks ready for the web </Text>
+        <Text> Packages ready for the web </Text>
       </Box>
-      {video?.playbacks.map((p: any) => {
+      {video?.packages.map((p: any) => {
         return (
           <Accordion key={p.id} allowMultiple w='100%'>
             <AccordionItem border='none'>

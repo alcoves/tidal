@@ -1,15 +1,20 @@
 import { v4 as uuid } from 'uuid'
 import { db } from '../config/db'
-import { TranscodeJobData } from '../types'
+import { PackagingJobData, TranscodeJobData } from '../types'
 import { flowProducer } from '../queues/flow'
-import s3, { deleteFolder, getVideoSourceLocation, parseS3Uri } from '../lib/s3'
+import s3, {
+  parseS3Uri,
+  deleteFolder,
+  getVideoFileLocation,
+  getVideoSourceLocation,
+  getVideoPackageLocation,
+} from '../lib/s3'
 
 export async function createVideoUploadLink(req, res) {
   const videoId = uuid()
   const videoFileId = uuid()
 
-  const videoLocation = getVideoSourceLocation(videoId)
-  const videoFileInputLocation = `${videoLocation}/files/${videoFileId}`
+  const videoFileInputLocation = getVideoFileLocation(videoId, videoFileId)
   const presignedPutRequest = await s3.getSignedUrlPromise('putObject', {
     Key: parseS3Uri(videoFileInputLocation).Key,
     Bucket: parseS3Uri(videoFileInputLocation).Bucket,
@@ -18,7 +23,7 @@ export async function createVideoUploadLink(req, res) {
   await db.video.create({
     data: {
       id: videoId,
-      location: videoLocation,
+      location: getVideoSourceLocation(videoId),
       files: {
         create: {
           type: 'ORIGINAL',
@@ -106,46 +111,50 @@ export async function startVideoProcessing(req, res) {
     },
   })
 
-  const packageId = uuid()
-
   const fileId1 = uuid()
   const fileId2 = uuid()
 
   const videoTranscode: TranscodeJobData = {
     videoId,
+    container: 'mp4',
     videoFileId: fileId1,
-    cmd: `c:v libsvtav1 -crf 40 -preset 8 -c:a libopus -ac 2 -b:a 128k -filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`,
     input: originalVideoFile.location,
-    output: `${video.location}/files/${fileId1}/${fileId1}.mkv`,
+    cmd: `-an -c:v libsvtav1 -crf 40 -preset 8 -filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2`,
+    output: getVideoFileLocation(originalVideoFile.id, fileId1),
   }
 
-  const audioTranscode: TranscodeJobData = {
+  // const audioTranscode: TranscodeJobData = {
+  //   videoId,
+  //   container: 'mkv',
+  //   videoFileId: fileId2,
+  //   input: originalVideoFile.location,
+  //   cmd: `-vn -c:a libopus -ac 2 -b:a 128k`,
+  //   output: getVideoFileLocation(originalVideoFile.id, fileId2),
+  // }
+
+  const packageId = uuid()
+  const packagingData: PackagingJobData = {
     videoId,
-    videoFileId: uuid(),
-    cmd: `-vn -c:a libopus -ac 2 -b:a 128k`,
-    outputFilename: 'output.ogg',
-    input: originalVideoFile.location,
-    output: `${video.location}/files/${packageId}`,
+    packageId,
+    inputs: [videoTranscode.output],
+    output: getVideoPackageLocation(videoId, packageId),
   }
 
   await flowProducer.add({
     name: 'packaging',
     queueName: 'packaging',
-    data: {
-      videoId,
-      inputs: [],
-    },
+    data: packagingData,
     children: [
       {
         queueName: 'transcode',
         name: 'v_1',
         data: videoTranscode,
       },
-      {
-        queueName: 'transcode',
-        name: 'a_1',
-        data: audioTranscode,
-      },
+      // {
+      //   queueName: 'transcode',
+      //   name: 'a_1',
+      //   data: audioTranscode,
+      // },
     ],
   })
 

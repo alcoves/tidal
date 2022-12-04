@@ -1,5 +1,6 @@
 import { db } from '../config/db'
 import globals from '../config/globals'
+import { getPublicUrlFromS3Uri } from '../lib/s3'
 
 export async function renderVideoPlayer(req, res) {
   const { videoId } = req.params
@@ -15,12 +16,7 @@ export async function renderVideoPlayer(req, res) {
   if (!video) return res.sendStatus(404)
   if (!video?.packages?.length) return res.sendStatus(400)
 
-  const manifestUrl = video.packages[0].location.replace(
-    `s3://${globals.tidalBucket}`,
-    globals.tidalEndpoint
-  )
-
   res.render('player', {
-    manifestUrl,
+    manifestUrl: getPublicUrlFromS3Uri(video.packages[0].location) + `/${globals.mainM3U8Name}`,
   })
 }

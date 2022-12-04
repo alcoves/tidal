@@ -1,6 +1,7 @@
 import chalk from 'chalk'
 import { db } from '../config/db'
-import { getVideoPackageLocation } from '../lib/s3'
+import { uuidv4 as uuid } from 'uuid'
+import { getVideoFileLocation, getVideoPackageLocation } from '../lib/s3'
 import { TranscodeJob, ThumbnailJob, PackagingJob } from '../types'
 
 export const transcode = {
@@ -13,23 +14,24 @@ export const transcode = {
   },
   onProgress: async (job: TranscodeJob) => {
     console.debug(chalk.yellow(`${job.queueName}:${job.id} :: ${job.progress}`))
-    await db.videoPlayback.upsert({
+    await db.videoFile.upsert({
       where: { id: job.data.videoFileId },
       update: { status: 'PROCESSING' },
       create: {
+        type: 'PROXY',
         status: 'PROCESSING',
         id: job.data.videoFileId,
         videoId: job.data.videoId,
-        // location: getVideoPackageLocation(job.data.videoId, job.data.packageId),
+        location: job.data.output,
       },
     })
   },
   onCompleted: async (job: TranscodeJob) => {
     console.debug(chalk.green.bold(`${job.queueName}:${job.id}`))
-    // await db.videoPlayback.update({
-    //   data: { status: 'READY' },
-    //   where: { id: job.data.packageId },
-    // })
+    await db.videoFile.update({
+      data: { status: 'READY' },
+      where: { id: job.data.videoFileId },
+    })
   },
 }
 
@@ -47,8 +49,8 @@ export const packaging = {
       where: { id: job.data.packageId },
       update: { status: 'PROCESSING' },
       create: {
-        status: 'PROCESSING',
         id: job.data.packageId,
+        status: 'PROCESSING',
         videoId: job.data.videoId,
         location: getVideoPackageLocation(job.data.videoId, job.data.packageId),
       },
