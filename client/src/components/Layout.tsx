@@ -68,6 +68,10 @@ export default function Layout() {
         >
           <Box>
             <SidebarItem icon={<IoHomeSharp size='18px' />} matchExact to='/' text='Home' />
+            <SidebarSubText text='workflows' />
+            <VStack mt='4' spacing='1'>
+              <SidebarItem icon={<IoBuildSharp size='18px' />} to='/workflows' text='Workflows' />
+            </VStack>
             <SidebarSubText text='assets' />
             <VStack mt='4' spacing='1'>
               <SidebarItem

@@ -8,11 +8,13 @@ import NoMatchRoute from './NoMatchRoute'
 import VideoAsset from './VideoAsset/VideoAsset'
 import { Routes, Route } from 'react-router-dom'
 import Job from './Queues/Job'
+import Workflows from './Workflows/Workflows'
 
 function App() {
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
+        <Route path='workflows' element={<Workflows />} />
         <Route path='assets/videos' element={<VideoAssets />} />
         <Route path='assets/videos/:videoId' element={<VideoAsset />} />
         <Route path='queues' element={<Queues />} />
