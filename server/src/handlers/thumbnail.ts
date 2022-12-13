@@ -3,11 +3,10 @@ import fs from 'fs-extra'
 import sharp from 'sharp'
 import s3, { parseS3Uri } from '../lib/s3'
 import { v4 as uuid } from 'uuid'
-import { ThumbnailJob } from '../types'
 import { ffmpeg } from '../lib/ffmpeg'
 import { parseTimecodeFromSeconds } from '../lib/video'
 
-export async function thumbnailJob(job: ThumbnailJob) {
+export async function thumbnailJob(job) {
   console.log('thumbnail job starting...')
   const { input, output, width, height, fit, time } = job.data
 

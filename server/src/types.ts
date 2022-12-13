@@ -1,7 +1,6 @@
 import { Job, Processor, Queue, Worker } from 'bullmq'
 
 export interface Globals {
-  mainM3U8Name: string
   tidalBucket: string
   tidalEndpoint: string
 }
@@ -22,28 +21,12 @@ export interface QueueFactory {
   worker: Worker
 }
 
-export interface PackagingJobData {
-  inputs: string[]
-  output: string
-  videoId: string
-  packageId: string
+export interface VideoJobData {
+  url: string
 }
 
-export interface PackagingJob extends Job {
-  data: PackagingJobData
-}
-
-export interface TranscodeJobData {
-  cmd: string
-  input: string
-  output: string
-  videoId: string
-  container: string
-  videoFileId: string
-}
-
-export interface TranscodeJob extends Job {
-  data: TranscodeJobData
+export interface VideoJob extends Job {
+  data: VideoJobData
 }
 
 export interface WebhookJobData {
@@ -58,30 +41,6 @@ export interface WebhookJobData {
 
 export interface WebhookJob extends Job {
   data: WebhookJobData
-}
-
-export interface ThumbnailJobOptions {
-  fit: string
-  time: string
-  width: number
-  height: number
-}
-
-export interface ThumbnailJobData extends ThumbnailJobOptions {
-  input: string
-  output: string
-  videoId: string
-  thumbnailId: string
-}
-
-export interface ThumbnailJob extends Job {
-  data: ThumbnailJobData
-}
-
-export interface VideoPreset {
-  name: string
-  width: number
-  height: number
 }
 
 export interface MetadataFormat {

@@ -1,7 +1,6 @@
 import { Globals } from '../types'
 
 const globals: Globals = {
-  mainM3U8Name: 'main.m3u8',
   tidalBucket: process.env.TIDAL_BUCKET as string,
   tidalEndpoint: process.env.TIDAL_ENDPOINT as string,
 }

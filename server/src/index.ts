@@ -3,9 +3,7 @@ dotenv.config()
 
 import app from './app'
 import chalk from 'chalk'
-import queues from './queues/queues'
-
-import { db } from './config/db'
+import { queues } from './lib/bullmq'
 
 async function main(port: number | string) {
   try {
@@ -14,17 +12,12 @@ async function main(port: number | string) {
       console.log(chalk.green.bold(`Redis URL: ${process.env.REDIS_HOST}`))
     })
   } catch (error) {
-    await db.$disconnect()
-
     for (const { queue, worker } of Object.values(queues)) {
       await queue.close()
       await worker.close()
     }
-
     console.log(chalk.red.bold(`Error: ${error}`))
     process.exit()
-  } finally {
-    await db.$disconnect()
   }
 }
 

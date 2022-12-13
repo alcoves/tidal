@@ -120,20 +120,4 @@ export async function deleteFolder(uri: string) {
   )
 }
 
-export function getVideoSourceLocation(videoId: string) {
-  return `s3://${globals.tidalBucket}/assets/videos/${videoId}`
-}
-
-export function getVideoFileLocation(videoId: string, videoFileId: string) {
-  return `s3://${globals.tidalBucket}/assets/videos/${videoId}/files/${videoFileId}`
-}
-
-export function getVideoPackageLocation(videoId: string, videoPackageId: string) {
-  return `s3://${globals.tidalBucket}/assets/videos/${videoId}/packages/${videoPackageId}`
-}
-
-export function getPublicUrlFromS3Uri(s3Uri: string) {
-  return s3Uri.replace(`s3://`, `${globals.tidalEndpoint}/`)
-}
-
 export default s3
