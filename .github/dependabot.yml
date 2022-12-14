@@ -1,16 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'daily'
-    labels:
-      - dependencies
-    ignore:
-      - dependency-name: '*'
-        update-types: ['version-update:semver-patch']
-  - package-ecosystem: 'npm'
-    directory: '/client'
+    directory: '/server'
     schedule:
       interval: 'daily'
     labels:
