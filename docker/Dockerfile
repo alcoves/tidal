@@ -19,6 +19,7 @@ WORKDIR /usr/local/app
 COPY ./server/package.json .
 COPY ./server/nodemon.json .
 COPY ./server/tsconfig.json .
+COPY ./server/src ./src
 
 RUN yarn install --frozen-lockfile --development
 RUN yarn build
