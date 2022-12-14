@@ -29,20 +29,6 @@ export interface VideoJob extends Job {
   data: VideoJobData
 }
 
-export interface WebhookJobData {
-  data: any
-  state: string
-  returnValue: any
-  id: string | undefined
-  name: string | undefined
-  progress: number | object
-  queueName: string | undefined
-}
-
-export interface WebhookJob extends Job {
-  data: WebhookJobData
-}
-
 export interface MetadataFormat {
   size: string
   bit_rate: string
