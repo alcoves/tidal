@@ -1,7 +1,9 @@
+import fs from 'fs-extra'
+import sharp from 'sharp'
 import { Duration } from 'luxon'
-import { ffprobe } from './ffmpeg'
 import { Metadata } from '../types'
 import s3, { parseS3Uri } from './s3'
+import { ffmpeg, ffprobe } from './ffmpeg'
 
 function parseMetadata(rawMeta: any): Metadata {
   return {
@@ -28,4 +30,27 @@ export async function getMetadata(uri: string): Promise<Metadata> {
   const ffprobeCmd = `-v quiet -print_format json -show_format -show_streams ${sourceURL}`
   const rawMetadata = await ffprobe(ffprobeCmd)
   return parseMetadata(rawMetadata)
+}
+
+export async function createThumbnail(uri: string, tmpDir: string) {
+  console.info('creating temporary directory')
+  const sourceThumbnail = `${tmpDir}/thumbnail.png`
+  const compressedThumbnail = `${tmpDir}/thumbnail.avif`
+
+  try {
+    console.info('extracting thumbnail')
+    await ffmpeg(`-i ${uri} -vframes 1 -ss 00:00:00 ${sourceThumbnail}`)
+
+    console.info('compressing thumbnail')
+    await sharp(sourceThumbnail)
+      .resize({ width: 1280, height: 720, fit: 'cover' })
+      .toFormat('avif', { quality: 50 })
+      .toFile(compressedThumbnail)
+
+    await fs.remove(sourceThumbnail)
+    return compressedThumbnail
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }

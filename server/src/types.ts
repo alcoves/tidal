@@ -3,6 +3,7 @@ import { Job, Processor, Queue, Worker } from 'bullmq'
 export interface Globals {
   tidalBucket: string
   tidalEndpoint: string
+  tidalCdnEndpoint?: string
 }
 
 export interface QueueFactoryOptions {
@@ -27,6 +28,15 @@ export interface VideoJobData {
 
 export interface VideoJob extends Job {
   data: VideoJobData
+}
+
+export interface VideoUrls {
+  m3u8Url: string
+  thumbnailUrl: string
+}
+
+export interface VideoResponse extends VideoJob {
+  urls: VideoUrls
 }
 
 export interface MetadataFormat {

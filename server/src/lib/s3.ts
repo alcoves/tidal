@@ -4,6 +4,7 @@ import fs from 'fs-extra'
 import mime from 'mime-types'
 import readdir from 'recursive-readdir'
 import globals from '../config/globals'
+import { VideoUrls } from '../types'
 
 AWS.config.update({
   region: 'us-east-1',
@@ -117,6 +118,28 @@ export async function deleteFolder(uri: string) {
         .promise()
     })
   )
+}
+
+export function getAssetPaths(id: string) {
+  const base = `v/${id}`
+  return {
+    base,
+    job: `${base}/job.json`,
+  }
+}
+
+export function getAssetUrls(id: string): VideoUrls {
+  let base = ''
+  if (globals.tidalCdnEndpoint) {
+    base = `${global.tidalCdnEndpoint}/v/${id}`
+  } else {
+    base = `${globals.tidalEndpoint}/${globals.tidalBucket}/v/${id}`
+  }
+
+  return {
+    m3u8Url: `${base}/main.m3u8`,
+    thumbnailUrl: `${base}/thumbnail.avif`,
+  }
 }
 
 export default s3
