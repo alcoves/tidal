@@ -2,21 +2,20 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import app from './app'
-import chalk from 'chalk'
-import { queues } from './lib/bullmq'
+import { queues } from './queues'
 
 async function main(port: number | string) {
   try {
     app.listen(port, () => {
-      console.log(chalk.green.bold(`listening on *:${port}`))
-      console.log(chalk.green.bold(`Redis URL: ${process.env.REDIS_HOST}`))
+      console.log(`listening on *:${port}`)
+      console.log(`Redis URL: ${process.env.REDIS_HOST}`)
     })
   } catch (error) {
     for (const { queue, worker } of Object.values(queues)) {
       await queue.close()
       await worker.close()
     }
-    console.log(chalk.red.bold(`Error: ${error}`))
+    console.log(`Error: ${error}`)
     process.exit()
   }
 }

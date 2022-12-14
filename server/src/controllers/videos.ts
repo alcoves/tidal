@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import { v4 as uuid } from 'uuid'
-import { queues } from '../lib/bullmq'
+import { queues } from '../queues'
 
 export async function createVideo(req, res) {
   const schema = Joi.object({

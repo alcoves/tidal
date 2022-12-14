@@ -1,5 +1,4 @@
 import path from 'path'
-import chalk from 'chalk'
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
@@ -59,7 +58,7 @@ export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
     await Promise.all(
       files.map(f => {
         const uploadPath = path.normalize(`${s3Path}/${path.relative(inputDir, f)}`)
-        console.log(chalk.grey(`uploading ${f} to s3://${bucketName}/${uploadPath}`))
+        console.log(`uploading ${f} to s3://${bucketName}/${uploadPath}`)
         s3.upload({
           Key: uploadPath,
           Bucket: bucketName,
@@ -69,7 +68,7 @@ export async function uploadDir(inputDir, s3Path: string, bucketName: string) {
       })
     )
   } catch (error) {
-    console.error(chalk.red.bold(error))
+    console.error(error)
     throw new Error(`failed to upload ${inputDir} to s3://${bucketName}/${s3Path}`)
   }
 }
@@ -87,7 +86,7 @@ export async function downloadFile(outputPath, uri) {
             file.write(chunk)
           })
           .on('httpDone', function () {
-            console.log(chalk.blue('file download complete'))
+            console.log('file download complete')
             file.end()
             resolve('')
           })

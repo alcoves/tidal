@@ -12,7 +12,7 @@ const cmd = [
   "-filter:v scale='min(1280,iw)':min'(720,ih)':force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2",
 ].join(' ')
 
-export async function videoJob(job: VideoJob) {
+export async function videoHandler(job: VideoJob) {
   console.info('starting video job')
   const tmpDir = await fs.mkdtemp(`/tmp/tidal-${job.name}-`)
   const transcodedOutputPath = `${tmpDir}/output.mp4`
