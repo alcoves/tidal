@@ -22,7 +22,6 @@
     "src"
   ],
   "exclude": [
-    "ui",
     "dist",
     "node_modules",
   ],
