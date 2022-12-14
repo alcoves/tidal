@@ -1,0 +1,28 @@
+FROM ubuntu:22.04
+
+RUN apt update
+RUN apt install -y curl wget xz-utils
+
+RUN apt install -y gpac
+
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt install -y nodejs
+RUN npm install --global yarn
+
+ENV FFMPEG_VERSION="ffmpeg-n5.1-latest-linux64-gpl-5.1"
+RUN wget -q https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_VERSION}.tar.xz
+RUN tar -xvf ${FFMPEG_VERSION}.tar.xz
+RUN mv ${FFMPEG_VERSION}/bin/* /usr/bin/
+RUN rm -rf ${FFMPEG_VERSION}*
+
+WORKDIR /usr/local/app
+COPY ./server/package.json .
+COPY ./server/nodemon.json .
+COPY ./server/tsconfig.json .
+
+RUN yarn install --frozen-lockfile --development
+RUN yarn build
+
+EXPOSE 3001
+
+CMD ["yarn", "start"]

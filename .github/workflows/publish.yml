@@ -2,6 +2,7 @@ name: Publish
 on:
   push:
     branches:
+      - dev
       - main
 jobs:
   publish:
@@ -22,7 +23,8 @@ jobs:
       - name: Build container image
         run: docker build
           -t $REGISTRY:latest
-          -t $REGISTRY:$GITHUB_SHA .
+          -t $REGISTRY:$GITHUB_SHA
+          -f docker/Dockerfile .
 
       - name: Login to DigitalOcean Docker Registry
         run: doctl registry login --expiry-seconds 600
