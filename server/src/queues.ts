@@ -1,6 +1,6 @@
 import s3 from './lib/s3'
 import { Job } from 'bullmq'
-import globals from './config/globals'
+import envVars from './config/envVars'
 import { queueFactory } from './lib/bullmq'
 import { videoHandler } from './handlers/video'
 
@@ -8,7 +8,7 @@ async function pushJobState(job: Job) {
   return s3
     .upload({
       Key: `v/${job.id}/job.json`,
-      Bucket: globals.tidalBucket,
+      Bucket: envVars.tidalBucket,
       Body: JSON.stringify(job.data),
     })
     .promise()

@@ -2,14 +2,14 @@ import path from 'path'
 import AWS from 'aws-sdk'
 import fs from 'fs-extra'
 import mime from 'mime-types'
-import readdir from 'recursive-readdir'
-import globals from '../config/globals'
 import { VideoUrls } from '../types'
+import readdir from 'recursive-readdir'
+import envVars from '../config/envVars'
 
 AWS.config.update({
-  region: 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: envVars.awsDefaultRegion,
+  accessKeyId: envVars.accessKeyId,
+  secretAccessKey: envVars.secretAccessKey,
   maxRetries: 8,
   httpOptions: {
     timeout: 5000,
@@ -19,11 +19,11 @@ AWS.config.update({
 
 const opts: AWS.S3.ClientConfiguration = {
   signatureVersion: 'v4',
-  s3ForcePathStyle: true,
+  // s3ForcePathStyle: false,
 }
 
-if (globals.tidalEndpoint) {
-  opts.endpoint = new AWS.Endpoint(globals.tidalEndpoint)
+if (envVars.tidalEndpoint) {
+  opts.endpoint = new AWS.Endpoint(envVars.tidalEndpoint)
 }
 
 const s3 = new AWS.S3(opts)
@@ -130,15 +130,16 @@ export function getAssetPaths(id: string) {
 
 export function getAssetUrls(id: string): VideoUrls {
   let base = ''
-  if (globals.tidalCdnEndpoint) {
-    base = `${global.tidalCdnEndpoint}/v/${id}`
+  if (envVars.tidalCdnEndpoint) {
+    base = `${envVars.tidalCdnEndpoint}/v/${id}`
   } else {
-    base = `${globals.tidalEndpoint}/${globals.tidalBucket}/v/${id}`
+    base = `${envVars.tidalEndpoint}/${envVars.tidalBucket}/v/${id}`
   }
 
   return {
+    dashUrl: `${base}/main.mpd`,
     m3u8Url: `${base}/main.m3u8`,
-    thumbnailUrl: `${base}/thumbnail.avif`,
+    thumbnailUrl: `${base}/thumbnail.jpeg`,
   }
 }
 

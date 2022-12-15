@@ -7,24 +7,24 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
     volumes: 
       - ./volumes/redis:/data
-  localstack:
-    restart: always
-    image: localstack/localstack:latest
-    ports:
-      - ${LOCALSTACK_PORT}:4566
-    environment:
-      PERSISTENCE: 1
-      DISABLE_CORS_CHECKS: 1
-      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-    volumes:
-      - ./scripts/localstack:/docker-entrypoint-initaws.d
-      - ./volumes/localstack:/tmp/localstack
+  # localstack:
+  #   restart: always
+  #   image: localstack/localstack:latest
+  #   ports:
+  #     - ${LOCALSTACK_PORT}:4566
+  #   environment:
+  #     PERSISTENCE: 1
+  #     DISABLE_CORS_CHECKS: 1
+  #     AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  #   volumes:
+  #     - ./scripts/localstack:/docker-entrypoint-initaws.d
+  #     - ./volumes/localstack:/tmp/localstack
   server:
     depends_on:
      - redis
-     - localstack
+    #  - localstack
     restart: always
     build:
       context: .

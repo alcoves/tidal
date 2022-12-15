@@ -3,12 +3,13 @@ dotenv.config()
 
 import app from './app'
 import { queues } from './queues'
+import envVars from './config/envVars'
 
 async function main(port: number | string) {
   try {
     app.listen(port, () => {
       console.log(`listening on *:${port}`)
-      console.log(`Redis URL: ${process.env.REDIS_HOST}`)
+      console.log(`Redis URL: ${envVars.redisHost}`)
     })
   } catch (error) {
     for (const { queue, worker } of Object.values(queues)) {
@@ -20,10 +21,8 @@ async function main(port: number | string) {
   }
 }
 
-const API_PORT = process.env.API_PORT
-
-if (API_PORT) {
-  main(parseInt(API_PORT))
+if (envVars.apiPort) {
+  main(parseInt(envVars.apiPort))
 } else {
   process.exit(1)
 }

@@ -35,7 +35,7 @@ export async function getMetadata(uri: string): Promise<Metadata> {
 export async function createThumbnail(uri: string, tmpDir: string) {
   console.info('creating temporary directory')
   const sourceThumbnail = `${tmpDir}/thumbnail.png`
-  const compressedThumbnail = `${tmpDir}/thumbnail.avif`
+  const compressedThumbnail = `${tmpDir}/thumbnail.jpeg`
 
   try {
     console.info('extracting thumbnail')
@@ -44,7 +44,7 @@ export async function createThumbnail(uri: string, tmpDir: string) {
     console.info('compressing thumbnail')
     await sharp(sourceThumbnail)
       .resize({ width: 1280, height: 720, fit: 'cover' })
-      .toFormat('avif', { quality: 50 })
+      .toFormat('jpeg', { quality: 70 })
       .toFile(compressedThumbnail)
 
     await fs.remove(sourceThumbnail)

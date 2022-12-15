@@ -1,17 +1,18 @@
+import envVars from '../config/envVars'
 import { QueueFactory, QueueFactoryOptions } from '../types'
 import { Queue, Worker, FlowProducer, ConnectionOptions } from 'bullmq'
 
-if (!process.env.REDIS_PORT) process.exit(1)
-if (!process.env.REDIS_HOST) process.exit(1)
-if (!process.env.REDIS_PASSWORD) process.exit(1)
+if (!envVars.redisPort) process.exit(1)
+if (!envVars.redisHost) process.exit(1)
+if (!envVars.redisPassword) process.exit(1)
 
-const msg = `Trying to connect to ${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+const msg = `Trying to connect to ${envVars.redisHost}:${envVars.redisPort}`
 console.log(msg)
 
 export const connection: ConnectionOptions = {
-  host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
-  port: Number(process.env.REDIS_PORT),
+  host: envVars.redisHost,
+  password: envVars.redisPassword,
+  port: Number(envVars.redisPort),
 }
 
 export const flowProducer = new FlowProducer({

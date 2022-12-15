@@ -1,8 +1,16 @@
 import { Job, Processor, Queue, Worker } from 'bullmq'
 
-export interface Globals {
+export interface EnvironmentVariables {
+  apiKey: string
+  apiPort: string
+  redisHost: string
+  redisPort: string
   tidalBucket: string
+  accessKeyId: string
   tidalEndpoint: string
+  redisPassword: string
+  secretAccessKey: string
+  awsDefaultRegion: string
   tidalCdnEndpoint?: string
 }
 
@@ -32,6 +40,7 @@ export interface VideoJob extends Job {
 
 export interface VideoUrls {
   m3u8Url: string
+  dashUrl: string
   thumbnailUrl: string
 }
 

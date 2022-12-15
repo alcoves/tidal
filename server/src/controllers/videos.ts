@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { v4 as uuid } from 'uuid'
 import { queues } from '../queues'
-import globals from '../config/globals'
+import envVars from '../config/envVars'
 import s3, { getAssetPaths, getAssetUrls } from '../lib/s3'
 
 export async function createVideo(req, res) {
@@ -19,7 +19,7 @@ export async function createVideo(req, res) {
   const { url, uploadId } = value
   const inputUrl = uploadId
     ? await s3.getSignedUrlPromise('getObject', {
-        Bucket: globals.tidalBucket,
+        Bucket: envVars.tidalBucket,
         Key: `uploads/${uploadId}`,
       })
     : url
@@ -44,12 +44,12 @@ export async function getVideo(req, res) {
 
   const { Body } = await s3
     .getObject({
-      Bucket: globals.tidalBucket,
+      Bucket: envVars.tidalBucket,
       Key: getAssetPaths(videoId).job,
     })
     .promise()
     .catch(() => {
-      return res.sendStatus(400)
+      return res.sendStatus(404)
     })
 
   return res.json({
