@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Login to Docker Registry
-        run: echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY_URI
+        run: echo $DOCKER_REGISTRY_PASSWORD | docker login $DOCKER_REGISTRY_URI -u $DOCKER_REGISTRY_USER --password-stdin
 
       - name: Build container image
         run: docker build
