@@ -22,7 +22,7 @@ jobs:
           -f docker/Dockerfile .
 
       - name: Login to Docker Registry
-        run: echo $BKEN_REGISTRY_PASSWORD | docker login -user $BKEN_REGISTRY_USER --password-stdin
+        run: echo $BKEN_REGISTRY_PASSWORD | docker login -u $BKEN_REGISTRY_USER --password-stdin registry.bken.io
 
       - name: Push image to Registry
         run: docker push $REGISTRY --all-tags
