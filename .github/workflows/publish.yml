@@ -9,20 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_SHA: ${{ github.sha }}
-      REGISTRY: registry.bken.io/tidal
-      BKEN_REGISTRY_USER: ${{ secrets.BKEN_REGISTRY_USER }}
-      BKEN_REGISTRY_PASSWORD: ${{ secrets.BKEN_REGISTRY_PASSWORD }}
+      REGISTRY: registry.bken.io
     steps:
       - uses: actions/checkout@v3
 
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: $REGISTRY
+          username: ${{ secrets.BKEN_REGISTRY_USER }}
+          password: ${{ secrets.BKEN_REGISTRY_PASSWORD }}
+
       - name: Build container image
         run: docker build
-          -t $REGISTRY:latest
-          -t $REGISTRY:$GITHUB_SHA
+          -t $REGISTRY/tidal:latest
+          -t $REGISTRY/tidal:$GITHUB_SHA
           -f docker/Dockerfile .
-
-      - name: Login to Docker Registry
-        run: echo $BKEN_REGISTRY_PASSWORD | docker login -u $BKEN_REGISTRY_USER --password-stdin registry.bken.io
-
+          
       - name: Push image to Registry
         run: docker push $REGISTRY --all-tags
