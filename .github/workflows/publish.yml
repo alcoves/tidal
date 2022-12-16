@@ -9,15 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_SHA: ${{ github.sha }}
-      DO_API_KEY: ${{ secrets.DO_API_KEY }}
-      REGISTRY: registry.digitalocean.com/bken/tidal
+      REGISTRY: registry.bken.io/tidal
+      BKEN_REGISTRY_USER: ${{ secrets.BKEN_REGISTRY_USER }}
+      BKEN_REGISTRY_PASSWORD: ${{ secrets.BKEN_REGISTRY_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_API_KEY }}
 
       - name: Build container image
         run: docker build
@@ -25,8 +21,8 @@ jobs:
           -t $REGISTRY:$GITHUB_SHA
           -f docker/Dockerfile .
 
-      - name: Login to DigitalOcean Docker Registry
-        run: doctl registry login --expiry-seconds 600
+      - name: Login to Docker Registry
+        run: echo $BKEN_REGISTRY_PASSWORD | docker login -user $BKEN_REGISTRY_USER --password-stdin
 
-      - name: Push image to DigitalOcean Container Registry
+      - name: Push image to Registry
         run: docker push $REGISTRY --all-tags

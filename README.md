@@ -2,6 +2,13 @@
 
 Tidal is a media processing service written in typescript. It uses redis, ffmpeg, and REST to perform various tasks
 
+## Building
+
+```
+docker build -t tidal -f docker/Dockerfile .
+```
+
+
 ## S3 Directory Format
 
 /v/:id/job.json - The job file, updated periodically during processing
