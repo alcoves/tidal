@@ -9,19 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_SHA: ${{ github.sha }}
-      REGISTRY: registry.testchange.io
+      DOCKER_REGISTRY_URI: ${{ secrets.DOCKER_REGISTRY_URI }}
       DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Login to Docker Registry
-        run: echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $REGISTRY
+        run: echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY_URI
 
       - name: Build container image
         run: docker build
-          -t $REGISTRY/tidal:latest
-          -t $REGISTRY/tidal:$GITHUB_SHA
+          -t $DOCKER_REGISTRY_URI/tidal:latest
+          -t $DOCKER_REGISTRY_URI/tidal:$GITHUB_SHA
           -f docker/Dockerfile .
 
       - name: Push image to Registry
