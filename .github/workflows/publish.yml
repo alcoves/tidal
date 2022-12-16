@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Login to Docker Registry
-        run: docker login $DOCKER_REGISTRY_URI -p $DOCKER_REGISTRY_PASSWORD -u $DOCKER_REGISTRY_USER
+        run: docker login -p $DOCKER_REGISTRY_PASSWORD -u $DOCKER_REGISTRY_USER $DOCKER_REGISTRY_URI
 
       - name: Build container image
         run: docker build
