@@ -17,9 +17,9 @@ function getCommands(tmpDir: string): { command: string; outputFile: string }[] 
       outputFile: `${tmpDir}/x264.mp4`,
       command: [
         '-c:a aac -ac 2 -b:a 128k',
-        '-c:v libx264 -crf 26 -preset faster -g 300 -keyint_min 300',
+        '-c:v libx264 -crf 25 -preset medium -g 300 -keyint_min 300',
         '-movflags faststart',
-        '-filter:v scale=1280:-2:force_original_aspect_ratio=decrease,crop=trunc(iw/2)*2:trunc(ih/2)*2',
+        '-filter:v scale=1920:-2:force_original_aspect_ratio=decrease,crop=trunc(iw/2)*2:trunc(ih/2)*2',
       ].join(' '),
     },
     // {
