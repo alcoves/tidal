@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 RUN apt update
-RUN apt install -y curl wget xz-utils
+RUN apt install -y curl wget xz-utils unzip
 
 RUN apt install -y gpac
 
@@ -14,6 +14,8 @@ RUN wget -q https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFM
 RUN tar -xvf ${FFMPEG_VERSION}.tar.xz
 RUN mv ${FFMPEG_VERSION}/bin/* /usr/bin/
 RUN rm -rf ${FFMPEG_VERSION}*
+
+RUN curl https://rclone.org/install.sh | bash
 
 WORKDIR /usr/local/app
 COPY ./server/package.json .
