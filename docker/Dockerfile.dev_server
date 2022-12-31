@@ -15,8 +15,6 @@ RUN tar -xvf ${FFMPEG_VERSION}.tar.xz
 RUN mv ${FFMPEG_VERSION}/bin/* /usr/bin/
 RUN rm -rf ${FFMPEG_VERSION}*
 
-RUN curl https://rclone.org/install.sh | bash
-
 WORKDIR /usr/local/app
 COPY ./server/package.json .
 COPY ./server/nodemon.json .
