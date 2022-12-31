@@ -4,6 +4,7 @@ import express from 'express'
 import rootRoutes from './routes/root'
 import videoRoutes from './routes/videos'
 import uploadRoutes from './routes/uploads'
+import transcodeRoutes from './routes/transcodes'
 
 const app = express()
 
@@ -14,5 +15,6 @@ app.use(morgan('tiny'))
 app.use(rootRoutes)
 app.use('/videos', videoRoutes)
 app.use('/uploads', uploadRoutes)
+app.use('/transcodes', transcodeRoutes)
 
 export default app

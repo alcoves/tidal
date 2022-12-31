@@ -38,6 +38,17 @@ export interface VideoJob extends Job {
   data: VideoJobData
 }
 
+export interface TranscodeJobData {
+  url: string
+  package: boolean
+  transcodes: any[]
+  remoteConfig: any
+}
+
+export interface TranscodeJob extends Job {
+  data: TranscodeJobData
+}
+
 export interface VideoUrls {
   m3u8Url: string
   dashUrl: string

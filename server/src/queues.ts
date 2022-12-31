@@ -3,6 +3,7 @@ import { Job } from 'bullmq'
 import envVars from './config/envVars'
 import { queueFactory } from './lib/bullmq'
 import { videoHandler } from './handlers/video'
+import { transcodeHandler } from './handlers/transcode'
 
 async function pushJobState(job: Job) {
   return s3
@@ -33,6 +34,8 @@ async function jobSwitch(job: Job) {
   switch (job.name) {
     case 'video':
       return videoHandler(job)
+    case 'transcode':
+      return transcodeHandler(job)
     default:
       throw new Error(`job ${job.name} is not implemented`)
   }

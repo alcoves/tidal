@@ -7,9 +7,6 @@ import readdir from 'recursive-readdir'
 import envVars from '../config/envVars'
 
 AWS.config.update({
-  region: envVars.awsDefaultRegion,
-  accessKeyId: envVars.accessKeyId,
-  secretAccessKey: envVars.secretAccessKey,
   maxRetries: 8,
   httpOptions: {
     timeout: 5000,
@@ -20,6 +17,9 @@ AWS.config.update({
 const opts: AWS.S3.ClientConfiguration = {
   signatureVersion: 'v4',
   // s3ForcePathStyle: false,
+  region: envVars.awsDefaultRegion,
+  accessKeyId: envVars.accessKeyId,
+  secretAccessKey: envVars.secretAccessKey,
 }
 
 if (envVars.tidalEndpoint) {
