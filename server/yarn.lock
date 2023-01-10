@@ -1325,10 +1325,10 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
-bullmq@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-3.1.0.tgz#1513715278b23e32151becf092eaef459237759e"
-  integrity sha512-vrcSYbgCWUiNZUcnRkXuNYGXZ0oHvQ959GUPVvUwGWl+e4uHn4surj33kZICRreBx84ItnPhGVt03WY6sUa3Xw==
+bullmq@3.5.5:
+  version "3.5.5"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-3.5.5.tgz#aa346b73bb8949533e89786fb23e8748df528cd1"
+  integrity sha512-ePA7wpnskaEE/brdzYCmseG6ZsI5qHTE4e2/zKF4walbDkdcbt4lyFJtuVX0N6eGFzNs+4jw3zURlnWUCWsNjw==
   dependencies:
     cron-parser "^4.6.0"
     glob "^8.0.3"
