@@ -1,0 +1,12 @@
+services:
+  tidal:
+    build:
+      dockerfile: Dockerfile
+    entrypoint: ["yarn", "start:dev"]
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
+    volumes:
+      - ./src:/usr/local/app/src
+    restart: unless-stopped

@@ -19,7 +19,7 @@ RUN mv ${FFMPEG_VERSION}/bin/* /usr/bin/
 RUN rm -rf ${FFMPEG_VERSION}*
 
 WORKDIR /usr/local/app
-COPY eslint.js .
+COPY .eslintrc.js .
 COPY .prettierrc .
 COPY nest-cli.json .
 COPY package.json .

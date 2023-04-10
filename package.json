@@ -23,6 +23,7 @@
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-fastify": "^9.4.0",
     "aws-sdk": "^2.1354.0",
