@@ -6,7 +6,8 @@ services:
     env_file:
       - .env
     ports:
-      - 5000:5000
+      - "5000:5000"
     volumes:
       - ./src:/usr/local/app/src
     restart: unless-stopped
+    network_mode: host
