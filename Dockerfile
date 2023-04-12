@@ -19,17 +19,11 @@ RUN mv ${FFMPEG_VERSION}/bin/* /usr/bin/
 RUN rm -rf ${FFMPEG_VERSION}*
 
 WORKDIR /usr/local/app
-COPY .eslintrc.js .
-COPY .prettierrc .
-COPY nest-cli.json .
-COPY package.json .
-COPY yarn.lock .
-COPY tsconfig.build.json .
-COPY tsconfig.json .
+COPY . .
 
 RUN yarn install --frozen-lockfile --development
 RUN yarn build
 
 EXPOSE 5000
 
-CMD ["yarn", "start"]
+CMD yarn start

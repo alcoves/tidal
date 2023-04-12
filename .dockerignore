@@ -1,0 +1,8 @@
+test
+dist
+.git
+.env
+.vscode
+.github
+node_modules
+docker-compose.yml
