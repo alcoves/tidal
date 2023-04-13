@@ -32,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/alcoves/tidal_ffmpeg
+          images: ${{ env.REGISTRY }}/alcoves/tidal/ffmpeg
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
