@@ -6,12 +6,12 @@ import { ConfigModule } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
 import { AppController } from './app.controller';
 import { TranscribeService } from './transcribe/transcribe.service';
+import { ProcessorsModule } from './processors/processors.module';
 
 @Module({
   providers: [AppService, TranscribeService, S3Service],
   controllers: [AppController],
   imports: [
-    JobsModule,
     ConfigModule.forRoot({
       cache: true,
     }),
@@ -21,6 +21,8 @@ import { TranscribeService } from './transcribe/transcribe.service';
         host: 'localhost',
       },
     }),
+    JobsModule,
+    ProcessorsModule,
   ],
 })
 export class AppModule {}

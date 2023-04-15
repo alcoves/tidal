@@ -5,13 +5,7 @@ export enum JOB_TYPES {
   AUDIO_TRANSCODE = JOB_QUEUES.AUDIO_TRANSCODE,
 }
 
-enum JOB_MODES {
-  SYNC = 'sync',
-  BATCH = 'batch',
-}
-
 export class CreateJobDto {
-  mode: JOB_MODES = JOB_MODES.SYNC;
   type: JOB_TYPES;
   input: {
     url: string;

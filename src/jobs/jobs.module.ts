@@ -10,7 +10,9 @@ import { TranscribeService } from '../transcribe/transcribe.service';
   imports: [
     BullModule.registerQueue(
       { name: JOB_QUEUES.VIDEO_TRANSCODE },
-      { name: JOB_QUEUES.AUDIO_TRANSCODE },
+      {
+        name: JOB_QUEUES.AUDIO_TRANSCODE,
+      },
     ),
   ],
   controllers: [JobsController],
