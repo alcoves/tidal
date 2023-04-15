@@ -10,6 +10,7 @@ import { JOB_QUEUES } from '../config/configuration';
 export class JobsService {
   constructor(
     // private readonly transcribeService: TranscribeService,
+    @InjectQueue(JOB_QUEUES.VIDEO_TRANSCODE) private videoTranscodeQueue: Queue,
     @InjectQueue(JOB_QUEUES.AUDIO_TRANSCODE) private audioTranscodeQueue: Queue,
   ) {}
 
