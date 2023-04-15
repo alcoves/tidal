@@ -1,3 +1,3 @@
 export default () => ({
-	test: process.env.PORT || "test",
+  test: process.env.PORT || 'test',
 });
