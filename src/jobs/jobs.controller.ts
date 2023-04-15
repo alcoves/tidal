@@ -6,9 +6,10 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
-import { CreateJobDto } from './dto/create-job.dto';
+import { CreateJobDto, JOB_TYPES } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 
 @Controller('jobs')
@@ -16,8 +17,16 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Post()
-  create(@Body() createJobDto: CreateJobDto) {
-    return this.jobsService.create(createJobDto);
+  create(@Body() jobs: CreateJobDto[]) {
+    if (!jobs?.length) return new BadRequestException('You must specify jobs');
+    jobs.map((job) => {
+      switch (job.type) {
+        case JOB_TYPES.AUDIO_TRANSCODE:
+          return this.jobsService.audioTranscode(job);
+        default:
+          return new BadRequestException('Invalid job type');
+      }
+    });
   }
 
   @Get()

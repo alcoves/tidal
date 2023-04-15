@@ -1,5 +1,8 @@
-enum JOB_TYPES {
+import { JOB_QUEUES } from '../../config/configuration';
+
+export enum JOB_TYPES {
   TRANSCRIBE = 'transcribe',
+  AUDIO_TRANSCODE = JOB_QUEUES.AUDIO_TRANSCODE,
 }
 
 enum JOB_MODES {

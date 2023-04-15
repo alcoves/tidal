@@ -1,8 +1,8 @@
-import { S3Service } from '../s3/s3.service';
-import { TranscribeService } from '../transcribe/transcribe.service';
-import { JobsController } from './jobs.controller';
-import { JobsService } from './jobs.service';
 import { Module } from '@nestjs/common';
+import { S3Service } from '../s3/s3.service';
+import { JobsService } from './jobs.service';
+import { JobsController } from './jobs.controller';
+import { TranscribeService } from '../transcribe/transcribe.service';
 
 @Module({
   controllers: [JobsController],
