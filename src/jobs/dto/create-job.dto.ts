@@ -7,6 +7,7 @@ export enum JOB_TYPES {
 
 export class CreateJobDto {
   type: JOB_TYPES;
+  command: string;
   input: {
     url: string;
   };
