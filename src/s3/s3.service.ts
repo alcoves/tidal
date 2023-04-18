@@ -66,4 +66,24 @@ export class S3Service {
       })
       .promise();
   }
+
+  async listObjects(
+    s3Client: S3,
+    params: any,
+    items: any[] = [],
+  ): Promise<S3.ObjectList> {
+    const res = await s3Client.listObjectsV2(params).promise();
+    res.Contents.map((item) => items.push(item));
+
+    if (res.NextContinuationToken) {
+      params.ContinuationToken = res.NextContinuationToken;
+      return this.listObjects(s3Client, params, items);
+    }
+
+    return items;
+  }
+
+  getObjectUrl(s3Client: S3, params: any): Promise<string> {
+    return s3Client.getSignedUrlPromise('getObject', params);
+  }
 }
