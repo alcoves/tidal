@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 import { AppService } from './app.service';
 import { S3Service } from './s3/s3.service';
 import { ConfigModule } from '@nestjs/config';
@@ -17,7 +17,7 @@ import { ProcessorsModule } from './processors/processors.module';
       isGlobal: true,
     }),
     BullModule.forRoot({
-      redis: {
+      connection: {
         port: 6379,
         host: 'localhost',
       },

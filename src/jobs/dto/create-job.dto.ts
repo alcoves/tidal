@@ -3,6 +3,7 @@ import { JOB_QUEUES } from '../../config/configuration';
 export enum JOB_TYPES {
   TRANSCODE = JOB_QUEUES.TRANSCODE,
   TRANSCRIBE = JOB_QUEUES.TRANSCRIBE,
+  TRANSCODE_CHUNKED = 'transcode_chunked',
 }
 
 export class BaseJobInputs {

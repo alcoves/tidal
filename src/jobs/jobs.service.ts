@@ -1,7 +1,7 @@
 // import * as path from 'path';
 
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { JOB_QUEUES } from '../config/configuration';
 import {
@@ -21,22 +21,22 @@ export class JobsService {
   ) {}
 
   segmentation(jobInput: SegmentationJobInputs) {
-    return this.segmentationQueue.add(jobInput);
+    return this.segmentationQueue.add('segmentation', jobInput);
   }
 
   concatenation(jobInput: ConcatenationJobInputs) {
-    return this.concatenationQueue.add(jobInput);
+    return this.concatenationQueue.add('concatenation', jobInput);
   }
 
   transcode(jobInput: TranscodeJobInputs) {
-    return this.transcodeQueue.add(jobInput);
+    return this.transcodeQueue.add('transcode', jobInput);
   }
 
   transcodeChunked(jobInput: TranscodeJobInputs) {
     // Segment video
     // For each chunk, enqueue transcode job
     // When all chunks are transcoded, enqueue concatenation job
-    return this.transcodeQueue.add(jobInput);
+    return this.transcodeQueue.add('transcode', jobInput);
   }
 
   // async videoSegmentTranscode(jobInput: TranscodeVideoSegmentJobInputs) {

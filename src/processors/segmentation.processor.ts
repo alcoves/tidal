@@ -1,18 +1,22 @@
 import * as fs from 'fs-extra';
 
-import { Job } from 'bull';
+import { Job, Queue } from 'bullmq';
 import { S3Service } from '../s3/s3.service';
-import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { JOB_QUEUES } from '../config/configuration';
+import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { SegmentationJobInputs } from '../jobs/dto/create-job.dto';
-import { OnQueueActive, Process, Processor } from '@nestjs/bull';
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 
 @Processor(JOB_QUEUES.SEGMENTATION)
-export class SegmentationProcessor {
-  constructor(private readonly s3Service: S3Service) {}
+export class SegmentationProcessor extends WorkerHost {
+  constructor(
+    private readonly s3Service: S3Service,
+    @InjectQueue(JOB_QUEUES.TRANSCODE) private transcodeQueue: Queue,
+  ) {
+    super();
+  }
 
-  @Process()
-  async segmentation(job: Job<unknown>): Promise<any> {
+  async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
 
     const { tmpDir } = await new Promise(
@@ -43,14 +47,5 @@ export class SegmentationProcessor {
 
     await fs.remove(tmpDir);
     console.info('done');
-  }
-
-  @OnQueueActive()
-  onActive(job: Job) {
-    console.log(
-      `Processing job ${job.id} of type ${job.name} with data ${JSON.stringify(
-        job.data,
-      )}...`,
-    );
   }
 }

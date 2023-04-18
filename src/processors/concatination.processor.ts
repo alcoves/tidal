@@ -1,18 +1,19 @@
 import * as fs from 'fs-extra';
 
-import { Job } from 'bull';
+import { Job } from 'bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { S3Service } from '../s3/s3.service';
-import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { JOB_QUEUES } from '../config/configuration';
+import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { ConcatenationJobInputs } from '../jobs/dto/create-job.dto';
-import { OnQueueActive, Process, Processor } from '@nestjs/bull';
 
 @Processor(JOB_QUEUES.CONCATENATION)
-export class ConcatenationProcessor {
-  constructor(private readonly s3Service: S3Service) {}
+export class ConcatenationProcessor extends WorkerHost {
+  constructor(private readonly s3Service: S3Service) {
+    super();
+  }
 
-  @Process()
-  async concatenation(job: Job<unknown>): Promise<any> {
+  async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as ConcatenationJobInputs;
 
     // TODO: Implement concatenation
@@ -49,14 +50,5 @@ export class ConcatenationProcessor {
 
     await fs.remove(tmpDir);
     console.info('done');
-  }
-
-  @OnQueueActive()
-  onActive(job: Job) {
-    console.log(
-      `Processing job ${job.id} of type ${job.name} with data ${JSON.stringify(
-        job.data,
-      )}...`,
-    );
   }
 }
