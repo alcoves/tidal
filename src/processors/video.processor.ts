@@ -4,21 +4,20 @@ import { Job } from 'bull';
 import { S3Service } from '../s3/s3.service';
 import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { JOB_QUEUES } from '../config/configuration';
-import { SegmentationJobInputs } from '../jobs/dto/create-job.dto';
 import { OnQueueActive, Process, Processor } from '@nestjs/bull';
+import { TranscodeVideoJobInputs } from '../jobs/dto/create-job.dto';
 
-@Processor(JOB_QUEUES.SEGMENTATION)
-export class SegmentationProcessor {
+@Processor(JOB_QUEUES.VIDEO_TRANSCODE)
+export class VideoTranscodeProcessor {
   constructor(private readonly s3Service: S3Service) {}
 
   @Process()
   async segmentation(job: Job<unknown>): Promise<any> {
-    const jobData = job.data as SegmentationJobInputs;
+    const jobData = job.data as TranscodeVideoJobInputs;
 
-    const { tmpDir } = await new Promise(
+    const { tmpDir, outputPath } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {
         const args = ['-i', jobData.input, ...jobData.command.split(' ')];
-        console.log('args', args);
         const ffmpegProcess = createFFMpeg(args);
         ffmpegProcess.on('progress', (progress: number) => {
           console.log(`Progress`, { progress });
@@ -35,10 +34,10 @@ export class SegmentationProcessor {
     );
 
     const s3Client = this.s3Service.s3ClientFactory(jobData.output.s3);
-    await this.s3Service.uploadDirectory({
+    await this.s3Service.uploadFile({
       s3Client,
-      directory: tmpDir,
-      prefix: jobData.output.s3.key,
+      filepath: outputPath,
+      key: jobData.output.s3.key,
       bucket: jobData.output.s3.bucket,
     });
 

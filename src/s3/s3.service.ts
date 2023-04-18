@@ -46,4 +46,24 @@ export class S3Service {
       console.error(error);
     }
   }
+
+  async uploadFile({
+    s3Client,
+    filepath,
+    bucket,
+    key,
+  }: {
+    s3Client: S3;
+    filepath: string;
+    bucket: string;
+    key: string;
+  }): Promise<S3.ManagedUpload.SendData> {
+    return s3Client
+      .upload({
+        Key: key,
+        Bucket: bucket,
+        Body: fs.createReadStream(filepath),
+      })
+      .promise();
+  }
 }

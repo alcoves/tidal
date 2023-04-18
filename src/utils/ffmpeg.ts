@@ -14,6 +14,11 @@ export type FfmpegProgress = {
   size?: number;
 };
 
+export type FfmpegResult = {
+  tmpDir: string;
+  outputPath: string;
+};
+
 export function parseFfmpegTime(timeString: string): number {
   const [hours, minutes, seconds, milliseconds] = timeString
     .split(/[:.]/)

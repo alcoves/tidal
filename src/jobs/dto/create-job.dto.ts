@@ -34,18 +34,18 @@ export class SegmentationJobInputs extends BaseJobInputs {
 
 export class ConcatenationJobInputs extends BaseJobInputs {
   command: string;
-  input: URLResource | S3Resource;
+  input: string;
   output: S3Resource;
 }
 
 export class TranscodeVideoJobInputs extends BaseJobInputs {
   command: string;
-  input: URLResource | S3Resource;
+  input: string;
   output: S3Resource;
 }
 
 export class TranscodeAudioJobInputs extends BaseJobInputs {
   command: string;
-  input: URLResource | S3Resource;
+  input: string;
   output: S3Resource;
 }
