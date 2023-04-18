@@ -4,16 +4,22 @@ import { Job } from 'bull';
 import { S3Service } from '../s3/s3.service';
 import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { JOB_QUEUES } from '../config/configuration';
-import { SegmentationJobInputs } from '../jobs/dto/create-job.dto';
+import { ConcatenationJobInputs } from '../jobs/dto/create-job.dto';
 import { OnQueueActive, Process, Processor } from '@nestjs/bull';
 
-@Processor(JOB_QUEUES.SEGMENTATION)
-export class SegmentationProcessor {
+@Processor(JOB_QUEUES.CONCATENATION)
+export class ConcatenationProcessor {
   constructor(private readonly s3Service: S3Service) {}
 
   @Process()
-  async segmentation(job: Job<unknown>): Promise<any> {
-    const jobData = job.data as SegmentationJobInputs;
+  async concatenation(job: Job<unknown>): Promise<any> {
+    const jobData = job.data as ConcatenationJobInputs;
+
+    // TODO: Implement concatenation
+    // Create a list of concatenation urls
+    // write file to tmp
+    // run ffmpeg concat
+    // upload to s3
 
     const { tmpDir } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {

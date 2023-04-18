@@ -28,43 +28,43 @@ export class TranscribeService {
 
   async transcribeOne(transcribeOneDto: TranscribeOneDto) {
     console.log('transcribeOneDto', transcribeOneDto);
-    const tmpDir = await fs.mkdtemp('/tmp/tidal-transcribe-');
-    const audioPath = `${tmpDir}/audio.wav`;
+    // const tmpDir = await fs.mkdtemp('/tmp/tidal-transcribe-');
+    // const audioPath = `${tmpDir}/audio.wav`;
 
-    try {
-      const ffmpegCommand = `ffmpeg -i ${transcribeOneDto.input.url} -vn -c:a pcm_s16le -ar 16000 -ac 1 ${audioPath}`;
-      const ffmpeg_res = shell.exec(ffmpegCommand);
-      console.log('ffmpeg_res', ffmpeg_res);
+    // try {
+    //   const ffmpegCommand = `ffmpeg -i ${transcribeOneDto.input.url} -vn -c:a pcm_s16le -ar 16000 -ac 1 ${audioPath}`;
+    //   const ffmpeg_res = shell.exec(ffmpegCommand);
+    //   console.log('ffmpeg_res', ffmpeg_res);
 
-      const whisperOptions = {
-        model: 'tiny.en',
-      };
-      const whisperResult = shell.exec(
-        `whisper ${audioPath} --model medium.en --language en --output_dir ${tmpDir}`,
-      );
-      console.log('whisperResult', whisperResult);
+    //   const whisperOptions = {
+    //     model: 'tiny.en',
+    //   };
+    //   const whisperResult = shell.exec(
+    //     `whisper ${audioPath} --model medium.en --language en --output_dir ${tmpDir}`,
+    //   );
+    //   console.log('whisperResult', whisperResult);
 
-      const s3Client = this.s3Service.s3ClientFactory({
-        endpoint: transcribeOneDto.output.s3.endpoint,
-        s3ForcePathStyle: true,
-        credentials: {
-          accessKeyId: transcribeOneDto.output.s3.accessKeyId,
-          secretAccessKey: transcribeOneDto.output.s3.secretAccessKey,
-        },
-      });
-      await this.s3Service.uploadDirectory({
-        s3Client,
-        directory: tmpDir,
-        bucket: transcribeOneDto.output.s3.bucket,
-        prefix: transcribeOneDto.output.s3.prefix,
-      });
+    //   const s3Client = this.s3Service.s3ClientFactory({
+    //     endpoint: transcribeOneDto.output.s3.endpoint,
+    //     s3ForcePathStyle: true,
+    //     credentials: {
+    //       accessKeyId: transcribeOneDto.output.s3.accessKeyId,
+    //       secretAccessKey: transcribeOneDto.output.s3.secretAccessKey,
+    //     },
+    //   });
+    //   await this.s3Service.uploadDirectory({
+    //     s3Client,
+    //     directory: tmpDir,
+    //     bucket: transcribeOneDto.output.s3.bucket,
+    //     prefix: transcribeOneDto.output.s3.prefix,
+    //   });
 
-      return 'audio is done transcribing';
-    } catch (error) {
-      console.error(error);
-      throw new Error('failed to transcribe');
-    } finally {
-      await fs.remove(tmpDir);
-    }
+    //   return 'audio is done transcribing';
+    // } catch (error) {
+    //   console.error(error);
+    //   throw new Error('failed to transcribe');
+    // } finally {
+    //   await fs.remove(tmpDir);
+    // }
   }
 }

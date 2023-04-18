@@ -64,6 +64,8 @@ export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
     const ffmpegProcess = spawn('ffmpeg', args, { cwd: tmpDir });
     const emitter = new EventEmitter();
 
+    console.info('running ffmpeg with args', args.join(' '));
+
     ffmpegProcess.stderr.on('data', (data: Buffer) => {
       const str = data.toString();
       const progress = parseFfmpegProgress(str);

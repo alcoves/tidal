@@ -3,8 +3,8 @@ export default () => ({
 });
 
 export enum JOB_QUEUES {
+  TRANSCODE = 'transcode',
+  TRANSCRIBE = 'transcribe',
   SEGMENTATION = 'segmentation',
   CONCATENATION = 'concatenation',
-  VIDEO_TRANSCODE = 'video_transcode',
-  AUDIO_TRANSCODE = 'audio_transcode',
 }

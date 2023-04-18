@@ -2,10 +2,7 @@ import { JobsService } from './jobs.service';
 import {
   JOB_TYPES,
   BaseJobInputs,
-  ConcatenationJobInputs,
-  SegmentationJobInputs,
-  TranscodeAudioJobInputs,
-  TranscodeVideoJobInputs,
+  TranscodeJobInputs,
 } from './dto/create-job.dto';
 import { Post, Body, Controller, BadRequestException } from '@nestjs/common';
 
@@ -18,18 +15,8 @@ export class JobsController {
     if (!jobs?.length) return new BadRequestException('You must specify jobs');
     jobs.map((job) => {
       switch (job.type) {
-        case JOB_TYPES.AUDIO_TRANSCODE:
-          return this.jobsService.audioTranscode(
-            job as TranscodeAudioJobInputs,
-          );
-        case JOB_TYPES.SEGMENTATION:
-          return this.jobsService.segmentation(job as SegmentationJobInputs);
-        case JOB_TYPES.CONCATENATION:
-          return this.jobsService.concatenation(job as ConcatenationJobInputs);
-        case JOB_TYPES.VIDEO_TRANSCODE:
-          return this.jobsService.videoTranscode(
-            job as TranscodeVideoJobInputs,
-          );
+        case JOB_TYPES.TRANSCODE:
+          return this.jobsService.transcode(job as TranscodeJobInputs);
         default:
           return new BadRequestException('Invalid job type');
       }

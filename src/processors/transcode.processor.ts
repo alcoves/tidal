@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as fs from 'fs-extra';
 
 import { Job } from 'bull';
@@ -5,19 +6,32 @@ import { S3Service } from '../s3/s3.service';
 import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { JOB_QUEUES } from '../config/configuration';
 import { OnQueueActive, Process, Processor } from '@nestjs/bull';
-import { TranscodeVideoJobInputs } from '../jobs/dto/create-job.dto';
+import { TranscodeJobInputs } from '../jobs/dto/create-job.dto';
 
-@Processor(JOB_QUEUES.VIDEO_TRANSCODE)
-export class VideoTranscodeProcessor {
+@Processor(JOB_QUEUES.TRANSCODE)
+export class TranscodeProcessor {
   constructor(private readonly s3Service: S3Service) {}
 
   @Process()
-  async segmentation(job: Job<unknown>): Promise<any> {
-    const jobData = job.data as TranscodeVideoJobInputs;
+  async transcode(job: Job<unknown>): Promise<any> {
+    const jobData = job.data as TranscodeJobInputs;
+    const remoteInputs = this.s3Service.parseS3Uri(jobData.input);
+    const remoteOutputs = this.s3Service.parseS3Uri(jobData.output);
+    const outputFilename = path.basename(remoteOutputs.key);
+
+    const signedUrl = await this.s3Service.getObjectUrl({
+      Key: remoteInputs.key,
+      Bucket: remoteInputs.bucket,
+    });
 
     const { tmpDir, outputPath } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {
-        const args = ['-i', jobData.input, ...jobData.command.split(' ')];
+        const args = [
+          '-i',
+          signedUrl,
+          ...jobData.command.split(' '),
+          outputFilename,
+        ];
         const ffmpegProcess = createFFMpeg(args);
         ffmpegProcess.on('progress', (progress: number) => {
           console.log(`Progress`, { progress });
@@ -33,12 +47,10 @@ export class VideoTranscodeProcessor {
       },
     );
 
-    const s3Client = this.s3Service.s3ClientFactory(jobData.output.s3);
     await this.s3Service.uploadFile({
-      s3Client,
       filepath: outputPath,
-      key: jobData.output.s3.key,
-      bucket: jobData.output.s3.bucket,
+      key: remoteOutputs.key,
+      bucket: remoteOutputs.bucket,
     });
 
     await fs.remove(tmpDir);

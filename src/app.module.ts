@@ -14,6 +14,7 @@ import { ProcessorsModule } from './processors/processors.module';
   imports: [
     ConfigModule.forRoot({
       cache: true,
+      isGlobal: true,
     }),
     BullModule.forRoot({
       redis: {
