@@ -32,6 +32,13 @@ export class JobsService {
     return this.transcodeQueue.add(jobInput);
   }
 
+  transcodeChunked(jobInput: TranscodeJobInputs) {
+    // Segment video
+    // For each chunk, enqueue transcode job
+    // When all chunks are transcoded, enqueue concatenation job
+    return this.transcodeQueue.add(jobInput);
+  }
+
   // async videoSegmentTranscode(jobInput: TranscodeVideoSegmentJobInputs) {
   //   const s3Client = this.s3Service.s3ClientFactory(jobInput.input.s3);
   //   const objects = await this.s3Service.listObjects(s3Client, {
