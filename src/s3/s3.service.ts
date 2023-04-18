@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { S3 } from 'aws-sdk';
-import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as fs from 'fs-extra';
+import { S3 } from 'aws-sdk';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3Service {
   s3ClientFactory(config: S3.ClientConfiguration) {
-    return new S3({ ...config });
+    return new S3({
+      ...config,
+      signatureVersion: 'v4',
+      s3ForcePathStyle: true,
+    });
   }
 
   async uploadDirectory({
@@ -20,18 +24,26 @@ export class S3Service {
     bucket: string;
     prefix: string;
   }): Promise<void> {
-    const files = await fs.readdir(directory);
-    await Promise.all(
-      files.map((f) => {
-        const key = `${prefix}/${path.basename(f)}`;
-        return s3Client
-          .upload({
-            Key: key,
-            Bucket: bucket,
-            Body: fs.createReadStream(`${directory}/${f}`),
-          })
-          .promise();
-      }),
-    );
+    try {
+      console.info('uploading directory');
+      console.info(`reading files from ${directory}`);
+      const files = await fs.readdir(directory);
+      console.info(`uploading ${files.length} files`);
+
+      await Promise.all(
+        files.map((f) => {
+          const key = `${prefix}/${path.basename(f)}`;
+          return s3Client
+            .upload({
+              Key: key,
+              Bucket: bucket,
+              Body: fs.createReadStream(`${directory}/${f}`),
+            })
+            .promise();
+        }),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

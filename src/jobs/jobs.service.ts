@@ -1,8 +1,13 @@
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { CreateJobDto } from './dto/create-job.dto';
 import { JOB_QUEUES } from '../config/configuration';
+import {
+  SegmentationJobInputs,
+  ConcatenationJobInputs,
+  TranscodeAudioJobInputs,
+  TranscodeVideoJobInputs,
+} from './dto/create-job.dto';
 
 @Injectable()
 export class JobsService {
@@ -13,19 +18,19 @@ export class JobsService {
     @InjectQueue(JOB_QUEUES.AUDIO_TRANSCODE) private audioTranscodeQueue: Queue,
   ) {}
 
-  segmentation(jobInput: CreateJobDto) {
-    return this.audioTranscodeQueue.add(jobInput);
+  segmentation(jobInput: SegmentationJobInputs) {
+    return this.segmentationQueue.add(jobInput);
   }
 
-  concatenation(jobInput: CreateJobDto) {
-    return 'concatenation';
+  concatenation(jobInput: ConcatenationJobInputs) {
+    return this.concatenationQueue.add(jobInput);
   }
 
-  videoTranscode(jobInput: CreateJobDto) {
-    return 'transcode';
+  videoTranscode(jobInput: TranscodeVideoJobInputs) {
+    return this.videoTranscodeQueue.add(jobInput);
   }
 
-  audioTranscode(jobInput: CreateJobDto) {
+  audioTranscode(jobInput: TranscodeAudioJobInputs) {
     return this.audioTranscodeQueue.add(jobInput);
   }
 }

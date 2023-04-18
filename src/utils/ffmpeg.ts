@@ -30,6 +30,8 @@ export function parseFfmpegProgress(stderr: string): FfmpegProgress | null {
     /size=\s*(\d+)\wB\s+time=(\d{2}:\d{2}:\d{2}\.\d{2})\s+bitrate=\s*(\d+(?:\.\d+)?)\wbits\/s\s+speed=\s*(\d+(?:\.\d+)?)x/;
   const audioMatch = stderr.match(audioRegex);
 
+  console.log(stderr);
+
   if (videoMatch) {
     return {
       frame: parseInt(videoMatch[1], 10),
@@ -63,25 +65,21 @@ export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
       if (progress) emitter.emit('progress', progress);
     });
 
-    // ffmpegProcess.stderr.on('end', () => {
-    //   fs.removeSync(tmpDir);
-    //   emitter.emit('success', { outputPath });
-    // });
+    ffmpegProcess.stderr.on('end', () => {
+      emitter.emit('success', { tmpDir, outputPath });
+    });
 
     ffmpegProcess.stderr.on('error', (err: Error) => {
-      fs.removeSync(tmpDir);
       console.error(err);
       emitter.emit('error', err);
     });
 
     ffmpegProcess.on('exit', (code: number) => {
       if (code !== 0) {
-        fs.removeSync(tmpDir);
         console.error(`FFMpeg exited with code ${code}`);
         emitter.emit('error', new Error(`FFMpeg exited with code ${code}`));
       } else {
-        fs.removeSync(tmpDir);
-        emitter.emit('success', { outputPath });
+        emitter.emit('success', { tmpDir, outputPath });
       }
     });
 

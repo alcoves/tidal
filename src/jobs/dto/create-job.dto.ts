@@ -8,19 +8,44 @@ export enum JOB_TYPES {
   AUDIO_TRANSCODE = JOB_QUEUES.AUDIO_TRANSCODE,
 }
 
-export class CreateJobDto {
+interface URLResource {
+  url: string;
+}
+
+interface S3Resource {
+  s3: {
+    key: string;
+    bucket: string;
+    endpoint: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+}
+
+export class BaseJobInputs {
   type: JOB_TYPES;
+}
+
+export class SegmentationJobInputs extends BaseJobInputs {
   command: string;
-  input: {
-    url: string;
-  };
-  output: {
-    s3: {
-      bucket: string;
-      prefix: string;
-      endpoint: string;
-      accessKeyId: string;
-      secretAccessKey: string;
-    };
-  };
+  input: string;
+  output: S3Resource;
+}
+
+export class ConcatenationJobInputs extends BaseJobInputs {
+  command: string;
+  input: URLResource | S3Resource;
+  output: S3Resource;
+}
+
+export class TranscodeVideoJobInputs extends BaseJobInputs {
+  command: string;
+  input: URLResource | S3Resource;
+  output: S3Resource;
+}
+
+export class TranscodeAudioJobInputs extends BaseJobInputs {
+  command: string;
+  input: URLResource | S3Resource;
+  output: S3Resource;
 }
