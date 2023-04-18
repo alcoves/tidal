@@ -1,16 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  BadRequestException,
-} from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { CreateJobDto, JOB_TYPES } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
+import { Post, Body, Controller, BadRequestException } from '@nestjs/common';
 
 @Controller('jobs')
 export class JobsController {
@@ -23,29 +13,15 @@ export class JobsController {
       switch (job.type) {
         case JOB_TYPES.AUDIO_TRANSCODE:
           return this.jobsService.audioTranscode(job);
+        case JOB_TYPES.SEGMENTATION:
+          return this.jobsService.segmentation(job);
+        case JOB_TYPES.CONCATENATION:
+          return this.jobsService.concatenation(job);
+        case JOB_TYPES.VIDEO_TRANSCODE:
+          return this.jobsService.videoTranscode(job);
         default:
           return new BadRequestException('Invalid job type');
       }
     });
-  }
-
-  @Get()
-  findAll() {
-    return this.jobsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.jobsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobsService.update(+id, updateJobDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobsService.remove(+id);
   }
 }
