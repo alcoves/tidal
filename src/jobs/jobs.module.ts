@@ -9,9 +9,36 @@ import { TranscribeService } from '../transcribe/transcribe.service';
 @Module({
   imports: [
     BullModule.registerQueue(
-      { name: JOB_QUEUES.TRANSCODE },
-      { name: JOB_QUEUES.SEGMENTATION },
-      { name: JOB_QUEUES.CONCATENATION },
+      {
+        name: JOB_QUEUES.TRANSCODE,
+        defaultJobOptions: {
+          attempts: 10,
+          backoff: {
+            type: 'exponential',
+            delay: 1000 * 10,
+          },
+        },
+      },
+      {
+        name: JOB_QUEUES.SEGMENTATION,
+        defaultJobOptions: {
+          attempts: 10,
+          backoff: {
+            type: 'exponential',
+            delay: 1000 * 10,
+          },
+        },
+      },
+      {
+        name: JOB_QUEUES.CONCATENATION,
+        defaultJobOptions: {
+          attempts: 10,
+          backoff: {
+            type: 'exponential',
+            delay: 1000 * 10,
+          },
+        },
+      },
     ),
   ],
   controllers: [JobsController],

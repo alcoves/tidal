@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 
 import { v4 as uuid } from 'uuid';
-import { FlowProducer, Job, Queue } from 'bullmq';
+import { FlowProducer, Job } from 'bullmq';
 import { S3Service } from '../s3/s3.service';
 import { JOB_FLOWS, JOB_QUEUES } from '../config/configuration';
 import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
@@ -11,18 +11,12 @@ import {
   SegmentationJobInputs,
   TranscodeJobInputs,
 } from '../jobs/dto/create-job.dto';
-import {
-  InjectFlowProducer,
-  InjectQueue,
-  Processor,
-  WorkerHost,
-} from '@nestjs/bullmq';
+import { InjectFlowProducer, Processor, WorkerHost } from '@nestjs/bullmq';
 
 @Processor(JOB_QUEUES.SEGMENTATION)
 export class SegmentationProcessor extends WorkerHost {
   constructor(
     private readonly s3Service: S3Service,
-    @InjectQueue(JOB_QUEUES.TRANSCODE) private transcodeQueue: Queue,
     @InjectFlowProducer(JOB_FLOWS.CHUNKED_TRANSCODE)
     private transcodeFlow: FlowProducer,
   ) {
