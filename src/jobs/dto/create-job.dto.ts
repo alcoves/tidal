@@ -19,11 +19,13 @@ export class TranscodeJobInputs extends BaseJobInputs {
 export class SegmentationJobInputs extends BaseJobInputs {
   input: string;
   output: string;
-  command: string;
+  video_command: string;
+  audio_command: string;
+  segmentation_command: string;
 }
 
 export class ConcatenationJobInputs extends BaseJobInputs {
-  input: string;
+  audio: string;
   output: string;
-  command: string;
+  segments: string[];
 }

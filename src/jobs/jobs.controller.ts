@@ -3,6 +3,7 @@ import {
   JOB_TYPES,
   BaseJobInputs,
   TranscodeJobInputs,
+  SegmentationJobInputs,
 } from './dto/create-job.dto';
 import { Post, Body, Controller, BadRequestException } from '@nestjs/common';
 
@@ -18,7 +19,7 @@ export class JobsController {
         case JOB_TYPES.TRANSCODE:
           return this.jobsService.transcode(job as TranscodeJobInputs);
         case JOB_TYPES.TRANSCODE_CHUNKED:
-          return this.jobsService.transcodeChunked(job as TranscodeJobInputs);
+          return this.jobsService.segmentation(job as SegmentationJobInputs);
         default:
           return new BadRequestException('Invalid job type');
       }

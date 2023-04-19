@@ -8,3 +8,7 @@ export enum JOB_QUEUES {
   SEGMENTATION = 'segmentation',
   CONCATENATION = 'concatenation',
 }
+
+export enum JOB_FLOWS {
+  CHUNKED_TRANSCODE = 'chunked-transcode',
+}
