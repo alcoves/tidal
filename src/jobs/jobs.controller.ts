@@ -5,7 +5,13 @@ import {
   TranscodeJobInputs,
   SegmentationJobInputs,
 } from './dto/create-job.dto';
-import { Post, Body, Controller, BadRequestException } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Controller,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Controller('jobs')
 export class JobsController {
@@ -24,5 +30,10 @@ export class JobsController {
           return new BadRequestException('Invalid job type');
       }
     });
+  }
+
+  @Get()
+  listJobs() {
+    return this.jobsService.listJobs();
   }
 }

@@ -13,6 +13,7 @@ import {
 export class JobsService {
   constructor(
     @InjectQueue(JOB_QUEUES.TRANSCODE) private transcodeQueue: Queue,
+    @InjectQueue(JOB_QUEUES.TRANSCRIBE) private transcribeQueue: Queue,
     @InjectQueue(JOB_QUEUES.SEGMENTATION) private segmentationQueue: Queue,
     @InjectQueue(JOB_QUEUES.CONCATENATION) private concatenationQueue: Queue,
   ) {}
@@ -23,5 +24,32 @@ export class JobsService {
 
   transcode(jobInput: TranscodeJobInputs) {
     return this.transcodeQueue.add('transcode', jobInput);
+  }
+
+  async listJobs() {
+    const queuesToQuery = Object.values(JOB_QUEUES);
+
+    const jobs = await Promise.all(
+      queuesToQuery.map((queueName) => {
+        return this[`${queueName}Queue`].getJobs();
+      }),
+    );
+
+    const stats = await Promise.all(
+      queuesToQuery.map(async (queueName) => {
+        const queueRef = this[`${queueName}Queue`];
+        return {
+          [queueName]: {
+            counts: await queueRef.getJobCounts(),
+          },
+        };
+      }),
+    );
+
+    return {
+      queues: queuesToQuery,
+      stats,
+      jobs,
+    };
   }
 }
