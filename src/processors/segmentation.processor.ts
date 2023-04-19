@@ -26,13 +26,7 @@ export class SegmentationProcessor extends WorkerHost {
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
 
-    const inputUrl = jobData.input.includes('s3://')
-      ? await this.s3Service.getObjectUrl({
-          Key: this.s3Service.parseS3Uri(jobData.input).key,
-          Bucket: this.s3Service.parseS3Uri(jobData.input).bucket,
-        })
-      : jobData.input;
-
+    const inputUrl = await this.s3Service.parseInputUrl(jobData.input);
     const remoteInput = this.s3Service.parseS3Uri(jobData.input);
     const remoteOutput = this.s3Service.parseS3Uri(jobData.output);
 

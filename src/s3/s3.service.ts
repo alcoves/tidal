@@ -27,6 +27,21 @@ export class S3Service {
   //   });
   // }
 
+  parseInputUrl(input: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (input.includes('s3://')) {
+        this.getObjectUrl({
+          Key: this.parseS3Uri(input).key,
+          Bucket: this.parseS3Uri(input).bucket,
+        })
+          .then((url) => resolve(url))
+          .catch((error) => reject(error));
+      } else {
+        resolve(input);
+      }
+    });
+  }
+
   parseS3Uri(s3Uri: string): { bucket: string; key: string } {
     const [, , bucket, ...keyParts] = s3Uri.split('/');
     const key = keyParts.join('/');
