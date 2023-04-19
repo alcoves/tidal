@@ -26,24 +26,26 @@ export class SegmentationProcessor extends WorkerHost {
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
 
+    const inputUrl = jobData.input.includes('s3://')
+      ? await this.s3Service.getObjectUrl({
+          Key: this.s3Service.parseS3Uri(jobData.input).key,
+          Bucket: this.s3Service.parseS3Uri(jobData.input).bucket,
+        })
+      : jobData.input;
+
     const remoteInput = this.s3Service.parseS3Uri(jobData.input);
     const remoteOutput = this.s3Service.parseS3Uri(jobData.output);
 
     const assetId = uuid();
     const remoteSegmentsDir = `source_segments/${assetId}`;
     const remoteTranscodedSegmentsDir = `transcoded_segments/${assetId}`;
-    const remoteTranscodedAudioKey = `s3://${remoteInput.bucket}/transcoded_audio/${assetId}/audio.aac`;
-
-    const signedInputUrl = await this.s3Service.getObjectUrl({
-      Key: remoteInput.key,
-      Bucket: remoteInput.bucket,
-    });
+    const remoteTranscodedAudioKey = `s3://${remoteOutput.bucket}/transcoded_audio/${assetId}/audio.aac`;
 
     const { tmpDir } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
           '-i',
-          signedInputUrl,
+          inputUrl,
           ...jobData.segmentation_command.split(' '),
         ];
         console.log('args', args);

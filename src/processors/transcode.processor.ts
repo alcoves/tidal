@@ -16,20 +16,21 @@ export class TranscodeProcessor extends WorkerHost {
 
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as TranscodeJobInputs;
-    const remoteInputs = this.s3Service.parseS3Uri(jobData.input);
     const remoteOutputs = this.s3Service.parseS3Uri(jobData.output);
     const outputFilename = path.basename(remoteOutputs.key);
 
-    const signedUrl = await this.s3Service.getObjectUrl({
-      Key: remoteInputs.key,
-      Bucket: remoteInputs.bucket,
-    });
+    const inputUrl = jobData.input.includes('s3://')
+      ? await this.s3Service.getObjectUrl({
+          Key: this.s3Service.parseS3Uri(jobData.input).key,
+          Bucket: this.s3Service.parseS3Uri(jobData.input).bucket,
+        })
+      : jobData.input;
 
     const { tmpDir, outputPath } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
           '-i',
-          signedUrl,
+          inputUrl,
           ...jobData.command.split(' '),
           outputFilename,
         ];
