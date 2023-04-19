@@ -36,7 +36,6 @@ export class ConcatenationProcessor extends WorkerHost {
     });
     await fs.writeFile(concatFilepath, concatFileContents.join('\n'));
 
-    const concatFilename = 'output.mp4';
     const { tmpDir: concatTmpDir, outputPath: concatOutputPath } =
       await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
@@ -48,9 +47,11 @@ export class ConcatenationProcessor extends WorkerHost {
           '0',
           '-i',
           concatFilepath,
+          '-movflags',
+          'faststart',
           '-c',
           'copy',
-          concatFilename,
+          'concatenated.mp4',
         ];
         console.log('args', args);
         const ffmpegProcess = createFFMpeg(args);
@@ -72,7 +73,6 @@ export class ConcatenationProcessor extends WorkerHost {
       Bucket: this.s3Service.parseS3Uri(jobData.audio).bucket,
     });
 
-    const muxedFilename = 'output.mp4';
     const { tmpDir: remuxTmpDir, outputPath: remuxOutputPath } =
       await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
@@ -84,7 +84,7 @@ export class ConcatenationProcessor extends WorkerHost {
           'faststart',
           '-c',
           'copy',
-          muxedFilename,
+          'muxed.mp4',
         ];
         console.log('args', args);
         const ffmpegProcess = createFFMpeg(args);
