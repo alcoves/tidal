@@ -16,15 +16,17 @@ export class TranscodeProcessor extends WorkerHost {
 
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as TranscodeJobInputs;
-    const inputUrl = await this.s3Service.parseInputUrl(jobData.input);
     const remoteOutputs = this.s3Service.parseS3Uri(jobData.output);
     const outputFilename = path.basename(remoteOutputs.key);
+
+    const { tmpDir: sourceTmpDir, filepath: sourceFilepath } =
+      await this.s3Service.downloadFile(jobData.input);
 
     const { tmpDir, outputPath } = await new Promise(
       (resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
           '-i',
-          inputUrl,
+          sourceFilepath,
           ...jobData.command.split(' '),
           outputFilename,
         ];
@@ -50,6 +52,7 @@ export class TranscodeProcessor extends WorkerHost {
     });
 
     await fs.remove(tmpDir);
+    await fs.remove(sourceTmpDir);
     console.info('done');
   }
 }

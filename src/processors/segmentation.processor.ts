@@ -26,7 +26,9 @@ export class SegmentationProcessor extends WorkerHost {
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
 
-    const inputUrl = await this.s3Service.parseInputUrl(jobData.input);
+    const { tmpDir: sourceTmpDir, filepath: sourceFilepath } =
+      await this.s3Service.downloadFile(jobData.input);
+
     const remoteInput = this.s3Service.parseS3Uri(jobData.input);
     const remoteOutput = this.s3Service.parseS3Uri(jobData.output);
 
@@ -39,7 +41,7 @@ export class SegmentationProcessor extends WorkerHost {
       (resolve: (value: FfmpegResult) => void, reject) => {
         const args = [
           '-i',
-          inputUrl,
+          sourceFilepath,
           ...jobData.segmentation_command.split(' '),
         ];
         console.log('args', args);
@@ -107,6 +109,7 @@ export class SegmentationProcessor extends WorkerHost {
     });
 
     await fs.remove(tmpDir);
+    await fs.remove(sourceTmpDir);
     console.info('done');
   }
 }

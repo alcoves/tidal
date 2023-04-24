@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import axios from 'axios';
 import { Endpoint, S3 } from 'aws-sdk';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +27,38 @@ export class S3Service {
   //     s3ForcePathStyle: true,
   //   });
   // }
+
+  async downloadFile(
+    input: string,
+  ): Promise<{ tmpDir: string; filepath: string }> {
+    const inputUrl = await this.parseInputUrl(input);
+    const fileExt = path.extname(inputUrl);
+    const tmpDir = await fs.mkdtemp(path.join('/tmp', 'tidal-source-'));
+    const filepath = path.join(tmpDir, `source${fileExt}`);
+
+    console.info(`downloading file: ${inputUrl}`);
+    const response = await axios.get(inputUrl, {
+      responseType: 'stream',
+    });
+
+    const writeStream = fs.createWriteStream(filepath);
+
+    await new Promise<void>((resolve, reject) => {
+      response.data
+        .on('error', (err: Error) => {
+          reject(err);
+        })
+        .pipe(writeStream)
+        .on('error', (err: Error) => {
+          reject(err);
+        })
+        .on('close', () => {
+          resolve();
+        });
+    });
+
+    return { tmpDir, filepath };
+  }
 
   parseInputUrl(input: string): Promise<string> {
     return new Promise((resolve, reject) => {
