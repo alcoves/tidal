@@ -19,6 +19,10 @@ export class TranscodeProcessor extends WorkerHost {
     const jobData = job.data as TranscodeJobInputs;
 
     const tidalDir = this.configService.get('TIDAL_DIR');
+    const sourceVideoPath = jobData.input.includes(tidalDir)
+      ? path.normalize(jobData.input) // if the output path is absolute, use it as is
+      : path.normalize(`${tidalDir}/${jobData.input}`); // if the output path is relative, append it to the TIDAL_DIR
+
     const transcodedVideoPath = jobData.output.includes(tidalDir)
       ? path.normalize(jobData.output) // if the output path is absolute, use it as is
       : path.normalize(`${tidalDir}/${jobData.output}`); // if the output path is relative, append it to the TIDAL_DIR
@@ -30,7 +34,7 @@ export class TranscodeProcessor extends WorkerHost {
     await new Promise((resolve, reject) => {
       const args = [
         '-i',
-        jobData.input,
+        sourceVideoPath,
         ...jobData.command.split(' '),
         tmpOutputPath,
       ];

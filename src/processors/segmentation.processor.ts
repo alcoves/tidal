@@ -32,6 +32,7 @@ export class SegmentationProcessor extends WorkerHost {
     const transcodedSegmentsDir = path.normalize(`${tidalDir}/tmp/${uuid()}`);
 
     // setting up paths
+    const sourceInput = path.normalize(`${tidalDir}/${jobData.input}`);
     const transcodedAudioPath = path.normalize(
       `${tidalDir}/tmp/${uuid()}/audio.ogg`,
     );
@@ -41,7 +42,7 @@ export class SegmentationProcessor extends WorkerHost {
     await new Promise((resolve, reject) => {
       const args = [
         '-i',
-        jobData.input,
+        sourceInput,
         '-c',
         'copy',
         '-an',
@@ -82,7 +83,7 @@ export class SegmentationProcessor extends WorkerHost {
       {
         name: 'transcode',
         data: {
-          input: jobData.input,
+          input: sourceInput,
           output: transcodedAudioPath,
           command: '-c:a libopus -b:a 128k -vn',
         } as TranscodeJobInputs,
