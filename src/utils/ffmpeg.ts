@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
+import { getMetadata } from './ffprobe';
 
 export type FfmpegProgress = {
   frame?: number;
@@ -13,11 +14,6 @@ export type FfmpegProgress = {
   size?: number;
 };
 
-export type FfmpegResult = {
-  tmpDir: string;
-  outputPath: string;
-};
-
 export function parseFfmpegTime(timeString: string): number {
   const [hours, minutes, seconds, milliseconds] = timeString
     .split(/[:.]/)
@@ -25,7 +21,10 @@ export function parseFfmpegTime(timeString: string): number {
   return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
 }
 
-export function parseFfmpegProgress(stderr: string): FfmpegProgress | null {
+export function parseFfmpegProgress(
+  stderr: string,
+  duration?: number,
+): FfmpegProgress | null {
   const videoRegex =
     /frame=(\d+)\s+fps=(\d+(\.\d+)?)\s+time=(\d+\:\d+\:\d+\.\d+)\s+bitrate=(\d+(\.\d+)?)\skb\/s\s+speed=(\d+(\.\d+)?)x\s+progress=(\d+(\.\d+)?)\s+/;
   const videoMatch = stderr.match(videoRegex);
@@ -56,7 +55,7 @@ export function parseFfmpegProgress(stderr: string): FfmpegProgress | null {
   return null;
 }
 
-export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
+export function createFFMpeg(args: string[]): ChildProcess & EventEmitter {
   try {
     console.info('running ffmpeg with args', args.join(' '));
 
@@ -96,4 +95,4 @@ export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
     console.error(error);
     console.error('something went wrong');
   }
-};
+}

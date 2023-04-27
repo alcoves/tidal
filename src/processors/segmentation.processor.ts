@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 import { FlowProducer, Job } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
 import { JOB_FLOWS, JOB_QUEUES } from '../types';
-import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
+import { createFFMpeg } from '../utils/ffmpeg';
 import {
   ConcatenationJobInputs,
   SegmentationJobInputs,
@@ -38,7 +38,7 @@ export class SegmentationProcessor extends WorkerHost {
     const transcodedVideoPath = path.normalize(`${tidalDir}/${jobData.output}`);
 
     // Segment the input file into 60 second chunks
-    await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
+    await new Promise((resolve, reject) => {
       const args = [
         '-i',
         jobData.input,

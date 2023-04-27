@@ -4,7 +4,7 @@ import { Job } from 'bullmq';
 import { v4 as uuid } from 'uuid';
 import { JOB_QUEUES } from '../types';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
+import { createFFMpeg } from '../utils/ffmpeg';
 import { ConcatenationJobInputs } from '../jobs/dto/create-job.dto';
 import { ConfigService } from '@nestjs/config';
 
@@ -35,7 +35,7 @@ export class ConcatenationProcessor extends WorkerHost {
       tidalDir,
     );
 
-    await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
+    await new Promise((resolve, reject) => {
       const args = [
         '-f',
         'concat',
