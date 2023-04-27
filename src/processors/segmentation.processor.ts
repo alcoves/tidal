@@ -46,7 +46,7 @@ export class SegmentationProcessor extends WorkerHost {
         'copy',
         '-an',
         '-segment_time',
-        '60',
+        jobData?.segmentation_options?.segment_time || '30',
         '-f',
         'segment',
         `${sourceSegmentsDir}/%07d.mkv`,

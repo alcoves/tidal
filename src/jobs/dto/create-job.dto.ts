@@ -16,10 +16,15 @@ export class TranscodeJobInputs extends BaseJobInputs {
   command: string;
 }
 
+export interface SegmentationOptions {
+  segment_time: string;
+}
+
 export class SegmentationJobInputs extends BaseJobInputs {
   input: string;
   output: string;
   command: string;
+  segmentation_options: SegmentationOptions;
 }
 
 export class ConcatenationJobInputs extends BaseJobInputs {
