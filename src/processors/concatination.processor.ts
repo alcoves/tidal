@@ -1,22 +1,23 @@
 import * as fs from 'fs-extra';
 
 import { Job } from 'bullmq';
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { v4 as uuid } from 'uuid';
 import { JOB_QUEUES } from '../types';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { FfmpegResult, createFFMpeg } from '../utils/ffmpeg';
 import { ConcatenationJobInputs } from '../jobs/dto/create-job.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Processor(JOB_QUEUES.CONCATENATION)
 export class ConcatenationProcessor extends WorkerHost {
-  constructor() {
+  constructor(private configService: ConfigService) {
     super();
   }
 
-  async createConcatFile(
-    paths: string[],
-    jobDirectory: string,
-  ): Promise<string> {
-    const concatFilepath = `${jobDirectory}/concat.txt`;
+  async createConcatFile(paths: string[], tidalDir: string): Promise<string> {
+    const concatDir = `${tidalDir}/tmp/${uuid()}`;
+    await fs.ensureDir(concatDir);
+    const concatFilepath = `${concatDir}/concat.txt`;
     const concatFileContents = paths.map((path) => {
       return `file '${path}'`;
     });
@@ -26,11 +27,12 @@ export class ConcatenationProcessor extends WorkerHost {
 
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as ConcatenationJobInputs;
+    const tidalDir = this.configService.get('TIDAL_DIR');
 
     // Create the concat file
     const concatFilepath = await this.createConcatFile(
       jobData.segments,
-      jobData.jobDirectory,
+      tidalDir,
     );
 
     await new Promise((resolve: (value: FfmpegResult) => void, reject) => {

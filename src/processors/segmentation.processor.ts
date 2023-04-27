@@ -25,36 +25,23 @@ export class SegmentationProcessor extends WorkerHost {
 
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
-
-    // Create the processing directory
     const tidalDir = this.configService.get('TIDAL_DIR');
-    if (!tidalDir) throw new Error('Tidal directory not set');
-    const jobDirectory = `${tidalDir}/chunked_transcodes/${uuid()}`;
-    await fs.ensureDir(jobDirectory);
-
-    // Move the input file to the processing directory
-    const sourceFilepath = `${jobDirectory}/${path.basename(jobData.input)}`;
-    await fs.move(jobData.input, sourceFilepath);
 
     // Setting up directories
-    const transcodedAudioDir = `${jobDirectory}/audio`;
-    const sourceSegmentsDir = `${jobDirectory}/source_segments`;
-    const transcodedSegmentsDir = `${jobDirectory}/transcoded_segments`;
+    const sourceSegmentsDir = path.normalize(`${tidalDir}/tmp/${uuid()}`);
+    const transcodedSegmentsDir = path.normalize(`${tidalDir}/tmp/${uuid()}`);
 
-    // Create directories
-    await fs.ensureDir(transcodedAudioDir);
-    await fs.ensureDir(sourceSegmentsDir);
-    await fs.ensureDir(transcodedSegmentsDir);
-
-    // Audio output
-    const transcodedAudioPath = `${transcodedAudioDir}/audio.ogg`;
-    const transcodedVideoPath = `${jobDirectory}/${jobData.output}`;
+    // setting up paths
+    const transcodedAudioPath = path.normalize(
+      `${tidalDir}/tmp/${uuid()}/audio.ogg`,
+    );
+    const transcodedVideoPath = path.normalize(`${tidalDir}/${jobData.output}`);
 
     // Segment the input file into 60 second chunks
     await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
       const args = [
         '-i',
-        sourceFilepath,
+        jobData.input,
         '-c',
         'copy',
         '-an',
@@ -85,7 +72,7 @@ export class SegmentationProcessor extends WorkerHost {
         data: {
           input: `${sourceSegmentsDir}/${segment}`,
           output: `${transcodedSegmentsDir}/${segment}`,
-          command: jobData.video_command,
+          command: jobData.command,
         } as TranscodeJobInputs,
         queueName: JOB_QUEUES.TRANSCODE,
       };
@@ -95,7 +82,7 @@ export class SegmentationProcessor extends WorkerHost {
       {
         name: 'transcode',
         data: {
-          input: sourceFilepath,
+          input: jobData.input,
           output: transcodedAudioPath,
           command: '-c:a libopus -b:a 128k -vn',
         } as TranscodeJobInputs,
@@ -107,7 +94,6 @@ export class SegmentationProcessor extends WorkerHost {
       name: 'concatenate',
       queueName: JOB_QUEUES.CONCATENATION,
       data: {
-        jobDirectory,
         audio: transcodedAudioPath,
         segments: segmentTranscodeChildJobs.map(({ data }) => {
           return data.output;

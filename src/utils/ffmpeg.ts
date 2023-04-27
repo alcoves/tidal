@@ -1,3 +1,5 @@
+import * as path from 'path';
+import * as fs from 'fs-extra';
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
 
@@ -57,6 +59,11 @@ export function parseFfmpegProgress(stderr: string): FfmpegProgress | null {
 export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
   try {
     console.info('running ffmpeg with args', args.join(' '));
+
+    console.info('creating ffmpeg output directory if needed');
+    const outputPath = args[args.length - 1];
+    fs.ensureDirSync(path.dirname(outputPath));
+
     const ffmpegProcess = spawn('ffmpeg', args);
     const emitter = new EventEmitter();
 

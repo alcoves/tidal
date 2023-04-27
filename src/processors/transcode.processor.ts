@@ -19,10 +19,12 @@ export class TranscodeProcessor extends WorkerHost {
     const jobData = job.data as TranscodeJobInputs;
 
     const tidalDir = this.configService.get('TIDAL_DIR');
-    if (!tidalDir) throw new Error('Tidal directory not set');
-    const jobDirectory = `${tidalDir}/tmp/${uuid()}`;
-    await fs.ensureDir(jobDirectory);
+    const transcodedVideoPath = jobData.output.includes(tidalDir)
+      ? path.normalize(jobData.output) // if the output path is absolute, use it as is
+      : path.normalize(`${tidalDir}/${jobData.output}`); // if the output path is relative, append it to the TIDAL_DIR
 
+    const jobDirectory = path.normalize(`${tidalDir}/tmp/${uuid()}`);
+    await fs.ensureDir(jobDirectory);
     const tmpOutputPath = `${jobDirectory}/${path.basename(jobData.output)}`;
 
     await new Promise((resolve: (value: FfmpegResult) => void, reject) => {
@@ -46,7 +48,7 @@ export class TranscodeProcessor extends WorkerHost {
       });
     });
 
-    await fs.move(tmpOutputPath, jobData.output);
+    await fs.move(tmpOutputPath, transcodedVideoPath);
     await fs.remove(jobDirectory);
     console.info('done');
   }

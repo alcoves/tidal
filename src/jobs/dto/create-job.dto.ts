@@ -1,9 +1,9 @@
-import { JOB_QUEUES } from '../../types';
+import { JOB_QUEUES, JOB_FLOWS } from '../../types';
 
 export enum JOB_TYPES {
   TRANSCODE = JOB_QUEUES.TRANSCODE,
   TRANSCRIBE = JOB_QUEUES.TRANSCRIBE,
-  TRANSCODE_CHUNKED = 'transcode_chunked',
+  CHUNKED_TRANSCODE = JOB_FLOWS.CHUNKED_TRANSCODE,
 }
 
 export class BaseJobInputs {
@@ -19,14 +19,11 @@ export class TranscodeJobInputs extends BaseJobInputs {
 export class SegmentationJobInputs extends BaseJobInputs {
   input: string;
   output: string;
-  video_command: string;
-  audio_command: string;
-  segmentation_command: string;
+  command: string;
 }
 
 export class ConcatenationJobInputs extends BaseJobInputs {
   audio: string;
   output: string;
   segments: string[];
-  jobDirectory: string;
 }

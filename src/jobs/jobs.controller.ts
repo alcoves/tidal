@@ -24,7 +24,7 @@ export class JobsController {
       switch (job.type) {
         case JOB_TYPES.TRANSCODE:
           return this.jobsService.transcode(job as TranscodeJobInputs);
-        case JOB_TYPES.TRANSCODE_CHUNKED:
+        case JOB_TYPES.CHUNKED_TRANSCODE:
           return this.jobsService.segmentation(job as SegmentationJobInputs);
         default:
           return new BadRequestException('Invalid job type');
