@@ -1,4 +1,4 @@
-import { JOB_QUEUES } from '../../config/configuration';
+import { JOB_QUEUES } from '../../types';
 
 export enum JOB_TYPES {
   TRANSCODE = JOB_QUEUES.TRANSCODE,
@@ -28,4 +28,5 @@ export class ConcatenationJobInputs extends BaseJobInputs {
   audio: string;
   output: string;
   segments: string[];
+  jobDirectory: string;
 }

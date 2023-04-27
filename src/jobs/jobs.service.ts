@@ -3,7 +3,7 @@
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { JOB_QUEUES } from '../config/configuration';
+import { JOB_QUEUES } from '../types';
 import {
   TranscodeJobInputs,
   SegmentationJobInputs,
@@ -19,7 +19,7 @@ export class JobsService {
   ) {}
 
   segmentation(jobInput: SegmentationJobInputs) {
-    return this.segmentationQueue.add('segmentation', jobInput);
+    this.segmentationQueue.add('segmentation', jobInput);
   }
 
   transcode(jobInput: TranscodeJobInputs) {

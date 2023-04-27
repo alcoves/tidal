@@ -1,9 +1,8 @@
+import { JOB_QUEUES } from '../types';
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { S3Service } from '../s3/s3.service';
 import { JobsService } from './jobs.service';
 import { JobsController } from './jobs.controller';
-import { JOB_QUEUES } from '../config/configuration';
 import { TranscribeService } from '../transcribe/transcribe.service';
 
 @Module({
@@ -52,6 +51,6 @@ import { TranscribeService } from '../transcribe/transcribe.service';
     ),
   ],
   controllers: [JobsController],
-  providers: [JobsService, TranscribeService, S3Service],
+  providers: [JobsService, TranscribeService],
 })
 export class JobsModule {}

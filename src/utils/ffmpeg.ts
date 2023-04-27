@@ -1,6 +1,3 @@
-import * as os from 'os';
-import * as path from 'path';
-import * as fs from 'fs-extra';
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
 
@@ -59,12 +56,9 @@ export function parseFfmpegProgress(stderr: string): FfmpegProgress | null {
 
 export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
   try {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ffmpeg-'));
-    const outputPath = path.join(tmpDir, args[args.length - 1]);
-    const ffmpegProcess = spawn('ffmpeg', args, { cwd: tmpDir });
-    const emitter = new EventEmitter();
-
     console.info('running ffmpeg with args', args.join(' '));
+    const ffmpegProcess = spawn('ffmpeg', args);
+    const emitter = new EventEmitter();
 
     ffmpegProcess.stderr.on('data', (data: Buffer) => {
       const str = data.toString();
@@ -73,7 +67,7 @@ export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
     });
 
     ffmpegProcess.stderr.on('end', () => {
-      emitter.emit('success', { tmpDir, outputPath });
+      emitter.emit('success');
     });
 
     ffmpegProcess.stderr.on('error', (err: Error) => {
@@ -86,7 +80,7 @@ export const createFFMpeg = (args: string[]): ChildProcess & EventEmitter => {
         console.error(`FFMpeg exited with code ${code}`);
         emitter.emit('error', new Error(`FFMpeg exited with code ${code}`));
       } else {
-        emitter.emit('success', { tmpDir, outputPath });
+        emitter.emit('success');
       }
     });
 

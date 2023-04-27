@@ -1,4 +1,3 @@
-import { S3Service } from '../s3/s3.service';
 import { TranscribeOneDto } from './dto/transcribe-one.dto';
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs-extra';
@@ -6,8 +5,6 @@ import * as shell from 'shelljs';
 
 @Injectable()
 export class TranscribeService {
-  constructor(private readonly s3Service: S3Service) {}
-
   transcribeOneBatch() {
     return 'This action transcribes one batch';
   }
