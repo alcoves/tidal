@@ -3,10 +3,10 @@ FROM ubuntu:22.04
 RUN apt update
 RUN apt install -y curl wget xz-utils unzip
 
-RUN apt install -y gpac
+# RUN apt install -y gpac
 
-RUN apt install -y python3 pip
-RUN pip install -U openai-whisper
+# RUN apt install -y python3 pip
+# RUN pip install -U openai-whisper
 
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt install -y nodejs
