@@ -15,7 +15,6 @@ export class JobsService {
     @InjectQueue(JOB_QUEUES.TRANSCODE) private transcodeQueue: Queue,
     @InjectQueue(JOB_QUEUES.TRANSCRIBE) private transcribeQueue: Queue,
     @InjectQueue(JOB_QUEUES.SEGMENTATION) private segmentationQueue: Queue,
-    @InjectQueue(JOB_QUEUES.CONCATENATION) private concatenationQueue: Queue,
   ) {}
 
   segmentation(jobInput: SegmentationJobInputs) {

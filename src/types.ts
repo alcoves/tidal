@@ -2,7 +2,6 @@ export enum JOB_QUEUES {
   TRANSCODE = 'transcode',
   TRANSCRIBE = 'transcribe',
   SEGMENTATION = 'segmentation',
-  CONCATENATION = 'concatenation',
 }
 
 export enum JOB_FLOWS {

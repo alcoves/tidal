@@ -11,8 +11,6 @@ export class BaseJobInputs {
 }
 
 export class TranscodeJobInputs extends BaseJobInputs {
-  input: string;
-  output: string;
   command: string;
 }
 
@@ -25,10 +23,4 @@ export class SegmentationJobInputs extends BaseJobInputs {
   output: string;
   command: string;
   segmentation_options: SegmentationOptions;
-}
-
-export class ConcatenationJobInputs extends BaseJobInputs {
-  audio: string;
-  output: string;
-  segments: string[];
 }

@@ -7,11 +7,11 @@ import { ConfigService } from '@nestjs/config';
 import { JOB_FLOWS, JOB_QUEUES } from '../types';
 import { createFFMpeg } from '../utils/ffmpeg';
 import {
-  ConcatenationJobInputs,
   SegmentationJobInputs,
   TranscodeJobInputs,
 } from '../jobs/dto/create-job.dto';
 import { InjectFlowProducer, Processor, WorkerHost } from '@nestjs/bullmq';
+import { getMetadata } from '../utils/ffprobe';
 
 @Processor(JOB_QUEUES.SEGMENTATION)
 export class SegmentationProcessor extends WorkerHost {
@@ -23,32 +23,53 @@ export class SegmentationProcessor extends WorkerHost {
     super();
   }
 
+  async createConcatFile(
+    concatFilepath: string,
+    segments: string[],
+  ): Promise<string> {
+    const concatFileContents = segments.map((path) => {
+      return `file '${path}'`;
+    });
+    await fs.writeFile(concatFilepath, concatFileContents.join('\n'));
+    return concatFilepath;
+  }
+
   async process(job: Job<unknown>): Promise<any> {
     const jobData = job.data as SegmentationJobInputs;
     const tidalDir = this.configService.get('TIDAL_DIR');
 
-    // Setting up directories
+    // setting up directories
     const assetId = uuid();
-    const transcodingDir = path.normalize(`${tidalDir}/tmp/${assetId}`);
+    const transcodingDir = path.normalize(`${tidalDir}/transcoding/${assetId}`);
+
+    // segment dirs
     const sourceSegmentsDir = path.normalize(
       `${transcodingDir}/segments/source`,
     );
-    await fs.ensureDir(sourceSegmentsDir);
     const transcodedSegmentsDir = path.normalize(
       `${transcodingDir}/segments/transcoded`,
     );
+
+    // make sure the directories exist
+    await fs.ensureDir(sourceSegmentsDir);
     await fs.ensureDir(transcodedSegmentsDir);
 
-    // setting up paths
-    const sourceInput = path.normalize(`${tidalDir}/${jobData.input}`);
+    // getting source metadata
     const transcodedAudioPath = path.normalize(`${transcodingDir}/audio.ogg`);
-    const transcodedVideoPath = path.normalize(`${tidalDir}/${jobData.output}`);
+    const metadata = await getMetadata(jobData.input);
+    const hasVideo = metadata?.streams?.some(
+      (stream) => stream.codec_type === 'video',
+    );
+    const hasAudio = metadata?.streams?.some(
+      (stream) => stream.codec_type === 'audio',
+    );
+    if (!hasVideo) throw new Error('Input file has no video stream');
 
     // Segment the input file into 60 second chunks
     await new Promise((resolve, reject) => {
       const args = [
         '-i',
-        sourceInput,
+        jobData.input,
         '-c',
         'copy',
         '-an',
@@ -72,41 +93,77 @@ export class SegmentationProcessor extends WorkerHost {
       });
     });
 
+    const transcodedSegments = [];
     const sourceSegments = await fs.readdir(sourceSegmentsDir);
     const segmentTranscodeChildJobs = sourceSegments.map((segment) => {
+      transcodedSegments.push(`${transcodedSegmentsDir}/${segment}`);
+
       return {
         name: 'transcode',
         data: {
-          input: `${sourceSegmentsDir}/${segment}`,
-          output: `${transcodedSegmentsDir}/${segment}`,
-          command: jobData.command,
+          command: [
+            '-hide_banner',
+            '-i',
+            `${sourceSegmentsDir}/${segment}`,
+            jobData.command,
+            `${transcodedSegmentsDir}/${segment}`,
+          ].join(' '),
         } as TranscodeJobInputs,
         queueName: JOB_QUEUES.TRANSCODE,
       };
     });
 
-    const audioTranscodeChildJobs = [
-      {
-        name: 'transcode',
-        data: {
-          input: sourceInput,
-          output: transcodedAudioPath,
-          command: '-c:a libopus -b:a 128k -vn',
-        } as TranscodeJobInputs,
-        queueName: JOB_QUEUES.TRANSCODE,
-      },
-    ];
+    const audioTranscodeChildJobs = hasAudio
+      ? [
+          {
+            name: 'transcode',
+            opts: {
+              priority: 1,
+            },
+            data: {
+              command: [
+                '-hide_banner',
+                '-i',
+                jobData.input,
+                '-c:a libopus -b:a 128k -vn',
+                transcodedAudioPath,
+              ].join(' '),
+            } as TranscodeJobInputs,
+            queueName: JOB_QUEUES.TRANSCODE,
+          },
+        ]
+      : [];
 
+    const concatFilepath = path.normalize(`${transcodingDir}/concat.txt`);
+    await this.createConcatFile(concatFilepath, transcodedSegments);
+
+    const concatAudio = hasAudio ? ['-i', transcodedAudioPath] : [];
     await this.transcodeFlow.add({
-      name: 'concatenate',
-      queueName: JOB_QUEUES.CONCATENATION,
+      name: 'transcode',
+      queueName: JOB_QUEUES.TRANSCODE,
+      opts: {
+        priority: 1,
+      },
       data: {
-        audio: transcodedAudioPath,
-        segments: segmentTranscodeChildJobs.map(({ data }) => {
-          return data.output;
-        }),
-        output: transcodedVideoPath,
-      } as ConcatenationJobInputs,
+        command: [
+          '-hide_banner',
+          '-f',
+          'concat',
+          '-protocol_whitelist',
+          'file,http,https,tcp,tls',
+          '-safe',
+          '0',
+          '-y',
+          '-i',
+          concatFilepath,
+          ...concatAudio,
+          '-movflags',
+          'faststart',
+          '-c',
+          'copy',
+          jobData.output,
+        ].join(' '),
+      } as TranscodeJobInputs,
       children: [...audioTranscodeChildJobs, ...segmentTranscodeChildJobs],
     });
 

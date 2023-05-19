@@ -29,16 +29,6 @@ import { TranscribeService } from '../transcribe/transcribe.service';
         },
       },
       {
-        name: JOB_QUEUES.CONCATENATION,
-        defaultJobOptions: {
-          attempts: 10,
-          backoff: {
-            type: 'exponential',
-            delay: 1000 * 10,
-          },
-        },
-      },
-      {
         name: JOB_QUEUES.TRANSCRIBE,
         defaultJobOptions: {
           attempts: 10,

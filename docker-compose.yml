@@ -9,6 +9,7 @@ services:
       - "5000:5000"
     volumes:
       - ./src:/usr/local/app/src
+      - /mnt/shack/media/gaming/tidal_dev:/tidal
   redis:
     image: redis:alpine
     ports:
