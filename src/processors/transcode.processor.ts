@@ -17,7 +17,7 @@ export class TranscodeProcessor extends WorkerHost {
       const ffmpegProcess = createFFMpeg(jobData.command.split(' '));
       ffmpegProcess.on('progress', async (progress: FfmpegProgress) => {
         console.log(`Progress`, { progress });
-        if (job.progress) await job.updateProgress(progress.progress);
+        if (progress?.progress) await job.updateProgress(progress.progress);
       });
       ffmpegProcess.on('success', (res) => {
         console.log('Conversion successful');
