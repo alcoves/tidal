@@ -28,14 +28,20 @@ export class SegmentationProcessor extends WorkerHost {
     const tidalDir = this.configService.get('TIDAL_DIR');
 
     // Setting up directories
-    const sourceSegmentsDir = path.normalize(`${tidalDir}/tmp/${uuid()}`);
-    const transcodedSegmentsDir = path.normalize(`${tidalDir}/tmp/${uuid()}`);
+    const assetId = uuid();
+    const transcodingDir = path.normalize(`${tidalDir}/tmp/${assetId}`);
+    const sourceSegmentsDir = path.normalize(
+      `${transcodingDir}/segments/source`,
+    );
+    await fs.ensureDir(sourceSegmentsDir);
+    const transcodedSegmentsDir = path.normalize(
+      `${transcodingDir}/segments/transcoded`,
+    );
+    await fs.ensureDir(transcodedSegmentsDir);
 
     // setting up paths
     const sourceInput = path.normalize(`${tidalDir}/${jobData.input}`);
-    const transcodedAudioPath = path.normalize(
-      `${tidalDir}/tmp/${uuid()}/audio.ogg`,
-    );
+    const transcodedAudioPath = path.normalize(`${transcodingDir}/audio.ogg`);
     const transcodedVideoPath = path.normalize(`${tidalDir}/${jobData.output}`);
 
     // Segment the input file into 60 second chunks

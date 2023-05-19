@@ -17,8 +17,12 @@ async function bootstrap() {
 
   // Initialize the Tidal directories
   const tidalDir = configService.get('TIDAL_DIR');
+  console.log('tidalDir', tidalDir);
   await fs.ensureDir(`${tidalDir}`);
   await fs.ensureDir(`${tidalDir}/tmp`);
+  await fs.ensureDir(`${tidalDir}/inputs`);
+  await fs.ensureDir(`${tidalDir}/outputs`);
+  await fs.ensureDir(`${tidalDir}/transcoding`);
 
   await app.listen(configService.get('PORT') || 5000, '0.0.0.0');
 }

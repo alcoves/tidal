@@ -52,6 +52,7 @@ export class TranscodeProcessor extends WorkerHost {
       });
     });
 
+    await fs.ensureDir(path.dirname(transcodedVideoPath));
     await fs.move(tmpOutputPath, transcodedVideoPath);
     await fs.remove(jobDirectory);
     console.info('done');

@@ -9,5 +9,7 @@ services:
       - "5000:5000"
     volumes:
       - ./src:/usr/local/app/src
-    restart: unless-stopped
-    network_mode: host
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
