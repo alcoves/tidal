@@ -13,6 +13,11 @@ async function bootstrap() {
     new FastifyAdapter({ logger: true }),
   );
 
+  app.enableCors({
+    origin: '*',
+    credentials: false,
+  });
+
   const configService = app.get<ConfigService>(ConfigService);
 
   // Initialize the Tidal directories
