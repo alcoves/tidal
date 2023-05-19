@@ -18,7 +18,7 @@ export class JobsService {
   ) {}
 
   segmentation(jobInput: SegmentationJobInputs) {
-    this.segmentationQueue.add('segmentation', jobInput);
+    this.segmentationQueue.add(`segment ${jobInput.input}`, jobInput);
   }
 
   transcode(jobInput: TranscodeJobInputs) {

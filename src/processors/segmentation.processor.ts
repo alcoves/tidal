@@ -99,7 +99,7 @@ export class SegmentationProcessor extends WorkerHost {
       transcodedSegments.push(`${transcodedSegmentsDir}/${segment}`);
 
       return {
-        name: 'transcode',
+        name: `segment ${segment} for ${path.basename(jobData.input)}`,
         data: {
           command: [
             '-hide_banner',
@@ -116,7 +116,7 @@ export class SegmentationProcessor extends WorkerHost {
     const audioTranscodeChildJobs = hasAudio
       ? [
           {
-            name: 'transcode',
+            name: `audio for ${path.basename(jobData.input)}`,
             opts: {
               priority: 1,
             },
@@ -139,7 +139,7 @@ export class SegmentationProcessor extends WorkerHost {
 
     const concatAudio = hasAudio ? ['-i', transcodedAudioPath] : [];
     await this.transcodeFlow.add({
-      name: 'transcode',
+      name: `concatenation for ${path.basename(jobData.input)}`,
       queueName: JOB_QUEUES.TRANSCODE,
       opts: {
         priority: 1,
