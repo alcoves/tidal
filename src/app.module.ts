@@ -19,8 +19,10 @@ import { ProcessorsModule } from './processors/processors.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         connection: {
+          db: configService.get('REDIS_DB'),
           port: configService.get('REDIS_PORT'),
           host: configService.get('REDIS_HOST'),
+          password: configService.get('REDIS_PASSWORD'),
         },
       }),
       inject: [ConfigService],
