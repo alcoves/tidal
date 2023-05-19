@@ -2,7 +2,6 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
-import { getMetadata } from './ffprobe';
 
 export type FfmpegProgress = {
   frame?: number;
@@ -12,6 +11,7 @@ export type FfmpegProgress = {
   speed?: number;
   progress?: number;
   size?: number;
+  duration?: number;
 };
 
 export function parseFfmpegTime(timeString: string): number {
@@ -33,23 +33,39 @@ export function parseFfmpegProgress(
     /size=\s*(\d+)\wB\s+time=(\d{2}:\d{2}:\d{2}\.\d{2})\s+bitrate=\s*(\d+(?:\.\d+)?)\wbits\/s\s+speed=\s*(\d+(?:\.\d+)?)x/;
   const audioMatch = stderr.match(audioRegex);
 
+  const durationPatternMatch = /Duration:\s+(\d{2}):(\d{2}):(\d{2})\.(\d+)/;
+  const durationMatch = stderr.match(durationPatternMatch);
+
   console.log(stderr);
 
   if (videoMatch) {
+    const videoTime = parseFfmpegTime(videoMatch[4]);
+    const progress = (videoTime / duration) * 100 || 0;
+
     return {
+      duration,
       frame: parseInt(videoMatch[1], 10),
       fps: parseFloat(videoMatch[2]),
-      time: parseFfmpegTime(videoMatch[4]),
+      time: videoTime,
       bitrate: parseFloat(videoMatch[5]),
       speed: parseFloat(videoMatch[8]),
-      progress: parseFloat(videoMatch[10]),
+      progress: isFinite(progress) ? progress : 0,
     };
   } else if (audioMatch) {
+    const audioTime = parseFfmpegTime(audioMatch[2]);
+    const progress = (audioTime / duration) * 100 || 0;
+
     return {
+      duration,
       size: parseInt(audioMatch[1]),
-      time: parseFfmpegTime(audioMatch[2]),
+      time: audioTime,
       bitrate: parseFloat(audioMatch[3]),
       speed: parseFloat(audioMatch[4]),
+      progress: isFinite(progress) ? progress : 0,
+    };
+  } else if (durationMatch) {
+    return {
+      duration: parseFfmpegTime(durationMatch[0].split('Duration: ')[1].trim()),
     };
   }
   return null;
@@ -57,6 +73,8 @@ export function parseFfmpegProgress(
 
 export function createFFMpeg(args: string[]): ChildProcess & EventEmitter {
   try {
+    let duration = 0;
+
     console.info('running ffmpeg with args', args.join(' '));
 
     console.info('creating ffmpeg output directory if needed');
@@ -68,7 +86,8 @@ export function createFFMpeg(args: string[]): ChildProcess & EventEmitter {
 
     ffmpegProcess.stderr.on('data', (data: Buffer) => {
       const str = data.toString();
-      const progress = parseFfmpegProgress(str);
+      const progress = parseFfmpegProgress(str, duration);
+      if (progress?.duration) duration = progress.duration;
       if (progress) emitter.emit('progress', progress);
     });
 

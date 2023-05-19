@@ -1,6 +1,6 @@
 import { Job } from 'bullmq';
 import { JOB_QUEUES } from '../types';
-import { createFFMpeg } from '../utils/ffmpeg';
+import { FfmpegProgress, createFFMpeg } from '../utils/ffmpeg';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { TranscodeJobInputs } from '../jobs/dto/create-job.dto';
 
@@ -15,16 +15,17 @@ export class TranscodeProcessor extends WorkerHost {
 
     await new Promise((resolve, reject) => {
       const ffmpegProcess = createFFMpeg(jobData.command.split(' '));
-      ffmpegProcess.on('progress', (progress: number) => {
+      ffmpegProcess.on('progress', async (progress: FfmpegProgress) => {
         console.log(`Progress`, { progress });
+        if (job.progress) await job.updateProgress(progress.progress);
       });
       ffmpegProcess.on('success', (res) => {
         console.log('Conversion successful');
         resolve(res);
       });
-      ffmpegProcess.on('error', (error: Error) => {
-        console.error(`Conversion failed: ${error.message}`);
-        reject('Conversion failed');
+      ffmpegProcess.on('error', async (error: Error) => {
+        console.error(`Transcode failed: ${error.message}`);
+        reject('Transcode failed');
       });
     });
 
