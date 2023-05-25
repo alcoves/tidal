@@ -103,6 +103,7 @@ export class SegmentationProcessor extends WorkerHost {
         data: {
           command: [
             '-hide_banner',
+            '-y',
             '-i',
             `${sourceSegmentsDir}/${segment}`,
             jobData.command,
@@ -123,6 +124,7 @@ export class SegmentationProcessor extends WorkerHost {
             data: {
               command: [
                 '-hide_banner',
+                '-y',
                 '-i',
                 jobData.input,
                 '-c:a libopus -b:a 128k -vn',

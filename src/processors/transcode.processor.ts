@@ -11,25 +11,30 @@ export class TranscodeProcessor extends WorkerHost {
   }
 
   async process(job: Job<unknown>): Promise<any> {
-    const jobData = job.data as TranscodeJobInputs;
+    try {
+      const jobData = job.data as TranscodeJobInputs;
 
-    await new Promise((resolve, reject) => {
-      const ffmpegProcess = createFFMpeg(jobData.command.split(' '));
-      ffmpegProcess.on('progress', async (progress: FfmpegProgress) => {
-        console.log(`Progress`, { progress });
-        if (progress?.progress) await job.updateProgress(progress.progress);
+      await new Promise((resolve, reject) => {
+        const ffmpegProcess = createFFMpeg(jobData.command.split(' '));
+        ffmpegProcess.on('progress', async (progress: FfmpegProgress) => {
+          console.log(`Progress`, { progress });
+          if (progress?.progress) await job.updateProgress(progress.progress);
+        });
+        ffmpegProcess.on('success', (res) => {
+          console.log('Conversion successful');
+          resolve(res);
+        });
+        ffmpegProcess.on('error', async (error: Error) => {
+          console.error(`Transcode failed: ${error.message}`);
+          reject('Transcode failed');
+        });
       });
-      ffmpegProcess.on('success', (res) => {
-        console.log('Conversion successful');
-        resolve(res);
-      });
-      ffmpegProcess.on('error', async (error: Error) => {
-        console.error(`Transcode failed: ${error.message}`);
-        reject('Transcode failed');
-      });
-    });
 
-    await job.updateProgress(100);
-    console.info('done');
+      await job.updateProgress(100);
+      console.info('done');
+    } catch (error) {
+      console.error(error);
+      throw new Error('Transcode failed');
+    }
   }
 }
