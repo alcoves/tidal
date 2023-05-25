@@ -25,6 +25,30 @@ export class JobsService {
     return this.transcodeQueue.add('transcode', jobInput);
   }
 
+  // async retryJob(jobId: string) {
+  //   // await this.segmentationQueue.clean(0, 1000 * 10);
+  //   // await this.segmentationQueue.obliterate({ force: true });
+  //   // const job = await this.transcodeQueue.getJob(jobId);
+  //   // job.moveToFailed(new Error('test'), job.token);
+  //   // await job.retry();
+  // }
+
+  // async getJob(jobId: string) {
+  //   const job = await this.transcodeQueue.getJob(jobId);
+  //   return {
+  //     job,
+  //     status: await job.getState(),
+  //     children: await job.getDependencies(),
+  //     dependency_count: await job.getDependenciesCount(),
+  //   };
+  // }
+
+  async cleanQueues() {
+    await this.transcodeQueue.clean(0, 1000 * 10);
+    await this.transcribeQueue.clean(0, 1000 * 10);
+    await this.segmentationQueue.clean(0, 1000 * 10);
+  }
+
   async listJobs() {
     const queuesToQuery = Object.values(JOB_QUEUES);
 

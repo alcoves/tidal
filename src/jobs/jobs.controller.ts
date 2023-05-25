@@ -11,6 +11,7 @@ import {
   Body,
   Controller,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 
 @Controller('jobs')
@@ -32,8 +33,23 @@ export class JobsController {
     });
   }
 
+  @Post('/clean')
+  cleanQueues() {
+    return this.jobsService.cleanQueues();
+  }
+
   @Get()
   listJobs() {
     return this.jobsService.listJobs();
   }
+
+  // @Post(':id/retry')
+  // retryJob(@Param('id') id: string) {
+  //   return this.jobsService.retryJob(id);
+  // }
+
+  // @Get(':id')
+  // getJob(@Param('id') id: string) {
+  //   return this.jobsService.getJob(id);
+  // }
 }
